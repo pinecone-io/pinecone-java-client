@@ -1,0 +1,88 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
+    id 'java-library'
+    id 'com.google.protobuf' version '0.8.14' // .15?
+    id 'maven-publish'
+    id 'idea'
+}
+
+group = 'io.pinecone'
+version = '0.1.1'
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+def grpcVersion = '1.35.0'
+
+dependencies {
+    api "io.grpc:grpc-protobuf:${grpcVersion}"
+    api "io.grpc:grpc-stub:${grpcVersion}"
+    api "io.grpc:grpc-netty:${grpcVersion}"
+    runtime "io.netty:netty-tcnative-boringssl-static:2.0.35.Final"
+    implementation "org.slf4j:slf4j-api:1.7.30"
+    compileOnly "org.apache.tomcat:annotations-api:6.0.53" // necessary for Java 9+
+
+    testImplementation "io.grpc:grpc-testing:${grpcVersion}"
+    testImplementation "junit:junit:4.13"
+    testImplementation "org.hamcrest:hamcrest:2.2"
+    testImplementation "org.mockito:mockito-core:3.4.0"
+    testImplementation "org.slf4j:slf4j-simple:1.7.30"
+    testImplementation "com.fasterxml.jackson.core:jackson-databind:2.12.2"
+}
+
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
+tasks.named('jar') {
+    manifest {
+        attributes('Implementation-Title': project.name,
+                'Implementation-Version': project.version)
+    }
+}
+
+tasks.named('build') {
+    dependsOn('shadowJar')
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.12.0"
+    }
+    plugins {
+        grpc {
+            artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}"
+        }
+    }
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {}
+        }
+    }
+}
+
+// Inform IDEs like IntelliJ IDEA, Eclipse or NetBeans about the generated code.
+sourceSets {
+    main {
+        java {
+            srcDirs 'build/generated/source/proto/main/grpc'
+            srcDirs 'build/generated/source/proto/main/java'
+        }
+//        proto {
+//            srcDir '../../protos' // note: .proto files outside the java_client source tree
+//        }
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            version '0.1.1'
+            from components.java
+        }
+    }
+}
