@@ -83,14 +83,6 @@ publishing {
         pineconeClientMaven(MavenPublication) {
             artifactId = 'pinecone-client'
             from components.java
-            versionMapping {
-                usage('java-api') {
-                    fromResolutionOf('runtimeClasspath')
-                }
-                usage('java-runtime') {
-                    fromResolutionResult()
-                }
-            }
             pom {
                 name = 'pinecone-client'
                 description = 'The Pinecone.io Java Client'
