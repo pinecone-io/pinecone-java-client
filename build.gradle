@@ -1,13 +1,16 @@
 plugins {
     id 'com.github.johnrengelman.shadow' version '6.1.0'
     id 'java-library'
-    id 'com.google.protobuf' version '0.8.14' // .15?
+    id 'com.google.protobuf' version '0.8.14'
     id 'maven-publish'
+    id 'signing'
     id 'idea'
 }
 
 group = 'io.pinecone'
 version = '0.1.1'
+description = 'The Pinecone.io Java Client'
+
 sourceCompatibility = 1.8
 
 repositories {
@@ -72,17 +75,56 @@ sourceSets {
             srcDirs 'build/generated/source/proto/main/grpc'
             srcDirs 'build/generated/source/proto/main/java'
         }
-//        proto {
-//            srcDir '../../protos' // note: .proto files outside the java_client source tree
-//        }
     }
 }
 
 publishing {
     publications {
-        maven(MavenPublication) {
-            version '0.1.1'
+        pineconeClientMaven(MavenPublication) {
+            artifactId = 'pinecone-client'
             from components.java
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+            pom {
+                name = 'pinecone-client'
+                description = 'The Pinecone.io Java Client'
+                url = 'https://github.com/pinecone-io/pinecone-java-client'
+                licenses {
+                    // TODO
+                }
+                developers {
+                    developer {
+                        id = 'pinecone-ops'
+                        name = 'Pinecone.io Ops'
+                        email = 'ops@pinecone.io'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/pinecone-io/pinecone-java-client.git'
+                    developerConnection = 'scm:git:ssh://github.com/pinecone-io/pinecone-java-client.git'
+                    url = 'http://github.com/pinecone-io/pinecone-java-client'
+                }
+            }
         }
     }
+    repositories {
+        mavenCentral {
+            credentials {
+                username project.findProperty('pineconeMavenCentralUsername')
+                password project.findProperty('pineconeMavenCentralPassword')
+            }
+//            url = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+            url = 'https://fake.mavenrepo.org/service/local/staging/deploy/maven2/'
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.pineconeClientMaven
 }
