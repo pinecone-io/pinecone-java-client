@@ -46,6 +46,7 @@ tasks.named('jar') {
         attributes('Implementation-Title': project.name,
                 'Implementation-Version': project.version)
     }
+    from "LICENSE.txt"
 }
 
 tasks.named('build') {
@@ -88,7 +89,10 @@ publishing {
                 description = 'The Pinecone.io Java Client'
                 url = 'https://github.com/pinecone-io/pinecone-java-client'
                 licenses {
-                    // TODO
+                    license {
+                        name = 'Proprietary License'
+//                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
                 }
                 developers {
                     developer {
