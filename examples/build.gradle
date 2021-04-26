@@ -1,5 +1,5 @@
-// Note: this build script is internal only, for compilation checking and IDE integration.
-// End users will use the example-specific build setups
+// Note: this build script is for development only, for compilation checking and IDE integration.
+// End users should use the example-specific build setups
 plugins {
     id 'java'
     id 'groovy'
