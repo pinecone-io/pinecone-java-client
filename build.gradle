@@ -8,7 +8,7 @@ plugins {
 }
 
 group = 'io.pinecone'
-version = '0.1.1'
+version = '0.1.2'
 description = 'The Pinecone.io Java Client'
 
 sourceCompatibility = 1.8
