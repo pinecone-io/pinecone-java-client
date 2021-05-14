@@ -8,7 +8,7 @@ The Pinecone Java client lets JVM applications interact with Pinecone services.
 
 ## Installation
 
-*pinecone-client* is not yet available in public repositories, but you can find the latest release [here](https://github.com/pinecone-io/pinecone-java-client/releases). Download and unzip *pinecone-java-client-dist-${version}.zip*, then read on for to integrate *pinecone-client* into your application.
+*pinecone-client* is not yet available in public package repositories, but you can find the latest release [here](https://github.com/pinecone-io/pinecone-java-client/releases). Download and unzip *pinecone-java-client-dist-${version}.zip*, then read on for how to integrate *pinecone-client* into your application.
 
 ### Dependency Managers
 *pinecone-client* can be installed to your local maven repository for use as a maven dependency with the [maven-install-plugin](https://maven.apache.org/guides/mini/guide-3rd-party-jars-local.html):
