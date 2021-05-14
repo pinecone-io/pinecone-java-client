@@ -44,8 +44,6 @@ implementation "io.pinecone:pinecone-client:0.1.2"
 ### Uberjar
 *pinecone-client-${version}-all.jar* bundles the pinecone client and all dependencies together inside a single jar. You can include this on your classpath like any 3rd party JAR without having to obtain the *pinecone-client* dependencies separately. 
 
-However, note that this may cause issues if your application already relies on other versions of these dependencies.
-
 ## Features
 
 The Java client doesn't support managing Pinecone services, only reading and writing from an existing service. To create or delete a service, use the Python client.
