@@ -81,14 +81,16 @@ sourceSets {
 publishing {
     publications {
         pineconeClientMaven(MavenPublication) {
-            artifactId = 'pinecone-client'
             from components.java
             pom {
+                artifactId = 'pinecone-client'
                 name = 'pinecone-client'
                 description = 'The Pinecone.io Java Client'
                 url = 'https://github.com/pinecone-io/pinecone-java-client'
                 licenses {
-                    // TODO
+                    license {
+                        name = 'Proprietary License'
+                    }
                 }
                 developers {
                     developer {
