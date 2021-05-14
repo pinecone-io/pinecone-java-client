@@ -32,10 +32,14 @@ Maven:
 </dependency>
 ```
 
+[comment]: <> (^ [pc:LATEST_RELEASE_VERSION])
+
 Gradle:
 ```
 implementation "io.pinecone:pinecone-client:0.1.2"
 ```
+
+[comment]: <> ([pc:LATEST_RELEASE_VERSION])
 
 ### Uberjar
 *pinecone-client-${version}-all.jar* bundles the pinecone client and all dependencies together inside a single jar. You can include this on your classpath like any 3rd party JAR without having to obtain the *pinecone-client* dependencies separately. 
