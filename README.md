@@ -19,18 +19,18 @@ Maven:
 </dependency>
 ```
 
-[comment]: <> (^ [pc:LATEST_RELEASE_VERSION])
+[comment]: <> (^ [pc:VERSION_LATEST_RELEASE])
 
 Gradle:
 ```
 implementation "io.pinecone:pinecone-client:0.1.3"
 ```
 
-[comment]: <> (^ [pc:LATEST_RELEASE_VERSION])
+[comment]: <> (^ [pc:VERSION_LATEST_RELEASE])
 
 Alternatively, you can use our standalone uberjar [pinecone-client-0.1.3-all.jar](https://repo1.maven.org/maven2/io/pinecone/pinecone-client/0.1.3/pinecone-client-0.1.3-all.jar), which bundles the pinecone client and all dependencies together inside a single jar. You can include this on your classpath like any 3rd party JAR without having to obtain the *pinecone-client* dependencies separately.
 
-[comment]: <> (^ [pc:LATEST_RELEASE_VERSION])
+[comment]: <> (^ [pc:VERSION_LATEST_RELEASE])
 
 ## Features
 
