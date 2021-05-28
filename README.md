@@ -8,27 +8,14 @@ The Pinecone Java client lets JVM applications interact with Pinecone services.
 
 ## Installation
 
-*pinecone-client* is not yet available in public package repositories, but you can find the latest release [here](https://github.com/pinecone-io/pinecone-java-client/releases). Download and unzip *pinecone-java-client-dist-${version}.zip*, then read on for how to integrate *pinecone-client* into your application.
-
-### Dependency Managers
-*pinecone-client* can be installed to your local maven repository for use as a maven dependency with the [maven-install-plugin](https://maven.apache.org/guides/mini/guide-3rd-party-jars-local.html):
-
-```
-mvn install:install-file \
- -Dfile=pinecone-client-${version}.jar \
- -Dsources=pinecone-client-${version}-sources.jar \
- -Djavadoc=pinecone-client-${version}-javadoc.jar \
- -DpomFile=pom-default.xml
-```
-
-Then you can add it as a dependency in the following ways:
+*pinecone-client* can be installed from Maven Central for use as a maven dependency in the following ways:
 
 Maven:
 ```
 <dependency>
   <groupId>io.pinecone</groupId>
   <artifactId>pinecone-client</artifactId>
-  <version>0.1.2</version>
+  <version>0.1.3</version>
 </dependency>
 ```
 
@@ -36,13 +23,14 @@ Maven:
 
 Gradle:
 ```
-implementation "io.pinecone:pinecone-client:0.1.2"
+implementation "io.pinecone:pinecone-client:0.1.3"
 ```
 
-[comment]: <> ([pc:LATEST_RELEASE_VERSION])
+[comment]: <> (^ [pc:LATEST_RELEASE_VERSION])
 
-### Uberjar
-*pinecone-client-${version}-all.jar* bundles the pinecone client and all dependencies together inside a single jar. You can include this on your classpath like any 3rd party JAR without having to obtain the *pinecone-client* dependencies separately. 
+Alternatively, you can use our standalone uberjar [pinecone-client-0.1.3-all.jar](https://repo1.maven.org/maven2/io/pinecone/pinecone-client/0.1.3/pinecone-client-0.1.3-all.jar), which bundles the pinecone client and all dependencies together inside a single jar. You can include this on your classpath like any 3rd party JAR without having to obtain the *pinecone-client* dependencies separately.
+
+[comment]: <> (^ [pc:LATEST_RELEASE_VERSION])
 
 ## Features
 
