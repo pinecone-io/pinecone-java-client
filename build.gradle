@@ -5,6 +5,7 @@ plugins {
     id 'maven-publish'
     id 'signing'
     id 'idea'
+    id "io.github.gradle-nexus.publish-plugin" version '1.1.0'
 }
 
 group = 'io.pinecone'
@@ -118,18 +119,21 @@ publishing {
             }
         }
     }
+}
+
+nexusPublishing {
     repositories {
-        mavenCentral {
-            credentials {
-                username project.findProperty('pineconeMavenCentralUsername')
-                password project.findProperty('pineconeMavenCentralPassword')
-            }
-//            url = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
-            url = 'https://fake.mavenrepo.org/service/local/staging/deploy/maven2/'
+        sonatype {
+            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
         }
     }
 }
 
 signing {
+    def signingKeyId = findProperty("signingKeyId")
+    def signingKey = findProperty("signingKey")
+    def signingPassword = findProperty("signingPassword")
+    useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
     sign publishing.publications.pineconeClientMaven
 }
