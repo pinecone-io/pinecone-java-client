@@ -1,7 +1,7 @@
 plugins {
     id 'com.github.johnrengelman.shadow' version '6.1.0'
     id 'java-library'
-    id 'com.google.protobuf' version '0.8.14'
+    id 'com.google.protobuf' version '0.8.18'
     id 'maven-publish'
     id 'signing'
     id 'idea'
@@ -9,32 +9,32 @@ plugins {
 }
 
 group = 'io.pinecone'
-version = '0.1.4' // [pc:VERSION_NEXT]
+version = '0.2.0' // [pc:VERSION_NEXT]
 description = 'The Pinecone.io Java Client'
 
-sourceCompatibility = 1.8
+sourceCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
     mavenCentral()
     jcenter()
 }
 
-def grpcVersion = '1.35.0'
+def grpcVersion = '1.44.1'
 
 dependencies {
     api "io.grpc:grpc-protobuf:${grpcVersion}"
     api "io.grpc:grpc-stub:${grpcVersion}"
     api "io.grpc:grpc-netty:${grpcVersion}"
-    runtime "io.netty:netty-tcnative-boringssl-static:2.0.35.Final"
-    implementation "org.slf4j:slf4j-api:1.7.30"
+    runtime 'io.netty:netty-tcnative-boringssl-static:2.0.48.Final'
+    implementation 'org.slf4j:slf4j-api:1.7.36'
     compileOnly "org.apache.tomcat:annotations-api:6.0.53" // necessary for Java 9+
 
     testImplementation "io.grpc:grpc-testing:${grpcVersion}"
-    testImplementation "junit:junit:4.13"
+    testImplementation 'junit:junit:4.13.2'
     testImplementation "org.hamcrest:hamcrest:2.2"
-    testImplementation "org.mockito:mockito-core:3.4.0"
-    testImplementation "org.slf4j:slf4j-simple:1.7.30"
-    testImplementation "com.fasterxml.jackson.core:jackson-databind:2.12.2"
+    testImplementation 'org.mockito:mockito-core:4.3.1'
+    testImplementation 'org.slf4j:slf4j-simple:1.7.36'
+    testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.13.1'
 }
 
 java {
@@ -66,7 +66,7 @@ tasks.shadowJar.dependsOn tasks.relocateShadowJar
 
 protobuf {
     protoc {
-        artifact = "com.google.protobuf:protoc:3.12.0"
+        artifact = "com.google.protobuf:protoc:3.19.4"
     }
     plugins {
         grpc {

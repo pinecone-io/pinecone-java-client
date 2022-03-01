@@ -1,11 +1,16 @@
 package io.pinecone;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.primitives.Floats;
+import com.google.protobuf.Struct;
+import com.google.protobuf.Value;
+import io.pinecone.proto.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -23,10 +28,10 @@ public class PineconeClientLiveIntegTest {
      */
 
     public static class Args {
-        public String target;
-        public boolean secure = true;
-        public String serviceName = "integ-test-sanity";
+        public String indexName = "integ-test-sanity";
         public String apiKey = "mock-api-key";
+        public String environment = "us-wst1-gcp";
+        public String projectName = "mock-proj-name";
     }
 
     private static final Logger logger = LoggerFactory.getLogger(PineconeClientLiveIntegTest.class);
@@ -42,47 +47,96 @@ public class PineconeClientLiveIntegTest {
 
         PineconeClientConfig configuration = new PineconeClientConfig()
                 .withApiKey(args.apiKey)
+                .withEnvironment(args.environment)
+                .withProjectName(args.projectName)
                 .withServerSideTimeoutSec(10);
+
+
 
         pineconeClient = new PineconeClient(configuration);
     }
 
-//    @Test
+    // @Test
     public void sanity() {
-        String ns = "namespace";
+        String ns = "temp_namespace";
         PineconeConnection conn = pineconeClient.connect(
                 new PineconeConnectionConfig()
-                        .withServiceAuthority(args.target)
-                        .withSecure(args.secure)
-                        .withServiceName(args.serviceName));
+                        .withIndexName(args.indexName));
 
         // upsert
         float[][] upsertData = {{1.0F, 2.0F, 3.0F}, {4.0F, 5.0F, 6.0F}, {7.0F, 8.0F, 9.0F}};
         List<String> upsertIds = Arrays.asList("v1", "v2", "v3");
-        UpsertResponse upsertResponse = conn.send(
-                pineconeClient.upsertRequest()
-                        .data(upsertData)
-                        .ids(upsertIds)
-                        .namespace(ns));
-        assertThat(upsertResponse.getIds(), equalTo(upsertIds));
+        List<Vector> upsertVectors = new ArrayList<>();
+
+        for (int i = 0; i < upsertData.length; i++) {
+            upsertVectors.add(Vector.newBuilder()
+                    .addAllValues(Floats.asList(upsertData[i]))
+                    .setMetadata(Struct.newBuilder()
+                            .putFields("some_field", Value.newBuilder().setNumberValue(i).build())
+                            .build())
+                    .setId(upsertIds.get(i))
+                    .build());
+        }
+
+        UpsertRequest request = UpsertRequest.newBuilder()
+                .addAllVectors(upsertVectors)
+                .setNamespace(ns)
+                .build();
+
+        UpsertResponse upsertResponse = conn.getBlockingStub().upsert(request);
+        logger.info("Put " + upsertResponse.getUpsertedCount() + " vectors into the index");
+        assert (upsertResponse.getUpsertedCount() == 3);
 
         // fetch
         // query
-        float[][] queries = {{1.0F, 2.0F, 3.0F}};
-        QueryResponse queryResponse = conn.send(
-                pineconeClient.queryRequest()
-                        .topK(2)
-                        .data(queries)
-                        .namespace(ns));
-        assertThat(queryResponse, notNullValue());
-        assertThat(queryResponse.getQueryResults(), notNullValue());
-        assertThat(queryResponse.getQueryResults().size(), equalTo(1));
-        logger.info("got query result ids: "
-                + queryResponse.getQueryResults().get(0).getIds());
-        assertThat(queryResponse.getQueryResults().get(0).getIds().size(), equalTo(2));
-        assertThat(queryResponse.getQueryResults().get(0).getScores().size(), equalTo(2));
+        float[] rawVector = {1.0F, 2.0F, 3.0F};
+        QueryVector queryVector = QueryVector.newBuilder()
+                .addAllValues(Floats.asList(rawVector))
+                .setFilter(Struct.newBuilder()
+                        .putFields("some_field", Value.newBuilder()
+                                .setStructValue(Struct.newBuilder()
+                                        .putFields("$lt", Value.newBuilder()
+                                                .setNumberValue(3)
+                                                .build()))
+                                .build())
+                        .build())
+                .setNamespace(ns)
+                .build();
 
-        // delete
-        // info
+        QueryRequest queryRequest = QueryRequest.newBuilder()
+                .addQueries(queryVector)
+                .setNamespace(ns)
+                .setTopK(2)
+                .setIncludeMetadata(true)
+                .build();
+
+        QueryResponse queryResponse = conn.getBlockingStub().query(queryRequest);
+        assertThat(queryResponse, notNullValue());
+        assertThat(queryResponse.getResultsList(), notNullValue());
+        assertThat(queryResponse.getResultsCount(), equalTo(1));
+        logger.info("got query result ids: "
+                + queryResponse.getResultsList().get(0).getMatchesList());
+        assertThat(queryResponse.getResultsList().get(0).getMatchesList().size(), equalTo(2));
+
+
+
+
+        // Delete
+        String[] idsToDelete = {"v2"};
+        DeleteRequest deleteRequest = DeleteRequest.newBuilder()
+                .setNamespace(ns)
+                .addAllIds(Arrays.asList(idsToDelete))
+                .setDeleteAll(false)
+                .build();
+
+        conn.getBlockingStub().delete(deleteRequest);
+
+        // Clear out the test
+        DeleteRequest deleteAllRequest = DeleteRequest.newBuilder()
+                .setNamespace(ns)
+                .setDeleteAll(true)
+                .build();
+
+        conn.getBlockingStub().delete(deleteAllRequest);
     }
 }

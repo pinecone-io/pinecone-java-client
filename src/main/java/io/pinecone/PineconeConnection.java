@@ -7,9 +7,7 @@ import io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.NegotiationType;
 import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.MetadataUtils;
-import io.grpc.stub.StreamObserver;
-import io.pinecone.proto.Core;
-import io.pinecone.proto.RPCClientGrpc;
+import io.pinecone.proto.VectorServiceGrpc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,9 +31,9 @@ public class PineconeConnection implements AutoCloseable {
      * The gRPC stub used for sending requests to Pinecone. Blocks until response. Access to this
      * field is not thread-safe; modifications should be synchronized by callers.
      */
-    private RPCClientGrpc.RPCClientBlockingStub blockingStub;
+    private VectorServiceGrpc.VectorServiceBlockingStub blockingStub;
 
-    private RPCClientGrpc.RPCClientStub asyncStub;
+    private VectorServiceGrpc.VectorServiceStub asyncStub;
 
     public PineconeConnection(PineconeClientConfig clientConfig, PineconeConnectionConfig connectionConfig) {
         connectionConfig.validate();
@@ -47,8 +45,8 @@ public class PineconeConnection implements AutoCloseable {
         channel.notifyWhenStateChanged(channel.getState(false), this::onConnectivityStateChanged);
         Metadata metadata = assembleMetadata(clientConfig, connectionConfig);
         blockingStub = applyDefaultBlockingStubConfig(
-                MetadataUtils.attachHeaders(RPCClientGrpc.newBlockingStub(channel), metadata));
-        asyncStub = MetadataUtils.attachHeaders(RPCClientGrpc.newStub(channel), metadata);
+                MetadataUtils.attachHeaders(VectorServiceGrpc.newBlockingStub(channel), metadata));
+        asyncStub = MetadataUtils.attachHeaders(VectorServiceGrpc.newStub(channel), metadata);
         logger.debug("created new PineconeConnection for channel: {}", channel);
     }
 
@@ -67,38 +65,16 @@ public class PineconeConnection implements AutoCloseable {
         }
     }
 
-    /**
-     * Send a request over the connection, blocking until a response is received. Throws
-     * {@link PineconeException} in case of errors.
-     * @param request
-     * @return
-     */
-    public UpsertResponse send(UpsertRequest request) {
-        return UpsertResponse.from(
-                sendRequest(request.toRequest()));
-    }
-
-    /**
-     * Send a request over the connection, blocking until a response is received. Throws
-     * {@link PineconeException} in case of errors.
-     * @param request
-     * @return
-     */
-    public QueryResponse send(QueryRequest request) {
-        return QueryResponse.from(
-                sendRequest(request.toRequest()),
-                clientConfig.getTranslator());
-    }
 
     public ManagedChannel getChannel() {
         return channel;
     }
 
-    public RPCClientGrpc.RPCClientBlockingStub getBlockingStub() {
+    public VectorServiceGrpc.VectorServiceBlockingStub getBlockingStub() {
         return blockingStub;
     }
 
-    public void setBlockingStub(RPCClientGrpc.RPCClientBlockingStub blockingStub) {
+    public void setBlockingStub(VectorServiceGrpc.VectorServiceBlockingStub blockingStub) {
         this.blockingStub = blockingStub;
     }
 
@@ -107,66 +83,45 @@ public class PineconeConnection implements AutoCloseable {
                 channel.getState(false), channel);
     }
 
-    private Core.Request sendRequest(Core.Request req) {
-        try {
-            Core.Request response = blockingStub.callUnary(req);
-            Core.Status.StatusCode statusCode = response.getStatus().getCode();
-            if(Core.Status.StatusCode.SUCCESS != statusCode) {
-                throw new PineconeException(
-                        String.format("Server returned error: %s; details: %s",
-                                response.getStatus().getDescription(),
-                                response.getStatus().getDetailsList()));
-            }
-            return response;
-        } catch (StatusRuntimeException e) {
-            String requestId = req == null ? null : Long.toUnsignedString(req.getRequestId());
-            throw new PineconeException(
-                    String.format("Error sending request id %s", requestId), e);
-        }
-    }
-
-    // wrap in observer that converts to and from internal Core.Request format
-    private StreamObserver<Core.Request> streamRequests(StreamObserver<Core.Request> requestStream) {
-        try {
-            return asyncStub.call(requestStream);
-        } catch (StatusRuntimeException e) {
-            logger.error("Error streaming requests.", e);
-        }
-        return null;
-    }
-
     public static ManagedChannel buildChannel(PineconeClientConfig clientConfig,
                                               PineconeConnectionConfig config) {
-        String serviceTarget = config.getServiceAuthority();
-        NettyChannelBuilder builder = NettyChannelBuilder.forTarget(serviceTarget);
-        if (!config.isSecure()) {
-            builder.usePlaintext();
+        String endpoint = getEndpoint(clientConfig, config);
+        NettyChannelBuilder builder = NettyChannelBuilder.forTarget(endpoint);
+
+        try {
+            builder = builder.overrideAuthority(endpoint)
+                    .negotiationType(NegotiationType.TLS)
+                    .sslContext(GrpcSslContexts.forClient().build());
+        } catch (SSLException e) {
+            throw new PineconeException("SSL error opening gRPC channel", e);
         }
-        else {
-            try {
-                builder = builder.overrideAuthority(serviceTarget)
-                        .negotiationType(NegotiationType.TLS)
-                        .sslContext(GrpcSslContexts.forClient().build());
-            } catch (SSLException e) {
-                throw new PineconeException("SSL error opening gRPC channel", e);
-            }
-        }
+
         return builder.build();
     }
 
     private static Metadata assembleMetadata(PineconeClientConfig clientConfig,
                                              PineconeConnectionConfig connectionConfig) {
         Metadata metadata = new Metadata();
-        metadata.put(Metadata.Key.of("service-name",
-                Metadata.ASCII_STRING_MARSHALLER), connectionConfig.getServiceName());
         metadata.put(Metadata.Key.of("api-key",
                 Metadata.ASCII_STRING_MARSHALLER), clientConfig.getApiKey());
         return metadata;
     }
 
-    private RPCClientGrpc.RPCClientBlockingStub applyDefaultBlockingStubConfig(RPCClientGrpc.RPCClientBlockingStub stub) {
+    private VectorServiceGrpc.VectorServiceBlockingStub applyDefaultBlockingStubConfig(VectorServiceGrpc.VectorServiceBlockingStub stub) {
         return stub
                 .withMaxInboundMessageSize(DEFAULT_MAX_MESSAGE_SIZE)
                 .withMaxOutboundMessageSize(DEFAULT_MAX_MESSAGE_SIZE);
+    }
+
+    private static String getEndpoint(PineconeClientConfig clientConfig, PineconeConnectionConfig connectionConfig) {
+        String endpoint = String.format("%s-%s.svc.%s.pinecone.io",
+                connectionConfig.getIndexName(),
+                clientConfig.getProjectName(),
+                clientConfig.getEnvironment());
+
+        logger.debug("Pinecone endpoint is: " + endpoint);
+
+        return endpoint;
+
     }
 }

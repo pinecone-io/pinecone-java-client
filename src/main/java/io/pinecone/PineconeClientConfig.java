@@ -1,9 +1,14 @@
 package io.pinecone;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * This class contains the user-level configuration options for the Pinecone client.
- *
- * Currently these values must be explicitly set; ~/.pinecone is not consulted for values.
+ * <p>
+ * Currently, these values must be explicitly set; ~/.pinecone is not consulted for values.
  */
 public class PineconeClientConfig {
 
@@ -13,21 +18,28 @@ public class PineconeClientConfig {
     private String apiKey;
 
     /**
+     * Required project name
+     */
+    private String projectName;
+
+    private String environment;
+
+    /**
      * Optional server-side timeout in seconds for all operations. Default: 20 seconds.
      */
     private int serverSideTimeoutSec = 20;
 
-    private PineconeTranslator translator = new PineconeTranslator();
-
     /**
      * Creates a new default config.
      */
-    public PineconeClientConfig() {}
+    public PineconeClientConfig() {
+    }
 
     protected PineconeClientConfig(PineconeClientConfig other) {
         apiKey = other.apiKey;
+        projectName = other.projectName;
+        environment = other.environment;
         serverSideTimeoutSec = other.serverSideTimeoutSec;
-        translator = other.translator;
     }
 
     /**
@@ -47,6 +59,29 @@ public class PineconeClientConfig {
     }
 
     /**
+     * @return See {@link PineconeClientConfig#projectName}.
+     */
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public PineconeClientConfig withProjectName(String projectName) {
+        PineconeClientConfig config = new PineconeClientConfig(this);
+        config.projectName = projectName;
+        return config;
+    }
+
+    public String getEnvironment() {
+        return environment;
+    }
+
+    public PineconeClientConfig withEnvironment(String environment) {
+        PineconeClientConfig config = new PineconeClientConfig(this);
+        config.environment = environment;
+        return config;
+    }
+
+    /**
      * @return See {@link PineconeClientConfig#serverSideTimeoutSec}.
      */
     public int getServerSideTimeoutSec() {
@@ -62,27 +97,33 @@ public class PineconeClientConfig {
         return config;
     }
 
-    public PineconeTranslator getTranslator() {
-        return translator;
-    }
-
-    public PineconeClientConfig withTranslator(PineconeTranslator translator) {
-        PineconeClientConfig config = new PineconeClientConfig(this);
-        config.translator = translator;
-        return config;
-    }
-
     void validate() {
-        if(apiKey == null)
+        if (apiKey == null)
             throw new PineconeValidationException("Invalid Pinecone config: missing apiKey");
+        if (environment == null)
+            throw new PineconeValidationException("Invalid Pinecone config: missing environment");
+        if (projectName == null)
+            throw new PineconeValidationException("Invalid Pinecone config: missing projectName ");
     }
 
     @Override
     public String toString() {
         return "PineconeConnectionConfig("
-                + "apiKey=" + getApiKey()
+                + "apiKey=" + maskedApiKey()
+                + ", projectName=" + projectName
+                + ", environment=" + environment
                 + ", serverSideTimeoutSec=" + getServerSideTimeoutSec()
-                + ", translator=" + getTranslator()
                 + ")";
+    }
+
+    private String maskedApiKey() {
+        if (apiKey == null) {
+            return "NULL";
+        } else {
+            List<String> splits = Arrays.stream(apiKey.split("-"))
+                    .map(split -> String.join("", Collections.nCopies(split.length(), "*")))
+                    .collect(Collectors.toList());
+            return String.join("-", splits);
+        }
     }
 }
