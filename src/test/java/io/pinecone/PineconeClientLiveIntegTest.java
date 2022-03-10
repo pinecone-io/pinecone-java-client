@@ -20,17 +20,10 @@ import static org.hamcrest.Matchers.notNullValue;
 
 public class PineconeClientLiveIntegTest {
 
-    /* These tests assume a service has been set up as follows with the python client:
-     *     pinecone.service.deploy(service_name='integ-test-sanity', graph=pinecone.graph.IndexGraph())
-     *
-     * Then target comes from the domain/ip and port returned by:
-     *     pinecone.service.describe(service_name='integ-test-sanity')
-     */
-
     public static class Args {
         public String indexName = "integ-test-sanity";
         public String apiKey = "mock-api-key";
-        public String environment = "us-wst1-gcp";
+        public String environment = "us-west1-gcp";
         public String projectName = "mock-proj-name";
     }
 
@@ -42,8 +35,7 @@ public class PineconeClientLiveIntegTest {
 
     @Before
     public void setUp() throws Exception {
-        args = new ObjectMapper()
-                .readValue(System.getenv("PINECONE_TEST_ARGS"), Args.class);
+        args = new Args();
 
         PineconeClientConfig configuration = new PineconeClientConfig()
                 .withApiKey(args.apiKey)
@@ -56,8 +48,8 @@ public class PineconeClientLiveIntegTest {
         pineconeClient = new PineconeClient(configuration);
     }
 
-    // @Test
-    public void sanity() {
+    @Test
+    public void sanity(){
         String ns = "temp_namespace";
         PineconeConnection conn = pineconeClient.connect(
                 new PineconeConnectionConfig()

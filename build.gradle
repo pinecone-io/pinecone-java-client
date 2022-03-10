@@ -1,7 +1,6 @@
 plugins {
     id 'com.github.johnrengelman.shadow' version '6.1.0'
     id 'java-library'
-    id 'com.google.protobuf' version '0.8.18'
     id 'maven-publish'
     id 'signing'
     id 'idea'
@@ -64,32 +63,6 @@ task relocateShadowJar(type: ConfigureShadowRelocation) {
 
 tasks.shadowJar.dependsOn tasks.relocateShadowJar
 
-protobuf {
-    protoc {
-        artifact = "com.google.protobuf:protoc:3.19.4"
-    }
-    plugins {
-        grpc {
-            artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}"
-        }
-    }
-    generateProtoTasks {
-        all()*.plugins {
-            grpc {}
-        }
-    }
-}
-
-// Inform IDEs like IntelliJ IDEA, Eclipse or NetBeans about the generated code.
-sourceSets {
-    main {
-        java {
-            srcDirs 'build/generated/source/proto/main/grpc'
-            srcDirs 'build/generated/source/proto/main/java'
-        }
-    }
-}
-
 publishing {
     publications {
         pineconeClientMaven(MavenPublication) {
@@ -121,14 +94,14 @@ publishing {
     }
 }
 
-nexusPublishing {
-    repositories {
-        sonatype {
-            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
-            snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
-        }
-    }
-}
+//nexusPublishing {
+//    repositories {
+//        sonatype {
+//            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
+//            snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+//        }
+//    }
+//}
 
 signing {
     def signingKeyId = findProperty("signingKeyId")
