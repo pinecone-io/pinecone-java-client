@@ -9,7 +9,7 @@ plugins {
 }
 
 group = 'io.pinecone'
-version = '0.2.0' // [pc:VERSION_NEXT]
+version = '0.2.1' // [pc:VERSION_NEXT]
 description = 'The Pinecone.io Java Client'
 
 sourceCompatibility = JavaVersion.VERSION_1_8
@@ -25,7 +25,7 @@ dependencies {
     api "io.grpc:grpc-protobuf:${grpcVersion}"
     api "io.grpc:grpc-stub:${grpcVersion}"
     api "io.grpc:grpc-netty:${grpcVersion}"
-    runtime 'io.netty:netty-tcnative-boringssl-static:2.0.48.Final'
+    runtime 'io.netty:netty-tcnative-boringssl-static:2.0.50.Final'
     implementation 'org.slf4j:slf4j-api:1.7.36'
     compileOnly "org.apache.tomcat:annotations-api:6.0.53" // necessary for Java 9+
 

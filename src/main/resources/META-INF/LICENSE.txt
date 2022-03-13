@@ -1,6 +1,6 @@
 Pinecone Software End User License Agreement (EULA)
 
-Last Updated: December 31, 2020
+Last Updated: March 13, 2022
 
 
 
@@ -29,12 +29,16 @@ BY DOWNLOADING, INSTALLING OR USING THE LICENSED SOFTWARE,  YOU AGREE TO BE BOUN
 
 Open-Source Code Included in Pinecone-io Java Client Library
 
-Last Updated: April 26, 2021
+Last Updated: March 13, 2022
 
 
 Apache License 2.0
 
-   * Software: io.grpc:grpc-protobuf - Version 1.35.0 (https://search.maven.org/artifact/io.grpc/grpc-protobuf)
-   * Software: io.grpc:grpc-stub - Version 1.35.0 (https://search.maven.org/artifact/io.grpc/grpc-stub)
-   * Software: io.grpc:grpc-netty - Version 1.35.0 (https://search.maven.org/artifact/io.grpc/grpc-netty)
-   * Software: io.netty:netty-tcnative-boringssl-static - Version 2.0.35.Final (https://search.maven.org/artifact/io.netty/netty-tcnative-boringssl-static)
+   * Software: io.grpc:grpc-protobuf - Version 1.44.1 (https://search.maven.org/artifact/io.grpc/grpc-protobuf)
+   * Software: io.grpc:grpc-stub - Version 1.44.1 (https://search.maven.org/artifact/io.grpc/grpc-stub)
+   * Software: io.grpc:grpc-netty - Version 1.44.1 (https://search.maven.org/artifact/io.grpc/grpc-netty)
+   * Software: io.netty:netty-tcnative-boringssl-static - Version 2.0.50.Final (https://search.maven.org/artifact/io.netty/netty-tcnative-boringssl-static)
+
+BSD 3-Clause "New" or "Revised" License
+
+   * Software: protoc-gen-openapiv2 - Version 2.8.0 (https://github.com/grpc-ecosystem/grpc-gateway/tree/master/protoc-gen-openapiv2)
