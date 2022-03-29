@@ -1,26 +1,15 @@
 package pineconeexamples;
 
-import io.pinecone.PineconeClient;
-import io.pinecone.PineconeClientConfig;
-import io.pinecone.PineconeConnection;
-import io.pinecone.PineconeConnectionConfig;
-import io.pinecone.PineconeException;
-import io.pinecone.PineconeResponse;
-import io.pinecone.QueryResponse;
-import io.pinecone.UpsertResponse;
+import com.google.common.primitives.Floats;
+import io.pinecone.*;
+import io.pinecone.proto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletionService;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -28,12 +17,12 @@ import java.util.concurrent.atomic.AtomicInteger;
  * backoff) then concurrently submits a specified number of queries.
  */
 public class UpsertsAndQueriesConcurrentExample {
-
     public static class Args {
         public String apiKey = System.getProperty("pinecone.apikey", "example-api-key");
-        public String serviceName = System.getProperty("pinecone.service.name", "example-service-name");
-        public String target = System.getProperty("pinecone.service.url_authority",
-                "example-service-url-authority");
+        public String indexName = System.getProperty("pinecone.indexName", "example-index-name");
+        public String environment = System.getProperty("pinecone.environment",
+                "example-environment");
+        public String projectName = System.getProperty("pinecone.projectName", "example-project-name");
 
         public int vectorDim = 128;
         public int vectorCount = 1024 * 8;
@@ -41,6 +30,7 @@ public class UpsertsAndQueriesConcurrentExample {
         public int queryCount = 1024 * 8;
         public int queryBatchSize = 1;
         public int maxConcurrentQueryRequests = 256;
+        public int topK = 1;
 
         public int upsertBatchSize = 100;
         public int maxUpsertAttempts = 10;
@@ -56,13 +46,14 @@ public class UpsertsAndQueriesConcurrentExample {
         Args args = new Args();
 
         PineconeClientConfig configuration = new PineconeClientConfig()
-                .withApiKey(args.apiKey);
+                .withApiKey(args.apiKey)
+                .withEnvironment(args.environment)
+                .withProjectName(args.projectName);
 
         PineconeClient pineconeClient = new PineconeClient(configuration);
 
         PineconeConnectionConfig connectionConfig = new PineconeConnectionConfig()
-                .withServiceAuthority(args.target)
-                .withServiceName(args.serviceName);
+                .withIndexName(args.indexName);
 
         try (PineconeConnection conn = pineconeClient.connect(connectionConfig)) {
             //
@@ -83,21 +74,27 @@ public class UpsertsAndQueriesConcurrentExample {
                 for (int requestNum = 0; requestNum < upsertCount; requestNum++) {
                     final String vectorIdPrefix = "v" + requestNum + ".";
                     int backoffIntervalMs = args.upsertBackoffIntervalStartMs;
+                    ArrayList<Vector> vectors = new ArrayList<Vector>();
                     for (int retriesLeft = args.maxUpsertAttempts; retriesLeft > 0; retriesLeft--) {
-                        float[][] data = new float[args.upsertBatchSize][args.vectorDim];
+                        float[] data = new float[args.vectorDim];
                         List<String> ids = new ArrayList<>();
                         ThreadLocalRandom rand = ThreadLocalRandom.current();
                         for (int i = 0; i < args.upsertBatchSize; i++) {
                             for (int j = 0; j < args.vectorDim; j++) {
-                                data[i][j] = rand.nextFloat();
+                                data[j] = rand.nextFloat();
                             }
                             ids.add(vectorIdPrefix + i);
+                            vectors.add(Vector.newBuilder()
+                                    .setId(vectorIdPrefix + i)
+                                    .addAllValues(Floats.asList(data))
+                                    .build());
                         }
 
                         try {
-                            UpsertResponse response = conn.send(pineconeClient.upsertRequest()
-                                    .data(data)
-                                    .ids(ids));
+                            UpsertRequest upsertRequest = UpsertRequest.newBuilder()
+                                    .addAllVectors(vectors)
+                                    .build();
+                            UpsertResponse response = conn.getBlockingStub().upsert(upsertRequest);
                             upsertSuccessCount++;
                             break;
                         } catch (PineconeException e) {
@@ -140,7 +137,7 @@ public class UpsertsAndQueriesConcurrentExample {
                     args.maxConcurrentQueryRequests);
 
             ExecutorService executor = Executors.newCachedThreadPool();
-            CompletionService<PineconeResponse> completionService =
+            CompletionService<QueryResponse> completionService =
                     new ExecutorCompletionService<>(executor);
 
             AtomicInteger querySuccessCount = new AtomicInteger();
@@ -170,16 +167,23 @@ public class UpsertsAndQueriesConcurrentExample {
                         requestNum++;
 
                         completionService.submit(() -> {
-                            float[][] queries = new float[args.queryBatchSize][args.vectorDim];
+                            ArrayList<QueryVector> queryVectors = new ArrayList<>();
+                            float[] vector = new float[args.vectorDim];
                             ThreadLocalRandom rand = ThreadLocalRandom.current();
                             for (int i = 0; i < args.queryBatchSize; i++) {
                                 for (int j = 0; j < args.vectorDim; j++) {
-                                    queries[i][j] = rand.nextFloat();
+                                    vector[j] = rand.nextFloat();
                                 }
+
+                                queryVectors.add(QueryVector.newBuilder()
+                                        .addAllValues(Floats.asList(vector))
+                                        .setTopK(args.topK)
+                                        .build());
                             }
-                            QueryResponse response = conn.send(pineconeClient.queryRequest()
-                                    .topK(1)
-                                    .data(queries));
+                            QueryRequest queryRequest = QueryRequest.newBuilder().addAllQueries(queryVectors)
+                                    .setTopK(args.topK)
+                                    .build();
+                            QueryResponse response = conn.getBlockingStub().query(queryRequest);
                             querySuccessCount.incrementAndGet();
                             return response;
                         });
