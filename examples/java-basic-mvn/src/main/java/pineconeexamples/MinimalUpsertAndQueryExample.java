@@ -1,8 +1,17 @@
 package pineconeexamples;
 
 import com.google.common.primitives.Floats;
-import io.pinecone.*;
-import io.pinecone.proto.*;
+import io.pinecone.PineconeClient;
+import io.pinecone.PineconeClientConfig;
+import io.pinecone.PineconeConnection;
+import io.pinecone.PineconeConnectionConfig;
+import io.pinecone.PineconeException;
+import io.pinecone.proto.QueryRequest;
+import io.pinecone.proto.QueryResponse;
+import io.pinecone.proto.QueryVector;
+import io.pinecone.proto.UpsertRequest;
+import io.pinecone.proto.UpsertResponse;
+import io.pinecone.proto.Vector;
 
 
 public class MinimalUpsertAndQueryExample {

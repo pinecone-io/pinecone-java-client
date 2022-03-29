@@ -1,15 +1,30 @@
 package pineconeexamples;
 
 import com.google.common.primitives.Floats;
-import io.pinecone.*;
-import io.pinecone.proto.*;
+import io.pinecone.PineconeClient;
+import io.pinecone.PineconeClientConfig;
+import io.pinecone.PineconeConnection;
+import io.pinecone.PineconeConnectionConfig;
+import io.pinecone.PineconeException;
+import io.pinecone.proto.QueryRequest;
+import io.pinecone.proto.QueryResponse;
+import io.pinecone.proto.QueryVector;
+import io.pinecone.proto.UpsertRequest;
+import io.pinecone.proto.UpsertResponse;
+import io.pinecone.proto.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
