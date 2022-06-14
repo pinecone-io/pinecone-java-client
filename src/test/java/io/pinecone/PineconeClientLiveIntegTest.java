@@ -56,7 +56,7 @@ public class PineconeClientLiveIntegTest {
         pineconeClient = new PineconeClient(configuration);
     }
 
-    // @Test
+     @Test
     public void sanity() {
         String ns = "temp_namespace";
         PineconeConnection conn = pineconeClient.connect(
@@ -109,11 +109,20 @@ public class PineconeClientLiveIntegTest {
                 .setTopK(2)
                 .setIncludeMetadata(true)
                 .build();
-
+//        Query by id example
+//        QueryRequest queryRequest = QueryRequest.newBuilder()
+//                .setId("v2")
+//                .setNamespace("temp_namespace")
+//                .setTopK(2)
+//                .setIncludeMetadata(true)
+//                .build();
         QueryResponse queryResponse = conn.getBlockingStub().query(queryRequest);
         assertThat(queryResponse, notNullValue());
         assertThat(queryResponse.getResultsList(), notNullValue());
         assertThat(queryResponse.getResultsCount(), equalTo(1));
+//        When querying by id and single vector, we get matches instead of results. hence use this assert
+//        When using them.
+//        assertThat(queryResponse.getMatchesCount(), equalTo(1));
         logger.info("got query result ids: "
                 + queryResponse.getResultsList().get(0).getMatchesList());
         assertThat(queryResponse.getResultsList().get(0).getMatchesList().size(), equalTo(2));

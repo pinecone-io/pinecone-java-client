@@ -9,7 +9,7 @@ plugins {
 }
 
 group = 'io.pinecone'
-version = '0.2.1' // [pc:VERSION_NEXT]
+version = '0.2.2' // [pc:VERSION_NEXT]
 description = 'The Pinecone.io Java Client'
 
 sourceCompatibility = JavaVersion.VERSION_1_8
@@ -19,7 +19,7 @@ repositories {
     jcenter()
 }
 
-def grpcVersion = '1.44.1'
+def grpcVersion = '1.47.0'
 
 dependencies {
     api "io.grpc:grpc-protobuf:${grpcVersion}"
@@ -27,6 +27,7 @@ dependencies {
     api "io.grpc:grpc-netty:${grpcVersion}"
     runtime 'io.netty:netty-tcnative-boringssl-static:2.0.50.Final'
     implementation 'org.slf4j:slf4j-api:1.7.36'
+    implementation 'com.google.api.grpc:proto-google-common-protos:2.8.3'
     compileOnly "org.apache.tomcat:annotations-api:6.0.53" // necessary for Java 9+
 
     testImplementation "io.grpc:grpc-testing:${grpcVersion}"
