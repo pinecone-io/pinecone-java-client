@@ -1,5 +1,6 @@
 package io.pinecone;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.primitives.Floats;
 import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
