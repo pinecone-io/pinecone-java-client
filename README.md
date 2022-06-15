@@ -15,7 +15,7 @@ Maven:
 <dependency>
   <groupId>io.pinecone</groupId>
   <artifactId>pinecone-client</artifactId>
-  <version>0.2.1</version>
+  <version>0.2.2</version>
 </dependency>
 ```
 
@@ -23,12 +23,12 @@ Maven:
 
 Gradle:
 ```
-implementation "io.pinecone:pinecone-client:0.2.1"
+implementation "io.pinecone:pinecone-client:0.2.2"
 ```
 
 [comment]: <> (^ [pc:VERSION_LATEST_RELEASE])
 
-Alternatively, you can use our standalone uberjar [pinecone-client-0.2.1-all.jar](https://repo1.maven.org/maven2/io/pinecone/pinecone-client/0.2.1/pinecone-client-0.2.1-all.jar), which bundles the pinecone client and all dependencies together inside a single jar. You can include this on your classpath like any 3rd party JAR without having to obtain the *pinecone-client* dependencies separately.
+Alternatively, you can use our standalone uberjar [pinecone-client-0.2.2-all.jar](https://repo1.maven.org/maven2/io/pinecone/pinecone-client/0.2.1/pinecone-client-0.2.2-all.jar), which bundles the pinecone client and all dependencies together inside a single jar. You can include this on your classpath like any 3rd party JAR without having to obtain the *pinecone-client* dependencies separately.
 
 [comment]: <> (^ [pc:VERSION_LATEST_RELEASE])
 
