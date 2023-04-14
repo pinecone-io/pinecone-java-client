@@ -9,7 +9,7 @@ plugins {
 }
 
 group = 'io.pinecone'
-version = '0.2.2' // [pc:VERSION_NEXT]
+version = '0.2.3' // [pc:VERSION_NEXT]
 description = 'The Pinecone.io Java Client'
 
 sourceCompatibility = JavaVersion.VERSION_1_8
@@ -19,23 +19,23 @@ repositories {
     jcenter()
 }
 
-def grpcVersion = '1.47.0'
+def grpcVersion = '1.53.0'
 
 dependencies {
     api "io.grpc:grpc-protobuf:${grpcVersion}"
     api "io.grpc:grpc-stub:${grpcVersion}"
     api "io.grpc:grpc-netty:${grpcVersion}"
-    runtime 'io.netty:netty-tcnative-boringssl-static:2.0.50.Final'
-    implementation 'org.slf4j:slf4j-api:1.7.36'
-    implementation 'com.google.api.grpc:proto-google-common-protos:2.8.3'
+    runtime 'io.netty:netty-tcnative-boringssl-static:2.0.59.Final'
+    implementation 'org.slf4j:slf4j-api:2.0.5'
+    implementation 'com.google.api.grpc:proto-google-common-protos:2.14.3'
     compileOnly "org.apache.tomcat:annotations-api:6.0.53" // necessary for Java 9+
 
     testImplementation "io.grpc:grpc-testing:${grpcVersion}"
     testImplementation 'junit:junit:4.13.2'
     testImplementation "org.hamcrest:hamcrest:2.2"
-    testImplementation 'org.mockito:mockito-core:4.3.1'
-    testImplementation 'org.slf4j:slf4j-simple:1.7.36'
-    testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.13.1'
+    testImplementation 'org.mockito:mockito-core:5.2.0'
+    testImplementation 'org.slf4j:slf4j-simple:2.0.5'
+    testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.14.2'
 }
 
 java {
