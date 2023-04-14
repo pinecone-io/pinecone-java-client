@@ -54,7 +54,7 @@ public class PineconeClientLiveIntegTest {
         String ns = "temp_namespace";
         PineconeConnection conn = pineconeClient.connect(
                 new PineconeConnectionConfig()
-                        .withIndexName(args.indexName));
+                        .withIndexName("java-test"));
 
         // upsert
         float[][] upsertData = {{1.0F, 2.0F, 3.0F}, {4.0F, 5.0F, 6.0F}, {7.0F, 8.0F, 9.0F}};
@@ -80,7 +80,37 @@ public class PineconeClientLiveIntegTest {
         logger.info("Put " + upsertResponse.getUpsertedCount() + " vectors into the index");
         assert (upsertResponse.getUpsertedCount() == 3);
 
+        // hybrid upsert
+
+        List<String> hybridsIds = Arrays.asList("v4","v5","v6");
+        List<Vector> hybridVectors = new ArrayList<>();
+        List<Integer> sparseIndices = Arrays.asList(0,1,2);
+        List<Float> sparseValues = Arrays.asList(0.11f,0.22f,0.33f);
+        for (int i=0; i< hybridsIds.size(); i++) {
+            hybridVectors.add(
+                    Vector.newBuilder()
+                            .addAllValues(Floats.asList(upsertData[i]))
+                            .setSparseValues(
+                                    SparseValues.newBuilder().addAllIndices(sparseIndices).addAllValues(sparseValues).build()
+                            )
+                            .setId(hybridsIds.get(i))
+                            .build());
+        }
+
+        UpsertRequest hybridRequest = UpsertRequest.newBuilder()
+                .addAllVectors(hybridVectors)
+                .setNamespace(ns)
+                .build();
+        UpsertResponse hybridResponse = conn.getBlockingStub().upsert(hybridRequest);
+        logger.info("Put " + hybridResponse.getUpsertedCount() + " vectors into the index");
+        assert (hybridResponse.getUpsertedCount() == 3);
+
         // fetch
+        List<String> ids = Arrays.asList("v1","v2");
+        FetchRequest fetchRequest = FetchRequest.newBuilder().addAllIds(ids).setNamespace(ns).build();
+        FetchResponse fetchResponse = conn.getBlockingStub().fetch(fetchRequest);
+        assert(fetchResponse.containsVectors("v1"));
+
         // query
         float[] rawVector = {1.0F, 2.0F, 3.0F};
         QueryVector queryVector = QueryVector.newBuilder()
@@ -109,6 +139,7 @@ public class PineconeClientLiveIntegTest {
 //                .setTopK(2)
 //                .setIncludeMetadata(true)
 //                .build();
+
         QueryResponse queryResponse = conn.getBlockingStub().query(queryRequest);
         assertThat(queryResponse, notNullValue());
         assertThat(queryResponse.getResultsList(), notNullValue());
