@@ -5,6 +5,15 @@ option java_multiple_files = true;
 
 import "google/protobuf/struct.proto";
 
+// Vector sparse data. Represented as a list of indices and a list of corresponded values, which must be with the same length.
+message SparseValues {
+
+  // The indices of the sparse data.
+  repeated uint32 indices = 1;
+
+  // The corresponding values of the sparse data, which must be with the same length as the indices.
+  repeated float values = 2;
+}
 
 message Vector {
 
@@ -13,6 +22,9 @@ message Vector {
 
   // This is the vector data included in the request.
   repeated float         values = 2;
+
+  // This is the vector sparse data
+  SparseValues           sparse_values = 4;
 
   // This is the metadata included in the request.
   google.protobuf.Struct metadata = 3;
@@ -28,6 +40,9 @@ message ScoredVector {
 
   // This is the vector data, if it is requested.
   repeated float         values = 3;
+
+  // This is the sparse data, if it is requested.
+  SparseValues sparse_values = 5;
 
   // This is the metadata, if it is requested.
   google.protobuf.Struct metadata = 4;
@@ -91,6 +106,9 @@ message QueryVector {
   // The query vector values. This should be the same length as the dimension of the index being queried.
   repeated float         values = 1;
 
+  // The query sparse values.
+  SparseValues sparse_values = 5;
+
   // An override for the number of results to return for this query vector.
   uint32                 top_k = 2;
 
@@ -123,6 +141,9 @@ message QueryRequest {
 
   // The query vector. This should be the same length as the dimension of the index being queried.
   repeated float         vector = 7;
+
+  // The query sparse values.
+  SparseValues sparse_vector = 9;
 
   // The id of the vector
   string                 id = 8;
@@ -157,6 +178,9 @@ message UpdateRequest {
   // Vector data.
   repeated float         values = 2;
 
+  // Vector sparse values
+  SparseValues           sparse_values = 5;
+
   // Metadata to *set* for the vector.
   google.protobuf.Struct set_metadata = 3;
 
@@ -170,6 +194,9 @@ message UpdateResponse {
 
 // The request for the `DescribeIndexStats` operation.
 message DescribeIndexStatsRequest {
+  // If specified, the metadata filter here will be used to select the vectors to get stats about.
+  // See https://www.pinecone.io/docs/metadata-filtering/`
+  google.protobuf.Struct filter = 1;
 }
 
 // A summary of the contents of a namespace.
@@ -190,6 +217,9 @@ message DescribeIndexStatsResponse {
 
   // The fullness of the index.
   float index_fullness = 3 ;
+
+  // The total number of vectors in the index
+  uint32 total_vector_count = 4 ;
 }
 
 // The `VectorService` interface is exposed by Pinecone's vector index services.
