@@ -114,7 +114,7 @@ public class PineconeConnection implements AutoCloseable {
     }
 
     private static String getEndpoint(PineconeClientConfig clientConfig, PineconeConnectionConfig connectionConfig) {
-        String endpoint = String.format("%s-%s.svc.%s.pinecone.io",
+        String endpoint = String.format("%s-index-%s.svc.%s.pinecone.io",
                 connectionConfig.getIndexName(),
                 clientConfig.getProjectName(),
                 clientConfig.getEnvironment());
