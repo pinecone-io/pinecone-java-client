@@ -185,16 +185,4 @@ public class PineconeClientLiveIntegTest {
         conn.getBlockingStub().delete(deleteAllRequest);
     }
 
-    public static void main(String[] args) {
-        PineconeClientLiveIntegTest testInstance = new PineconeClientLiveIntegTest();
-
-        try {
-            testInstance.setUp();
-            testInstance.sanity();
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.error("Error running tests: ", e);
-        }
-    }
-
 }
