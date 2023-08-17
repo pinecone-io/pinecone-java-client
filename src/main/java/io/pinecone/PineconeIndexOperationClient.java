@@ -1,25 +1,34 @@
 package io.pinecone;
 
 import org.asynchttpclient.AsyncHttpClient;
-import org.asynchttpclient.DefaultAsyncHttpClient;
 
 import java.io.IOException;
 
 public class PineconeIndexOperationClient {
-
     private AsyncHttpClient client;
+    private PineconeClientConfig clientConfig;
+    private PineconeConnectionConfig connectionConfig;
+    private String url;
 
-    PineconeIndexOperationClient(AsyncHttpClient client) {
+    PineconeIndexOperationClient(PineconeClientConfig clientConfig, PineconeConnectionConfig connectionConfig, AsyncHttpClient client) {
+        this.clientConfig = clientConfig;
+        this.connectionConfig = connectionConfig;
         this.client = client;
+        this.url = "https://controller." + clientConfig.getEnvironment() + ".pinecone.io/databases/";
     }
 
-    public void deleteIndex(String environment, String apiKey, String indexName) throws IOException {
-        String url = "https://controller." + environment + ".pinecone.io/databases/" + indexName;
+    public PineconeIndexOperationClient(PineconeClientConfig clientConfig, PineconeConnectionConfig connectionConfig) {
+        this.clientConfig = clientConfig;
+        this.connectionConfig = connectionConfig;
+        this.url = "https://controller." + clientConfig.getEnvironment() + ".pinecone.io/databases/";
+    }
+
+    public void deleteIndex() throws IOException {
         System.out.println("Sending delete index request:");
         // ToDo: Capture Response response and customized error messages
-        client.prepare("DELETE", url)
+        client.prepare("DELETE", url + connectionConfig.getIndexName())
                 .setHeader("accept", "text/plain")
-                .setHeader("Api-Key", apiKey)
+                .setHeader("Api-Key", clientConfig.getApiKey())
                 .execute()
                 .toCompletableFuture()
                 .join();
