@@ -9,7 +9,7 @@ plugins {
 }
 
 group = 'io.pinecone'
-version = '0.2.3' // [pc:VERSION_NEXT]
+version = '0.2.4' // [pc:VERSION_NEXT]
 description = 'The Pinecone.io Java Client'
 
 sourceCompatibility = JavaVersion.VERSION_1_8
@@ -28,14 +28,17 @@ dependencies {
     runtime 'io.netty:netty-tcnative-boringssl-static:2.0.59.Final'
     implementation 'org.slf4j:slf4j-api:2.0.5'
     implementation 'com.google.api.grpc:proto-google-common-protos:2.14.3'
+    implementation 'org.asynchttpclient:async-http-client:2.12.1'
     compileOnly "org.apache.tomcat:annotations-api:6.0.53" // necessary for Java 9+
 
     testImplementation "io.grpc:grpc-testing:${grpcVersion}"
     testImplementation 'junit:junit:4.13.2'
     testImplementation "org.hamcrest:hamcrest:2.2"
-    testImplementation 'org.mockito:mockito-core:5.2.0'
+    testImplementation 'org.mockito:mockito-core:4.8.0'
     testImplementation 'org.slf4j:slf4j-simple:2.0.5'
     testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.14.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.0'
 }
 
 java {
@@ -52,6 +55,10 @@ tasks.named('jar') {
 
 tasks.named('build') {
     dependsOn('shadowJar')
+}
+
+test {
+    useJUnitPlatform()
 }
 
 // Configure Auto Relocation
