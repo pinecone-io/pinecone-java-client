@@ -51,10 +51,11 @@ public class PineconeClientLiveIntegTest {
 
 //     @Test
     public void sanity() {
+        args = new Args();
         String ns = "temp_namespace";
         PineconeConnection conn = pineconeClient.connect(
                 new PineconeConnectionConfig()
-                        .withIndexName("java-test"));
+                        .withIndexName(args.indexName));
 
         // upsert
         float[][] upsertData = {{1.0F, 2.0F, 3.0F}, {4.0F, 5.0F, 6.0F}, {7.0F, 8.0F, 9.0F}};
@@ -111,7 +112,7 @@ public class PineconeClientLiveIntegTest {
         FetchResponse fetchResponse = conn.getBlockingStub().fetch(fetchRequest);
         assert(fetchResponse.containsVectors("v1"));
 
-        // query
+        // DEPRECATED: batch queries
         float[] rawVector = {1.0F, 2.0F, 3.0F};
         QueryVector queryVector = QueryVector.newBuilder()
                 .addAllValues(Floats.asList(rawVector))
@@ -126,33 +127,44 @@ public class PineconeClientLiveIntegTest {
                 .setNamespace(ns)
                 .build();
 
-        QueryRequest queryRequest = QueryRequest.newBuilder()
+        QueryRequest batchQueryRequest = QueryRequest.newBuilder()
                 .addQueries(queryVector)
                 .setNamespace(ns)
                 .setTopK(2)
                 .setIncludeMetadata(true)
                 .build();
-//        Query by id example
-//        QueryRequest queryRequest = QueryRequest.newBuilder()
-//                .setId("v2")
-//                .setNamespace("temp_namespace")
-//                .setTopK(2)
-//                .setIncludeMetadata(true)
-//                .build();
 
-        QueryResponse queryResponse = conn.getBlockingStub().query(queryRequest);
+        QueryResponse queryResponse = conn.getBlockingStub().query(batchQueryRequest);
         assertThat(queryResponse, notNullValue());
         assertThat(queryResponse.getResultsList(), notNullValue());
         assertThat(queryResponse.getResultsCount(), equalTo(1));
-//        When querying by id and single vector, we get matches instead of results. hence use this assert
-//        When using them.
-//        assertThat(queryResponse.getMatchesCount(), equalTo(1));
-        logger.info("got query result ids: "
-                + queryResponse.getResultsList().get(0).getMatchesList());
-        assertThat(queryResponse.getResultsList().get(0).getMatchesList().size(), equalTo(2));
 
+        Iterable<Float> iterable = Arrays.asList(1.0F, 2.0F, 3.0F);
+        QueryRequest queryRequest = QueryRequest.newBuilder()
+                .addAllVector(iterable)
+                .setNamespace(ns)
+                .setTopK(2)
+                .setIncludeMetadata(true)
+                .build();
 
+        //      When querying using a single vector, we get matches instead of results
+        queryResponse = conn.getBlockingStub().query(queryRequest);
+        assertThat(queryResponse, notNullValue());
+        assertThat(queryResponse.getMatchesList(), notNullValue());
+        assertThat(queryResponse.getMatchesCount(), equalTo(2));
 
+        //        Query by id example
+        QueryRequest queryByIdRequest = QueryRequest.newBuilder()
+                .setId("v2")
+                .setNamespace("temp_namespace")
+                .setTopK(2)
+                .setIncludeMetadata(true)
+                .build();
+
+        queryResponse = conn.getBlockingStub().query(queryByIdRequest);
+        assertThat(queryResponse, notNullValue());
+        assertThat(queryResponse.getMatchesList(), notNullValue());
+        assertThat(queryResponse.getMatchesCount(), equalTo(2));
 
         // Delete
         String[] idsToDelete = {"v2"};
@@ -172,4 +184,5 @@ public class PineconeClientLiveIntegTest {
 
         conn.getBlockingStub().delete(deleteAllRequest);
     }
+
 }
