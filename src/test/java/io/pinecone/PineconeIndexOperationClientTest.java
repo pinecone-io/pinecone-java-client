@@ -15,7 +15,6 @@ public class PineconeIndexOperationClientTest {
     public void testSuccessfulIndexDeletion() throws IOException {
         AsyncHttpClient mockClient = mock(DefaultAsyncHttpClient.class);
         PineconeClientConfig clientConfig = new PineconeClientConfig().withApiKey("testApiKey").withEnvironment("testEnvironment");
-        PineconeConnectionConfig connectionConfig = new PineconeConnectionConfig().withIndexName("testIndex");
         Response mockResponse = mock(Response.class);
         BoundRequestBuilder mockBoundRequestBuilder = mock(BoundRequestBuilder.class);
         ListenableFuture<Response> mockResponseFuture = mock(ListenableFuture.class);
@@ -28,8 +27,8 @@ public class PineconeIndexOperationClientTest {
         when(mockBoundRequestBuilder.execute()).thenReturn(mockResponseFuture);
         when(mockResponseFuture.toCompletableFuture()).thenReturn(mockCompletableFuture);
 
-        PineconeIndexOperationClient indexDeletionService = new PineconeIndexOperationClient(clientConfig, connectionConfig, mockClient);
-        indexDeletionService.deleteIndex();
+        PineconeIndexOperationClient indexDeletionService = new PineconeIndexOperationClient(clientConfig, mockClient);
+        indexDeletionService.deleteIndex("testIndex");
 
         verify(mockClient, times(1)).prepare(eq("DELETE"), anyString());
         verify(mockBoundRequestBuilder).setHeader(eq("Api-Key"), eq("testApiKey"));
