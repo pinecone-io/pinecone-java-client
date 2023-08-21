@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class IndexMetadataConfig {
-    public static final String SERIALIZED_NAME_INDEXED = "indexed";
     private List<String> indexed;
 
     public IndexMetadataConfig() {

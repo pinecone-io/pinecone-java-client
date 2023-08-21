@@ -1,10 +1,13 @@
 package io.pinecone;
 
 import io.pinecone.model.CreateIndexRequest;
+import io.pinecone.model.IndexMetadataConfig;
 import org.asynchttpclient.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.Assert.fail;
@@ -121,6 +124,44 @@ public class PineconeIndexOperationClientTest {
         }
         catch (PineconeValidationException validationException) {
             System.out.println("Expected PineconeValidationException with dimension not null occurred!");
+        }
+        catch (IOException e) {
+
+        }
+    }
+
+    @Test
+    public void testIndexCreationWithAllFields() {
+        AsyncHttpClient mockClient = mock(DefaultAsyncHttpClient.class);
+        PineconeClientConfig clientConfig = new PineconeClientConfig().withApiKey("testApiKey").withEnvironment("testEnvironment");
+        Response mockResponse = mock(Response.class);
+        BoundRequestBuilder mockBoundRequestBuilder = mock(BoundRequestBuilder.class);
+        ListenableFuture<Response> mockResponseFuture = mock(ListenableFuture.class);
+        CompletableFuture<Response> mockCompletableFuture = mock(CompletableFuture.class);
+
+        when(mockResponse.getStatusCode()).thenReturn(201);
+        when(mockClient.prepare(anyString(), anyString())).thenReturn(mockBoundRequestBuilder);
+        when(mockBoundRequestBuilder.setHeader(anyString(), anyString())).thenReturn(mockBoundRequestBuilder);
+        when(mockBoundRequestBuilder.setBody(anyString())).thenReturn(mockBoundRequestBuilder);
+        when(mockBoundRequestBuilder.execute()).thenReturn(mockResponseFuture);
+        when(mockResponseFuture.toCompletableFuture()).thenReturn(mockCompletableFuture);
+
+        IndexMetadataConfig metadataConfig = new IndexMetadataConfig();
+        List<String> indexedItems = Arrays.asList("A", "B", "C", "D");
+        metadataConfig.setIndexed(indexedItems);
+        PineconeIndexOperationClient indexDeletionService = new PineconeIndexOperationClient(clientConfig, mockClient);
+        CreateIndexRequest createIndexRequest = new CreateIndexRequest()
+                .indexName("test_name")
+                .dimension(3)
+                .metric("euclidean")
+                .pods(2)
+                .podType("p1.x2")
+                .replicas(2)
+                .metadataConfig(metadataConfig)
+                .sourceCollection("step");
+
+        try{
+            indexDeletionService.createIndex(createIndexRequest);
         }
         catch (IOException e) {
 
