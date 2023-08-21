@@ -1,7 +1,6 @@
 package io.pinecone;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import io.pinecone.model.CreateIndexRequest;
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.DefaultAsyncHttpClient;
 
@@ -12,7 +11,6 @@ public class PineconeIndexOperationClient {
     private PineconeClientConfig clientConfig;
     private String url;
 
-    // for testing purpose only
     PineconeIndexOperationClient(PineconeClientConfig clientConfig, AsyncHttpClient client) {
         this.clientConfig = clientConfig;
         this.client = client;
@@ -37,21 +35,12 @@ public class PineconeIndexOperationClient {
         client.close();
     }
 
-    public void createIndex(String indexName, int dimension, String metric) throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode jsonNode = objectMapper.createObjectNode()
-                .put("metric", metric)
-                .put("pods", 1)
-                .put("replicas", 1)
-                .put("pod_type", "p1.x1")
-                .put("name", indexName)
-                .put("dimension", dimension);
-
+    public void createIndex(CreateIndexRequest createIndexRequest) throws IOException {
         client.prepare("POST", url)
                 .setHeader("accept", "text/plain")
                 .setHeader("content-type", "application/json")
                 .setHeader("Api-Key", clientConfig.getApiKey())
-                .setBody(jsonNode.toString())
+                .setBody(createIndexRequest.toJson())
                 .execute()
                 .toCompletableFuture()
                 .join();
