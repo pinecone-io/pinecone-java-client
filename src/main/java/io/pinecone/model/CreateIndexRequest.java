@@ -70,7 +70,6 @@ public class CreateIndexRequest {
      * The distance metric to be used for similarity search. You can use 'euclidean', 'cosine', or 'dotproduct'.
      * @return metric
      **/
-    @javax.annotation.Nullable
     public String getMetric() {
         return metric;
     }
@@ -88,7 +87,6 @@ public class CreateIndexRequest {
      * The number of pods for the index to use,including replicas.
      * @return pods
      **/
-    @javax.annotation.Nullable
     public Integer getPods() {
         return pods;
     }
@@ -106,7 +104,6 @@ public class CreateIndexRequest {
      * The number of replicas. Replicas duplicate your index. They provide higher availability and throughput.
      * @return replicas
      **/
-    @javax.annotation.Nullable
     public Integer getReplicas() {
         return replicas;
     }
@@ -124,7 +121,6 @@ public class CreateIndexRequest {
      * The type of pod to use. One of s1, p1, or p2 appended with . and one of x1, x2, x4, or x8.
      * @return podType
      **/
-    @javax.annotation.Nullable
     public String getPodType() {
         return podType;
     }
@@ -160,6 +156,7 @@ public class CreateIndexRequest {
      * The name of the collection to create an index from
      * @return sourceCollection
      **/
+    @javax.annotation.Nullable
     public String getSourceCollection() {
         return sourceCollection;
     }
