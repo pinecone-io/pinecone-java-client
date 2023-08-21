@@ -25,7 +25,7 @@ public class CreateIndexRequest {
     public CreateIndexRequest() {
     }
 
-    public CreateIndexRequest indexName(String name) {
+    public CreateIndexRequest withIndexName(String name) {
         this.indexName = name;
         return this;
     }
@@ -34,7 +34,7 @@ public class CreateIndexRequest {
      * The name of the index to be created. The maximum length is 45 characters.
      * @return name
      **/
-    @javax.annotation.Nullable
+    @javax.annotation.Nonnull
     public String getIndexName() {
         return indexName;
     }
@@ -43,7 +43,7 @@ public class CreateIndexRequest {
         this.indexName = indexName;
     }
 
-    public CreateIndexRequest dimension(Integer dimension) {
+    public CreateIndexRequest withDimension(Integer dimension) {
         this.dimension = dimension;
         return this;
     }
@@ -61,13 +61,13 @@ public class CreateIndexRequest {
         this.dimension = dimension;
     }
 
-    public CreateIndexRequest metric(String metric) {
+    public CreateIndexRequest withMetric(String metric) {
         this.metric = metric;
         return this;
     }
 
     /**
-     * The distance metric to be used for similarity search. You can use &#39;euclidean&#39;, &#39;cosine&#39;, or &#39;dotproduct&#39;.
+     * The distance metric to be used for similarity search. You can use 'euclidean', 'cosine', or 'dotproduct'.
      * @return metric
      **/
     @javax.annotation.Nullable
@@ -79,7 +79,7 @@ public class CreateIndexRequest {
         this.metric = metric;
     }
 
-    public CreateIndexRequest pods(Integer pods) {
+    public CreateIndexRequest withPods(Integer pods) {
         this.pods = pods;
         return this;
     }
@@ -97,7 +97,7 @@ public class CreateIndexRequest {
         this.pods = pods;
     }
 
-    public CreateIndexRequest replicas(Integer replicas) {
+    public CreateIndexRequest withReplicas(Integer replicas) {
         this.replicas = replicas;
         return this;
     }
@@ -115,7 +115,7 @@ public class CreateIndexRequest {
         this.replicas = replicas;
     }
 
-    public CreateIndexRequest podType(String podType) {
+    public CreateIndexRequest withPodType(String podType) {
         this.podType = podType;
         return this;
     }
@@ -133,7 +133,7 @@ public class CreateIndexRequest {
         this.podType = podType;
     }
 
-    public CreateIndexRequest metadataConfig(IndexMetadataConfig metadataConfig) {
+    public CreateIndexRequest withMetadataConfig(IndexMetadataConfig metadataConfig) {
         this.metadataConfig = metadataConfig;
         return this;
     }
@@ -151,7 +151,7 @@ public class CreateIndexRequest {
         this.metadataConfig = metadataConfig;
     }
 
-    public CreateIndexRequest sourceCollection(String sourceCollection) {
+    public CreateIndexRequest withSourceCollection(String sourceCollection) {
         this.sourceCollection = sourceCollection;
         return this;
     }
