@@ -2,7 +2,10 @@
 
 [comment]: <> (When bumping [pc:VERSION_LATEST_RELEASE] create a new entry below)
 
-
+### v0.2.4
+- Added support for index operations
+  - Ability to create index
+  - Ability to delete index
 
 ### v0.2.3
 - Update to use latest protos
