@@ -9,7 +9,7 @@ plugins {
 }
 
 group = 'io.pinecone'
-version = '0.3.3' // [pc:VERSION_NEXT]
+version = '0.3.0' // [pc:VERSION_NEXT]
 description = 'The Pinecone.io Java Client'
 
 sourceCompatibility = JavaVersion.VERSION_1_8
