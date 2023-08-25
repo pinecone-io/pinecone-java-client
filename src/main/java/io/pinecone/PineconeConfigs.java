@@ -8,8 +8,11 @@ public class PineconeConfigs {
     private PineconeConnectionConfig connectionConfig;
 
     public PineconeConfigs() {
-        clientConfig = new PineconeClientConfig();
-        connectionConfig = new PineconeConnectionConfig();
+    }
+
+    protected  PineconeConfigs(PineconeConfigs other) {
+        clientConfig = other.clientConfig;
+        connectionConfig = other.connectionConfig;
     }
 
     public PineconeConfigs(PineconeClientConfig clientConfig, PineconeConnectionConfig connectionConfig) {
@@ -44,10 +47,14 @@ public class PineconeConfigs {
     }
 
     public PineconeConfigs withClientConfig(PineconeClientConfig clientConfig) {
-        return new PineconeConfigs(clientConfig, new PineconeConnectionConfig());
+        PineconeConfigs configs = new PineconeConfigs(this);
+        configs.clientConfig = clientConfig;
+        return configs;
     }
 
     public PineconeConfigs withConnectionConfig(PineconeConnectionConfig connectionConfig) {
-        return new PineconeConfigs(new PineconeClientConfig(), connectionConfig);
+        PineconeConfigs configs = new PineconeConfigs(this);
+        configs.connectionConfig = connectionConfig;
+        return configs;
     }
 }
