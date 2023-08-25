@@ -36,7 +36,7 @@ public class PineconeConfigTest {
     @Test
     public void testSingleCharacterIndexName() {
         String apiKey = "api-key";
-        String connectionURL = "https://a-abcdef123.svc.development.pinecone.io";
+        String connectionURL = "https://a-abcdef123.svc.us-east4-gcp.pinecone.io";
 
         PineconeConfigs config = new PineconeConfigs(apiKey, connectionURL);
 
@@ -44,7 +44,7 @@ public class PineconeConfigTest {
         assertNotNull(config.getConnectionConfig());
         assertEquals(apiKey, config.getClientConfig().getApiKey());
         assertEquals("abcdef123", config.getClientConfig().getProjectName());
-        assertEquals("development", config.getClientConfig().getEnvironment());
+        assertEquals("us-east4-gcp", config.getClientConfig().getEnvironment());
         assertEquals("a", config.getConnectionConfig().getIndexName());
     }
 
@@ -59,7 +59,7 @@ public class PineconeConfigTest {
     @Test
     public void testUpperCaseIndexAndProjectName() {
         String apiKey = "secret-api-key";
-        String connectionURL = "https://INDEX-UPPER-3901-A120EF.svc.development.pinecone.io";
+        String connectionURL = "https://INDEX-UPPER-3901-A120EF.svc.us-west1-aws.pinecone.io";
 
         PineconeConfigs config = new PineconeConfigs(apiKey, connectionURL);
 
@@ -67,7 +67,7 @@ public class PineconeConfigTest {
         assertNotNull(config.getConnectionConfig());
         assertEquals(apiKey, config.getClientConfig().getApiKey());
         assertEquals("A120EF", config.getClientConfig().getProjectName());
-        assertEquals("development", config.getClientConfig().getEnvironment());
+        assertEquals("us-west1-aws", config.getClientConfig().getEnvironment());
         assertEquals("INDEX-UPPER-3901", config.getConnectionConfig().getIndexName());
     }
 

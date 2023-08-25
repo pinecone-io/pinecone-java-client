@@ -18,7 +18,7 @@ public class PineconeConfigs {
     }
 
     public PineconeConfigs(String apiKey, String connectionURL) {
-        String pattern = "https://([a-zA-Z0-9-]{1,45})-([a-fA-F0-9]+)\\.svc\\.([a-zA-Z0-9]+)\\.pinecone\\.io";
+        String pattern = "https://([a-zA-Z0-9-]{1,45})-([a-fA-F0-9]+)\\.svc\\.([a-zA-Z0-9-]+)\\.pinecone\\.io";
         Pattern regexPattern = Pattern.compile(pattern);
         Matcher matcher = regexPattern.matcher(connectionURL);
 
