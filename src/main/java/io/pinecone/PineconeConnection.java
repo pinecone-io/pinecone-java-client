@@ -113,15 +113,16 @@ public class PineconeConnection implements AutoCloseable {
                 .withMaxOutboundMessageSize(DEFAULT_MAX_MESSAGE_SIZE);
     }
 
-    private static String getEndpoint(PineconeClientConfig clientConfig, PineconeConnectionConfig connectionConfig) {
-        String endpoint = String.format("%s-%s.svc.%s.pinecone.io",
-                connectionConfig.getIndexName(),
-                clientConfig.getProjectName(),
-                clientConfig.getEnvironment());
+    static String getEndpoint(PineconeClientConfig clientConfig, PineconeConnectionConfig connectionConfig) {
+        String endpoint = (connectionConfig.getConnectionUrl() != null) ?
+                connectionConfig.getConnectionUrl() :
+                String.format("%s-%s.svc.%s.pinecone.io",
+                        connectionConfig.getIndexName(),
+                        clientConfig.getProjectName(),
+                        clientConfig.getEnvironment());
 
         logger.debug("Pinecone endpoint is: " + endpoint);
 
         return endpoint;
-
     }
 }

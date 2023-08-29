@@ -17,20 +17,20 @@ public class PineconeConfigs {
         this.connectionConfig = connectionConfig;
     }
 
-    public PineconeConfigs(String apiKey, String connectionURL) {
-        String pattern = "https://([a-zA-Z0-9-]{1,45})-([a-fA-F0-9]+)\\.svc\\.([a-zA-Z0-9-]+)\\.pinecone\\.io";
+    public PineconeConfigs(String apiKey, String connectionUrl) {
+        String pattern = "https://([a-zA-Z0-9-]+)-([a-fA-F0-9]+)\\.svc\\.([a-zA-Z0-9-]+)\\.pinecone\\.io";
         Pattern regexPattern = Pattern.compile(pattern);
-        Matcher matcher = regexPattern.matcher(connectionURL);
+        Matcher matcher = regexPattern.matcher(connectionUrl);
 
         if (matcher.matches()) {
             String indexName = matcher.group(1);
             String projectName = matcher.group(2);
             String environment = matcher.group(3);
             clientConfig = new PineconeClientConfig().withApiKey(apiKey).withProjectName(projectName).withEnvironment(environment);
-            connectionConfig = new PineconeConnectionConfig().withIndexName(indexName);
+            connectionConfig = new PineconeConnectionConfig().withIndexName(indexName).withConnectionUrl(connectionUrl);
         }
         else {
-            throw new PineconeValidationException("Unable to parse connection url");
+            throw new PineconeValidationException("Unable to parse connection url " + connectionUrl);
         }
     }
 

@@ -3,6 +3,8 @@ package io.pinecone;
 import io.grpc.ManagedChannel;
 
 import java.util.function.BiFunction;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This class contains the connection-level configuration options for the Pinecone client.
@@ -16,6 +18,8 @@ public class PineconeConnectionConfig {
      */
     private String indexName;
 
+    private String connectionUrl;
+
     /**
      * Creates a new default config.
      */
@@ -23,6 +27,7 @@ public class PineconeConnectionConfig {
 
     protected PineconeConnectionConfig(PineconeConnectionConfig other) {
         indexName = other.indexName;
+        connectionUrl = other.connectionUrl;
         customChannelBuilder = other.customChannelBuilder;
     }
 
@@ -39,6 +44,16 @@ public class PineconeConnectionConfig {
     public PineconeConnectionConfig withIndexName(String indexName) {
         PineconeConnectionConfig config = new PineconeConnectionConfig(this);
         config.indexName = indexName;
+        return config;
+    }
+
+    public String getConnectionUrl() {
+        return connectionUrl;
+    }
+
+    public PineconeConnectionConfig withConnectionUrl(String connectionUrl) {
+        PineconeConnectionConfig config = new PineconeConnectionConfig(this);
+        config.connectionUrl = connectionUrl;
         return config;
     }
 
