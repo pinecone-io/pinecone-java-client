@@ -100,10 +100,6 @@ public class PineconeClientConfig {
     void validate() {
         if (apiKey == null)
             throw new PineconeValidationException("Invalid Pinecone config: missing apiKey");
-        if (environment == null)
-            throw new PineconeValidationException("Invalid Pinecone config: missing environment");
-        if (projectName == null)
-            throw new PineconeValidationException("Invalid Pinecone config: missing projectName ");
     }
 
     @Override

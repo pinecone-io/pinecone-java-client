@@ -37,8 +37,8 @@ public final class PineconeClient {
         return new PineconeConnection(config, connectionConfig);
     }
 
-    public PineconeConnection connect(String apiKey, String connectionUrl) {
-        return new PineconeConnection(new PineconeClientConfig().withApiKey(apiKey),
-                new PineconeConnectionConfig().withConnectionUrl(connectionUrl));
+    public PineconeConnection connectWithUrl(String connectionUrl) {
+        return connect(new PineconeConnectionConfig()
+                .withConnectionUrl(connectionUrl));
     }
 }

@@ -67,8 +67,8 @@ public class PineconeConnectionConfig {
 
     void validate() {
         String messagePrefix = "Invalid Pinecone config: ";
-        if (indexName == null)
-            throw new PineconeValidationException(messagePrefix + "indexName must be specified");
+        if (indexName == null && connectionUrl == null)
+            throw new PineconeValidationException(messagePrefix + "indexName or connection url must be specified");
     }
 
     @Override

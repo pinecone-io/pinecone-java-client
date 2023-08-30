@@ -2,7 +2,6 @@ package io.pinecone;
 
 import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
-import io.grpc.StatusRuntimeException;
 import io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.NegotiationType;
 import io.grpc.netty.NettyChannelBuilder;
@@ -115,7 +114,7 @@ public class PineconeConnection implements AutoCloseable {
 
     static String getEndpoint(PineconeClientConfig clientConfig, PineconeConnectionConfig connectionConfig) {
         String endpoint = (connectionConfig.getConnectionUrl() != null) ?
-                connectionConfig.getConnectionUrl() :
+                connectionConfig.getConnectionUrl().split("//")[1] :
                 String.format("%s-%s.svc.%s.pinecone.io",
                         connectionConfig.getIndexName(),
                         clientConfig.getProjectName(),
