@@ -5,16 +5,27 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PineconeConnectionTest {
-    
+
     @Test
-    void testGetEndpointWithConnectionUrl() {
+    void testGetEndpointWithConnectionUrlWithHttps() {
         PineconeClientConfig clientConfig = new PineconeClientConfig().withApiKey("api-key");
         PineconeConnectionConfig connectionConfig = new PineconeConnectionConfig()
                 .withConnectionUrl("https://steps-784-123-eqasas0aaaa1213aasasc-1223-f1eea9.svc.production.pinecone.io");
 
         String endpoint = PineconeConnection.getEndpoint(clientConfig, connectionConfig);
 
-        assertEquals("https://steps-784-123-eqasas0aaaa1213aasasc-1223-f1eea9.svc.production.pinecone.io", endpoint);
+        assertEquals("steps-784-123-eqasas0aaaa1213aasasc-1223-f1eea9.svc.production.pinecone.io", endpoint);
+    }
+
+    @Test
+    void testGetEndpointWithConnectionUrlWithHttp() {
+        PineconeClientConfig clientConfig = new PineconeClientConfig().withApiKey("api-key");
+        PineconeConnectionConfig connectionConfig = new PineconeConnectionConfig()
+                .withConnectionUrl("http://steps-784-123-eqasas0aaaa1213aasasc-1223-f1eea9.svc.production.pinecone.io");
+
+        String endpoint = PineconeConnection.getEndpoint(clientConfig, connectionConfig);
+
+        assertEquals("steps-784-123-eqasas0aaaa1213aasasc-1223-f1eea9.svc.production.pinecone.io", endpoint);
     }
 
     @Test
