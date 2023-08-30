@@ -2,7 +2,6 @@ package io.pinecone;
 
 import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
-import io.grpc.StatusRuntimeException;
 import io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.NegotiationType;
 import io.grpc.netty.NettyChannelBuilder;
@@ -36,9 +35,10 @@ public class PineconeConnection implements AutoCloseable {
     private VectorServiceGrpc.VectorServiceStub asyncStub;
 
     public PineconeConnection(PineconeClientConfig clientConfig, PineconeConnectionConfig connectionConfig) {
-        connectionConfig.validate();
         this.connectionConfig = connectionConfig;
         this.clientConfig = clientConfig;
+        validateConfigs();
+
         channel = connectionConfig.getCustomChannelBuilder() != null
                 ? connectionConfig.getCustomChannelBuilder().apply(clientConfig, connectionConfig)
                 : buildChannel(clientConfig, connectionConfig);
@@ -113,15 +113,37 @@ public class PineconeConnection implements AutoCloseable {
                 .withMaxOutboundMessageSize(DEFAULT_MAX_MESSAGE_SIZE);
     }
 
-    private static String getEndpoint(PineconeClientConfig clientConfig, PineconeConnectionConfig connectionConfig) {
-        String endpoint = String.format("%s-%s.svc.%s.pinecone.io",
-                connectionConfig.getIndexName(),
-                clientConfig.getProjectName(),
-                clientConfig.getEnvironment());
+    static String getEndpoint(PineconeClientConfig clientConfig, PineconeConnectionConfig connectionConfig) {
+        String endpoint = (connectionConfig.getConnectionUrl() != null) ?
+                connectionConfig.getConnectionUrl().replaceFirst("https?://", "") :
+                String.format("%s-%s.svc.%s.pinecone.io",
+                        connectionConfig.getIndexName(),
+                        clientConfig.getProjectName(),
+                        clientConfig.getEnvironment());
 
         logger.debug("Pinecone endpoint is: " + endpoint);
 
         return endpoint;
+    }
 
+    void validateConfigs() throws PineconeValidationException {
+        if (this.clientConfig == null) {
+            throw new PineconeValidationException("PineconeClientConfiguration may not be null");
+        }
+
+        if (this.connectionConfig == null) {
+            throw new PineconeValidationException("PineconeConnectionConfig may not be null");
+        }
+
+        this.clientConfig.validate();
+        this.connectionConfig.validate();
+
+        if (this.connectionConfig.getIndexName() != null) {
+            if (this.clientConfig.getEnvironment() == null || this.clientConfig.getProjectName() == null) {
+                throw new PineconeValidationException("Cannot connect with indexName "
+                        + this.connectionConfig.getIndexName()
+                        + " unless PineconeClientConfig contains projectName and environment");
+            }
+        }
     }
 }

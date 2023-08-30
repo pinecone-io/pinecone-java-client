@@ -16,6 +16,8 @@ public class PineconeConnectionConfig {
      */
     private String indexName;
 
+    private String connectionUrl;
+
     /**
      * Creates a new default config.
      */
@@ -23,6 +25,7 @@ public class PineconeConnectionConfig {
 
     protected PineconeConnectionConfig(PineconeConnectionConfig other) {
         indexName = other.indexName;
+        connectionUrl = other.connectionUrl;
         customChannelBuilder = other.customChannelBuilder;
     }
 
@@ -42,6 +45,16 @@ public class PineconeConnectionConfig {
         return config;
     }
 
+    public String getConnectionUrl() {
+        return connectionUrl;
+    }
+
+    public PineconeConnectionConfig withConnectionUrl(String connectionUrl) {
+        PineconeConnectionConfig config = new PineconeConnectionConfig(this);
+        config.connectionUrl = connectionUrl;
+        return config;
+    }
+
     public BiFunction<PineconeClientConfig, PineconeConnectionConfig, ManagedChannel> getCustomChannelBuilder() {
         return customChannelBuilder;
     }
@@ -53,9 +66,8 @@ public class PineconeConnectionConfig {
     }
 
     void validate() {
-        String messagePrefix = "Invalid Pinecone config: ";
-        if (indexName == null)
-            throw new PineconeValidationException(messagePrefix + "indexName must be specified");
+        if (indexName == null && connectionUrl == null)
+            throw new PineconeValidationException("Invalid PineconeConnectionConfig, indexName or connection url must be specified.");
     }
 
     @Override
@@ -63,6 +75,7 @@ public class PineconeConnectionConfig {
         return "PineconeConnectionConfig("
                 + "customChannelBuilder=" + getCustomChannelBuilder()
                 + ", indexName=" + getIndexName()
+                + ", connectionUrl=" + getConnectionUrl()
                 + ")";
     }
 }
