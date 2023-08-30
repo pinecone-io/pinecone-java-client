@@ -1,6 +1,10 @@
 # Changelog
 
 [comment]: <> (When bumping [pc:VERSION_LATEST_RELEASE] create a new entry below)
+### Unreleased version
+
+### v0.4.0
+- Add support to pass connection url to config objects for data plane operations only
 
 ### v0.3.0
 - Added ability for index operations to
