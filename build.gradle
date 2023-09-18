@@ -28,6 +28,8 @@ dependencies {
     runtime 'io.netty:netty-tcnative-boringssl-static:2.0.59.Final'
     implementation 'org.slf4j:slf4j-api:2.0.5'
     implementation 'com.google.api.grpc:proto-google-common-protos:2.14.3'
+    implementation 'com.squareup.okhttp3:okhttp:4.10.0'
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.10.0")
     implementation 'org.asynchttpclient:async-http-client:2.12.1'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.14.2'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.14.2'
@@ -36,7 +38,7 @@ dependencies {
     testImplementation "io.grpc:grpc-testing:${grpcVersion}"
     testImplementation 'junit:junit:4.13.2'
     testImplementation "org.hamcrest:hamcrest:2.2"
-    testImplementation 'org.mockito:mockito-core:4.8.0'
+    testImplementation 'org.mockito:mockito-inline:4.8.0'
     testImplementation 'org.slf4j:slf4j-simple:2.0.5'
     testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.14.2'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.0'

@@ -186,7 +186,7 @@ public class CreateIndexRequest {
         if(jsonNode.get("name").isNull()) {
             throw new PineconeValidationException("Index name cannot be empty");
         }
-        System.out.println("jsonString: " + jsonNode.get("dimension"));
+
         if(jsonNode.get("dimension").isNull()) {
             throw new PineconeValidationException("Dimension cannot be empty");
         }
