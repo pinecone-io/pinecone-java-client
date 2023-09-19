@@ -3,7 +3,6 @@ package io.pinecone;
 import io.pinecone.model.CreateIndexRequest;
 import okhttp3.*;
 import java.io.IOException;
-
 import static io.pinecone.utils.Constants.*;
 
 public class PineconeIndexOperationClient {
@@ -35,8 +34,7 @@ public class PineconeIndexOperationClient {
             if (!response.isSuccessful()) {
                 throw new IOException(response.message());
             }
-        }
-        finally {
+        } finally {
             close(client);
         }
     }
@@ -57,8 +55,7 @@ public class PineconeIndexOperationClient {
             if (!response.isSuccessful()) {
                 throw new IOException(response.message());
             }
-        }
-        finally {
+        } finally {
             close(client);
         }
     }

@@ -3,23 +3,22 @@ package io.pinecone;
 import io.pinecone.model.CreateIndexRequest;
 import io.pinecone.model.IndexMetadataConfig;
 import okhttp3.*;
+import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeAll;
 
 import java.io.IOException;
-
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
-
-import okhttp3.mockwebserver.MockWebServer;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
+
 public class PineconeIndexOperationClientTest {
     private static MockWebServer mockWebServer;
+
     @BeforeAll
     public static void setUp() throws IOException {
         mockWebServer = new MockWebServer();
