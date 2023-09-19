@@ -17,9 +17,6 @@ public class PineconeClientConfig {
      */
     private String apiKey;
 
-    /**
-     * Required project name
-     */
     private String projectName;
 
     private String environment;

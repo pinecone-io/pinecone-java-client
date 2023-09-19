@@ -10,16 +10,26 @@ public class PineconeIndexOperationClient {
     private final PineconeClientConfig clientConfig;
     private final String url;
 
-    PineconeIndexOperationClient(PineconeClientConfig clientConfig, OkHttpClient client) {
-        this.clientConfig = clientConfig;
+    private PineconeIndexOperationClient(PineconeClientConfig clientConfig, OkHttpClient client, String url) {
         this.client = client;
-        this.url = BASE_URL_PREFIX + clientConfig.getEnvironment() + BASE_URL_SUFFIX;
+        this.clientConfig = clientConfig;
+        this.url = url;
+    }
+
+    public PineconeIndexOperationClient(PineconeClientConfig clientConfig, OkHttpClient client) {
+        this(clientConfig, client, createUrl(clientConfig));
     }
 
     public PineconeIndexOperationClient(PineconeClientConfig clientConfig) {
-        this.clientConfig = clientConfig;
-        this.client = new OkHttpClient();
-        this.url = BASE_URL_PREFIX + clientConfig.getEnvironment() + BASE_URL_SUFFIX;
+        this(clientConfig, new OkHttpClient());
+    }
+
+    private static String createUrl(PineconeClientConfig clientConfig) {
+        if (clientConfig.getApiKey() == null || clientConfig.getEnvironment() == null) {
+            throw new PineconeValidationException("Both API key and environment name are required for index operations.");
+        }
+
+        return BASE_URL_PREFIX + clientConfig.getEnvironment() + BASE_URL_SUFFIX;
     }
 
     public void deleteIndex(String indexName) throws IOException {

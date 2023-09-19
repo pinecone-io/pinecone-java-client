@@ -31,9 +31,37 @@ public class PineconeIndexOperationClientTest {
     }
 
     @Test
+    public void IndexOpsWithoutApiKey() throws IOException {
+        PineconeClientConfig clientConfig = new PineconeClientConfig()
+                .withEnvironment("testEnvironment");
+        OkHttpClient mockClient = mock(OkHttpClient.class);
+
+        assertThrows(PineconeValidationException.class, () -> new PineconeIndexOperationClient(clientConfig, mockClient));
+    }
+
+    @Test
+    public void IndexOpsWithoutEnvironment() throws IOException {
+        PineconeClientConfig clientConfig = new PineconeClientConfig()
+                .withApiKey("testApiKey");
+        OkHttpClient mockClient = mock(OkHttpClient.class);
+
+        assertThrows(PineconeValidationException.class, () -> new PineconeIndexOperationClient(clientConfig, mockClient));
+    }
+
+    @Test
+    public void IndexOpsWithoutApiKeyAndEnvironment() throws IOException {
+        PineconeClientConfig clientConfig = new PineconeClientConfig();
+        OkHttpClient mockClient = mock(OkHttpClient.class);
+
+        assertThrows(PineconeValidationException.class, () -> new PineconeIndexOperationClient(clientConfig, mockClient));
+    }
+
+    @Test
     public void testDeleteIndex() throws IOException {
         String indexName = "testIndex";
-        PineconeClientConfig clientConfig = new PineconeClientConfig().withApiKey("testApiKey");
+        PineconeClientConfig clientConfig = new PineconeClientConfig()
+                .withApiKey("testApiKey")
+                .withEnvironment("testEnvironment");
 
         Call mockCall = mock(Call.class);
         when(mockCall.execute()).thenReturn(new Response.Builder()
@@ -65,7 +93,9 @@ public class PineconeIndexOperationClientTest {
 
     @Test
     public void testCreateIndex() throws IOException {
-        PineconeClientConfig clientConfig = new PineconeClientConfig().withApiKey("testApiKey");
+        PineconeClientConfig clientConfig = new PineconeClientConfig()
+                .withApiKey("testApiKey")
+                .withEnvironment("testEnvironment");
         CreateIndexRequest createIndexRequest = new CreateIndexRequest()
                 .withIndexName("test_name").withDimension(3);
 
@@ -99,7 +129,9 @@ public class PineconeIndexOperationClientTest {
 
     @Test
     public void testCreateIndexWithNullIndex() {
-        PineconeClientConfig clientConfig = new PineconeClientConfig().withApiKey("testApiKey");
+        PineconeClientConfig clientConfig = new PineconeClientConfig()
+                .withApiKey("testApiKey")
+                .withEnvironment("testEnvironment");
         CreateIndexRequest createIndexRequest = new CreateIndexRequest().withDimension(3);
 
         OkHttpClient mockClient = mock(OkHttpClient.class);
@@ -109,7 +141,9 @@ public class PineconeIndexOperationClientTest {
 
     @Test
     public void testCreateIndexWithNullDimensions() {
-        PineconeClientConfig clientConfig = new PineconeClientConfig().withApiKey("testApiKey");
+        PineconeClientConfig clientConfig = new PineconeClientConfig()
+                .withApiKey("testApiKey")
+                .withEnvironment("testEnvironment");
         CreateIndexRequest createIndexRequest = new CreateIndexRequest().withIndexName("testIndexName");
 
         OkHttpClient mockClient = mock(OkHttpClient.class);
@@ -119,7 +153,9 @@ public class PineconeIndexOperationClientTest {
 
     @Test
     public void testCreateIndexWithAllFields() throws IOException {
-        PineconeClientConfig clientConfig = new PineconeClientConfig().withApiKey("testApiKey");
+        PineconeClientConfig clientConfig = new PineconeClientConfig()
+                .withApiKey("testApiKey")
+                .withEnvironment("testEnvironment");
 
         IndexMetadataConfig metadataConfig = new IndexMetadataConfig();
         List<String> indexedItems = Arrays.asList("A", "B", "C", "D");
