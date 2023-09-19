@@ -14,13 +14,13 @@ public class PineconeIndexOperationClient {
     PineconeIndexOperationClient(PineconeClientConfig clientConfig, OkHttpClient client) {
         this.clientConfig = clientConfig;
         this.client = client;
-        this.url = "https://controller." + clientConfig.getEnvironment() + ".pinecone.io/databases/";
+        this.url = BASE_URL_PREFIX + clientConfig.getEnvironment() + BASE_URL_SUFFIX;
     }
 
     public PineconeIndexOperationClient(PineconeClientConfig clientConfig) {
         this.clientConfig = clientConfig;
         this.client = new OkHttpClient();
-        this.url = "https://controller." + clientConfig.getEnvironment() + ".pinecone.io/databases/";
+        this.url = BASE_URL_PREFIX + clientConfig.getEnvironment() + BASE_URL_SUFFIX;
     }
 
     public void deleteIndex(String indexName) throws IOException {
@@ -43,7 +43,7 @@ public class PineconeIndexOperationClient {
 
     public void createIndex(CreateIndexRequest createIndexRequest) throws IOException {
         MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
-        RequestBody requestBody = RequestBody.create(mediaType, createIndexRequest.toJson());
+        RequestBody requestBody = RequestBody.create(createIndexRequest.toJson(), mediaType);
 
         Request request = new Request.Builder()
                 .url(url)

@@ -36,7 +36,6 @@ dependencies {
     compileOnly "org.apache.tomcat:annotations-api:6.0.53" // necessary for Java 9+
 
     testImplementation "io.grpc:grpc-testing:${grpcVersion}"
-    testImplementation 'junit:junit:4.13.2'
     testImplementation "org.hamcrest:hamcrest:2.2"
     testImplementation 'org.mockito:mockito-inline:4.8.0'
     testImplementation 'org.slf4j:slf4j-simple:2.0.5'
