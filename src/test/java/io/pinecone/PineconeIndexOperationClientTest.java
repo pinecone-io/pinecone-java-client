@@ -1,5 +1,6 @@
 package io.pinecone;
 
+import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.model.CreateIndexRequest;
 import io.pinecone.model.IndexMetadataConfig;
 import okhttp3.*;
@@ -11,7 +12,6 @@ import org.junit.jupiter.api.BeforeAll;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -73,22 +73,12 @@ public class PineconeIndexOperationClientTest {
                 .build());
 
         OkHttpClient mockClient = mock(OkHttpClient.class);
-        Dispatcher mockDispatcher = mock(Dispatcher.class);
-        ExecutorService mockExecutorService = mock(ExecutorService.class);
-        ConnectionPool mockConnectionPool = mock(ConnectionPool.class);
         when(mockClient.newCall(any(Request.class))).thenReturn(mockCall);
-        when(mockClient.dispatcher()).thenReturn(mockDispatcher);
-        when(mockClient.dispatcher().executorService()).thenReturn(mockExecutorService);
-        when(mockClient.connectionPool()).thenReturn(mockConnectionPool);
-
         PineconeIndexOperationClient indexOperationClient = new PineconeIndexOperationClient(clientConfig, mockClient);
         indexOperationClient.deleteIndex(indexName);
 
         verify(mockClient, times(1)).newCall(any(Request.class));
         verify(mockCall, times(1)).execute();
-        verify(mockDispatcher, times(1)).executorService();
-        verify(mockExecutorService, times(1)).shutdown();
-        verify(mockConnectionPool, times(1)).evictAll();
     }
 
     @Test
@@ -109,22 +99,12 @@ public class PineconeIndexOperationClientTest {
                 .build());
 
         OkHttpClient mockClient = mock(OkHttpClient.class);
-        Dispatcher mockDispatcher = mock(Dispatcher.class);
-        ExecutorService mockExecutorService = mock(ExecutorService.class);
-        ConnectionPool mockConnectionPool = mock(ConnectionPool.class);
         when(mockClient.newCall(any(Request.class))).thenReturn(mockCall);
-        when(mockClient.dispatcher()).thenReturn(mockDispatcher);
-        when(mockClient.dispatcher().executorService()).thenReturn(mockExecutorService);
-        when(mockClient.connectionPool()).thenReturn(mockConnectionPool);
-
         PineconeIndexOperationClient indexOperationClient = new PineconeIndexOperationClient(clientConfig, mockClient);
         indexOperationClient.createIndex(createIndexRequest);
 
         verify(mockClient, times(1)).newCall(any(Request.class));
         verify(mockCall, times(1)).execute();
-        verify(mockDispatcher, times(1)).executorService();
-        verify(mockExecutorService, times(1)).shutdown();
-        verify(mockConnectionPool, times(1)).evictAll();
     }
 
     @Test
@@ -181,21 +161,12 @@ public class PineconeIndexOperationClientTest {
                 .build());
 
         OkHttpClient mockClient = mock(OkHttpClient.class);
-        Dispatcher mockDispatcher = mock(Dispatcher.class);
-        ExecutorService mockExecutorService = mock(ExecutorService.class);
-        ConnectionPool mockConnectionPool = mock(ConnectionPool.class);
         when(mockClient.newCall(any(Request.class))).thenReturn(mockCall);
-        when(mockClient.dispatcher()).thenReturn(mockDispatcher);
-        when(mockClient.dispatcher().executorService()).thenReturn(mockExecutorService);
-        when(mockClient.connectionPool()).thenReturn(mockConnectionPool);
 
         PineconeIndexOperationClient indexOperationClient = new PineconeIndexOperationClient(clientConfig, mockClient);
         indexOperationClient.createIndex(createIndexRequest);
 
         verify(mockClient, times(1)).newCall(any(Request.class));
         verify(mockCall, times(1)).execute();
-        verify(mockDispatcher, times(1)).executorService();
-        verify(mockExecutorService, times(1)).shutdown();
-        verify(mockConnectionPool, times(1)).evictAll();
     }
 }

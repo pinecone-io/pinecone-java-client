@@ -3,7 +3,7 @@ package io.pinecone.model;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.pinecone.PineconeValidationException;
+import io.pinecone.exceptions.PineconeValidationException;
 
 public class CreateIndexRequest {
     private String indexName;

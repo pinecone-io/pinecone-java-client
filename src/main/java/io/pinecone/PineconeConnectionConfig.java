@@ -1,6 +1,7 @@
 package io.pinecone;
 
 import io.grpc.ManagedChannel;
+import io.pinecone.exceptions.PineconeValidationException;
 
 import java.util.function.BiFunction;
 
