@@ -1,5 +1,6 @@
 package io.pinecone;
 
+import io.pinecone.exceptions.PineconeConfigurationException;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.model.CreateIndexRequest;
 import io.pinecone.model.IndexMetadataConfig;
@@ -36,7 +37,7 @@ public class PineconeIndexOperationClientTest {
                 .withEnvironment("testEnvironment");
         OkHttpClient mockClient = mock(OkHttpClient.class);
 
-        assertThrows(PineconeValidationException.class, () -> new PineconeIndexOperationClient(clientConfig, mockClient));
+        assertThrows(PineconeConfigurationException.class, () -> new PineconeIndexOperationClient(clientConfig, mockClient));
     }
 
     @Test
@@ -45,7 +46,7 @@ public class PineconeIndexOperationClientTest {
                 .withApiKey("testApiKey");
         OkHttpClient mockClient = mock(OkHttpClient.class);
 
-        assertThrows(PineconeValidationException.class, () -> new PineconeIndexOperationClient(clientConfig, mockClient));
+        assertThrows(PineconeConfigurationException.class, () -> new PineconeIndexOperationClient(clientConfig, mockClient));
     }
 
     @Test
@@ -53,7 +54,7 @@ public class PineconeIndexOperationClientTest {
         PineconeClientConfig clientConfig = new PineconeClientConfig();
         OkHttpClient mockClient = mock(OkHttpClient.class);
 
-        assertThrows(PineconeValidationException.class, () -> new PineconeIndexOperationClient(clientConfig, mockClient));
+        assertThrows(PineconeConfigurationException.class, () -> new PineconeIndexOperationClient(clientConfig, mockClient));
     }
 
     @Test
