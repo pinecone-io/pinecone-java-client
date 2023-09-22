@@ -1,5 +1,7 @@
 package io.pinecone;
 
+import io.pinecone.exceptions.PineconeValidationException;
+
 /**
  * Top-level client for connecting and making calls to Pinecone services. One instance can
  * be used to connect to multiple services and shared across threads.

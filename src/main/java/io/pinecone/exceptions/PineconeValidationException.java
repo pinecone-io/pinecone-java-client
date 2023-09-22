@@ -1,4 +1,4 @@
-package io.pinecone;
+package io.pinecone.exceptions;
 
 public class PineconeValidationException extends PineconeException {
 

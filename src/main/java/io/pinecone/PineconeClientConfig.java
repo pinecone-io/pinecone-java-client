@@ -1,5 +1,7 @@
 package io.pinecone;
 
+import io.pinecone.exceptions.PineconeValidationException;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -17,9 +19,6 @@ public class PineconeClientConfig {
      */
     private String apiKey;
 
-    /**
-     * Required project name
-     */
     private String projectName;
 
     private String environment;
