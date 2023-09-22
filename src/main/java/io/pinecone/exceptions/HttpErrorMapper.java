@@ -12,7 +12,7 @@ public class HttpErrorMapper {
             case 404:
                 throw new PineconeNotFoundException(failedRequestInfo.getMessage());
             case 409:
-                throw new PineconeAlreadyIndexExistsException(failedRequestInfo.getMessage());
+                throw new PineconeAlreadyExistsException(failedRequestInfo.getMessage());
             case 500:
                 throw new PineconeInternalServerException(failedRequestInfo.getMessage());
             default:

@@ -18,6 +18,9 @@ public class PineconeIndexOperationClient {
     public static final String BASE_URL_SUFFIX = ".pinecone.io/databases/";
     public static final String CONTENT_TYPE = "content-type";
     public static final String CONTENT_TYPE_JSON = "application/json";
+    public static final String DELETE = "DELETE";
+    public static final String EMPTY_RESOURCE_PATH = "";
+    public static final String POST = "POST";
     public static final String TEXT_PLAIN = "text/plain";
 
     private PineconeIndexOperationClient(PineconeClientConfig clientConfig, OkHttpClient client, String url) {
@@ -43,14 +46,7 @@ public class PineconeIndexOperationClient {
     }
 
     public void deleteIndex(String indexName) throws IOException {
-        Request request = new Request.Builder()
-                .url(url + indexName)
-                .delete()
-                .addHeader(ACCEPT_HEADER, TEXT_PLAIN)
-                .addHeader(API_KEY_HEADER_NAME, clientConfig.getApiKey())
-                .build();
-
-        try (Response response = client.newCall(request).execute()) {
+        try (Response response = client.newCall(buildRequest(DELETE, indexName, TEXT_PLAIN,null)).execute()) {
             handleResponse(response);
         }
     }
@@ -59,17 +55,25 @@ public class PineconeIndexOperationClient {
         MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
         RequestBody requestBody = RequestBody.create(createIndexRequest.toJson(), mediaType);
 
-        Request request = new Request.Builder()
-                .url(url)
-                .post(requestBody)
-                .addHeader(ACCEPT_HEADER, TEXT_PLAIN)
-                .addHeader(CONTENT_TYPE, CONTENT_TYPE_JSON)
-                .addHeader(API_KEY_HEADER_NAME, clientConfig.getApiKey())
-                .build();
-
-        try (Response response = client.newCall(request).execute()) {
+        try (Response response = client.newCall(buildRequest(POST, EMPTY_RESOURCE_PATH, TEXT_PLAIN, requestBody)).execute()) {
             handleResponse(response);
         }
+    }
+
+    private Request buildRequest(String method, String path, String header, RequestBody requestBody) {
+        Request.Builder builder = new Request.Builder()
+                .url(url + path)
+                .addHeader(ACCEPT_HEADER, header)
+                .addHeader(API_KEY_HEADER_NAME, clientConfig.getApiKey());
+
+        if (POST.equals(method)) {
+            builder.post(requestBody);
+            builder.addHeader(CONTENT_TYPE, CONTENT_TYPE_JSON);
+        } else if (DELETE.equals(method)) {
+            builder.delete();
+        }
+
+        return builder.build();
     }
 
     private void handleResponse(Response response) throws IOException {
