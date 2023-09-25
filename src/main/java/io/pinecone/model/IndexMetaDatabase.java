@@ -109,17 +109,4 @@ public class IndexMetaDatabase {
                 ", metadataConfig=" + metadataConfig +
                 '}';
     }
-//    public JsonNode toJson(String indexString) throws JsonProcessingException {
-//        ObjectMapper mapper = new ObjectMapper();
-//
-//        return mapper.createObjectNode()
-//                .put("name", name)
-//                .put("dimension", dimension)
-//                .put("metric", metric)
-//                .put("pods", pods)
-//                .put("replicas", replicas)
-//                .put("shards", shards)
-//                .put("pod_type", podType)
-//                .set("metadata_config", mapper.valueToTree(metadataConfig));
-//    }
 }

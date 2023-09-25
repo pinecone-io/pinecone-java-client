@@ -66,10 +66,6 @@ public class PineconeIndexOperationClient {
     public IndexMeta describeIndex(String indexName) throws IOException {
         Request request = buildRequest(HTTP_METHOD_GET, indexName, CONTENT_TYPE_JSON, null);
         try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
-                throw new IOException("Failed to retrieve index meta: " + response.message());
-            }
-
             handleResponse(response);
             return new IndexMeta().fromJsonString(response.body().string());
         }
