@@ -112,7 +112,9 @@ publishing {
                 url = 'https://github.com/pinecone-io/pinecone-java-client'
                 licenses {
                     license {
-                        name = 'Proprietary License'
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution = 'repo'
                     }
                 }
                 developers {
