@@ -17,8 +17,8 @@ public class IndexMeta {
         return database;
     }
 
-    public IndexMeta withMetaDatabase(IndexMetaDatabase metaDatabase) {
-        this.database = metaDatabase;
+    public IndexMeta withMetaDatabase(IndexMetaDatabase database) {
+        this.database = database;
         return this;
     }
 
