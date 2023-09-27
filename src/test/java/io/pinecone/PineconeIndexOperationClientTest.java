@@ -195,12 +195,9 @@ public class PineconeIndexOperationClientTest {
                 .withReady(true)
                 .withPort("433");
 
-
         IndexMeta expectedIndexMeta = new IndexMeta()
                 .withMetaDatabase(metaDatabase)
                 .withStatus(indexStatus);
-
-        expectedIndexMeta.withMetaDatabase(metaDatabase);
 
         Call mockCall = mock(Call.class);
         Response mockResponse = new Response.Builder()

@@ -6,19 +6,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class IndexMeta {
     @JsonProperty("database")
-    private IndexMetaDatabase metaDatabase;
+    private IndexMetaDatabase database;
 
     private IndexStatus status;
 
     public IndexMeta () {
     }
 
-    public IndexMetaDatabase getMetaDatabase() {
-        return metaDatabase;
+    public IndexMetaDatabase getDatabase() {
+        return database;
     }
 
     public IndexMeta withMetaDatabase(IndexMetaDatabase metaDatabase) {
-        this.metaDatabase = metaDatabase;
+        this.database = metaDatabase;
         return this;
     }
 
@@ -40,7 +40,7 @@ public class IndexMeta {
     @Override
     public String toString() {
         return "IndexMeta{" +
-                "metaDatabase=" + metaDatabase +
+                "database=" + database +
                 ", status=" + status +
                 '}';
     }

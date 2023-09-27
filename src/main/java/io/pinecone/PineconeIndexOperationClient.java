@@ -71,10 +71,10 @@ public class PineconeIndexOperationClient {
         }
     }
 
-    private Request buildRequest(String method, String path, String header, RequestBody requestBody) {
+    private Request buildRequest(String method, String path, String acceptHeader, RequestBody requestBody) {
         Request.Builder builder = new Request.Builder()
                 .url(url + path)
-                .addHeader(ACCEPT_HEADER, header)
+                .addHeader(ACCEPT_HEADER, acceptHeader)
                 .addHeader(API_KEY_HEADER_NAME, clientConfig.getApiKey());
 
         if (HTTP_METHOD_POST.equals(method)) {
