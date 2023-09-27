@@ -2,8 +2,7 @@ package io.pinecone;
 
 import io.pinecone.exceptions.PineconeConfigurationException;
 import io.pinecone.exceptions.PineconeValidationException;
-import io.pinecone.model.CreateIndexRequest;
-import io.pinecone.model.IndexMetadataConfig;
+import io.pinecone.model.*;
 import okhttp3.*;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterAll;
@@ -14,6 +13,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
@@ -70,7 +70,7 @@ public class PineconeIndexOperationClientTest {
                 .protocol(Protocol.HTTP_1_1)
                 .code(200)
                 .message("The index has been successfully deleted.")
-                .body(ResponseBody.create(MediaType.parse("text/plain"), "Response body"))
+                .body(ResponseBody.create("Response body", MediaType.parse("text/plain")))
                 .build());
 
         OkHttpClient mockClient = mock(OkHttpClient.class);
@@ -96,7 +96,7 @@ public class PineconeIndexOperationClientTest {
                 .protocol(Protocol.HTTP_1_1)
                 .code(201)
                 .message("The index has been successfully created")
-                .body(ResponseBody.create(MediaType.parse("text/plain"), "Response body"))
+                .body(ResponseBody.create("Response body", MediaType.parse("text/plain")))
                 .build());
 
         OkHttpClient mockClient = mock(OkHttpClient.class);
@@ -158,7 +158,7 @@ public class PineconeIndexOperationClientTest {
                 .protocol(Protocol.HTTP_1_1)
                 .code(201)
                 .message("The index has been successfully created")
-                .body(ResponseBody.create(MediaType.parse("text/plain"), "Response body"))
+                .body(ResponseBody.create("Response body", MediaType.parse("text/plain")))
                 .build());
 
         OkHttpClient mockClient = mock(OkHttpClient.class);
@@ -169,5 +169,54 @@ public class PineconeIndexOperationClientTest {
 
         verify(mockClient, times(1)).newCall(any(Request.class));
         verify(mockCall, times(1)).execute();
+    }
+
+    @Test
+    public void testDescribeIndex() throws IOException {
+        String indexName = "testIndex";
+        String indexJsonString = "{\"database\":{\"name\":\"testIndex\",\"metric\":\"cosine\",\"dimension\":3," +
+                "\"replicas\":1,\"shards\":1,\"pods\":1,\"pod_type\":\"p1.x1\"}," +
+                "\"status\":{\"waiting\":[],\"crashed\":[],\"host\":\"url\",\"port\":433," +
+                "\"state\":\"Ready\",\"ready\":true}}";
+        PineconeClientConfig clientConfig = new PineconeClientConfig()
+                .withApiKey("testApiKey")
+                .withEnvironment("testEnvironment");
+        IndexMetaDatabase metaDatabase = new IndexMetaDatabase()
+                .withName("testIndex")
+                .withMetric("cosine")
+                .withDimension(3)
+                .withReplicas(1)
+                .withShards(1)
+                .withPods(1)
+                .withPodType("p1.x1");
+        IndexStatus indexStatus = new IndexStatus()
+                .withHost("url")
+                .withState("Ready")
+                .withReady(true)
+                .withPort("433");
+
+        IndexMeta expectedIndexMeta = new IndexMeta()
+                .withMetaDatabase(metaDatabase)
+                .withStatus(indexStatus);
+
+        Call mockCall = mock(Call.class);
+        Response mockResponse = new Response.Builder()
+                .request(new Request.Builder().url("http://localhost").build())
+                .protocol(Protocol.HTTP_1_1)
+                .code(200)
+                .message("OK")
+                .body(ResponseBody.create(indexJsonString, MediaType.parse("application/json")))
+                .build();
+
+        when(mockCall.execute()).thenReturn(mockResponse);
+
+        OkHttpClient mockClient = mock(OkHttpClient.class);
+        when(mockClient.newCall(any(Request.class))).thenReturn(mockCall);
+        when(mockCall.execute()).thenReturn(mockResponse);
+
+        PineconeIndexOperationClient indexOperationClient = new PineconeIndexOperationClient(clientConfig, mockClient);
+        IndexMeta actualIndexMeta = indexOperationClient.describeIndex(indexName);
+
+        assertEquals(expectedIndexMeta.toString(), actualIndexMeta.toString());
     }
 }

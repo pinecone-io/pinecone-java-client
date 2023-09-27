@@ -4,6 +4,7 @@ import io.pinecone.exceptions.FailedRequestInfo;
 import io.pinecone.exceptions.HttpErrorMapper;
 import io.pinecone.exceptions.PineconeConfigurationException;
 import io.pinecone.model.CreateIndexRequest;
+import io.pinecone.model.IndexMeta;
 import okhttp3.*;
 
 import java.io.IOException;
@@ -18,9 +19,10 @@ public class PineconeIndexOperationClient {
     public static final String BASE_URL_SUFFIX = ".pinecone.io/databases/";
     public static final String CONTENT_TYPE = "content-type";
     public static final String CONTENT_TYPE_JSON = "application/json";
-    public static final String DELETE = "DELETE";
     public static final String EMPTY_RESOURCE_PATH = "";
-    public static final String POST = "POST";
+    public static final String HTTP_METHOD_DELETE = "DELETE";
+    public static final String HTTP_METHOD_GET = "GET";
+    public static final String HTTP_METHOD_POST = "POST";
     public static final String TEXT_PLAIN = "text/plain";
 
     private PineconeIndexOperationClient(PineconeClientConfig clientConfig, OkHttpClient client, String url) {
@@ -46,7 +48,8 @@ public class PineconeIndexOperationClient {
     }
 
     public void deleteIndex(String indexName) throws IOException {
-        try (Response response = client.newCall(buildRequest(DELETE, indexName, TEXT_PLAIN,null)).execute()) {
+        Request request = buildRequest(HTTP_METHOD_DELETE, indexName, TEXT_PLAIN,null);
+        try (Response response = client.newCall(request).execute()) {
             handleResponse(response);
         }
     }
@@ -54,22 +57,30 @@ public class PineconeIndexOperationClient {
     public void createIndex(CreateIndexRequest createIndexRequest) throws IOException {
         MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
         RequestBody requestBody = RequestBody.create(createIndexRequest.toJson(), mediaType);
-
-        try (Response response = client.newCall(buildRequest(POST, EMPTY_RESOURCE_PATH, TEXT_PLAIN, requestBody)).execute()) {
+        Request request = buildRequest(HTTP_METHOD_POST, EMPTY_RESOURCE_PATH, TEXT_PLAIN, requestBody);
+        try (Response response = client.newCall(request).execute()) {
             handleResponse(response);
         }
     }
 
-    private Request buildRequest(String method, String path, String header, RequestBody requestBody) {
+    public IndexMeta describeIndex(String indexName) throws IOException {
+        Request request = buildRequest(HTTP_METHOD_GET, indexName, CONTENT_TYPE_JSON, null);
+        try (Response response = client.newCall(request).execute()) {
+            handleResponse(response);
+            return new IndexMeta().fromJsonString(response.body().string());
+        }
+    }
+
+    private Request buildRequest(String method, String path, String acceptHeader, RequestBody requestBody) {
         Request.Builder builder = new Request.Builder()
                 .url(url + path)
-                .addHeader(ACCEPT_HEADER, header)
+                .addHeader(ACCEPT_HEADER, acceptHeader)
                 .addHeader(API_KEY_HEADER_NAME, clientConfig.getApiKey());
 
-        if (POST.equals(method)) {
+        if (HTTP_METHOD_POST.equals(method)) {
             builder.post(requestBody);
             builder.addHeader(CONTENT_TYPE, CONTENT_TYPE_JSON);
-        } else if (DELETE.equals(method)) {
+        } else if (HTTP_METHOD_DELETE.equals(method)) {
             builder.delete();
         }
 
