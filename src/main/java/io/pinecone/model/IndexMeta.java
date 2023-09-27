@@ -1,11 +1,9 @@
 package io.pinecone.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class IndexMeta {
-    @JsonProperty("database")
     private IndexMetaDatabase database;
 
     private IndexStatus status;
