@@ -40,3 +40,5 @@ The Java client doesn't support managing Pinecone services, only reading and wri
 ## Examples
 
 - The most basic example usage is in `src/test/java/io/pinecone/PineconeClientLiveIntegTest.java`, covering most basic operations.
+> [!NOTE]
+> The java-basic-mvn example is outdated.
