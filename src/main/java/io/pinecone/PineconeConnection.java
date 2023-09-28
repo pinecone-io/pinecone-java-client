@@ -46,12 +46,9 @@ public class PineconeConnection implements AutoCloseable {
                 : buildChannel(clientConfig, connectionConfig);
         channel.notifyWhenStateChanged(channel.getState(false), this::onConnectivityStateChanged);
         Metadata metadata = assembleMetadata(clientConfig, connectionConfig);
-        blockingStub = VectorServiceGrpc
-                .newBlockingStub(channel)
-                .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(metadata));
-        asyncStub = VectorServiceGrpc
-                .newStub(channel)
-                .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(metadata));
+        blockingStub = applyDefaultBlockingStubConfig(
+                MetadataUtils.attachHeaders(VectorServiceGrpc.newBlockingStub(channel), metadata));
+        asyncStub = MetadataUtils.attachHeaders(VectorServiceGrpc.newStub(channel), metadata);
         logger.debug("created new PineconeConnection for channel: {}", channel);
     }
 
