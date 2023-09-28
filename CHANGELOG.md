@@ -3,6 +3,12 @@
 [comment]: <> (When bumping [pc:VERSION_LATEST_RELEASE] create a new entry below)
 ### Unreleased version
 
+### v0.5.0
+- Update asyncHttpClient with okHttpClient for control plane operations
+- Add ability to describe index
+- Add apache 2.0 license
+- Update gRPC version to 1.58.0
+
 ### v0.4.0
 - Add support to pass connection url to config objects for data plane operations only
 
