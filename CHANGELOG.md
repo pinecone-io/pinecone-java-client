@@ -3,6 +3,9 @@
 [comment]: <> (When bumping [pc:VERSION_LATEST_RELEASE] create a new entry below)
 ### Unreleased version
 
+### v0.5.1
+- Update build.gradle
+
 ### v0.5.0
 - Update asyncHttpClient with okHttpClient for control plane operations
 - Add ability to describe index
