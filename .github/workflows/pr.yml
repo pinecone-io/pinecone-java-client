@@ -6,10 +6,18 @@ on:
 jobs:
   build-and-test:
     strategy:
-      matrix:
-        javaVersion: [8, 11]
-        os: [ubuntu-latest, windows-latest]
       fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        include:
+          - javaVersion: 8
+            gradleVersion: 6.8
+          - javaVersion: 11
+            gradleVersion: 6.8
+          - javaVersion: 16
+            gradleVersion: 7.0
+          - javaVersion: 17
+            gradleVersion: 7.0
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -22,7 +30,7 @@ jobs:
     - name: Setup Gradle
       uses: gradle/gradle-build-action@v2
       with:
-        gradle-version: 6.8
+        gradle-version: ${{ matrix.gradleVersion }}
     
     - name: Execute Gradle build
       run: ./gradlew build
@@ -32,3 +40,8 @@ jobs:
 
     - name: Run tests
       run: ./gradlew test
+
+    - name: Build examples
+      run: |
+        cd examples
+        ./gradlew build
