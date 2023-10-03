@@ -21,6 +21,8 @@ jobs:
         
     - name: Setup Gradle
       uses: gradle/gradle-build-action@v2
+      with:
+        gradle-version: 6.8
     
     - name: Execute Gradle build
       run: ./gradlew build
