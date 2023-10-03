@@ -34,7 +34,7 @@ public class PineconeConnection implements AutoCloseable {
      */
     private VectorServiceGrpc.VectorServiceBlockingStub blockingStub;
 
-    private VectorServiceGrpc.VectorServiceStub asyncStub;
+    private VectorServiceGrpc.VectorServiceFutureStub futureStub;
 
     public PineconeConnection(PineconeClientConfig clientConfig, PineconeConnectionConfig connectionConfig) {
         this.connectionConfig = connectionConfig;
@@ -45,13 +45,17 @@ public class PineconeConnection implements AutoCloseable {
                 ? connectionConfig.getCustomChannelBuilder().apply(clientConfig, connectionConfig)
                 : buildChannel(clientConfig, connectionConfig);
         channel.notifyWhenStateChanged(channel.getState(false), this::onConnectivityStateChanged);
-        Metadata metadata = assembleMetadata(clientConfig, connectionConfig);
+        Metadata metadata = assembleMetadata(clientConfig);
         blockingStub = VectorServiceGrpc
                 .newBlockingStub(channel)
-                .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(metadata));
-        asyncStub = VectorServiceGrpc
-                .newStub(channel)
-                .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(metadata));
+                .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(metadata))
+                .withMaxInboundMessageSize(DEFAULT_MAX_MESSAGE_SIZE)
+                .withMaxOutboundMessageSize(DEFAULT_MAX_MESSAGE_SIZE);
+        futureStub = VectorServiceGrpc
+                .newFutureStub(channel)
+                .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(metadata))
+                .withMaxInboundMessageSize(DEFAULT_MAX_MESSAGE_SIZE)
+                .withMaxOutboundMessageSize(DEFAULT_MAX_MESSAGE_SIZE);
         logger.debug("created new PineconeConnection for channel: {}", channel);
     }
 
@@ -79,8 +83,8 @@ public class PineconeConnection implements AutoCloseable {
         return blockingStub;
     }
 
-    public void setBlockingStub(VectorServiceGrpc.VectorServiceBlockingStub blockingStub) {
-        this.blockingStub = blockingStub;
+    public VectorServiceGrpc.VectorServiceFutureStub getFutureStub() {
+        return futureStub;
     }
 
     private void onConnectivityStateChanged() {
@@ -104,18 +108,11 @@ public class PineconeConnection implements AutoCloseable {
         return builder.build();
     }
 
-    private static Metadata assembleMetadata(PineconeClientConfig clientConfig,
-                                             PineconeConnectionConfig connectionConfig) {
+    private static Metadata assembleMetadata(PineconeClientConfig clientConfig) {
         Metadata metadata = new Metadata();
         metadata.put(Metadata.Key.of("api-key",
                 Metadata.ASCII_STRING_MARSHALLER), clientConfig.getApiKey());
         return metadata;
-    }
-
-    private VectorServiceGrpc.VectorServiceBlockingStub applyDefaultBlockingStubConfig(VectorServiceGrpc.VectorServiceBlockingStub stub) {
-        return stub
-                .withMaxInboundMessageSize(DEFAULT_MAX_MESSAGE_SIZE)
-                .withMaxOutboundMessageSize(DEFAULT_MAX_MESSAGE_SIZE);
     }
 
     static String getEndpoint(PineconeClientConfig clientConfig, PineconeConnectionConfig connectionConfig) {
