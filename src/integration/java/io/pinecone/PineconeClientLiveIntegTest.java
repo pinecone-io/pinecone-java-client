@@ -146,13 +146,13 @@ public class PineconeClientLiveIntegTest {
                 .setIncludeMetadata(true)
                 .build();
 
-        //      When querying using a single vector, we get matches instead of results
+        // When querying using a single vector, we get matches instead of results
         queryResponse = conn.getBlockingStub().query(queryRequest);
         assertThat(queryResponse, notNullValue());
         assertThat(queryResponse.getMatchesList(), notNullValue());
         assertThat(queryResponse.getMatchesCount(), equalTo(2));
 
-        //        Query by id example
+        // Query by id example
         QueryRequest queryByIdRequest = QueryRequest.newBuilder()
                 .setId("v2")
                 .setNamespace(ns)
