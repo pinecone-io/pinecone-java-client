@@ -4,7 +4,7 @@ on:
   workflow_dispatch: {}
 
 jobs:
-  build-and-test:
+  build:
     strategy:
       fail-fast: false
       matrix:
@@ -12,9 +12,9 @@ jobs:
         javaVersion: [8, 11, 16, 17]
         include:
           - javaVersion: 8
-            gradleVersion: 6.8.3
+            gradleVersion: 6.8
           - javaVersion: 11
-            gradleVersion: 6.8.3
+            gradleVersion: 6.8
           - javaVersion: 16
             gradleVersion: 7.0.1
           - javaVersion: 17
