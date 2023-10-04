@@ -1,17 +1,14 @@
 package io.pinecone.integration;
 
-import io.pinecone.PineconeClient;
 import io.pinecone.PineconeClientConfig;
-import io.pinecone.PineconeClientLiveIntegTest;
 import io.pinecone.PineconeIndexOperationClient;
 import io.pinecone.model.CreateIndexRequest;
 import io.pinecone.model.IndexMeta;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -28,9 +25,20 @@ public class PineconeIndexOperationsClientIntegrationTest {
         pinecone = new PineconeIndexOperationClient(config);
     }
 
+    protected String getRandomIndexName(int len) {
+        String alphabet = "abcdefghijklmnopqrstuvwxyz";
+        StringBuilder name = new StringBuilder();
+        Random rnd = new Random();
+        while (name.length() < len) {
+            int index = (int) (rnd.nextFloat() * alphabet.length());
+            name.append(alphabet.charAt(index));
+        }
+        return "test-index-" + name.toString();
+    }
+
     @Test
     public void createAndDelete() throws IOException {
-        String indexName = "banana";
+        String indexName = getRandomIndexName(8);
 
         // Create an index
         CreateIndexRequest request = new CreateIndexRequest()

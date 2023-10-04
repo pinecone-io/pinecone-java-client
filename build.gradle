@@ -93,9 +93,6 @@ task integrationTest(type: Test) {
     outputs.upToDateWhen { false }
 }
 
-check.dependsOn integrationTest
-integrationTest.mustRunAfter test
-
 // Configure Auto Relocation
 import com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation
 
