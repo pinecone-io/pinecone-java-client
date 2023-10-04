@@ -39,7 +39,8 @@ jobs:
     - name: Run tests
       run: ./gradlew test
 
-    # - name: Build examples
-    #   run: |
-    #     cd examples
-    #     ./../gradlew build
+    - name: Run integration tests
+      run: ./gradlew integrationTest
+      env:
+        PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
+        PINECONE_ENVIRONMENT: ${{ secrets.PINECONE_ENVIRONMENT }}

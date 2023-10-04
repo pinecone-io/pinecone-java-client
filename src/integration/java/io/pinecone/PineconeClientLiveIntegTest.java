@@ -1,12 +1,12 @@
 package io.pinecone;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.primitives.Floats;
 import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
+import io.pinecone.model.IndexMeta;
 import io.pinecone.proto.*;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,45 +17,43 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PineconeClientLiveIntegTest {
 
-    public static class Args {
-        public String indexName = "integ-test-sanity";
-        public String apiKey = "mock-api-key";
-        public String environment = "us-wst1-gcp";
-        public String projectName = "mock-proj-name";
-    }
+    public String indexName = "integ-test-sanity";
 
     private static final Logger logger = LoggerFactory.getLogger(PineconeClientLiveIntegTest.class);
 
-    private Args args;
+    private PineconeClient dataPlaneClient;
+    private PineconeIndexOperationClient controlPlaneClient;
 
-    private PineconeClient pineconeClient;
-
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        args = new ObjectMapper()
-                .readValue(System.getenv("PINECONE_TEST_ARGS"), Args.class);
-
-        PineconeClientConfig configuration = new PineconeClientConfig()
-                .withApiKey(args.apiKey)
-                .withEnvironment(args.environment)
-                .withProjectName(args.projectName)
+        PineconeClientConfig config = new PineconeClientConfig()
+                .withApiKey(System.getenv("PINECONE_API_KEY"))
+                .withEnvironment(System.getenv("PINECONE_ENVIRONMENT"))
                 .withServerSideTimeoutSec(10);
 
-
-
-        pineconeClient = new PineconeClient(configuration);
+        controlPlaneClient = new PineconeIndexOperationClient(config);
+        dataPlaneClient = new PineconeClient(config);
     }
 
     @Test
-    public void sanity() {
-        args = new Args();
-        String ns = "temp_namespace";
-        PineconeConnection conn = pineconeClient.connect(
+    public void checkIndexSetup() throws Exception {
+        IndexMeta indexMeta = controlPlaneClient.describeIndex(indexName);
+        assertEquals(3, indexMeta.getDatabase().getDimension());
+    }
+
+    @Test
+    public void sanity() throws Exception {
+        IndexMeta indexMeta = controlPlaneClient.describeIndex(indexName);
+        String host = indexMeta.getStatus().getHost();
+        PineconeConnection conn = dataPlaneClient.connect(
                 new PineconeConnectionConfig()
-                        .withIndexName(args.indexName));
+                        .withConnectionUrl("https://" + host));
+
+        String ns = "temp_namespace";
 
         // upsert
         float[][] upsertData = {{1.0F, 2.0F, 3.0F}, {4.0F, 5.0F, 6.0F}, {7.0F, 8.0F, 9.0F}};
