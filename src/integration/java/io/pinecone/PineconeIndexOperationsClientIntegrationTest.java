@@ -2,6 +2,7 @@ package io.pinecone.integration;
 
 import io.pinecone.PineconeClientConfig;
 import io.pinecone.PineconeIndexOperationClient;
+import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.model.CreateIndexRequest;
 import io.pinecone.model.IndexMeta;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,20 +26,9 @@ public class PineconeIndexOperationsClientIntegrationTest {
         pinecone = new PineconeIndexOperationClient(config);
     }
 
-    protected String getRandomIndexName(int len) {
-        String alphabet = "abcdefghijklmnopqrstuvwxyz";
-        StringBuilder name = new StringBuilder();
-        Random rnd = new Random();
-        while (name.length() < len) {
-            int index = (int) (rnd.nextFloat() * alphabet.length());
-            name.append(alphabet.charAt(index));
-        }
-        return "test-index-" + name.toString();
-    }
-
     @Test
     public void createAndDelete() throws IOException {
-        String indexName = getRandomIndexName(8);
+        String indexName = RandomStringBuilder.build("index-name", 8);
 
         // Create an index
         CreateIndexRequest request = new CreateIndexRequest()

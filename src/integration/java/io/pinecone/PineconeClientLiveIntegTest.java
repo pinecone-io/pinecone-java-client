@@ -3,6 +3,7 @@ package io.pinecone;
 import com.google.common.primitives.Floats;
 import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
+import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.model.IndexMeta;
 import io.pinecone.proto.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,7 +54,7 @@ public class PineconeClientLiveIntegTest {
                 new PineconeConnectionConfig()
                         .withConnectionUrl("https://" + host));
 
-        String ns = "temp_namespace";
+        String ns = RandomStringBuilder.build("ns", 8);
 
         // upsert
         float[][] upsertData = {{1.0F, 2.0F, 3.0F}, {4.0F, 5.0F, 6.0F}, {7.0F, 8.0F, 9.0F}};
@@ -154,7 +155,7 @@ public class PineconeClientLiveIntegTest {
         //        Query by id example
         QueryRequest queryByIdRequest = QueryRequest.newBuilder()
                 .setId("v2")
-                .setNamespace("temp_namespace")
+                .setNamespace(ns)
                 .setTopK(2)
                 .setIncludeMetadata(true)
                 .build();
