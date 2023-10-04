@@ -49,7 +49,7 @@ public class PineconeClientLiveIntegTest {
         pineconeClient = new PineconeClient(configuration);
     }
 
-//     @Test
+    @Test
     public void sanity() {
         args = new Args();
         String ns = "temp_namespace";
@@ -184,5 +184,4 @@ public class PineconeClientLiveIntegTest {
 
         conn.getBlockingStub().delete(deleteAllRequest);
     }
-
 }
