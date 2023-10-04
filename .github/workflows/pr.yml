@@ -9,15 +9,12 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        include:
-        - javaVersion: 8
-          gradleVersion: 6.8
-        - javaVersion: 11
-          gradleVersion: 6.8
-        - javaVersion: 16
-          gradleVersion: 7.3.1
-        - javaVersion: 17
-          gradleVersion: 7.3.1 
+        versions: [
+            { java: 8, gradle: 6.8 },
+            { java: 11, gradle: 6.8 },
+            { java: 16, gradle: 7.3.1 },
+            { java: 17, gradle: 7.3.1 }
+        ]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -25,16 +22,16 @@ jobs:
     - uses: actions/setup-java@v3
       with:
         distribution: temurin
-        java-version: ${{ matrix.javaVersion}}
+        java-version: ${{ matrix.versions.javaVersion}}
         
     - name: Setup Gradle
       uses: gradle/gradle-build-action@v2
       with:
-        gradle-version: ${{ matrix.gradleVersion }}
+        gradle-version: ${{ matrix.versions.gradleVersion }}
         cache-disabled: true
 
     - name: Setup gradle.properties
-      if: matrix.javaVersion == 16 || matrix.javaVersion == 17
+      if: matrix.versions.javaVersion == 16 || matrix.versions.javaVersion == 17
       run: |
         echo "org.gradle.jvmargs=-Xmx4096m --add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED --add-exports=java.base/sun.nio.ch=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED" >> gradle.properties
     
@@ -50,24 +47,26 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        javaVersion: [8, 17]
         os: [ubuntu-latest]
-        gradleVersion: [8.3]
+        versions: [
+            { java: 8, gradle: 6.8 },
+            { java: 17, gradle: 7.3.1 }
+        ]
     steps:
     - uses: actions/checkout@v4
 
     - uses: actions/setup-java@v3
       with:
         distribution: temurin
-        java-version: ${{ matrix.javaVersion}}
+        java-version: ${{ matrix.versions.javaVersion}}
         
     - name: Setup Gradle
       uses: gradle/gradle-build-action@v2
       with:
-        gradle-version: ${{ matrix.gradleVersion }}
+        gradle-version: ${{ matrix.versions.gradleVersion }}
 
     - name: Setup gradle.properties
-      if: matrix.javaVersion == 16 || matrix.javaVersion == 17
+      if: matrix.versions.javaVersion == 16 || matrix.versions.javaVersion == 17
       run: |
         echo "org.gradle.jvmargs=-Xmx4096m --add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED --add-exports=java.base/sun.nio.ch=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED" >> gradle.properties
     
