@@ -8,9 +8,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        javaVersion: [8, 11, 16, 17]
         os: [ubuntu-latest]
-        gradleVersion: [6.8]
+        include:
+        - javaVersion: 8
+          gradleVersion: 6.8
+        - javaVersion: 11
+          gradleVersion: 6.8
+        - javaVersion: 16
+          gradleVersion: 7.3.1
+        - javaVersion: 17
+          gradleVersion: 7.3.1 
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
