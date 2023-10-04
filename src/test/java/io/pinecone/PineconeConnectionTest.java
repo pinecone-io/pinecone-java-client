@@ -1,5 +1,8 @@
 package io.pinecone;
 
+import io.pinecone.PineconeClientConfig;
+import io.pinecone.PineconeConnection;
+import io.pinecone.PineconeConnectionConfig;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
