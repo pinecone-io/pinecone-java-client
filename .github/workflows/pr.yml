@@ -45,4 +45,4 @@ jobs:
     - name: Build examples
       run: |
         cd examples
-        ./gradlew build
+        ./../gradlew build
