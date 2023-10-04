@@ -62,8 +62,8 @@ dependencies {
 }
 
 configurations {
-    integrationTestCompile.extendsFrom testImplementation
-    integrationTestRuntime.extendsFrom(testRuntime, testRuntimeOnly)
+    integrationTestImplementation.extendsFrom testImplementation
+    integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
 }
 
 java {
