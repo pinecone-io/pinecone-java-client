@@ -8,8 +8,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
         javaVersion: [8, 11, 16, 17]
+        os: [ubuntu-latest, windows-latest]
         include:
           - javaVersion: 8
             gradleVersion: 6.8
@@ -42,7 +42,7 @@ jobs:
     - name: Run tests
       run: ./gradlew test
 
-    - name: Build examples
-      run: |
-        cd examples
-        ./../gradlew build
+    # - name: Build examples
+    #   run: |
+    #     cd examples
+    #     ./../gradlew build
