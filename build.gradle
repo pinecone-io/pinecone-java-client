@@ -37,11 +37,6 @@ sourceSets {
     }
 }
 
-configurations {
-    integrationTestCompile.extendsFrom testImplementation
-    integrationTestRuntime.extendsFrom(testRuntime, testRuntimeOnly)
-}
-
 def grpcVersion = '1.58.0'
 
 dependencies {
@@ -64,6 +59,11 @@ dependencies {
     testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.14.2'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.0'
+}
+
+configurations {
+    integrationTestCompile.extendsFrom testImplementation
+    integrationTestRuntime.extendsFrom(testRuntime, testRuntimeOnly)
 }
 
 java {
