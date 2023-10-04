@@ -22,16 +22,16 @@ jobs:
     - uses: actions/setup-java@v3
       with:
         distribution: temurin
-        java-version: ${{ matrix.versions.javaVersion}}
+        java-version: ${{ matrix.versions.java}}
         
     - name: Setup Gradle
       uses: gradle/gradle-build-action@v2
       with:
-        gradle-version: ${{ matrix.versions.gradleVersion }}
+        gradle-version: ${{ matrix.versions.gradle }}
         cache-disabled: true
 
     - name: Setup gradle.properties
-      if: matrix.versions.javaVersion == 16 || matrix.versions.javaVersion == 17
+      if: matrix.versions.java == 16 || matrix.versions.java == 17
       run: |
         echo "org.gradle.jvmargs=-Xmx4096m --add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED --add-exports=java.base/sun.nio.ch=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED" >> gradle.properties
     
@@ -58,15 +58,15 @@ jobs:
     - uses: actions/setup-java@v3
       with:
         distribution: temurin
-        java-version: ${{ matrix.versions.javaVersion}}
+        java-version: ${{ matrix.versions.java}}
         
     - name: Setup Gradle
       uses: gradle/gradle-build-action@v2
       with:
-        gradle-version: ${{ matrix.versions.gradleVersion }}
+        gradle-version: ${{ matrix.versions.gradle }}
 
     - name: Setup gradle.properties
-      if: matrix.versions.javaVersion == 16 || matrix.versions.javaVersion == 17
+      if: matrix.versions.java == 16 || matrix.versions.java == 17
       run: |
         echo "org.gradle.jvmargs=-Xmx4096m --add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED --add-exports=java.base/sun.nio.ch=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED" >> gradle.properties
     
