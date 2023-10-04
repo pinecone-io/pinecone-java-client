@@ -1,5 +1,7 @@
 package io.pinecone;
 
+import io.pinecone.PineconeClientConfig;
+import io.pinecone.PineconeIndexOperationClient;
 import io.pinecone.exceptions.PineconeConfigurationException;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.model.*;
