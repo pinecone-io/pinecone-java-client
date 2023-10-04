@@ -24,6 +24,7 @@ jobs:
       uses: gradle/gradle-build-action@v2
       with:
         gradle-version: ${{ matrix.gradleVersion }}
+        cache-disabled: true
 
     - name: Setup gradle.properties
       if: matrix.javaVersion == 16 || matrix.javaVersion == 17
