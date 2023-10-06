@@ -11,6 +11,6 @@ public class RandomStringBuilder {
             int index = (int) (rnd.nextFloat() * alphabet.length());
             name.append(alphabet.charAt(index));
         }
-        return prefix + "-" + name.toString();
+        return prefix + "-" + name;
     }
 }

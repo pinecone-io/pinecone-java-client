@@ -1,7 +1,5 @@
-package io.pinecone.integration;
+package io.pinecone;
 
-import io.pinecone.PineconeClientConfig;
-import io.pinecone.PineconeIndexOperationClient;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.model.CreateIndexRequest;
 import io.pinecone.model.IndexMeta;
@@ -9,7 +7,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -18,7 +15,7 @@ public class PineconeIndexOperationsClientIntegrationTest {
     private PineconeIndexOperationClient pinecone;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         PineconeClientConfig config = new PineconeClientConfig()
                 .withApiKey(System.getenv("PINECONE_API_KEY"))
                 .withEnvironment(System.getenv("PINECONE_ENVIRONMENT"))

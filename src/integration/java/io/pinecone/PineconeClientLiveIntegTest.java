@@ -30,7 +30,7 @@ public class PineconeClientLiveIntegTest {
     private PineconeIndexOperationClient controlPlaneClient;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         PineconeClientConfig config = new PineconeClientConfig()
                 .withApiKey(System.getenv("PINECONE_API_KEY"))
                 .withEnvironment(System.getenv("PINECONE_ENVIRONMENT"))
@@ -54,7 +54,7 @@ public class PineconeClientLiveIntegTest {
                 new PineconeConnectionConfig()
                         .withConnectionUrl("https://" + host));
 
-        String ns = RandomStringBuilder.build("ns", 8);
+        String namespace = RandomStringBuilder.build("ns", 8);
 
         // upsert
         float[][] upsertData = {{1.0F, 2.0F, 3.0F}, {4.0F, 5.0F, 6.0F}, {7.0F, 8.0F, 9.0F}};
@@ -73,7 +73,7 @@ public class PineconeClientLiveIntegTest {
 
         UpsertRequest request = UpsertRequest.newBuilder()
                 .addAllVectors(upsertVectors)
-                .setNamespace(ns)
+                .setNamespace(namespace)
                 .build();
 
         UpsertResponse upsertResponse = conn.getBlockingStub().upsert(request);
@@ -81,12 +81,11 @@ public class PineconeClientLiveIntegTest {
         assert (upsertResponse.getUpsertedCount() == 3);
 
         // hybrid upsert
-
-        List<String> hybridsIds = Arrays.asList("v4","v5","v6");
+        List<String> hybridsIds = Arrays.asList("v4", "v5", "v6");
         List<Vector> hybridVectors = new ArrayList<>();
-        List<Integer> sparseIndices = Arrays.asList(0,1,2);
-        List<Float> sparseValues = Arrays.asList(0.11f,0.22f,0.33f);
-        for (int i=0; i< hybridsIds.size(); i++) {
+        List<Integer> sparseIndices = Arrays.asList(0, 1, 2);
+        List<Float> sparseValues = Arrays.asList(0.11f, 0.22f, 0.33f);
+        for (int i = 0; i < hybridsIds.size(); i++) {
             hybridVectors.add(
                     Vector.newBuilder()
                             .addAllValues(Floats.asList(upsertData[i]))
@@ -99,17 +98,27 @@ public class PineconeClientLiveIntegTest {
 
         UpsertRequest hybridRequest = UpsertRequest.newBuilder()
                 .addAllVectors(hybridVectors)
-                .setNamespace(ns)
+                .setNamespace(namespace)
                 .build();
         UpsertResponse hybridResponse = conn.getBlockingStub().upsert(hybridRequest);
         logger.info("Put " + hybridResponse.getUpsertedCount() + " vectors into the index");
         assert (hybridResponse.getUpsertedCount() == 3);
 
         // fetch
-        List<String> ids = Arrays.asList("v1","v2");
-        FetchRequest fetchRequest = FetchRequest.newBuilder().addAllIds(ids).setNamespace(ns).build();
+        List<String> ids = Arrays.asList("v1", "v2");
+        FetchRequest fetchRequest = FetchRequest.newBuilder().addAllIds(ids).setNamespace(namespace).build();
         FetchResponse fetchResponse = conn.getBlockingStub().fetch(fetchRequest);
-        assert(fetchResponse.containsVectors("v1"));
+        assert (fetchResponse.containsVectors("v1"));
+
+        // Updates vector v1's values to 10.0, 11.0, and 12.0 from 1.0, 2.0, and 3.0
+        UpdateRequest updateRequest = UpdateRequest.newBuilder()
+                .setId("v1")
+                .setNamespace(namespace)
+                .addAllValues(Floats.asList(10F, 11F, 12F))
+                .build();
+        conn.getBlockingStub().update(updateRequest);
+        fetchRequest = FetchRequest.newBuilder().addIds("v1").setNamespace(namespace).build();
+        conn.getBlockingStub().fetch(fetchRequest);
 
         // DEPRECATED: batch queries
         float[] rawVector = {1.0F, 2.0F, 3.0F};
@@ -123,12 +132,12 @@ public class PineconeClientLiveIntegTest {
                                                 .build()))
                                 .build())
                         .build())
-                .setNamespace(ns)
+                .setNamespace(namespace)
                 .build();
 
         QueryRequest batchQueryRequest = QueryRequest.newBuilder()
                 .addQueries(queryVector)
-                .setNamespace(ns)
+                .setNamespace(namespace)
                 .setTopK(2)
                 .setIncludeMetadata(true)
                 .build();
@@ -141,7 +150,7 @@ public class PineconeClientLiveIntegTest {
         Iterable<Float> iterable = Arrays.asList(1.0F, 2.0F, 3.0F);
         QueryRequest queryRequest = QueryRequest.newBuilder()
                 .addAllVector(iterable)
-                .setNamespace(ns)
+                .setNamespace(namespace)
                 .setTopK(2)
                 .setIncludeMetadata(true)
                 .build();
@@ -155,7 +164,7 @@ public class PineconeClientLiveIntegTest {
         // Query by id example
         QueryRequest queryByIdRequest = QueryRequest.newBuilder()
                 .setId("v2")
-                .setNamespace(ns)
+                .setNamespace(namespace)
                 .setTopK(2)
                 .setIncludeMetadata(true)
                 .build();
@@ -168,19 +177,25 @@ public class PineconeClientLiveIntegTest {
         // Delete
         String[] idsToDelete = {"v2"};
         DeleteRequest deleteRequest = DeleteRequest.newBuilder()
-                .setNamespace(ns)
+                .setNamespace(namespace)
                 .addAllIds(Arrays.asList(idsToDelete))
                 .setDeleteAll(false)
                 .build();
 
         conn.getBlockingStub().delete(deleteRequest);
+        fetchRequest = FetchRequest.newBuilder().addAllIds(ids).setNamespace(namespace).build();
+        fetchResponse = conn.getBlockingStub().fetch(fetchRequest);
+        assert (fetchResponse.getVectorsCount() == ids.size() - 1);
 
         // Clear out the test
         DeleteRequest deleteAllRequest = DeleteRequest.newBuilder()
-                .setNamespace(ns)
+                .setNamespace(namespace)
                 .setDeleteAll(true)
                 .build();
 
         conn.getBlockingStub().delete(deleteAllRequest);
+        fetchRequest = FetchRequest.newBuilder().addAllIds(ids).setNamespace(namespace).build();
+        fetchResponse = conn.getBlockingStub().fetch(fetchRequest);
+        assert (fetchResponse.getVectorsCount() == 0);
     }
 }
