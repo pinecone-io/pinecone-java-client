@@ -1,7 +1,5 @@
 package io.pinecone;
 
-import io.pinecone.PineconeClientConfig;
-import io.pinecone.PineconeIndexOperationClient;
 import io.pinecone.exceptions.PineconeConfigurationException;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.model.*;
@@ -15,6 +13,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -220,5 +220,49 @@ public class PineconeIndexOperationClientTest {
         IndexMeta actualIndexMeta = indexOperationClient.describeIndex(indexName);
 
         assertEquals(expectedIndexMeta.toString(), actualIndexMeta.toString());
+    }
+
+    @Test
+    public void testListIndexes() throws IOException {
+        String responseBody = "[\"index1\",\"index2\"]";
+        PineconeClientConfig clientConfig = new PineconeClientConfig()
+                .withApiKey("api_key")
+                .withEnvironment("testEnvironment");
+
+        Call mockCall = mock(Call.class);
+
+        Response mockResponse = new Response.Builder()
+                .request(new Request.Builder().url("http://localhost").build())
+                .protocol(Protocol.HTTP_1_1)
+                .code(200)
+                .message("The index has been successfully deleted.")
+                .body(ResponseBody.create(responseBody, MediaType.parse("text/plain")))
+                .build();
+
+        OkHttpClient mockClient = mock(OkHttpClient.class);
+        when(mockClient.newCall(any(Request.class))).thenReturn(mockCall);
+        when(mockCall.execute()).thenReturn(mockResponse);
+
+        PineconeIndexOperationClient indexOperationClient = new PineconeIndexOperationClient(clientConfig, mockClient);
+        List<String> indexList = indexOperationClient.listIndexes();
+        assertEquals(2, indexList.size());
+        assertEquals(indexList.get(0), "index1");
+        assertEquals(indexList.get(1), "index2");
+
+        // Empty response
+        String emptyResponseBody = "[]";
+        Response mockEmptyResponse = new Response.Builder()
+                .request(new Request.Builder().url("http://localhost").build())
+                .protocol(Protocol.HTTP_1_1)
+                .code(200)
+                .message("Empty response.")
+                .body(ResponseBody.create(emptyResponseBody, MediaType.parse("text/plain")))
+                .build();
+
+        when(mockCall.execute()).thenReturn(mockEmptyResponse);
+
+        List<String> emptyIndexList = indexOperationClient.listIndexes();
+        assertNotNull(emptyIndexList);
+        assertTrue(emptyIndexList.isEmpty());
     }
 }

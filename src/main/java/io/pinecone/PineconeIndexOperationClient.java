@@ -1,5 +1,6 @@
 package io.pinecone;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.pinecone.exceptions.FailedRequestInfo;
 import io.pinecone.exceptions.HttpErrorMapper;
 import io.pinecone.exceptions.PineconeConfigurationException;
@@ -8,6 +9,8 @@ import io.pinecone.model.IndexMeta;
 import okhttp3.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PineconeIndexOperationClient {
     private final OkHttpClient client;
@@ -19,6 +22,7 @@ public class PineconeIndexOperationClient {
     public static final String BASE_URL_SUFFIX = ".pinecone.io/databases/";
     public static final String CONTENT_TYPE = "content-type";
     public static final String CONTENT_TYPE_JSON = "application/json";
+    public static final String CONTENT_TYPE_CHARSET_UTF8 = "charset=utf-8";
     public static final String EMPTY_RESOURCE_PATH = "";
     public static final String HTTP_METHOD_DELETE = "DELETE";
     public static final String HTTP_METHOD_GET = "GET";
@@ -48,7 +52,7 @@ public class PineconeIndexOperationClient {
     }
 
     public void deleteIndex(String indexName) throws IOException {
-        Request request = buildRequest(HTTP_METHOD_DELETE, indexName, TEXT_PLAIN,null);
+        Request request = buildRequest(HTTP_METHOD_DELETE, indexName, TEXT_PLAIN, null);
         try (Response response = client.newCall(request).execute()) {
             handleResponse(response);
         }
@@ -71,19 +75,30 @@ public class PineconeIndexOperationClient {
         }
     }
 
+    public List<String> listIndexes() throws IOException {
+        String acceptHeaders = CONTENT_TYPE_JSON + "; " + CONTENT_TYPE_CHARSET_UTF8;
+        List<String> indexList;
+        ObjectMapper objectMapper = new ObjectMapper();
+        Request request = buildRequest(HTTP_METHOD_GET, EMPTY_RESOURCE_PATH, acceptHeaders, null);
+        try (Response response = client.newCall(request).execute()) {
+            handleResponse(response);
+            String responseBodyString = response.body().string();
+            indexList = objectMapper.readValue(responseBodyString, ArrayList.class);
+        }
+        return indexList;
+    }
+
     private Request buildRequest(String method, String path, String acceptHeader, RequestBody requestBody) {
         Request.Builder builder = new Request.Builder()
                 .url(url + path)
                 .addHeader(ACCEPT_HEADER, acceptHeader)
                 .addHeader(API_KEY_HEADER_NAME, clientConfig.getApiKey());
-
         if (HTTP_METHOD_POST.equals(method)) {
             builder.post(requestBody);
             builder.addHeader(CONTENT_TYPE, CONTENT_TYPE_JSON);
         } else if (HTTP_METHOD_DELETE.equals(method)) {
             builder.delete();
         }
-
         return builder.build();
     }
 
