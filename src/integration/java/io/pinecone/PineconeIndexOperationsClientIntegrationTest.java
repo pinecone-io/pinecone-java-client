@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -40,6 +41,10 @@ public class PineconeIndexOperationsClientIntegrationTest {
         assertEquals(10, indexMeta.getDatabase().getDimension());
         assertEquals(indexName, indexMeta.getDatabase().getName());
         assertEquals("euclidean", indexMeta.getDatabase().getMetric());
+
+        // List the index
+        List<String> indexList = pinecone.listIndexes();
+        assert !indexList.isEmpty();
 
         // Cleanup
         pinecone.deleteIndex(indexName);
