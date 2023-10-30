@@ -1,6 +1,7 @@
 package io.pinecone;
 
 import io.pinecone.helpers.RandomStringBuilder;
+import io.pinecone.model.ConfigureIndexRequest;
 import io.pinecone.model.CreateIndexRequest;
 import io.pinecone.model.IndexMeta;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,6 +46,18 @@ public class PineconeIndexOperationsClientIntegrationTest {
         // List the index
         List<String> indexList = pinecone.listIndexes();
         assert !indexList.isEmpty();
+
+        // Configure the index
+        ConfigureIndexRequest configureIndexRequest = new ConfigureIndexRequest()
+                .withPodType("p1.x2")
+                .withReplicas(3);
+        pinecone.configureIndex(indexName, configureIndexRequest);
+
+        // Get the index description
+        indexMeta = pinecone.describeIndex(indexName);
+        assertNotNull(indexMeta);
+        assertEquals(3, indexMeta.getDatabase().getReplicas());
+        assertEquals("p1.x2", indexMeta.getDatabase().getPodType());
 
         // Cleanup
         pinecone.deleteIndex(indexName);

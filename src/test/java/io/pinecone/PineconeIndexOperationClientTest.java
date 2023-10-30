@@ -34,7 +34,7 @@ public class PineconeIndexOperationClientTest {
     }
 
     @Test
-    public void IndexOpsWithoutApiKey() throws IOException {
+    public void IndexOpsWithoutApiKey() {
         PineconeClientConfig clientConfig = new PineconeClientConfig()
                 .withEnvironment("testEnvironment");
         OkHttpClient mockClient = mock(OkHttpClient.class);
@@ -43,7 +43,7 @@ public class PineconeIndexOperationClientTest {
     }
 
     @Test
-    public void IndexOpsWithoutEnvironment() throws IOException {
+    public void IndexOpsWithoutEnvironment() {
         PineconeClientConfig clientConfig = new PineconeClientConfig()
                 .withApiKey("testApiKey");
         OkHttpClient mockClient = mock(OkHttpClient.class);
@@ -52,7 +52,7 @@ public class PineconeIndexOperationClientTest {
     }
 
     @Test
-    public void IndexOpsWithoutApiKeyAndEnvironment() throws IOException {
+    public void IndexOpsWithoutApiKeyAndEnvironment() {
         PineconeClientConfig clientConfig = new PineconeClientConfig();
         OkHttpClient mockClient = mock(OkHttpClient.class);
 
@@ -264,5 +264,32 @@ public class PineconeIndexOperationClientTest {
         List<String> emptyIndexList = indexOperationClient.listIndexes();
         assertNotNull(emptyIndexList);
         assertTrue(emptyIndexList.isEmpty());
+    }
+
+    @Test
+    public void testConfigureIndex() throws IOException {
+        String indexName = "test-index";
+        PineconeClientConfig clientConfig = new PineconeClientConfig()
+                .withApiKey("testApiKey")
+                .withEnvironment("testEnvironment");
+        ConfigureIndexRequest configureIndexRequest = new ConfigureIndexRequest()
+                .withPodType("s1.x2").withReplicas(3);
+
+        Call mockCall = mock(Call.class);
+        when(mockCall.execute()).thenReturn(new Response.Builder()
+                .request(new Request.Builder().url("http://localhost").build())
+                .protocol(Protocol.HTTP_1_1)
+                .code(202)
+                .message("The index has been successfully updated.")
+                .body(ResponseBody.create("Response body", MediaType.parse("text/plain")))
+                .build());
+
+        OkHttpClient mockClient = mock(OkHttpClient.class);
+        when(mockClient.newCall(any(Request.class))).thenReturn(mockCall);
+        PineconeIndexOperationClient indexOperationClient = new PineconeIndexOperationClient(clientConfig, mockClient);
+        indexOperationClient.configureIndex(indexName, configureIndexRequest);
+
+        verify(mockClient, times(1)).newCall(any(Request.class));
+        verify(mockCall, times(1)).execute();
     }
 }
