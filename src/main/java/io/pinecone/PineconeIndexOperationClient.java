@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.pinecone.exceptions.FailedRequestInfo;
 import io.pinecone.exceptions.HttpErrorMapper;
 import io.pinecone.exceptions.PineconeConfigurationException;
+import io.pinecone.model.ConfigureIndexRequest;
 import io.pinecone.model.CreateIndexRequest;
 import io.pinecone.model.IndexMeta;
 import okhttp3.*;
@@ -26,6 +27,7 @@ public class PineconeIndexOperationClient {
     public static final String EMPTY_RESOURCE_PATH = "";
     public static final String HTTP_METHOD_DELETE = "DELETE";
     public static final String HTTP_METHOD_GET = "GET";
+    public static final String HTTP_METHOD_PATCH = "HTTP_METHOD_PATCH";
     public static final String HTTP_METHOD_POST = "POST";
     public static final String TEXT_PLAIN = "text/plain";
 
@@ -59,7 +61,7 @@ public class PineconeIndexOperationClient {
     }
 
     public void createIndex(CreateIndexRequest createIndexRequest) throws IOException {
-        MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
+        MediaType mediaType = MediaType.parse(CONTENT_TYPE_JSON + ";" + CONTENT_TYPE_CHARSET_UTF8);
         RequestBody requestBody = RequestBody.create(createIndexRequest.toJson(), mediaType);
         Request request = buildRequest(HTTP_METHOD_POST, EMPTY_RESOURCE_PATH, TEXT_PLAIN, requestBody);
         try (Response response = client.newCall(request).execute()) {
@@ -88,6 +90,15 @@ public class PineconeIndexOperationClient {
         return indexList;
     }
 
+    public void configureIndex(String indexName, ConfigureIndexRequest configureIndexRequest) throws IOException {
+        MediaType mediaType = MediaType.parse(CONTENT_TYPE_JSON + ";" + CONTENT_TYPE_CHARSET_UTF8);
+        RequestBody requestBody = RequestBody.create(configureIndexRequest.toJson(), mediaType);
+        Request request = buildRequest(HTTP_METHOD_PATCH, indexName, TEXT_PLAIN, requestBody);
+        try (Response response = client.newCall(request).execute()) {
+            handleResponse(response);
+        }
+    }
+
     private Request buildRequest(String method, String path, String acceptHeader, RequestBody requestBody) {
         Request.Builder builder = new Request.Builder()
                 .url(url + path)
@@ -96,9 +107,11 @@ public class PineconeIndexOperationClient {
         if (HTTP_METHOD_POST.equals(method)) {
             builder.post(requestBody);
             builder.addHeader(CONTENT_TYPE, CONTENT_TYPE_JSON);
-        } else if (HTTP_METHOD_DELETE.equals(method)) {
+        } else if(HTTP_METHOD_PATCH.equals(method)) {
+            builder.patch(requestBody);
+            builder.addHeader(CONTENT_TYPE, CONTENT_TYPE_JSON);
+        } else if (HTTP_METHOD_DELETE.equals(method))
             builder.delete();
-        }
         return builder.build();
     }
 
