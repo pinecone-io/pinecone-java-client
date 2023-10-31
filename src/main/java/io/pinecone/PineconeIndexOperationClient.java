@@ -110,8 +110,9 @@ public class PineconeIndexOperationClient {
         } else if(HTTP_METHOD_PATCH.equals(method)) {
             builder.patch(requestBody);
             builder.addHeader(CONTENT_TYPE, CONTENT_TYPE_JSON);
-        } else if (HTTP_METHOD_DELETE.equals(method))
+        } else if (HTTP_METHOD_DELETE.equals(method)) {
             builder.delete();
+        }
         return builder.build();
     }
 
