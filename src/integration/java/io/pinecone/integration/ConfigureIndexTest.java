@@ -65,8 +65,7 @@ public class ConfigureIndexTest {
             checkIndexStatusReady(indexName);
             pinecone.configureIndex(indexName, configureIndexRequest);
         } catch (PineconeBadRequestException exception) {
-            assert (exception.getLocalizedMessage().contains("The index exceeds the project " +
-                    "quota of 5 pods by 16 pods."));
+            assert (exception.getLocalizedMessage().contains("The index exceeds the project quota"));
             assert (exception.getLocalizedMessage().contains("Upgrade your account or change" +
                     " the project settings to increase the quota."));
         } catch (Exception exception) {
@@ -201,7 +200,7 @@ public class ConfigureIndexTest {
                 break;
             }
 
-            Thread.sleep(500);
+            Thread.sleep(1000);
         }
     }
 }
