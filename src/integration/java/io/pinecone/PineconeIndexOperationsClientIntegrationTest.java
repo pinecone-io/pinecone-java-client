@@ -1,7 +1,6 @@
 package io.pinecone;
 
 import io.pinecone.helpers.RandomStringBuilder;
-import io.pinecone.model.ConfigureIndexRequest;
 import io.pinecone.model.CreateIndexRequest;
 import io.pinecone.model.IndexMeta;
 import org.junit.jupiter.api.BeforeEach;
