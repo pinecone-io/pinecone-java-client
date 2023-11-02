@@ -30,6 +30,8 @@ public class PineconeIndexOperationClient {
     public static final String HTTP_METHOD_PATCH = "HTTP_METHOD_PATCH";
     public static final String HTTP_METHOD_POST = "POST";
     public static final String TEXT_PLAIN = "text/plain";
+    public static final String USER_AGENT_HEADER = "User-Agent";
+
 
     private PineconeIndexOperationClient(PineconeClientConfig clientConfig, OkHttpClient client, String url) {
         this.client = client;
@@ -103,7 +105,8 @@ public class PineconeIndexOperationClient {
         Request.Builder builder = new Request.Builder()
                 .url(url + path)
                 .addHeader(ACCEPT_HEADER, acceptHeader)
-                .addHeader(API_KEY_HEADER_NAME, clientConfig.getApiKey());
+                .addHeader(API_KEY_HEADER_NAME, clientConfig.getApiKey())
+                .addHeader(USER_AGENT_HEADER, clientConfig.getUserAgent());
         if (HTTP_METHOD_POST.equals(method)) {
             builder.post(requestBody);
             builder.addHeader(CONTENT_TYPE, CONTENT_TYPE_JSON);

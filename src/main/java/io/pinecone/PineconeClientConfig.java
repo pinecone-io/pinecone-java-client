@@ -1,10 +1,14 @@
 package io.pinecone;
 
+import io.pinecone.exceptions.PineconeException;
 import io.pinecone.exceptions.PineconeValidationException;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
 /**
@@ -28,6 +32,7 @@ public class PineconeClientConfig {
      */
     private int serverSideTimeoutSec = 20;
 
+    private String usageContext;
     /**
      * Creates a new default config.
      */
@@ -39,6 +44,7 @@ public class PineconeClientConfig {
         projectName = other.projectName;
         environment = other.environment;
         serverSideTimeoutSec = other.serverSideTimeoutSec;
+        usageContext = other.usageContext;
     }
 
     /**
@@ -96,6 +102,16 @@ public class PineconeClientConfig {
         return config;
     }
 
+    public String getUsageContext() {
+        return usageContext;
+    }
+
+    public PineconeClientConfig withUsageContext(String usageContext) {
+        PineconeClientConfig config = new PineconeClientConfig(this);
+        config.usageContext = usageContext;
+        return config;
+    }
+
     void validate() {
         if (apiKey == null)
             throw new PineconeValidationException("Invalid Pinecone config: missing apiKey");
@@ -120,5 +136,21 @@ public class PineconeClientConfig {
                     .collect(Collectors.toList());
             return String.join("-", splits);
         }
+    }
+
+    public String getUserAgent() {
+        Properties properties = new Properties();
+        String userAgentLanguage = "lang=java";
+        String version = (this.getUsageContext() != null) ?
+                userAgentLanguage + "; " + this.getUsageContext()
+                : userAgentLanguage;
+
+        try (FileInputStream input = new FileInputStream("gradle.properties")) {
+            properties.load(input);
+            version = properties.getProperty("pineconeClientVersion") + "; " + version;
+        } catch (IOException e) {
+            throw new PineconeException("Unable to extract pinecone client version");
+        }
+        return version;
     }
 }
