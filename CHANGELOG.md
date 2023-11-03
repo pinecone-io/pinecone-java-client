@@ -4,6 +4,7 @@
 ### Unreleased version
 - Add support to list indexes
 - Add support to configure index
+- Add user-agent as a header
 
 ### v0.6.0
 - Add async stub for data plane operations

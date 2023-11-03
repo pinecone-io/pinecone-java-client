@@ -112,6 +112,7 @@ public class PineconeConnection implements AutoCloseable {
         Metadata metadata = new Metadata();
         metadata.put(Metadata.Key.of("api-key",
                 Metadata.ASCII_STRING_MARSHALLER), clientConfig.getApiKey());
+        metadata.put(Metadata.Key.of("User-Agent", Metadata.ASCII_STRING_MARSHALLER), clientConfig.getUserAgent());
         return metadata;
     }
 
