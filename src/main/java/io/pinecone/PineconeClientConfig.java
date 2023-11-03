@@ -142,7 +142,7 @@ public class PineconeClientConfig {
         Properties properties = new Properties();
         String userAgentLanguage = "lang=java";
         String version = (this.getUsageContext() != null) ?
-                userAgentLanguage + "; usageContext= " + this.getUsageContext()
+                userAgentLanguage + "; usageContext=" + this.getUsageContext()
                 : userAgentLanguage;
 
         try (FileInputStream input = new FileInputStream("gradle.properties")) {
