@@ -1,7 +1,7 @@
-package io.pinecone.integration.ControlPlane;
+package io.pinecone.ControlPlane;
 
 import io.pinecone.PineconeClientConfig;
-import io.pinecone.integration.DataPlane.SyncStubTest;
+import io.pinecone.DataPlane.SyncStubTest;
 import io.pinecone.PineconeIndexOperationClient;
 import io.pinecone.exceptions.PineconeBadRequestException;
 import io.pinecone.exceptions.PineconeNotFoundException;

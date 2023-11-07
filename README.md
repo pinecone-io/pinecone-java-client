@@ -39,6 +39,12 @@ The Java client doesn't support managing Pinecone services, only reading and wri
 
 ## Examples
 
-- The most basic example usage is in `src/test/java/io/pinecone/PineconeClientLiveIntegTest.java`, covering most basic operations.
+- For all data plane operations using:
+  - FutureStub: `src/integration/java/io/pinecone/DataPlane/FutureStubTest.java`
+  - SyncStub: `src/integration/java/io/pinecone/DataPlane/SyncStubTest.java`
+- For control plane operations:
+  - CreateAndDeleteIndex: `src/integration/java/io/pinecone/ControlPlane/CreateAndDeleteIndexTest.java`
+  - ConfigureIndex: `src/integration/java/io/pinecone/ControlPlane/ConfigureIndexTest.java`
+
 > [!NOTE]
 > The java-basic-mvn example is outdated.

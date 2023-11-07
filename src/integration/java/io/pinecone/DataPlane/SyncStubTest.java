@@ -1,4 +1,4 @@
-package io.pinecone.integration.DataPlane;
+package io.pinecone.DataPlane;
 
 import com.google.common.primitives.Floats;
 import com.google.protobuf.Struct;

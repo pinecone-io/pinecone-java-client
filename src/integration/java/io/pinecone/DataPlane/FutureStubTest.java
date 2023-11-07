@@ -1,4 +1,4 @@
-package io.pinecone.integration.DataPlane;
+package io.pinecone.DataPlane;
 
 import com.google.common.primitives.Floats;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -20,9 +20,9 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class AsyncStubTest {
+public class FutureStubTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(AsyncStubTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(FutureStubTest.class);
     public String indexName = "integ-test-sanity";
 
     private PineconeClient dataPlaneClient;
