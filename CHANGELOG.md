@@ -5,6 +5,7 @@
 - Add support to list indexes
 - Add support to configure index
 - Add user-agent as a header
+- Add integration tests for future stub
 
 ### v0.6.0
 - Add async stub for data plane operations
