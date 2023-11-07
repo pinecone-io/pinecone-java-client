@@ -1,8 +1,10 @@
-package io.pinecone;
+package io.pinecone.integration.DataPlane;
 
 import com.google.common.primitives.Floats;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
+import io.pinecone.*;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.model.IndexMeta;
 import io.pinecone.proto.*;
@@ -15,16 +17,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class PineconeClientLiveIntegTest {
+public class AsyncStubTest {
 
+    private static final Logger logger = LoggerFactory.getLogger(AsyncStubTest.class);
     public String indexName = "integ-test-sanity";
-
-    private static final Logger logger = LoggerFactory.getLogger(PineconeClientLiveIntegTest.class);
 
     private PineconeClient dataPlaneClient;
     private PineconeIndexOperationClient controlPlaneClient;
@@ -50,11 +49,17 @@ public class PineconeClientLiveIntegTest {
     public void sanity() throws Exception {
         IndexMeta indexMeta = controlPlaneClient.describeIndex(indexName);
         String host = indexMeta.getStatus().getHost();
-        PineconeConnection conn = dataPlaneClient.connect(
+        PineconeConnection connection = dataPlaneClient.connect(
                 new PineconeConnectionConfig()
                         .withConnectionUrl("https://" + host));
 
         String namespace = RandomStringBuilder.build("ns", 8);
+
+        VectorServiceGrpc.VectorServiceFutureStub futureStub = connection.getFutureStub();
+        DescribeIndexStatsRequest describeIndexRequest = DescribeIndexStatsRequest.newBuilder().build();
+        ListenableFuture<DescribeIndexStatsResponse> futureDescribeIndexResponse = futureStub.describeIndexStats(describeIndexRequest);
+
+        assertEquals(futureDescribeIndexResponse.get().getDimension(), 3);
 
         // upsert
         float[][] upsertData = {{1.0F, 2.0F, 3.0F}, {4.0F, 5.0F, 6.0F}, {7.0F, 8.0F, 9.0F}};
@@ -76,9 +81,11 @@ public class PineconeClientLiveIntegTest {
                 .setNamespace(namespace)
                 .build();
 
-        UpsertResponse upsertResponse = conn.getBlockingStub().upsert(request);
+        ListenableFuture<UpsertResponse> upsertFuture = futureStub.upsert(request);
+
+        UpsertResponse upsertResponse = upsertFuture.get();
         logger.info("Put " + upsertResponse.getUpsertedCount() + " vectors into the index");
-        assert (upsertResponse.getUpsertedCount() == 3);
+        assertEquals(upsertResponse.getUpsertedCount(), 3);
 
         // hybrid upsert
         List<String> hybridsIds = Arrays.asList("v4", "v5", "v6");
@@ -100,15 +107,19 @@ public class PineconeClientLiveIntegTest {
                 .addAllVectors(hybridVectors)
                 .setNamespace(namespace)
                 .build();
-        UpsertResponse hybridResponse = conn.getBlockingStub().upsert(hybridRequest);
+        ListenableFuture<UpsertResponse> hybridUpsertFuture = connection.getFutureStub().upsert(hybridRequest);
+
+        UpsertResponse hybridResponse = hybridUpsertFuture.get();
         logger.info("Put " + hybridResponse.getUpsertedCount() + " vectors into the index");
-        assert (hybridResponse.getUpsertedCount() == 3);
+        assertEquals(hybridResponse.getUpsertedCount(), 3);
 
         // fetch
         List<String> ids = Arrays.asList("v1", "v2");
         FetchRequest fetchRequest = FetchRequest.newBuilder().addAllIds(ids).setNamespace(namespace).build();
-        FetchResponse fetchResponse = conn.getBlockingStub().fetch(fetchRequest);
-        assert (fetchResponse.containsVectors("v1"));
+        ListenableFuture<FetchResponse> fetchFuture = connection.getFutureStub().fetch(fetchRequest);
+        assert (fetchFuture.get().containsVectors("v1"));
+        assert (fetchFuture.get().containsVectors("v2"));
+
 
         // Updates vector v1's values to 10.0, 11.0, and 12.0 from 1.0, 2.0, and 3.0
         UpdateRequest updateRequest = UpdateRequest.newBuilder()
@@ -116,9 +127,9 @@ public class PineconeClientLiveIntegTest {
                 .setNamespace(namespace)
                 .addAllValues(Floats.asList(10F, 11F, 12F))
                 .build();
-        conn.getBlockingStub().update(updateRequest);
+        connection.getFutureStub().update(updateRequest);
         fetchRequest = FetchRequest.newBuilder().addIds("v1").setNamespace(namespace).build();
-        conn.getBlockingStub().fetch(fetchRequest);
+        connection.getFutureStub().fetch(fetchRequest);
 
         // DEPRECATED: batch queries
         float[] rawVector = {1.0F, 2.0F, 3.0F};
@@ -142,10 +153,11 @@ public class PineconeClientLiveIntegTest {
                 .setIncludeMetadata(true)
                 .build();
 
-        QueryResponse queryResponse = conn.getBlockingStub().query(batchQueryRequest);
-        assertThat(queryResponse, notNullValue());
-        assertThat(queryResponse.getResultsList(), notNullValue());
-        assertThat(queryResponse.getResultsCount(), equalTo(1));
+        ListenableFuture<QueryResponse> queryFuture = connection.getFutureStub().query(batchQueryRequest);
+        QueryResponse queryResponse = queryFuture.get();
+        assertNotNull(queryResponse);
+        assertNotNull(queryResponse.getResultsList());
+        assertEquals(queryResponse.getResultsCount(), 1);
 
         Iterable<Float> iterable = Arrays.asList(1.0F, 2.0F, 3.0F);
         QueryRequest queryRequest = QueryRequest.newBuilder()
@@ -156,10 +168,10 @@ public class PineconeClientLiveIntegTest {
                 .build();
 
         // When querying using a single vector, we get matches instead of results
-        queryResponse = conn.getBlockingStub().query(queryRequest);
-        assertThat(queryResponse, notNullValue());
-        assertThat(queryResponse.getMatchesList(), notNullValue());
-        assertThat(queryResponse.getMatchesCount(), equalTo(2));
+        queryResponse = connection.getFutureStub().query(queryRequest).get();
+        assertNotNull(queryResponse);
+        assertNotNull(queryResponse.getMatchesList());
+        assertEquals(queryResponse.getMatchesCount(), 2);
 
         // Query by id example
         QueryRequest queryByIdRequest = QueryRequest.newBuilder()
@@ -169,10 +181,10 @@ public class PineconeClientLiveIntegTest {
                 .setIncludeMetadata(true)
                 .build();
 
-        queryResponse = conn.getBlockingStub().query(queryByIdRequest);
-        assertThat(queryResponse, notNullValue());
-        assertThat(queryResponse.getMatchesList(), notNullValue());
-        assertThat(queryResponse.getMatchesCount(), equalTo(2));
+        queryResponse = connection.getFutureStub().query(queryByIdRequest).get();
+        assertNotNull(queryResponse);
+        assertNotNull(queryResponse.getMatchesList());
+        assertEquals(queryResponse.getMatchesCount(), 2);
 
         // Delete
         String[] idsToDelete = {"v2"};
@@ -182,10 +194,10 @@ public class PineconeClientLiveIntegTest {
                 .setDeleteAll(false)
                 .build();
 
-        conn.getBlockingStub().delete(deleteRequest);
+        DeleteResponse deleteResponse = connection.getFutureStub().delete(deleteRequest).get();
         fetchRequest = FetchRequest.newBuilder().addAllIds(ids).setNamespace(namespace).build();
-        fetchResponse = conn.getBlockingStub().fetch(fetchRequest);
-        assert (fetchResponse.getVectorsCount() == ids.size() - 1);
+        FetchResponse fetchResponse = connection.getFutureStub().fetch(fetchRequest).get();
+        assertEquals(fetchResponse.getVectorsCount(), ids.size() - 1);
 
         // Clear out the test
         DeleteRequest deleteAllRequest = DeleteRequest.newBuilder()
@@ -193,9 +205,11 @@ public class PineconeClientLiveIntegTest {
                 .setDeleteAll(true)
                 .build();
 
-        conn.getBlockingStub().delete(deleteAllRequest);
+
+        connection.getFutureStub().delete(deleteAllRequest).get();
+
         fetchRequest = FetchRequest.newBuilder().addAllIds(ids).setNamespace(namespace).build();
-        fetchResponse = conn.getBlockingStub().fetch(fetchRequest);
-        assert (fetchResponse.getVectorsCount() == 0);
+        fetchResponse = connection.getFutureStub().fetch(fetchRequest).get();
+        assertEquals(fetchResponse.getVectorsCount(), 0);
     }
 }
