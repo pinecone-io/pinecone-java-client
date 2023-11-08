@@ -26,7 +26,7 @@
     <dependency> <!-- Add an slf4j binding like this if you want to see logs emitted by pinecone-client -->
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
-      <version>1.7.30</version>
+      <version>1.7.36</version>
     </dependency>
   </dependencies>
 
