@@ -93,6 +93,19 @@ task integrationTest(type: Test) {
     outputs.upToDateWhen { false }
 }
 
+task cleanupIntegration {
+    description = 'Run Java cleanup function for integration resources'
+    group = 'verification'
+
+    doLast {
+        // ToDo: Fix calling CleanUp function
+        javaexec {
+            classpath = sourceSets.integrationTest.runtimeClasspath
+            main = 'io.pinecone.helpers.CleanUp'
+        }
+    }
+}
+
 // Configure Auto Relocation
 import com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation
 
