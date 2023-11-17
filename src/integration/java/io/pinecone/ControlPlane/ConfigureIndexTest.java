@@ -1,7 +1,6 @@
 package io.pinecone.ControlPlane;
 
 import io.pinecone.PineconeClientConfig;
-import io.pinecone.DataPlane.SyncStubTest;
 import io.pinecone.PineconeIndexOperationClient;
 import io.pinecone.exceptions.PineconeBadRequestException;
 import io.pinecone.exceptions.PineconeNotFoundException;
@@ -20,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class ConfigureIndexTest {
     private PineconeIndexOperationClient pinecone;
     private String indexName;
-    private static final Logger logger = LoggerFactory.getLogger(SyncStubTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(ConfigureIndexTest.class);
 
     @BeforeEach
     public void setUp() throws IOException {

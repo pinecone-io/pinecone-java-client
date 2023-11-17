@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -27,6 +28,9 @@ public class FutureStubTest {
 
     private PineconeClient dataPlaneClient;
     private PineconeIndexOperationClient controlPlaneClient;
+    private PineconeConnection connection;
+    private String namespace;
+    private VectorServiceGrpc.VectorServiceFutureStub futureStub;
 
     @BeforeEach
     public void setUp() {
@@ -37,30 +41,32 @@ public class FutureStubTest {
 
         controlPlaneClient = new PineconeIndexOperationClient(config);
         dataPlaneClient = new PineconeClient(config);
+        namespace = RandomStringBuilder.build("ns", 8);
+
+        futureStub = connection.getFutureStub();
     }
 
     @Test
     public void checkIndexSetup() throws Exception {
         IndexMeta indexMeta = controlPlaneClient.describeIndex(indexName);
         assertEquals(3, indexMeta.getDatabase().getDimension());
+
+        String host = indexMeta.getStatus().getHost();
+        connection = dataPlaneClient.connect(
+                new PineconeConnectionConfig()
+                        .withConnectionUrl("https://" + host));
     }
 
     @Test
-    public void sanity() throws Exception {
-        IndexMeta indexMeta = controlPlaneClient.describeIndex(indexName);
-        String host = indexMeta.getStatus().getHost();
-        PineconeConnection connection = dataPlaneClient.connect(
-                new PineconeConnectionConfig()
-                        .withConnectionUrl("https://" + host));
-
-        String namespace = RandomStringBuilder.build("ns", 8);
-
-        VectorServiceGrpc.VectorServiceFutureStub futureStub = connection.getFutureStub();
+    public void describeIndexStats() throws ExecutionException, InterruptedException {
         DescribeIndexStatsRequest describeIndexRequest = DescribeIndexStatsRequest.newBuilder().build();
         ListenableFuture<DescribeIndexStatsResponse> futureDescribeIndexResponse = futureStub.describeIndexStats(describeIndexRequest);
 
         assertEquals(futureDescribeIndexResponse.get().getDimension(), 3);
+    }
 
+    @Test
+    public void sanity() throws Exception {
         // upsert
         float[][] upsertData = {{1.0F, 2.0F, 3.0F}, {4.0F, 5.0F, 6.0F}, {7.0F, 8.0F, 9.0F}};
         List<String> upsertIds = Arrays.asList("v1", "v2", "v3");
