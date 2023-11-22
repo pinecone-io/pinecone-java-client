@@ -54,22 +54,83 @@ public class UpsertAndDescribeIndexStatsTest {
     }
 
     @Test
-    public void UpsertVectorsAndDescribeIndexStatsTestSync() {
-        blockingStub.upsert(buildRequiredUpsertRequest());
+    public void UpsertRequiredVectorsAndDescribeIndexStatsTestSync() {
+        // Get vector and namespace counts before upserting vectors with required parameters
         DescribeIndexStatsRequest describeIndexRequest = DescribeIndexStatsRequest.newBuilder().build();
         DescribeIndexStatsResponse describeIndexStatsResponse = blockingStub.describeIndexStats(describeIndexRequest);
         assertEquals(describeIndexStatsResponse.getDimension(), dimension);
-        assert describeIndexStatsResponse.getNamespacesCount()>0;
-        assert describeIndexStatsResponse.getTotalVectorCount()>0;
+        int startVectorCount = describeIndexStatsResponse.getTotalVectorCount();
+        int startNamespaceCount = describeIndexStatsResponse.getNamespacesCount();
+
+        // upsert vectors with required parameters
+        UpsertResponse upsertResponse = blockingStub.upsert(buildRequiredUpsertRequest());
+
+        // call describeIndexStats to get updated counts
+        describeIndexStatsResponse = blockingStub.describeIndexStats(describeIndexRequest);
+
+        // verify updated vector and namespace counts
+        assertEquals(describeIndexStatsResponse.getNamespacesCount(), startNamespaceCount + 1);
+        assertEquals(describeIndexStatsResponse.getTotalVectorCount(), startVectorCount + upsertResponse.getUpsertedCount());
     }
 
     @Test
-    public void UpsertVectorsAndDescribeIndexStatsTestFuture() throws ExecutionException, InterruptedException {
-        futureStub.upsert(buildRequiredUpsertRequest());
+    public void UpsertOptionalVectorsAndDescribeIndexStatsTestSync() {
+        // Get vector and namespace counts before upserting vectors with required parameters
+        DescribeIndexStatsRequest describeIndexRequest = DescribeIndexStatsRequest.newBuilder().build();
+        DescribeIndexStatsResponse describeIndexStatsResponse = blockingStub.describeIndexStats(describeIndexRequest);
+        assertEquals(describeIndexStatsResponse.getDimension(), dimension);
+        int startVectorCount = describeIndexStatsResponse.getTotalVectorCount();
+        int startNamespaceCount = describeIndexStatsResponse.getNamespacesCount();
+
+        // upsert vectors with required parameters
+        UpsertResponse upsertResponse = blockingStub.upsert(buildOptionalUpsertRequest());
+
+        // call describeIndexStats to get updated counts
+        describeIndexStatsResponse = blockingStub.describeIndexStats(describeIndexRequest);
+
+        // verify updated vector and namespace counts
+        assertEquals(describeIndexStatsResponse.getNamespacesCount(), startNamespaceCount + 1);
+        assertEquals(describeIndexStatsResponse.getTotalVectorCount(), startVectorCount + upsertResponse.getUpsertedCount());
+    }
+
+
+    @Test
+    public void UpsertRequiredVectorsAndDescribeIndexStatsTestFuture() throws ExecutionException, InterruptedException {
+        // Get vector and namespace counts before upserting vectors with required parameters
         DescribeIndexStatsRequest describeIndexRequest = DescribeIndexStatsRequest.newBuilder().build();
         DescribeIndexStatsResponse describeIndexStatsResponse = futureStub.describeIndexStats(describeIndexRequest).get();
         assertEquals(describeIndexStatsResponse.getDimension(), dimension);
-        assert describeIndexStatsResponse.getNamespacesCount()>0;
-        assert describeIndexStatsResponse.getTotalVectorCount()>0;
+        int startVectorCount = describeIndexStatsResponse.getTotalVectorCount();
+        int startNamespaceCount = describeIndexStatsResponse.getNamespacesCount();
+
+        // upsert optional vectors
+        UpsertResponse upsertResponse = futureStub.upsert(buildRequiredUpsertRequest()).get();
+
+        // call describeIndexStats to get updated counts
+        describeIndexStatsResponse = futureStub.describeIndexStats(describeIndexRequest).get();
+
+        // verify updated vector and namespace counts
+        assertEquals(describeIndexStatsResponse.getTotalVectorCount(), startVectorCount + upsertResponse.getUpsertedCount());
+        assertEquals(describeIndexStatsResponse.getNamespacesCount(), startNamespaceCount + 1);
+    }
+
+    @Test
+    public void UpsertOptionalVectorsAndDescribeIndexStatsTestFuture() throws ExecutionException, InterruptedException {
+        // Get vector and namespace counts before upserting vectors with required parameters
+        DescribeIndexStatsRequest describeIndexRequest = DescribeIndexStatsRequest.newBuilder().build();
+        DescribeIndexStatsResponse describeIndexStatsResponse = futureStub.describeIndexStats(describeIndexRequest).get();
+        assertEquals(describeIndexStatsResponse.getDimension(), dimension);
+        int startVectorCount = describeIndexStatsResponse.getTotalVectorCount();
+        int startNamespaceCount = describeIndexStatsResponse.getNamespacesCount();
+
+        // upsert optional vectors
+        UpsertResponse upsertResponse = futureStub.upsert(buildOptionalUpsertRequest()).get();
+
+        // call describeIndexStats to get updated counts
+        describeIndexStatsResponse = futureStub.describeIndexStats(describeIndexRequest).get();
+
+        // verify updated vector and namespace counts
+        assertEquals(describeIndexStatsResponse.getTotalVectorCount(), startVectorCount + upsertResponse.getUpsertedCount());
+        assertEquals(describeIndexStatsResponse.getNamespacesCount(), startNamespaceCount + 1);
     }
 }
