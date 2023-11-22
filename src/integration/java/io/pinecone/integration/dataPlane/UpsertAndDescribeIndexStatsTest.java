@@ -36,7 +36,6 @@ public class UpsertAndDescribeIndexStatsTest {
         else {
             requiredParamsIndexName = RandomStringBuilder.build("index-name", 8);
 
-            // create requiredParamsIndex
             CreateIndexRequest createIndexRequest = new CreateIndexRequest()
                     .withIndexName(requiredParamsIndexName)
                     .withDimension(dimension)
