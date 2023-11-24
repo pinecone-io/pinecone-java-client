@@ -1,11 +1,11 @@
 package io.pinecone.integration.dataplane;
 
 import io.pinecone.*;
+import io.pinecone.helpers.IndexManager;
 import io.pinecone.proto.*;
 import org.junit.jupiter.api.*;
 
 import static io.pinecone.helpers.BuildUpsertRequest.*;
-import static io.pinecone.helpers.GetOrCreateIndex.getOrCreateIndex;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
@@ -17,8 +17,8 @@ public class UpsertAndDescribeIndexStatsTest {
     private static final int dimension = 3;
 
     @BeforeAll
-    public static void setUp() throws IOException {
-        PineconeConnection connection = getOrCreateIndex(dimension);
+    public static void setUp() throws IOException, InterruptedException {
+        PineconeConnection connection = new IndexManager().createIndexIfNotExists(dimension);
         blockingStub = connection.getBlockingStub();
         futureStub = connection.getFutureStub();
     }
