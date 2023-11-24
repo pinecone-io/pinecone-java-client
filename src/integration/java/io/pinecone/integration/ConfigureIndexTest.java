@@ -40,8 +40,9 @@ public class ConfigureIndexTest {
     }
 
     @AfterEach
-    public void cleanUp() throws IOException {
+    public void cleanUp() throws IOException, InterruptedException {
         indexOperationClient.deleteIndex(indexName);
+        Thread.sleep(3500);
     }
 
     @Test

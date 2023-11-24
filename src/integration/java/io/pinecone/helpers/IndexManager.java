@@ -52,7 +52,7 @@ public class IndexManager {
                 break;
             }
 
-            Thread.sleep(500);
+            Thread.sleep(1000);
         }
         return indexMeta;
     }
