@@ -33,7 +33,7 @@ public class UpsertAndDeleteTest {
 
     @Test
     public void UpsertVectorsAndDeleteByIdSyncTest() throws InterruptedException {
-        // upsert vectors with required parameters
+        // Upsert vectors with required parameters
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = Arrays.asList("v1", "v2", "v3");
         UpsertResponse upsertResponse = blockingStub.upsert(buildRequiredUpsertRequest(upsertIds, namespace));
@@ -54,9 +54,9 @@ public class UpsertAndDeleteTest {
         blockingStub.delete(deleteRequest);
         Thread.sleep(3500);
 
-        // call describeIndexStats to get updated counts
+        // Call describeIndexStats to get updated counts
         describeIndexStatsResponse = blockingStub.describeIndexStats(describeIndexRequest);
-        // verify updated vector count
+        // Verify updated vector count
         assertEquals(describeIndexStatsResponse.getNamespacesMap().get(namespace).getVectorCount(), startVectorCount - idsToDelete.length);
 
         // Delete multiple vectors
@@ -69,15 +69,15 @@ public class UpsertAndDeleteTest {
         blockingStub.delete(deleteRequest);
         Thread.sleep(3500);
 
-        // call describeIndexStats to get updated counts
+        // Call describeIndexStats to get updated counts
         describeIndexStatsResponse = blockingStub.describeIndexStats(describeIndexRequest);
-        // verify updated vector and namespace counts
+        // Verify the updated vector count
         assertEquals(describeIndexStatsResponse.getNamespacesMap().get(namespace).getVectorCount(), startVectorCount - idsToDelete.length);
     }
 
     @Test
     public void UpsertVectorsAndDeleteByNamespaceSyncTest() throws InterruptedException {
-        // upsert vectors with optional parameters
+        // Upsert vectors with optional parameters
         String namespace = RandomStringBuilder.build("ns", 8);
         UpsertResponse upsertResponse = blockingStub.upsert(buildOptionalUpsertRequest(namespace));
 
@@ -95,15 +95,15 @@ public class UpsertAndDeleteTest {
         blockingStub.delete(deleteRequest);
         Thread.sleep(3500);
 
-        // call describeIndexStats to get updated counts
+        // Call describeIndexStats to get updated counts
         NamespaceSummary namespaceSummary = blockingStub.describeIndexStats(describeIndexRequest).getNamespacesMap().get(namespace);
-        // verify the namespace is deleted
+        // Verify the namespace is deleted
         assertThrows(NullPointerException.class, () -> namespaceSummary.getVectorCount());
     }
 
     @Test
     public void UpsertVectorsAndDeleteByFilterSyncTest() throws InterruptedException {
-        // upsert vectors with optional and custom metadata parameters
+        // Upsert vectors with optional and custom metadata parameters
         String namespace = RandomStringBuilder.build("ns", 8);
         UpsertResponse upsertResponse = blockingStub.upsert(buildOptionalUpsertRequest(namespace));
 
@@ -129,15 +129,15 @@ public class UpsertAndDeleteTest {
         blockingStub.delete(deleteRequest);
         Thread.sleep(3500);
 
-        // call describeIndexStats to get updated counts
+        // Call describeIndexStats to get updated counts
         NamespaceSummary namespaceSummary = blockingStub.describeIndexStats(describeIndexRequest).getNamespacesMap().get(namespace);
-        // verify the namespace is deleted
+        // Verify the updated vector count
         assertEquals(namespaceSummary.getVectorCount(), upsertResponse.getUpsertedCount() - 1);
     }
 
     @Test
     public void UpsertVectorsAndDeleteByIdFutureTest() throws ExecutionException, InterruptedException {
-        // upsert vectors with required parameters
+        // Upsert vectors with required parameters
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = Arrays.asList("v1", "v2", "v3");
         UpsertResponse upsertResponse = futureStub.upsert(buildRequiredUpsertRequest(upsertIds, namespace)).get();
@@ -158,7 +158,7 @@ public class UpsertAndDeleteTest {
         blockingStub.delete(deleteRequest);
         Thread.sleep(3500);
 
-        // call describeIndexStats to get updated counts
+        // Call describeIndexStats to get updated counts
         describeIndexStatsResponse = futureStub.describeIndexStats(describeIndexRequest).get();
         assertEquals(describeIndexStatsResponse.getNamespacesMap().get(namespace).getVectorCount(), startVectorCount - idsToDelete.length);
 
@@ -172,15 +172,15 @@ public class UpsertAndDeleteTest {
         blockingStub.delete(deleteRequest);
         Thread.sleep(3500);
 
-        // call describeIndexStats to get updated counts
+        // Call describeIndexStats to get updated counts
         describeIndexStatsResponse = futureStub.describeIndexStats(describeIndexRequest).get();
-        // verify updated vector and namespace counts
+        // Verify the updated vector count
         assertEquals(describeIndexStatsResponse.getNamespacesMap().get(namespace).getVectorCount(), startVectorCount - idsToDelete.length);
     }
 
     @Test
     public void UpsertVectorsAndDeleteByNamespaceFutureTest() throws ExecutionException, InterruptedException {
-        // upsert vectors with optional parameters
+        // Upsert vectors with optional parameters
         String namespace = RandomStringBuilder.build("ns", 8);
         UpsertResponse upsertResponse = futureStub.upsert(buildOptionalUpsertRequest(namespace)).get();
 
@@ -198,15 +198,15 @@ public class UpsertAndDeleteTest {
         futureStub.delete(deleteRequest);
         Thread.sleep(3500);
 
-        // call describeIndexStats to get updated counts
+        // Call describeIndexStats to get updated counts
         NamespaceSummary namespaceSummary = futureStub.describeIndexStats(describeIndexRequest).get().getNamespacesMap().get(namespace);
-        // verify the namespace is deleted
+        // Verify the namespace is deleted
         assertThrows(NullPointerException.class, () -> namespaceSummary.getVectorCount());
     }
 
     @Test
     public void UpsertVectorsAndDeleteByFilterFutureTest() throws InterruptedException, ExecutionException {
-        // upsert vectors with optional and custom metadata parameters
+        // Upsert vectors with optional and custom metadata parameters
         String namespace = RandomStringBuilder.build("ns", 8);
         UpsertResponse upsertResponse = futureStub.upsert(buildOptionalUpsertRequest(namespace)).get();
 
@@ -232,9 +232,9 @@ public class UpsertAndDeleteTest {
         futureStub.delete(deleteRequest);
         Thread.sleep(3500);
 
-        // call describeIndexStats to get updated counts
+        // Call describeIndexStats to get updated counts
         NamespaceSummary namespaceSummary = futureStub.describeIndexStats(describeIndexRequest).get().getNamespacesMap().get(namespace);
-        // verify the namespace is deleted
+        // Verify the updated vector count
         assertEquals(namespaceSummary.getVectorCount(), upsertResponse.getUpsertedCount() - 1);
     }
 }
