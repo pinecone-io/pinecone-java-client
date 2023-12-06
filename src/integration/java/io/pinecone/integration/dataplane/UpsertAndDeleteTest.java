@@ -58,9 +58,10 @@ public class UpsertAndDeleteTest {
         describeIndexStatsResponse = blockingStub.describeIndexStats(describeIndexRequest);
         // Verify updated vector count
         assertEquals(describeIndexStatsResponse.getNamespacesMap().get(namespace).getVectorCount(), startVectorCount - idsToDelete.length);
+        startVectorCount -= idsToDelete.length;
 
         // Delete multiple vectors
-        idsToDelete = new String[]{upsertIds.get(0), upsertIds.get(2)};
+        idsToDelete = new String[]{upsertIds.get(1), upsertIds.get(2)};
         deleteRequest = DeleteRequest.newBuilder()
                 .setNamespace(namespace)
                 .addAllIds(Arrays.asList(idsToDelete))
@@ -161,9 +162,10 @@ public class UpsertAndDeleteTest {
         // Call describeIndexStats to get updated counts
         describeIndexStatsResponse = futureStub.describeIndexStats(describeIndexRequest).get();
         assertEquals(describeIndexStatsResponse.getNamespacesMap().get(namespace).getVectorCount(), startVectorCount - idsToDelete.length);
+        startVectorCount -= idsToDelete.length;
 
         // Delete multiple vectors
-        idsToDelete = new String[]{upsertIds.get(0), upsertIds.get(2)};
+        idsToDelete = new String[]{upsertIds.get(1), upsertIds.get(2)};
         deleteRequest = DeleteRequest.newBuilder()
                 .setNamespace(namespace)
                 .addAllIds(Arrays.asList(idsToDelete))
