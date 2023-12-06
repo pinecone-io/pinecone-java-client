@@ -1,13 +1,12 @@
-package io.pinecone.integration;
+package io.pinecone.integration.controlPlane;
 
 import io.pinecone.PineconeClientConfig;
 import io.pinecone.PineconeClientLiveIntegTest;
 import io.pinecone.PineconeIndexOperationClient;
 import io.pinecone.exceptions.PineconeBadRequestException;
 import io.pinecone.exceptions.PineconeNotFoundException;
-import io.pinecone.helpers.RandomStringBuilder;
+import io.pinecone.helpers.IndexManager;
 import io.pinecone.model.ConfigureIndexRequest;
-import io.pinecone.model.CreateIndexRequest;
 import io.pinecone.model.IndexMeta;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
@@ -19,30 +18,22 @@ import static io.pinecone.helpers.IndexManager.isIndexReady;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ConfigureIndexTest {
+    private static PineconeClientConfig config;
     private PineconeIndexOperationClient indexOperationClient;
     private String indexName;
     private static final Logger logger = LoggerFactory.getLogger(PineconeClientLiveIntegTest.class);
 
-    @BeforeEach
-    public void setUp() throws IOException {
-        indexName = RandomStringBuilder.build("index-name", 8);
-        PineconeClientConfig config = new PineconeClientConfig()
+    @BeforeAll
+    public static void defineConfig() {
+        config = new PineconeClientConfig()
                 .withApiKey(System.getenv("PINECONE_API_KEY"))
                 .withEnvironment(System.getenv("PINECONE_ENVIRONMENT"));
-        indexOperationClient = new PineconeIndexOperationClient(config);
-
-        // Create an index
-        CreateIndexRequest request = new CreateIndexRequest()
-                .withIndexName(indexName)
-                .withDimension(5)
-                .withMetric("euclidean");
-        indexOperationClient.createIndex(request);
     }
 
-    @AfterEach
-    public void cleanUp() throws IOException, InterruptedException {
-        indexOperationClient.deleteIndex(indexName);
-        Thread.sleep(3500);
+    @BeforeEach
+    public void setUp() throws IOException, InterruptedException {
+        indexName = new IndexManager().createIndexIfNotExistsControlPlane(config, 5);
+        indexOperationClient = new PineconeIndexOperationClient(config);
     }
 
     @Test
@@ -76,28 +67,7 @@ public class ConfigureIndexTest {
     }
 
     @Test
-    public void scaleUp() {
-        try{
-            // Verify the starting state
-            IndexMeta indexMeta = isIndexReady(indexName, indexOperationClient);
-            assertEquals(1, indexMeta.getDatabase().getReplicas());
-
-            // Configure the index
-            ConfigureIndexRequest configureIndexRequest = new ConfigureIndexRequest()
-                    .withReplicas(2);
-            isIndexReady(indexName, indexOperationClient);
-            indexOperationClient.configureIndex(indexName, configureIndexRequest);
-
-            // Verify replicas were scaled up
-            indexMeta = indexOperationClient.describeIndex(indexName);
-            assertEquals(2, indexMeta.getDatabase().getReplicas());
-        } catch (Exception exception) {
-            logger.error(exception.toString());
-        }
-    }
-
-    @Test
-    public void scaleDown() {
+    public void scaleUpAndDown() {
         try {
             // Verify the starting state
             IndexMeta indexMeta = isIndexReady(indexName, indexOperationClient);
@@ -163,13 +133,17 @@ public class ConfigureIndexTest {
             // Get the index description to verify the new pod type
             indexMeta = indexOperationClient.describeIndex(indexName);
             assertEquals("p1.x2", indexMeta.getDatabase().getPodType());
+
+            // Delete this index since it'll be unused for future tests
+            indexOperationClient.deleteIndex(indexName);
+            Thread.sleep(3500);
         } catch (Exception exception) {
             logger.error(exception.getLocalizedMessage());
         }
     }
 
     @Test
-    public void sizeDown() {
+    public void sizeDown() throws IOException, InterruptedException {
         try {
             // Verify the starting state
             IndexMeta indexMeta = isIndexReady(indexName, indexOperationClient);
@@ -189,9 +163,14 @@ public class ConfigureIndexTest {
             configureIndexRequest = new ConfigureIndexRequest()
                     .withPodType("p1.x1");
             indexOperationClient.configureIndex(indexName, configureIndexRequest);
+            Thread.sleep(3500);
         } catch (Exception exception) {
             assertEquals(exception.getClass(), PineconeBadRequestException.class);
             assertEquals(exception.getMessage(), "scaling down pod type is not supported");
+        } finally {
+            // Delete this index since it'll be unused for other tests
+            indexOperationClient.deleteIndex(indexName);
+            Thread.sleep(3500);
         }
     }
 }

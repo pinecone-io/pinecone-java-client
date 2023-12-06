@@ -25,7 +25,7 @@ public class UpsertAndDeleteTest {
 
     @BeforeAll
     public static void setUp() throws IOException, InterruptedException {
-        PineconeConnection connection = new IndexManager().createIndexIfNotExists(dimension);
+        PineconeConnection connection = new IndexManager().createIndexIfNotExistsDataPlane(dimension);
         blockingStub = connection.getBlockingStub();
         futureStub = connection.getFutureStub();
     }
