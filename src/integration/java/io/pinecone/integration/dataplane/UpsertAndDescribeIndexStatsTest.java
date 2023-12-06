@@ -24,7 +24,7 @@ public class UpsertAndDescribeIndexStatsTest {
     }
 
     @Test
-    public void UpsertRequiredVectorsAndDescribeIndexStatsTestSync() {
+    public void UpsertRequiredVectorsAndDescribeIndexStatsSyncTest() {
         // Get vector and namespace counts before upserting vectors with required parameters
         DescribeIndexStatsRequest describeIndexRequest = DescribeIndexStatsRequest.newBuilder().build();
         DescribeIndexStatsResponse describeIndexStatsResponse = blockingStub.describeIndexStats(describeIndexRequest);
@@ -44,7 +44,7 @@ public class UpsertAndDescribeIndexStatsTest {
     }
 
     @Test
-    public void UpsertOptionalVectorsAndDescribeIndexStatsTestSync() {
+    public void UpsertOptionalVectorsAndDescribeIndexStatsSyncTest() {
         // Get vector and namespace counts before upserting vectors with required parameters
         DescribeIndexStatsRequest describeIndexRequest = DescribeIndexStatsRequest.newBuilder().build();
         DescribeIndexStatsResponse describeIndexStatsResponse = blockingStub.describeIndexStats(describeIndexRequest);
@@ -65,7 +65,7 @@ public class UpsertAndDescribeIndexStatsTest {
 
 
     @Test
-    public void UpsertRequiredVectorsAndDescribeIndexStatsTestFuture() throws ExecutionException, InterruptedException {
+    public void UpsertRequiredVectorsAndDescribeIndexStatsFutureTest() throws ExecutionException, InterruptedException {
         // Get vector and namespace counts before upserting vectors with required parameters
         DescribeIndexStatsRequest describeIndexRequest = DescribeIndexStatsRequest.newBuilder().build();
         DescribeIndexStatsResponse describeIndexStatsResponse = futureStub.describeIndexStats(describeIndexRequest).get();
@@ -85,7 +85,7 @@ public class UpsertAndDescribeIndexStatsTest {
     }
 
     @Test
-    public void UpsertOptionalVectorsAndDescribeIndexStatsTestFuture() throws ExecutionException, InterruptedException {
+    public void UpsertOptionalVectorsAndDescribeIndexStatsFutureTest() throws ExecutionException, InterruptedException {
         // Get vector and namespace counts before upserting vectors with required parameters
         DescribeIndexStatsRequest describeIndexRequest = DescribeIndexStatsRequest.newBuilder().build();
         DescribeIndexStatsResponse describeIndexStatsResponse = futureStub.describeIndexStats(describeIndexRequest).get();
