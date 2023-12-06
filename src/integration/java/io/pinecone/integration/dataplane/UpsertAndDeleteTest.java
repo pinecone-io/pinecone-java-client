@@ -14,8 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import static io.pinecone.helpers.BuildUpsertRequest.buildOptionalUpsertRequest;
-import static io.pinecone.helpers.BuildUpsertRequest.buildRequiredUpsertRequest;
+import static io.pinecone.helpers.BuildUpsertRequest.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -37,6 +36,7 @@ public class UpsertAndDeleteTest {
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = Arrays.asList("v1", "v2", "v3");
         UpsertResponse upsertResponse = blockingStub.upsert(buildRequiredUpsertRequest(upsertIds, namespace));
+        Thread.sleep(3500);
 
         // Get vector count before deleting vectors
         DescribeIndexStatsRequest describeIndexRequest = DescribeIndexStatsRequest.newBuilder().build();
@@ -81,7 +81,7 @@ public class UpsertAndDeleteTest {
         // Upsert vectors with optional parameters
         String namespace = RandomStringBuilder.build("ns", 8);
         UpsertResponse upsertResponse = blockingStub.upsert(buildOptionalUpsertRequest(namespace));
-
+        Thread.sleep(3500);
         // Get vector count before deleting vectors
         DescribeIndexStatsRequest describeIndexRequest = DescribeIndexStatsRequest.newBuilder().build();
         DescribeIndexStatsResponse describeIndexStatsResponse = blockingStub.describeIndexStats(describeIndexRequest);
@@ -107,6 +107,9 @@ public class UpsertAndDeleteTest {
         // Upsert vectors with optional and custom metadata parameters
         String namespace = RandomStringBuilder.build("ns", 8);
         UpsertResponse upsertResponse = blockingStub.upsert(buildOptionalUpsertRequest(namespace));
+        Thread.sleep(3500);
+        String fieldToDelete = metadataFields[0];
+        String valueToDelete = createAndGetMetadataMap().get(fieldToDelete).get(0);
 
         // Get vector count before deleting vectors
         DescribeIndexStatsRequest describeIndexRequest = DescribeIndexStatsRequest.newBuilder().build();
@@ -119,10 +122,10 @@ public class UpsertAndDeleteTest {
                 .setNamespace(namespace)
                 .setDeleteAll(false)
                 .setFilter(Struct.newBuilder()
-                        .putFields("genre", Value.newBuilder()
+                        .putFields(fieldToDelete, Value.newBuilder()
                                 .setStructValue(Struct.newBuilder()
                                         .putFields("$eq", Value.newBuilder()
-                                                .setStringValue("drama")
+                                                .setStringValue(valueToDelete)
                                                 .build()))
                                 .build())
                         .build())
@@ -142,6 +145,7 @@ public class UpsertAndDeleteTest {
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = Arrays.asList("v1", "v2", "v3");
         UpsertResponse upsertResponse = futureStub.upsert(buildRequiredUpsertRequest(upsertIds, namespace)).get();
+        Thread.sleep(3500);
 
         // Get vector count before deleting vectors
         DescribeIndexStatsRequest describeIndexRequest = DescribeIndexStatsRequest.newBuilder().build();
@@ -185,6 +189,7 @@ public class UpsertAndDeleteTest {
         // Upsert vectors with optional parameters
         String namespace = RandomStringBuilder.build("ns", 8);
         UpsertResponse upsertResponse = futureStub.upsert(buildOptionalUpsertRequest(namespace)).get();
+        Thread.sleep(3500);
 
         // Get vector count before deleting vectors
         DescribeIndexStatsRequest describeIndexRequest = DescribeIndexStatsRequest.newBuilder().build();
@@ -210,7 +215,10 @@ public class UpsertAndDeleteTest {
     public void UpsertVectorsAndDeleteByFilterFutureTest() throws InterruptedException, ExecutionException {
         // Upsert vectors with optional and custom metadata parameters
         String namespace = RandomStringBuilder.build("ns", 8);
+        String fieldToDelete = metadataFields[0];
+        String valueToDelete = createAndGetMetadataMap().get(fieldToDelete).get(0);
         UpsertResponse upsertResponse = futureStub.upsert(buildOptionalUpsertRequest(namespace)).get();
+        Thread.sleep(3500);
 
         // Get vector count before deleting vectors
         DescribeIndexStatsRequest describeIndexRequest = DescribeIndexStatsRequest.newBuilder().build();
@@ -223,10 +231,10 @@ public class UpsertAndDeleteTest {
                 .setNamespace(namespace)
                 .setDeleteAll(false)
                 .setFilter(Struct.newBuilder()
-                        .putFields("genre", Value.newBuilder()
+                        .putFields(metadataFields[0], Value.newBuilder()
                                 .setStructValue(Struct.newBuilder()
                                         .putFields("$eq", Value.newBuilder()
-                                                .setStringValue("drama")
+                                                .setStringValue(valueToDelete)
                                                 .build()))
                                 .build())
                         .build())

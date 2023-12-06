@@ -9,11 +9,12 @@ import io.pinecone.proto.Vector;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 public class BuildUpsertRequest {
     private static final float[][] upsertData = {{1.0F, 2.0F, 3.0F}, {4.0F, 5.0F, 6.0F}, {7.0F, 8.0F, 9.0F}};
-
+    public static final String[] metadataFields = new String[]{"genre", "year"};
     public static UpsertRequest buildRequiredUpsertRequest() {
         return buildRequiredUpsertRequest(new ArrayList<>(), "");
     }
@@ -49,21 +50,29 @@ public class BuildUpsertRequest {
     }
 
     public static UpsertRequest buildOptionalUpsertRequest(List<String> upsertIds, String namespace) {
-        if (upsertIds.isEmpty()) upsertIds = Arrays.asList("v4", "v5", "v6");
-        if (namespace.isEmpty()) namespace = RandomStringBuilder.build("ns", 8);
+        return buildOptionalUpsertRequest(upsertIds, namespace, new HashMap<>());
+    }
+
+    public static UpsertRequest buildOptionalUpsertRequest(List<String> upsertIds, String namespace, HashMap<String, List<String>> metadataMap) {
+        if(upsertIds.isEmpty()) upsertIds = Arrays.asList("v4", "v5", "v6");
+        if(namespace.isEmpty()) namespace = RandomStringBuilder.build("ns", 8);
+        if(metadataMap.isEmpty()) metadataMap = createAndGetMetadataMap();
 
         List<Vector> hybridVectors = new ArrayList<>();
         List<Integer> sparseIndices = Arrays.asList(0, 1, 2);
         List<Float> sparseValues = Arrays.asList(0.11f, 0.22f, 0.33f);
-        String[] genreArrays = {"thriller", "drama", "fiction"};
-        String[] yearArrays = {"2018", "2019", "2020"};
+
         for (int i = 0; i < upsertIds.size(); i++) {
+            String field1 = metadataFields[i % metadataFields.length];
+            String field2 = metadataFields[(i+1) % metadataFields.length];
+            int metadataValuesLength = metadataMap.get(field1).size();
+
             hybridVectors.add(
                     Vector.newBuilder()
                             .addAllValues(Floats.asList(upsertData[i]))
                             .setMetadata(Struct.newBuilder()
-                                    .putFields("genre", Value.newBuilder().setStringValue(genreArrays[i % genreArrays.length]).build())
-                                    .putFields("year", Value.newBuilder().setStringValue(yearArrays[i % yearArrays.length]).build())
+                                    .putFields(field1, Value.newBuilder().setStringValue(metadataMap.get(field1).get(i % metadataValuesLength)).build())
+                                    .putFields(field2, Value.newBuilder().setStringValue(metadataMap.get(field2).get(i % metadataValuesLength)).build())
                                     .build())
                             .setSparseValues(
                                     SparseValues
@@ -80,5 +89,22 @@ public class BuildUpsertRequest {
                 .addAllVectors(hybridVectors)
                 .setNamespace(namespace)
                 .build();
+    }
+
+    public static HashMap<String, List<String>> createAndGetMetadataMap() {
+        HashMap<String, List<String>> metadataMap;
+        metadataMap = new HashMap<>();
+        List<String> metadataValues1 = new ArrayList<>();
+        metadataValues1.add("drama");
+        metadataValues1.add("thriller");
+        metadataValues1.add("fiction");
+        metadataMap.put(metadataFields[0], metadataValues1);
+        List<String> metadataValues2 = new ArrayList<>();
+        metadataValues2.add("2019");
+        metadataValues2.add("2020");
+        metadataValues2.add("2021");
+        metadataMap.put(metadataFields[1], metadataValues2);
+
+        return metadataMap;
     }
 }
