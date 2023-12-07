@@ -3,7 +3,6 @@ package io.pinecone.integration.dataplane;
 import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
 import io.pinecone.PineconeConnection;
-import io.pinecone.helpers.IndexManager;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.*;
 import org.junit.jupiter.api.BeforeAll;
@@ -15,6 +14,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import static io.pinecone.helpers.BuildUpsertRequest.*;
+import static io.pinecone.helpers.IndexManager.createIndexIfNotExistsDataPlane;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -25,7 +25,7 @@ public class UpsertAndDeleteTest {
 
     @BeforeAll
     public static void setUp() throws IOException, InterruptedException {
-        PineconeConnection connection = new IndexManager().createIndexIfNotExistsDataPlane(dimension);
+        PineconeConnection connection = createIndexIfNotExistsDataPlane(dimension);
         blockingStub = connection.getBlockingStub();
         futureStub = connection.getFutureStub();
     }

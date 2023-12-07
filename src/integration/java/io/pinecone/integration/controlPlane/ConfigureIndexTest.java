@@ -5,7 +5,6 @@ import io.pinecone.PineconeClientLiveIntegTest;
 import io.pinecone.PineconeIndexOperationClient;
 import io.pinecone.exceptions.PineconeBadRequestException;
 import io.pinecone.exceptions.PineconeNotFoundException;
-import io.pinecone.helpers.IndexManager;
 import io.pinecone.model.ConfigureIndexRequest;
 import io.pinecone.model.IndexMeta;
 import org.junit.jupiter.api.*;
@@ -14,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
+import static io.pinecone.helpers.IndexManager.createIndexIfNotExistsControlPlane;
 import static io.pinecone.helpers.IndexManager.isIndexReady;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -32,7 +32,7 @@ public class ConfigureIndexTest {
 
     @BeforeEach
     public void setUp() throws IOException, InterruptedException {
-        indexName = new IndexManager().createIndexIfNotExistsControlPlane(config, 5);
+        indexName = createIndexIfNotExistsControlPlane(config, 5);
         indexOperationClient = new PineconeIndexOperationClient(config);
     }
 

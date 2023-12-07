@@ -8,14 +8,14 @@ import java.io.IOException;
 import java.util.List;
 
 public class IndexManager {
-    public PineconeConnection createIndexIfNotExistsDataPlane(int dimension) throws IOException, InterruptedException {
+    public static PineconeConnection createIndexIfNotExistsDataPlane(int dimension) throws IOException, InterruptedException {
         PineconeClientConfig config = new PineconeClientConfig()
                 .withApiKey(System.getenv("PINECONE_API_KEY"))
                 .withEnvironment(System.getenv("PINECONE_ENVIRONMENT"));
         PineconeIndexOperationClient controlPlaneClient = new PineconeIndexOperationClient(config);
         List<String> indexList = controlPlaneClient.listIndexes();
 
-        String indexName = checkIfIndexExists(indexList, dimension, controlPlaneClient);
+        String indexName = findIndexWithDimensionAndPodType(indexList, dimension, controlPlaneClient);
         if(indexName.isEmpty()) indexName = createNewIndex(dimension, controlPlaneClient);
 
         PineconeClient dataPlaneClient = new PineconeClient(config);
@@ -27,15 +27,15 @@ public class IndexManager {
                         .withConnectionUrl("https://" + host));
     }
 
-    public String createIndexIfNotExistsControlPlane(PineconeClientConfig config, int dimension) throws IOException, InterruptedException {
+    public static String createIndexIfNotExistsControlPlane(PineconeClientConfig config, int dimension) throws IOException, InterruptedException {
         PineconeIndexOperationClient controlPlaneClient = new PineconeIndexOperationClient(config);
         List<String> indexList = controlPlaneClient.listIndexes();
-        String indexName = checkIfIndexExists(indexList, dimension, controlPlaneClient);
+        String indexName = findIndexWithDimensionAndPodType(indexList, dimension, controlPlaneClient);
 
         return (indexName.isEmpty()) ? createNewIndex(dimension, controlPlaneClient) : indexName;
     }
 
-    private static String checkIfIndexExists(List<String> indexList, int dimension, PineconeIndexOperationClient controlPlaneClient)
+    private static String findIndexWithDimensionAndPodType(List<String> indexList, int dimension, PineconeIndexOperationClient controlPlaneClient)
             throws IOException, InterruptedException {
         int i = 0;
         while (i < indexList.size()) {
