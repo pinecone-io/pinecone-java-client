@@ -25,7 +25,7 @@ public class PineconeIndexOperationsClientIntegrationTest {
     }
 
     @Test
-    public void createAndDelete() throws IOException {
+    public void createAndDelete() throws IOException, InterruptedException {
         String indexName = RandomStringBuilder.build("index-name", 8);
 
         // Create an index
@@ -48,5 +48,6 @@ public class PineconeIndexOperationsClientIntegrationTest {
 
         // Cleanup
         pinecone.deleteIndex(indexName);
+        Thread.sleep(3500);
     }
 }
