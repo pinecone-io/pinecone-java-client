@@ -171,9 +171,33 @@ public class UpdateAndQueryTest {
         // Should fail since only 1 value is added for the vector of dimension 3
         try {
             blockingStub.update(updateRequest);
-        } catch (StatusRuntimeException runtimeException) {
-            assert (runtimeException.getTrailers().toString().contains("status=200"));
-            assert (runtimeException.getTrailers().toString().contains("Vector dimension 1 does not match the dimension of the index 3"));
+        } catch (StatusRuntimeException statusRuntimeException) {
+            assert (statusRuntimeException.getTrailers().toString().contains("grpc-status=3"));
+            assert (statusRuntimeException.getTrailers().toString().contains("Vector dimension 1 does not match the dimension of the index 3"));
+        }
+    }
+
+    @Test
+    public void UpsertRequiredParamsVectorAndQueryByIncorrectVectorDimensionSync() throws InterruptedException {
+        // Upsert vectors with required parameters
+        List<String> upsertIds = Arrays.asList("v1", "v2", "v3");
+        String namespace = RandomStringBuilder.build("ns", 8);
+        try {
+            blockingStub.upsert(buildRequiredUpsertRequest(upsertIds, namespace));
+            Thread.sleep(3500);
+
+            QueryRequest queryRequest = QueryRequest.newBuilder()
+                    .setNamespace(namespace)
+                    .setTopK(5)
+                    .setIncludeValues(true)
+                    .setIncludeMetadata(true)
+                    .addVector(100F)
+                    .build();
+
+            blockingStub.query(queryRequest);
+        } catch (StatusRuntimeException statusRuntimeException) {
+            assert (statusRuntimeException.getTrailers().toString().contains("grpc-status=3"));
+            assert (statusRuntimeException.getTrailers().toString().contains("grpc-message=Query vector dimension 1 does not match the dimension of the index 3"));
         }
     }
 
@@ -201,7 +225,7 @@ public class UpdateAndQueryTest {
                 .addAllValues(updatedValues)
                 .build();
 
-        futureStub.update(updateRequest);
+        futureStub.update(updateRequest).get();
 
         // Query to verify
         QueryRequest queryRequest = QueryRequest.newBuilder()
@@ -212,14 +236,7 @@ public class UpdateAndQueryTest {
                 .build();
         QueryResponse queryResponse = futureStub.query(queryRequest).get();
         List<Float> queryResponseValues = queryResponse.getMatches(0).getValuesList();
-
-        assertEquals(updatedValues.size(), queryResponseValues.size());
-        int expectedValueSum = 0, actualValueSum = 0;
-        for (int i = 0; i < updatedValues.size(); i++) {
-            expectedValueSum += updatedValues.get(i);
-            actualValueSum += queryResponseValues.get(i);
-        }
-        assertEquals(expectedValueSum, actualValueSum);
+        assert(updatedValues.equals(queryResponseValues));
     }
 
     @Test
@@ -248,9 +265,9 @@ public class UpdateAndQueryTest {
         // Should fail since only 1 value is added for the vector of dimension 3
         try {
             futureStub.update(updateRequest);
-        } catch (StatusRuntimeException runtimeException) {
-            assert (runtimeException.getTrailers().toString().contains("status=200"));
-            assert (runtimeException.getTrailers().toString().contains("Vector dimension 1 does not match the dimension of the index 3"));
+        } catch (StatusRuntimeException statusRuntimeException) {
+            assert (statusRuntimeException.getTrailers().toString().contains("grpc-status=3"));
+            assert (statusRuntimeException.getTrailers().toString().contains("Vector dimension 1 does not match the dimension of the index 3"));
         }
     }
 
@@ -297,7 +314,7 @@ public class UpdateAndQueryTest {
                 .setSetMetadata(metadata)
                 .build();
 
-        futureStub.update(updateRequest);
+        futureStub.update(updateRequest).get();
 
         // Query by vector to verify
         QueryRequest queryRequest = QueryRequest.newBuilder()
@@ -323,74 +340,99 @@ public class UpdateAndQueryTest {
         assert (scoredVectorV1.getSparseValues().equals(sparseVector));
     }
 
-
-    // ToDo: Order the test
     @Test
-    public void UpsertRequiredParamsVectorAndQueryByIncorrectVectorDimensionSync() throws InterruptedException {
+    public void UpsertRequiredParamsVectorAndQueryByIncorrectVectorDimensionFuture() {
         // Upsert vectors with required parameters
         List<String> upsertIds = Arrays.asList("v1", "v2", "v3");
         String namespace = RandomStringBuilder.build("ns", 8);
-        blockingStub.upsert(buildRequiredUpsertRequest(upsertIds, namespace));
-        Thread.sleep(3500);
-
-        QueryRequest queryRequest = QueryRequest.newBuilder()
-                .setNamespace(namespace)
-                .setTopK(5)
-                .setIncludeValues(true)
-                .setIncludeMetadata(true)
-                .addVector(100F)
-                .build();
-
         try {
-            blockingStub.query(queryRequest);
-        } catch (Exception e) {
-            // ToDo: Verify the exception
+            futureStub.upsert(buildRequiredUpsertRequest(upsertIds, namespace)).get();
+            Thread.sleep(3500);
+
+            QueryRequest queryRequest = QueryRequest.newBuilder()
+                    .setNamespace(namespace)
+                    .setTopK(5)
+                    .setIncludeValues(true)
+                    .setIncludeMetadata(true)
+                    .addVector(100F)
+                    .build();
+
+            futureStub.query(queryRequest).get();
+        } catch (ExecutionException executionException) {
+            assert(executionException.getMessage().contains("grpc-status=3"));
+            assert(executionException.getMessage().contains("grpc-message=Query vector dimension 1 does not match the dimension of the index 3"));
+        } catch (InterruptedException interruptedException) {
+            // ignore;
         }
     }
 
     @Test
-    public void UpsertRequiredParamsVectorAndQueryByIncorrectVectorDimensionFuture() throws InterruptedException {
-        // Upsert vectors with required parameters
+    public void QueryWithFilersSync() {
+        // Upsert vectors with all parameters
+        String fieldToQuery = metadataFields[0];
+        String valueToQuery = createAndGetMetadataMap().get(fieldToQuery).get(0);
+
         List<String> upsertIds = Arrays.asList("v1", "v2", "v3");
         String namespace = RandomStringBuilder.build("ns", 8);
-        futureStub.upsert(buildRequiredUpsertRequest(upsertIds, namespace));
-        Thread.sleep(3500);
-
-        QueryRequest queryRequest = QueryRequest.newBuilder()
-                .setNamespace(namespace)
-                .setTopK(5)
-                .setIncludeValues(true)
-                .setIncludeMetadata(true)
-                .addVector(100F)
-                .build();
-
         try {
-            futureStub.query(queryRequest);
-        } catch (Exception e) {
-            // ToDo: Verify the exception
+            blockingStub.upsert(buildOptionalUpsertRequest(upsertIds, namespace));
+            Thread.sleep(3500);
+
+            QueryRequest queryRequest = QueryRequest.newBuilder()
+                    .setId(upsertIds.get(0))
+                    .setNamespace(namespace)
+                    .setTopK(3)
+                    .setIncludeValues(true)
+                    .setIncludeMetadata(true)
+                    .setFilter(Struct.newBuilder()
+                            .putFields(metadataFields[0], Value.newBuilder()
+                                    .setStructValue(Struct.newBuilder()
+                                            .putFields("$eq", Value.newBuilder()
+                                                    .setStringValue(valueToQuery)
+                                                    .build()))
+                                    .build())
+                            .build())
+                    .build();
+            QueryResponse queryResponse = blockingStub.query(queryRequest);
+            // Verify the metadata field is correctly filtered in the query response
+            assert (queryResponse.getMatches(0).getMetadata().getFieldsMap().get(fieldToQuery).toString().contains(valueToQuery));
+        } catch (InterruptedException e) {
+            // ignore
         }
     }
 
-    // 1.
-    // Upsert and update required fields only:
-    // Upsert with id, namespace, and values
-    // Update the values with id and namespace
-    // query with topK=upsertedVectorCount to confirm the values with id and namespace
+    @Test
+    public void QueryWithFilersFuture() {
+        // Upsert vectors with all parameters
+        String fieldToQuery = metadataFields[0];
+        String valueToQuery = createAndGetMetadataMap().get(fieldToQuery).get(0);
 
-    // 2.
-    // Upsert with required values and update req+optional fields test:
-    // Upsert with id, namespace, and values
-    // Update the optional values by adding metadata, sparse vectors, and all optional values
-    // query with topK=upsertedVectorCount to confirm the updated fields
+        List<String> upsertIds = Arrays.asList("v1", "v2", "v3");
+        String namespace = RandomStringBuilder.build("ns", 8);
+        try {
+            futureStub.upsert(buildOptionalUpsertRequest(upsertIds, namespace)).get();
+            Thread.sleep(3500);
 
-    // 3.
-    // Required + Optional values:
-    // Upsert with id, namespace, values, metadata, sparse vectors, and all optional values
-    // Update the all values
-    // query with topK=upsertedVectorCount to confirm the values with id and namespace
-
-    // 4.
-    // ToDo: query with filter
-
-    // Failing tests
+            QueryRequest queryRequest = QueryRequest.newBuilder()
+                    .setId(upsertIds.get(0))
+                    .setNamespace(namespace)
+                    .setTopK(3)
+                    .setIncludeValues(true)
+                    .setIncludeMetadata(true)
+                    .setFilter(Struct.newBuilder()
+                            .putFields(metadataFields[0], Value.newBuilder()
+                                    .setStructValue(Struct.newBuilder()
+                                            .putFields("$eq", Value.newBuilder()
+                                                    .setStringValue(valueToQuery)
+                                                    .build()))
+                                    .build())
+                            .build())
+                    .build();
+            QueryResponse queryResponse = futureStub.query(queryRequest).get();
+            // Verify the metadata field is correctly filtered in the query response
+            assert (queryResponse.getMatches(0).getMetadata().getFieldsMap().get(fieldToQuery).toString().contains(valueToQuery));
+        } catch (ExecutionException | InterruptedException e) {
+            // ignore
+        }
+    }
 }
