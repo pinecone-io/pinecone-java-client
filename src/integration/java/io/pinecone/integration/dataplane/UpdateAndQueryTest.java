@@ -66,14 +66,7 @@ public class UpdateAndQueryTest {
                 .build();
         QueryResponse queryResponse = blockingStub.query(queryRequest);
         List<Float> queryResponseValues = queryResponse.getMatches(0).getValuesList();
-
-        assertEquals(updatedValues.size(), queryResponseValues.size());
-        int expectedValueSum = 0, actualValueSum = 0;
-        for (int i = 0; i < updatedValues.size(); i++) {
-            expectedValueSum += updatedValues.get(i);
-            actualValueSum += queryResponseValues.get(i);
-        }
-        assertEquals(expectedValueSum, actualValueSum);
+        assert(updatedValues.equals(queryResponseValues));
     }
 
     @Test
