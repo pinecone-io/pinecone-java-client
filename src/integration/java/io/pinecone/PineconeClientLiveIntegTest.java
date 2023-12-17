@@ -120,7 +120,8 @@ public class PineconeClientLiveIntegTest {
         fetchRequest = FetchRequest.newBuilder().addIds("v1").setNamespace(namespace).build();
         conn.getBlockingStub().fetch(fetchRequest);
 
-        // DEPRECATED: batch queries
+        // DEPRECATED: all methods related to queries in QueryVector
+        // Use methods related to Vector. Example: addVector, addAllVector, etc.
         float[] rawVector = {1.0F, 2.0F, 3.0F};
         QueryVector queryVector = QueryVector.newBuilder()
                 .addAllValues(Floats.asList(rawVector))
@@ -136,6 +137,8 @@ public class PineconeClientLiveIntegTest {
                 .build();
 
         QueryRequest batchQueryRequest = QueryRequest.newBuilder()
+                // DEPRECATED: addQueries() and addAllQueries()
+                // Please use addVector() or addAllVector() instead
                 .addQueries(queryVector)
                 .setNamespace(namespace)
                 .setTopK(2)

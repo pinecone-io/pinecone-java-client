@@ -15,6 +15,8 @@ import java.util.List;
 public class BuildUpsertRequest {
     private static final float[][] upsertData = {{1.0F, 2.0F, 3.0F}, {4.0F, 5.0F, 6.0F}, {7.0F, 8.0F, 9.0F}};
     public static final String[] metadataFields = new String[]{"genre", "year"};
+    public static final List<Integer> sparseIndices = Arrays.asList(0, 1, 2);
+    public static final List<Float> sparseValues = Arrays.asList(0.11f, 0.22f, 0.33f);
     public static UpsertRequest buildRequiredUpsertRequest() {
         return buildRequiredUpsertRequest(new ArrayList<>(), "");
     }
@@ -24,6 +26,7 @@ public class BuildUpsertRequest {
     }
 
     public static UpsertRequest buildRequiredUpsertRequest(List<String> upsertIds, String namespace) {
+        // Namespace is not mandatory but added for each test, so they are independent
         if (upsertIds.isEmpty()) upsertIds = Arrays.asList("v1", "v2", "v3");
         if (namespace.isEmpty()) namespace = RandomStringBuilder.build("ns", 8);
 
@@ -59,8 +62,6 @@ public class BuildUpsertRequest {
         if(metadataMap.isEmpty()) metadataMap = createAndGetMetadataMap();
 
         List<Vector> hybridVectors = new ArrayList<>();
-        List<Integer> sparseIndices = Arrays.asList(0, 1, 2);
-        List<Float> sparseValues = Arrays.asList(0.11f, 0.22f, 0.33f);
 
         for (int i = 0; i < upsertIds.size(); i++) {
             String field1 = metadataFields[i % metadataFields.length];
