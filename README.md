@@ -28,15 +28,11 @@ implementation "io.pinecone:pinecone-client:0.7.0"
 
 [comment]: <> (^ [pc:VERSION_LATEST_RELEASE])
 
-Alternatively, you can use our standalone uberjar [pinecone-client-0.7.0-all.jar](https://repo1.maven.org/maven2/io/pinecone/pinecone-client/0.2.3/pinecone-client-0.2.3-all.jar), which bundles the pinecone client and all dependencies together inside a single jar. You can include this on your classpath like any 3rd party JAR without having to obtain the *pinecone-client* dependencies separately.
+Alternatively, you can use our standalone uberjar [pinecone-client-0.7.0-all.jar](https://repo1.maven.org/maven2/io/pinecone/pinecone-client/0.7.0/pinecone-client-0.7.0-all.jar), which bundles the pinecone client and all dependencies together inside a single jar. You can include this on your classpath like any 3rd party JAR without having to obtain the *pinecone-client* dependencies separately.
 
 [comment]: <> (^ [pc:VERSION_LATEST_RELEASE])
-
-## Features
-
-The Java client doesn't support managing Pinecone services, only reading and writing from existing indices. To create or delete an index, use the Python client.
 
 
 ## Examples
 
-- The data and control plane operations can be found in `io/pinecone/integration` folder.
+- The data and control plane operation examples can be found in `io/pinecone/integration` folder.
