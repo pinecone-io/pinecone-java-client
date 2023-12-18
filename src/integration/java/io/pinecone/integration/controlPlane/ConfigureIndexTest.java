@@ -1,7 +1,7 @@
 package io.pinecone.integration.controlPlane;
 
 import io.pinecone.PineconeClientConfig;
-import io.pinecone.PineconeClientLiveIntegTest;
+import io.pinecone.integration.dataplane.PineconeClientLiveIntegTest;
 import io.pinecone.PineconeIndexOperationClient;
 import io.pinecone.exceptions.PineconeBadRequestException;
 import io.pinecone.exceptions.PineconeNotFoundException;

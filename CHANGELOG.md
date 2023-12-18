@@ -2,9 +2,12 @@
 
 [comment]: <> (When bumping [pc:VERSION_LATEST_RELEASE] create a new entry below)
 ### Unreleased version
+
+### v0.7.0
 - Add support to list indexes
 - Add support to configure index
-- Add user-agent as a header
+- Add user-agent to the header
+- Add integration tests for data plane operations
 
 ### v0.6.0
 - Add async stub for data plane operations
