@@ -1,10 +1,10 @@
-package io.pinecone;
+package io.pinecone.integration.dataplane;
 
 import com.google.common.primitives.Floats;
 import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
+import io.pinecone.PineconeConnection;
 import io.pinecone.helpers.RandomStringBuilder;
-import io.pinecone.model.IndexMeta;
 import io.pinecone.proto.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static io.pinecone.helpers.IndexManager.createIndexIfNotExistsControlPlane;
+import static io.pinecone.helpers.IndexManager.createIndexIfNotExistsDataPlane;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
@@ -24,28 +24,16 @@ import static org.hamcrest.Matchers.notNullValue;
 public class PineconeClientLiveIntegTest {
 
     private static final Logger logger = LoggerFactory.getLogger(PineconeClientLiveIntegTest.class);
-    private static PineconeIndexOperationClient controlPlaneClient;
-    private static PineconeClient dataPlaneClient;
-    public static String indexName;
+    private static VectorServiceGrpc.VectorServiceBlockingStub blockingStub;
 
     @BeforeAll
     public static void defineConfig() throws IOException, InterruptedException {
-        PineconeClientConfig config = new PineconeClientConfig()
-                .withApiKey(System.getenv("PINECONE_API_KEY"))
-                .withEnvironment(System.getenv("PINECONE_ENVIRONMENT"));
-        indexName = createIndexIfNotExistsControlPlane(config, 3);
-        controlPlaneClient = new PineconeIndexOperationClient(config);
-        dataPlaneClient = new PineconeClient(config);
+        PineconeConnection connection = createIndexIfNotExistsDataPlane(3);
+        blockingStub = connection.getBlockingStub();
     }
 
     @Test
-    public void sanity() throws Exception {
-        IndexMeta indexMeta = controlPlaneClient.describeIndex(indexName);
-        String host = indexMeta.getStatus().getHost();
-        PineconeConnection conn = dataPlaneClient.connect(
-                new PineconeConnectionConfig()
-                        .withConnectionUrl("https://" + host));
-
+    public void sanity() {
         String namespace = RandomStringBuilder.build("ns", 8);
 
         // upsert
@@ -68,7 +56,7 @@ public class PineconeClientLiveIntegTest {
                 .setNamespace(namespace)
                 .build();
 
-        UpsertResponse upsertResponse = conn.getBlockingStub().upsert(request);
+        UpsertResponse upsertResponse = blockingStub.upsert(request);
         logger.info("Put " + upsertResponse.getUpsertedCount() + " vectors into the index");
         assert (upsertResponse.getUpsertedCount() == 3);
 
@@ -92,14 +80,14 @@ public class PineconeClientLiveIntegTest {
                 .addAllVectors(hybridVectors)
                 .setNamespace(namespace)
                 .build();
-        UpsertResponse hybridResponse = conn.getBlockingStub().upsert(hybridRequest);
+        UpsertResponse hybridResponse = blockingStub.upsert(hybridRequest);
         logger.info("Put " + hybridResponse.getUpsertedCount() + " vectors into the index");
         assert (hybridResponse.getUpsertedCount() == 3);
 
         // fetch
         List<String> ids = Arrays.asList("v1", "v2");
         FetchRequest fetchRequest = FetchRequest.newBuilder().addAllIds(ids).setNamespace(namespace).build();
-        FetchResponse fetchResponse = conn.getBlockingStub().fetch(fetchRequest);
+        FetchResponse fetchResponse = blockingStub.fetch(fetchRequest);
         assert (fetchResponse.containsVectors("v1"));
 
         // Updates vector v1's values to 10.0, 11.0, and 12.0 from 1.0, 2.0, and 3.0
@@ -108,9 +96,9 @@ public class PineconeClientLiveIntegTest {
                 .setNamespace(namespace)
                 .addAllValues(Floats.asList(10F, 11F, 12F))
                 .build();
-        conn.getBlockingStub().update(updateRequest);
+        blockingStub.update(updateRequest);
         fetchRequest = FetchRequest.newBuilder().addIds("v1").setNamespace(namespace).build();
-        conn.getBlockingStub().fetch(fetchRequest);
+        blockingStub.fetch(fetchRequest);
 
         // DEPRECATED: all methods related to queries in QueryVector
         // Use methods related to Vector. Example: addVector, addAllVector, etc.
@@ -137,7 +125,7 @@ public class PineconeClientLiveIntegTest {
                 .setIncludeMetadata(true)
                 .build();
 
-        QueryResponse queryResponse = conn.getBlockingStub().query(batchQueryRequest);
+        QueryResponse queryResponse = blockingStub.query(batchQueryRequest);
         assertThat(queryResponse, notNullValue());
         assertThat(queryResponse.getResultsList(), notNullValue());
         assertThat(queryResponse.getResultsCount(), equalTo(1));
@@ -151,7 +139,7 @@ public class PineconeClientLiveIntegTest {
                 .build();
 
         // When querying using a single vector, we get matches instead of results
-        queryResponse = conn.getBlockingStub().query(queryRequest);
+        queryResponse = blockingStub.query(queryRequest);
         assertThat(queryResponse, notNullValue());
         assertThat(queryResponse.getMatchesList(), notNullValue());
         assertThat(queryResponse.getMatchesCount(), equalTo(2));
@@ -164,7 +152,7 @@ public class PineconeClientLiveIntegTest {
                 .setIncludeMetadata(true)
                 .build();
 
-        queryResponse = conn.getBlockingStub().query(queryByIdRequest);
+        queryResponse = blockingStub.query(queryByIdRequest);
         assertThat(queryResponse, notNullValue());
         assertThat(queryResponse.getMatchesList(), notNullValue());
         assertThat(queryResponse.getMatchesCount(), equalTo(2));
@@ -177,9 +165,9 @@ public class PineconeClientLiveIntegTest {
                 .setDeleteAll(false)
                 .build();
 
-        conn.getBlockingStub().delete(deleteRequest);
+        blockingStub.delete(deleteRequest);
         fetchRequest = FetchRequest.newBuilder().addAllIds(ids).setNamespace(namespace).build();
-        fetchResponse = conn.getBlockingStub().fetch(fetchRequest);
+        fetchResponse = blockingStub.fetch(fetchRequest);
         assert (fetchResponse.getVectorsCount() == ids.size() - 1);
 
         // Clear out the test
@@ -188,9 +176,9 @@ public class PineconeClientLiveIntegTest {
                 .setDeleteAll(true)
                 .build();
 
-        conn.getBlockingStub().delete(deleteAllRequest);
+        blockingStub.delete(deleteAllRequest);
         fetchRequest = FetchRequest.newBuilder().addAllIds(ids).setNamespace(namespace).build();
-        fetchResponse = conn.getBlockingStub().fetch(fetchRequest);
+        fetchResponse = blockingStub.fetch(fetchRequest);
         assert (fetchResponse.getVectorsCount() == 0);
     }
 }
