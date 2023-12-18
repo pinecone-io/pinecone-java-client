@@ -6,44 +6,36 @@ import com.google.protobuf.Value;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.model.IndexMeta;
 import io.pinecone.proto.*;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static io.pinecone.helpers.IndexManager.createIndexIfNotExistsControlPlane;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PineconeClientLiveIntegTest {
 
-    public String indexName = "integ-test-sanity";
-
     private static final Logger logger = LoggerFactory.getLogger(PineconeClientLiveIntegTest.class);
+    private static PineconeIndexOperationClient controlPlaneClient;
+    private static PineconeClient dataPlaneClient;
+    public static String indexName;
 
-    private PineconeClient dataPlaneClient;
-    private PineconeIndexOperationClient controlPlaneClient;
-
-    @BeforeEach
-    public void setUp() {
+    @BeforeAll
+    public static void defineConfig() throws IOException, InterruptedException {
         PineconeClientConfig config = new PineconeClientConfig()
                 .withApiKey(System.getenv("PINECONE_API_KEY"))
-                .withEnvironment(System.getenv("PINECONE_ENVIRONMENT"))
-                .withServerSideTimeoutSec(10);
-
+                .withEnvironment(System.getenv("PINECONE_ENVIRONMENT"));
+        indexName = createIndexIfNotExistsControlPlane(config, 3);
         controlPlaneClient = new PineconeIndexOperationClient(config);
         dataPlaneClient = new PineconeClient(config);
-    }
-
-    @Test
-    public void checkIndexSetup() throws Exception {
-        IndexMeta indexMeta = controlPlaneClient.describeIndex(indexName);
-        assertEquals(3, indexMeta.getDatabase().getDimension());
     }
 
     @Test

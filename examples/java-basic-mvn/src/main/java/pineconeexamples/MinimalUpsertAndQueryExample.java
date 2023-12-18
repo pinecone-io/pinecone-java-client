@@ -53,6 +53,7 @@ public class MinimalUpsertAndQueryExample {
                     .addAllValues(Floats.asList(5F, 3F, 1F))
                     .build();
 
+            // Deprecated: use addValue() or addAllValues() instead of addVector() and addAllVectors() respectively
             UpsertRequest upsertRequest = UpsertRequest.newBuilder()
                     .addVectors(v1)
                     .addVectors(v2)

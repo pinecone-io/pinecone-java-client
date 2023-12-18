@@ -15,7 +15,7 @@ Maven:
 <dependency>
   <groupId>io.pinecone</groupId>
   <artifactId>pinecone-client</artifactId>
-  <version>0.2.3</version>
+  <version>0.7.0</version>
 </dependency>
 ```
 
@@ -23,12 +23,12 @@ Maven:
 
 Gradle:
 ```
-implementation "io.pinecone:pinecone-client:0.2.3"
+implementation "io.pinecone:pinecone-client:0.7.0"
 ```
 
 [comment]: <> (^ [pc:VERSION_LATEST_RELEASE])
 
-Alternatively, you can use our standalone uberjar [pinecone-client-0.2.3-all.jar](https://repo1.maven.org/maven2/io/pinecone/pinecone-client/0.2.3/pinecone-client-0.2.3-all.jar), which bundles the pinecone client and all dependencies together inside a single jar. You can include this on your classpath like any 3rd party JAR without having to obtain the *pinecone-client* dependencies separately.
+Alternatively, you can use our standalone uberjar [pinecone-client-0.7.0-all.jar](https://repo1.maven.org/maven2/io/pinecone/pinecone-client/0.2.3/pinecone-client-0.2.3-all.jar), which bundles the pinecone client and all dependencies together inside a single jar. You can include this on your classpath like any 3rd party JAR without having to obtain the *pinecone-client* dependencies separately.
 
 [comment]: <> (^ [pc:VERSION_LATEST_RELEASE])
 
@@ -39,6 +39,4 @@ The Java client doesn't support managing Pinecone services, only reading and wri
 
 ## Examples
 
-- The most basic example usage is in `src/test/java/io/pinecone/PineconeClientLiveIntegTest.java`, covering most basic operations.
-> [!NOTE]
-> The java-basic-mvn example is outdated.
+- The data and control plane operations can be found in `io/pinecone/integration` folder.

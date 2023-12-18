@@ -1,5 +1,7 @@
-package io.pinecone;
+package io.pinecone.integration.controlPlane;
 
+import io.pinecone.PineconeClientConfig;
+import io.pinecone.PineconeIndexOperationClient;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.model.CreateIndexRequest;
 import io.pinecone.model.IndexMeta;
@@ -12,7 +14,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class PineconeIndexOperationsClientIntegrationTest {
+public class CreateListAndDeleteIndexTest {
     private PineconeIndexOperationClient pinecone;
 
     @BeforeEach
