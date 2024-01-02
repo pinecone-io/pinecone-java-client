@@ -2,6 +2,8 @@
 
 [comment]: <> (When bumping [pc:VERSION_LATEST_RELEASE] create a new entry below)
 ### Unreleased version
+### v0.7.2
+- Fix extraction of SDK version
 
 ### v0.7.0
 - Add support to list indexes
