@@ -139,18 +139,8 @@ public class PineconeClientConfig {
     }
 
     public String getUserAgent() {
-        Properties properties = new Properties();
-        String userAgentLanguage = "lang=java";
-        String version = (this.getUsageContext() != null) ?
-                userAgentLanguage + "; usageContext=" + this.getUsageContext()
-                : userAgentLanguage;
-
-        try (FileInputStream input = new FileInputStream("gradle.properties")) {
-            properties.load(input);
-            version = properties.getProperty("pineconeClientVersion") + "; " + version;
-        } catch (IOException e) {
-            throw new PineconeException("Unable to extract pinecone client version");
-        }
-        return version;
+        String userAgentLanguage = "lang=java; pineconeClientVersion = v0.7.2";
+        return (this.getUsageContext() != null) ?
+                userAgentLanguage + "; usageContext=" + this.getUsageContext() : userAgentLanguage;
     }
 }
