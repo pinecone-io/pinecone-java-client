@@ -106,8 +106,6 @@ public class UpsertsAndQueriesConcurrentExample {
                         }
 
                         try {
-                            // Deprecated: use addValue() or addAllValues() instead of addVector()
-                            // and addAllVectors() respectively
                             UpsertRequest upsertRequest = UpsertRequest.newBuilder()
                                     .addAllVectors(vectors)
                                     .build();
@@ -197,6 +195,8 @@ public class UpsertsAndQueriesConcurrentExample {
                                         .setTopK(args.topK)
                                         .build());
                             }
+
+                            // addAllQueries() is deprecated. Use addAllVector() instead
                             QueryRequest queryRequest = QueryRequest.newBuilder().addAllQueries(queryVectors)
                                     .setTopK(args.topK)
                                     .build();

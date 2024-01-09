@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.List;
 
+import static io.pinecone.helpers.IndexManager.isIndexReady;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -36,6 +37,8 @@ public class CreateListAndDeleteIndexTest {
                 .withDimension(10)
                 .withMetric("euclidean");
         pinecone.createIndex(request);
+
+        isIndexReady(indexName, pinecone);
 
         // Get the index description
         IndexMeta indexMeta = pinecone.describeIndex(indexName);

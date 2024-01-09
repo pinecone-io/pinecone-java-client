@@ -8,8 +8,10 @@ import java.io.IOException;
 import java.util.List;
 
 public class IndexManager {
+    private static PineconeClientConfig config;
+
     public static PineconeConnection createIndexIfNotExistsDataPlane(int dimension) throws IOException, InterruptedException {
-        PineconeClientConfig config = new PineconeClientConfig()
+        config = new PineconeClientConfig()
                 .withApiKey(System.getenv("PINECONE_API_KEY"))
                 .withEnvironment(System.getenv("PINECONE_ENVIRONMENT"));
         PineconeIndexOperationClient controlPlaneClient = new PineconeIndexOperationClient(config);
@@ -18,6 +20,8 @@ public class IndexManager {
         String indexName = findIndexWithDimensionAndPodType(indexList, dimension, controlPlaneClient);
         if(indexName.isEmpty()) indexName = createNewIndex(dimension, controlPlaneClient);
 
+        // Do not proceed until the newly created index is ready
+        isIndexReady(indexName, controlPlaneClient);
         PineconeClient dataPlaneClient = new PineconeClient(config);
         IndexMeta indexMeta = controlPlaneClient.describeIndex(indexName);
         String host = indexMeta.getStatus().getHost();
@@ -41,7 +45,7 @@ public class IndexManager {
         while (i < indexList.size()) {
             IndexMeta indexMeta = isIndexReady(indexList.get(i), controlPlaneClient);
             if (indexMeta.getDatabase().getDimension() == dimension
-                    && indexMeta.getDatabase().getPodType().equals("p1.x1")) {
+                    && (indexMeta.getDatabase().getPodType().equals("p1.x1") || config.getEnvironment().equals("gcp-starter"))) {
                 return indexList.get(i);
             }
             i++;

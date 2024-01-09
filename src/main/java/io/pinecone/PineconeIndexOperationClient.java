@@ -20,7 +20,7 @@ public class PineconeIndexOperationClient {
     public static final String ACCEPT_HEADER = "accept";
     public static final String API_KEY_HEADER_NAME = "Api-Key";
     public static final String BASE_URL_PREFIX = "https://controller.";
-    public static final String BASE_URL_SUFFIX = ".pinecone.io/databases/";
+    public static final String BASE_URL_SUFFIX = ".pinecone.io/databases";
     public static final String CONTENT_TYPE = "content-type";
     public static final String CONTENT_TYPE_JSON = "application/json";
     public static final String CONTENT_TYPE_CHARSET_UTF8 = "charset=utf-8";
@@ -102,8 +102,9 @@ public class PineconeIndexOperationClient {
     }
 
     private Request buildRequest(String method, String path, String acceptHeader, RequestBody requestBody) {
+        String completeUrl = (path.equals(EMPTY_RESOURCE_PATH)) ? url : url + "/" + path;
         Request.Builder builder = new Request.Builder()
-                .url(url + path)
+                .url(completeUrl)
                 .addHeader(ACCEPT_HEADER, acceptHeader)
                 .addHeader(API_KEY_HEADER_NAME, clientConfig.getApiKey())
                 .addHeader(USER_AGENT_HEADER, clientConfig.getUserAgent());
