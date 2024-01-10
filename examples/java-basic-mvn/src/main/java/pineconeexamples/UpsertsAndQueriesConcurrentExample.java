@@ -196,8 +196,10 @@ public class UpsertsAndQueriesConcurrentExample {
                                         .build());
                             }
 
-                            // addAllQueries() is deprecated. Use addAllVector() instead
-                            QueryRequest queryRequest = QueryRequest.newBuilder().addAllQueries(queryVectors)
+                            // Deprecated: queries param on QueryRequest is deprecated, use vector parameter and the associated methods
+                            QueryRequest queryRequest = QueryRequest
+                                    .newBuilder()
+                                    .addAllQueries(queryVectors) // use addVector() or addAllVector() as shown in PineconeLiveIntegrationTest.java
                                     .setTopK(args.topK)
                                     .build();
                             QueryResponse response = conn.getBlockingStub().query(queryRequest);

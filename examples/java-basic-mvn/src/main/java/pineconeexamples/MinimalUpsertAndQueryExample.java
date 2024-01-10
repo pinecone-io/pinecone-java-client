@@ -73,9 +73,10 @@ public class MinimalUpsertAndQueryExample {
                     .setNamespace(args.namespace)
                     .build();
 
+            // Deprecated: queries param on QueryRequest is deprecated, use vector parameter and the associated methods
             QueryRequest queryRequest = QueryRequest
                     .newBuilder()
-                    .addQueries(queryVector) // Deprecated: addQueries(), use addVector() or addAllVector() instead
+                    .addQueries(queryVector) // use addVector() or addAllVector() as shown in PineconeLiveIntegrationTest.java
                     .setTopK(args.topK)
                     .build();
 

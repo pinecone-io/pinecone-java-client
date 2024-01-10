@@ -103,9 +103,9 @@ public class PineconeClientLiveIntegTest {
                 .build();
         blockingStub.update(updateRequest);
 
-        // DEPRECATED: all methods related to queries parameter in QueryRequest.
-        // Use vector parameter and all of the methods of vector parameter instead.
-        // Below commented example shows usage of addQueries() which is deprecated.
+        // DEPRECATED: queries parameter of QueryRequest has been deprecated
+        // Use vector parameter and the associated methods.
+        // Below commented example shows addQueries() which is deprecated
 /*
         float[] rawVector = {1.0F, 2.0F, 3.0F};
         QueryVector queryVector = QueryVector.newBuilder()
@@ -122,15 +122,14 @@ public class PineconeClientLiveIntegTest {
                 .build();
 
         QueryRequest batchQueryRequest = QueryRequest.newBuilder()
-                .addQueries(queryVector)
+                .addQueries(queryVector)            // Deprecated
                 .setNamespace(namespace)
                 .setTopK(2)
                 .setIncludeMetadata(true)
                 .build();
 */
 
-        // Below example shows how to query() using addAllVector() which is associated with vector parameter
-        // of QueryRequest in the vector_service.proto file.
+        // Below example shows usage of addAllVector() which is associated with vector parameter of QueryRequest.
         Iterable<Float> iterableVector = Arrays.asList(1.0F, 2.0F, 3.0F);
         QueryRequest queryRequest = QueryRequest.newBuilder()
                 .addAllVector(iterableVector)

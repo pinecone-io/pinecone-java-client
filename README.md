@@ -36,3 +36,7 @@ Alternatively, you can use our standalone uberjar [pinecone-client-0.7.2-all.jar
 ## Examples
 
 - The data and control plane operation examples can be found in `io/pinecone/integration` folder.
+
+## Deprecation Warning
+`queries` parameter of `VectorRequest` has been deprecated. Please use `vector` parameter of `VectorRequest` and the associated methods.
+

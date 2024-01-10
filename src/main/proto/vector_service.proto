@@ -137,7 +137,9 @@ message QueryRequest {
   bool                   include_metadata = 5;
 
   // The query vectors.
-  repeated QueryVector   queries = 6;
+  repeated QueryVector   queries = 6 [
+  deprecated = true
+  ];
 
   // The query vector. This should be the same length as the dimension of the index being queried.
   repeated float         vector = 7;

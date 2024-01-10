@@ -1,5 +1,7 @@
 package io.pinecone.helpers;
 
+import java.util.concurrent.ExecutionException;
+
 public class RetryAssert {
     private static final int maxRetry = 4;
     private static int delay = 1500;
@@ -12,7 +14,7 @@ public class RetryAssert {
             try {
                 assertionRunnable.run();
                 success = true;
-            } catch (AssertionError e) {
+            } catch (AssertionError | ExecutionException e) {
                 retryCount++;
                 delay*=2;
                 Thread.sleep(delay);
@@ -22,6 +24,6 @@ public class RetryAssert {
 
     @FunctionalInterface
     public interface AssertionRunnable {
-        void run() throws AssertionError;
+        void run() throws AssertionError, ExecutionException, InterruptedException;
     }
 }
