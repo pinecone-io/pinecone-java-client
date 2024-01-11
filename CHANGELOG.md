@@ -2,6 +2,11 @@
 
 [comment]: <> (When bumping [pc:VERSION_LATEST_RELEASE] create a new entry below)
 ### Unreleased version
+### v0.7.3
+- Add assert with retry mechanism
+- Add deprecation warning for queries parameter
+- Fix path for create and list indexes calls for gcp-stater
+
 ### v0.7.2
 - Fix extraction of SDK version
 
