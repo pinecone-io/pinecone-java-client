@@ -106,8 +106,6 @@ public class UpsertsAndQueriesConcurrentExample {
                         }
 
                         try {
-                            // Deprecated: use addValue() or addAllValues() instead of addVector()
-                            // and addAllVectors() respectively
                             UpsertRequest upsertRequest = UpsertRequest.newBuilder()
                                     .addAllVectors(vectors)
                                     .build();
@@ -197,7 +195,11 @@ public class UpsertsAndQueriesConcurrentExample {
                                         .setTopK(args.topK)
                                         .build());
                             }
-                            QueryRequest queryRequest = QueryRequest.newBuilder().addAllQueries(queryVectors)
+
+                            // Deprecated: queries param on QueryRequest is deprecated, use vector parameter and the associated methods
+                            QueryRequest queryRequest = QueryRequest
+                                    .newBuilder()
+                                    .addAllQueries(queryVectors) // use addVector() or addAllVector() as shown in PineconeLiveIntegrationTest.java
                                     .setTopK(args.topK)
                                     .build();
                             QueryResponse response = conn.getBlockingStub().query(queryRequest);

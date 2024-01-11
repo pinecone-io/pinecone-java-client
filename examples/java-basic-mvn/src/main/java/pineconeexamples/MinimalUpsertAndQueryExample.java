@@ -38,7 +38,6 @@ public class MinimalUpsertAndQueryExample {
 
         PineconeClient pineconeClient = new PineconeClient(configuration);
 
-
         PineconeConnectionConfig connectionConfig = new PineconeConnectionConfig()
                 .withIndexName(args.indexName);
 
@@ -53,7 +52,6 @@ public class MinimalUpsertAndQueryExample {
                     .addAllValues(Floats.asList(5F, 3F, 1F))
                     .build();
 
-            // Deprecated: use addValue() or addAllValues() instead of addVector() and addAllVectors() respectively
             UpsertRequest upsertRequest = UpsertRequest.newBuilder()
                     .addVectors(v1)
                     .addVectors(v2)
@@ -68,7 +66,6 @@ public class MinimalUpsertAndQueryExample {
             System.out.println("Got upsert response:");
             System.out.println(upsertResponse);
 
-
             QueryVector queryVector = QueryVector
                     .newBuilder()
                     .addAllValues(Floats.asList(1F, 2F, 2F))
@@ -76,9 +73,10 @@ public class MinimalUpsertAndQueryExample {
                     .setNamespace(args.namespace)
                     .build();
 
+            // Deprecated: queries param on QueryRequest is deprecated, use vector parameter and the associated methods
             QueryRequest queryRequest = QueryRequest
                     .newBuilder()
-                    .addQueries(queryVector)
+                    .addQueries(queryVector) // use addVector() or addAllVector() as shown in PineconeLiveIntegrationTest.java
                     .setTopK(args.topK)
                     .build();
 
