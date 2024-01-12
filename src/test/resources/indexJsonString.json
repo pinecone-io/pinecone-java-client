@@ -1,0 +1,1 @@
+{"database":{"name":"testIndex","metric":"cosine","dimension":3,"replicas":1,"shards":1,"pods":1,"pod_type":"p1.x1", "source_collection":"randomCollection"},"status":{"waiting":[],"crashed":[],"host":"url","port":433,"state":"Ready","ready":true}}
