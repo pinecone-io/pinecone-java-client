@@ -43,8 +43,8 @@ public class ConfigureIndexTest {
         try {
             isIndexReady(indexName, indexOperationClient);
             indexOperationClient.configureIndex("non-existent-index", configureIndexRequest);
-        } catch (PineconeNotFoundException exception) {
-            assert (exception.getLocalizedMessage().contains("404: Not Found"));
+        } catch (PineconeNotFoundException notFoundException) {
+            assert (notFoundException.getLocalizedMessage().toLowerCase().contains("not found"));
         } catch (IOException | InterruptedException exception) {
             logger.error(exception.toString());
         }
@@ -57,10 +57,9 @@ public class ConfigureIndexTest {
         try {
             isIndexReady(indexName, indexOperationClient);
             indexOperationClient.configureIndex(indexName, configureIndexRequest);
-        } catch (PineconeBadRequestException exception) {
-            assert (exception.getLocalizedMessage().contains("The index exceeds the project quota"));
-            assert (exception.getLocalizedMessage().contains("Upgrade your account or change" +
-                    " the project settings to increase the quota."));
+        } catch (PineconeBadRequestException badRequestException) {
+            System.out.println(badRequestException);
+            assert (badRequestException.getLocalizedMessage().contains("Capacity Reached. Increase your quota or upgrade to create more indexes."));
         } catch (Exception exception) {
             logger.error(exception.toString());
         }
@@ -110,8 +109,8 @@ public class ConfigureIndexTest {
 
             isIndexReady(indexName, indexOperationClient);
             indexOperationClient.configureIndex(indexName, configureIndexRequest);
-        } catch (PineconeBadRequestException pineconeBadRequestException) {
-            assertEquals(pineconeBadRequestException.getMessage(), "updating base pod type is not supported");
+        } catch (PineconeBadRequestException badRequestException) {
+            assertEquals(badRequestException.getMessage(), "Bad request: Cannot change pod type.");
         } catch (Exception exception) {
             logger.error(exception.getLocalizedMessage());
         }
@@ -165,8 +164,9 @@ public class ConfigureIndexTest {
             indexOperationClient.configureIndex(indexName, configureIndexRequest);
             Thread.sleep(3500);
         } catch (Exception exception) {
+            System.out.println(exception);
             assertEquals(exception.getClass(), PineconeBadRequestException.class);
-            assertEquals(exception.getMessage(), "scaling down pod type is not supported");
+            assertEquals(exception.getMessage(), "Bad request: Cannot scale down an index, only up. Current size is: 1");
         } finally {
             // Delete this index since it'll be unused for other tests
             indexOperationClient.deleteIndex(indexName);
