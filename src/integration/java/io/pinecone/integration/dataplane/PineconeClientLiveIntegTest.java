@@ -19,9 +19,6 @@ import java.util.List;
 
 import static io.pinecone.helpers.IndexManager.createIndexIfNotExistsDataPlane;
 import static io.pinecone.helpers.RetryAssert.assertWithRetry;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
 
 public class PineconeClientLiveIntegTest {
 
@@ -155,8 +152,7 @@ public class PineconeClientLiveIntegTest {
 
         assertWithRetry(() -> {
             QueryResponse queryResponse = blockingStub.query(queryByIdRequest);
-            assertThat(queryResponse, notNullValue());
-            assertThat(queryResponse.getMatchesCount(), equalTo(1));
+            Assertions.assertEquals(queryResponse.getMatchesCount(),1);
             assert (queryResponse.getMatches(0).getValuesList().containsAll(updateValueList));
         });
 
