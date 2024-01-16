@@ -3,7 +3,7 @@
 [comment]: <> (When bumping [pc:VERSION_LATEST_RELEASE] create a new entry below)
 ### Unreleased version
 ### v0.7.4
-- Added source_collection and support to ignore newly added fields to the response body for describeIndex's indexMetaDatabase object
+- Add source_collection and support to ignore newly added fields to the response body for describeIndex's indexMetaDatabase object
 
 ### v0.7.3
 - Add assert with retry mechanism
