@@ -6,7 +6,7 @@ import org.junit.jupiter.api.*;
 
 import static io.pinecone.helpers.BuildUpsertRequest.*;
 import static io.pinecone.helpers.IndexManager.createIndexIfNotExistsDataPlane;
-import static io.pinecone.helpers.RetryAssert.assertWithRetry;
+import static io.pinecone.helpers.AssertRetry.assertWithRetry;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;

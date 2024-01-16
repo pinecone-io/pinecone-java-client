@@ -18,7 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static io.pinecone.helpers.IndexManager.createIndexIfNotExistsDataPlane;
-import static io.pinecone.helpers.RetryAssert.assertWithRetry;
+import static io.pinecone.helpers.AssertRetry.assertWithRetry;
 
 public class PineconeClientLiveIntegTest {
 
