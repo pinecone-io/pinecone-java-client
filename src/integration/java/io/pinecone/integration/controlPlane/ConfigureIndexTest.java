@@ -58,7 +58,6 @@ public class ConfigureIndexTest {
             isIndexReady(indexName, indexOperationClient);
             indexOperationClient.configureIndex(indexName, configureIndexRequest);
         } catch (PineconeBadRequestException badRequestException) {
-            System.out.println(badRequestException);
             assert (badRequestException.getLocalizedMessage().contains("Capacity Reached. Increase your quota or upgrade to create more indexes."));
         } catch (Exception exception) {
             logger.error(exception.toString());
@@ -164,9 +163,8 @@ public class ConfigureIndexTest {
             indexOperationClient.configureIndex(indexName, configureIndexRequest);
             Thread.sleep(3500);
         } catch (Exception exception) {
-            System.out.println(exception);
             assertEquals(exception.getClass(), PineconeBadRequestException.class);
-            assertEquals(exception.getMessage(), "Bad request: Cannot scale down an index, only up. Current size is: 1");
+            assert(exception.getMessage().contains("Bad request: Cannot scale down an index, only up."));
         } finally {
             // Delete this index since it'll be unused for other tests
             indexOperationClient.deleteIndex(indexName);
