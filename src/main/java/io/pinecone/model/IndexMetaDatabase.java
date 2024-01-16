@@ -1,7 +1,9 @@
 package io.pinecone.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class IndexMetaDatabase {
     private String name;
 
@@ -17,6 +19,9 @@ public class IndexMetaDatabase {
 
     @JsonProperty("pod_type")
     private String podType;
+
+    @JsonProperty("source_collection")
+    private String sourceCollection;
 
     private IndexMetadataConfig metadataConfig;
 
@@ -87,6 +92,15 @@ public class IndexMetaDatabase {
         return this;
     }
 
+    public String getSourceCollection() {
+        return sourceCollection;
+    }
+
+    public IndexMetaDatabase withSourceCollection(String sourceCollection) {
+        this.sourceCollection = sourceCollection;
+        return this;
+    }
+
     public IndexMetadataConfig getMetadataConfig() {
         return metadataConfig;
     }
@@ -107,6 +121,7 @@ public class IndexMetaDatabase {
                 ", shards=" + shards +
                 ", podType='" + podType + '\'' +
                 ", metadataConfig=" + metadataConfig +
+                ", sourceCollection=" + sourceCollection +
                 '}';
     }
 }

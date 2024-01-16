@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeAll;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
@@ -176,10 +178,59 @@ public class PineconeIndexOperationClientTest {
     @Test
     public void testDescribeIndex() throws IOException {
         String indexName = "testIndex";
-        String indexJsonString = "{\"database\":{\"name\":\"testIndex\",\"metric\":\"cosine\",\"dimension\":3," +
-                "\"replicas\":1,\"shards\":1,\"pods\":1,\"pod_type\":\"p1.x1\"}," +
-                "\"status\":{\"waiting\":[],\"crashed\":[],\"host\":\"url\",\"port\":433," +
-                "\"state\":\"Ready\",\"ready\":true}}";
+        String indexString = "";
+        String filePath = "src/test/resources/indexJsonString.json";
+        String indexJsonString = new String(Files.readAllBytes(Paths.get(filePath)));
+
+        PineconeClientConfig clientConfig = new PineconeClientConfig()
+                .withApiKey("testApiKey")
+                .withEnvironment("testEnvironment");
+        IndexMetaDatabase metaDatabase = new IndexMetaDatabase()
+                .withName("testIndex")
+                .withMetric("cosine")
+                .withDimension(3)
+                .withReplicas(1)
+                .withShards(1)
+                .withPods(1)
+                .withPodType("p1.x1")
+                .withSourceCollection("randomCollection");
+        IndexStatus indexStatus = new IndexStatus()
+                .withHost("url")
+                .withState("Ready")
+                .withReady(true)
+                .withPort("433");
+
+        IndexMeta expectedIndexMeta = new IndexMeta()
+                .withMetaDatabase(metaDatabase)
+                .withStatus(indexStatus);
+
+        Call mockCall = mock(Call.class);
+        Response mockResponse = new Response.Builder()
+                .request(new Request.Builder().url("http://localhost").build())
+                .protocol(Protocol.HTTP_1_1)
+                .code(200)
+                .message("OK")
+                .body(ResponseBody.create(indexJsonString, MediaType.parse("application/json")))
+                .build();
+
+        when(mockCall.execute()).thenReturn(mockResponse);
+
+        OkHttpClient mockClient = mock(OkHttpClient.class);
+        when(mockClient.newCall(any(Request.class))).thenReturn(mockCall);
+        when(mockCall.execute()).thenReturn(mockResponse);
+
+        PineconeIndexOperationClient indexOperationClient = new PineconeIndexOperationClient(clientConfig, mockClient);
+        IndexMeta actualIndexMeta = indexOperationClient.describeIndex(indexName);
+
+        assertEquals(expectedIndexMeta.toString(), actualIndexMeta.toString());
+    }
+
+    @Test
+    public void testDescribeIndexWithExtraFields() throws IOException {
+        String indexName = "testIndex";
+        String filePath = "src/test/resources/indexJsonStringWithExtraFields.json";
+        String indexJsonString = new String(Files.readAllBytes(Paths.get(filePath)));
+
         PineconeClientConfig clientConfig = new PineconeClientConfig()
                 .withApiKey("testApiKey")
                 .withEnvironment("testEnvironment");
@@ -191,6 +242,7 @@ public class PineconeIndexOperationClientTest {
                 .withShards(1)
                 .withPods(1)
                 .withPodType("p1.x1");
+
         IndexStatus indexStatus = new IndexStatus()
                 .withHost("url")
                 .withState("Ready")

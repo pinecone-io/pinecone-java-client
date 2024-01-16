@@ -7,6 +7,8 @@ import io.pinecone.model.IndexMeta;
 import java.io.IOException;
 import java.util.List;
 
+import static io.pinecone.helpers.AssertRetry.assertWithRetry;
+
 public class IndexManager {
     private static PineconeClientConfig config;
 
@@ -67,15 +69,12 @@ public class IndexManager {
 
     public static IndexMeta isIndexReady(String indexName, PineconeIndexOperationClient indexOperationClient)
             throws IOException, InterruptedException {
-        IndexMeta indexMeta;
-        while (true) {
-            indexMeta = indexOperationClient.describeIndex(indexName);
-            if (indexMeta.getStatus().getState().equalsIgnoreCase("ready")) {
-                break;
-            }
-            Thread.sleep(1000);
-        }
+        final IndexMeta[] indexMeta = new IndexMeta[1];
+        assertWithRetry(() -> {
+            indexMeta[0] = indexOperationClient.describeIndex(indexName);
+            assert (indexMeta[0].getStatus().getState().equalsIgnoreCase("ready"));
+        });
 
-        return indexMeta;
+        return indexMeta[0];
     }
 }

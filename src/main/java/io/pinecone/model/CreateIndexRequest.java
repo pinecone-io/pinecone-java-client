@@ -12,7 +12,7 @@ public class CreateIndexRequest {
 
     private String metric = "cosine";
 
-    private Integer pods = 1;
+    private Integer pods;
 
     private Integer replicas = 1;
 
