@@ -1,4 +1,4 @@
-package io.pinecone.integration.controlPlane.Index;
+package io.pinecone.integration.controlPlane.index;
 
 import io.pinecone.PineconeClientConfig;
 import io.pinecone.integration.dataplane.PineconeClientLiveIntegTest;
