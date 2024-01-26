@@ -67,6 +67,7 @@ dependencies {
 
 javadoc {
     options.tags = [ "http.response.details:a:Http Response Details" ]
+    options.addStringOption('Xdoclint:none', '-quiet')
 }
 
 configurations {
