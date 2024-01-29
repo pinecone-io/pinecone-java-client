@@ -47,8 +47,12 @@ dependencies {
     implementation 'org.slf4j:slf4j-api:2.0.5'
     implementation 'com.google.api.grpc:proto-google-common-protos:2.14.3'
     implementation 'com.squareup.okhttp3:okhttp:4.10.0'
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.14.2'
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.14.2'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.2'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.14.2'
+    implementation 'com.google.code.gson:gson:2.9.1'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.10.0'
+    implementation 'io.gsonfire:gson-fire:1.8.5'
+    implementation 'org.openapitools:jackson-databind-nullable:0.2.6'
     compileOnly "org.apache.tomcat:annotations-api:6.0.53" // necessary for Java 9+
 
     testImplementation("com.squareup.okhttp3:mockwebserver:4.10.0")
@@ -59,6 +63,11 @@ dependencies {
     testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.14.2'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.0'
+}
+
+javadoc {
+    options.tags = [ "http.response.details:a:Http Response Details" ]
+    options.addStringOption('Xdoclint:none', '-quiet')
 }
 
 configurations {
