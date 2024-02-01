@@ -1,0 +1,2 @@
+rootProject.name = "pinecone-java-client"
+include 'examples'

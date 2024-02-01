@@ -5,7 +5,7 @@ import io.pinecone.PineconeClient;
 import io.pinecone.PineconeClientConfig;
 import io.pinecone.PineconeConnection;
 import io.pinecone.PineconeConnectionConfig;
-import io.pinecone.PineconeException;
+import io.pinecone.exceptions.PineconeException;
 import io.pinecone.proto.QueryRequest;
 import io.pinecone.proto.QueryResponse;
 import io.pinecone.proto.QueryVector;

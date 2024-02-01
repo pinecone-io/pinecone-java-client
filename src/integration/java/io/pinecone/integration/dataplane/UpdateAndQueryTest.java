@@ -8,6 +8,8 @@ import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -23,6 +25,8 @@ public class UpdateAndQueryTest {
     private static VectorServiceGrpc.VectorServiceBlockingStub blockingStub;
     private static VectorServiceGrpc.VectorServiceFutureStub futureStub;
     private static final int dimension = 3;
+
+    Logger logger = LoggerFactory.getLogger(UpdateAndQueryTest.class);
 
     @BeforeAll
     public static void setUp() throws IOException, InterruptedException {
@@ -387,6 +391,7 @@ public class UpdateAndQueryTest {
                             .build())
                     .build();
             QueryResponse queryResponse = blockingStub.query(queryRequest);
+            logger.info(String.format("queryResponse: %s", queryResponse));
             // Verify the metadata field is correctly filtered in the query response
             assert (queryResponse.getMatches(0).getMetadata().getFieldsMap().get(fieldToQuery).toString().contains(valueToQuery));
         } catch (InterruptedException e) {
@@ -422,6 +427,7 @@ public class UpdateAndQueryTest {
                             .build())
                     .build();
             QueryResponse queryResponse = futureStub.query(queryRequest).get();
+
             // Verify the metadata field is correctly filtered in the query response
             assert (queryResponse.getMatches(0).getMetadata().getFieldsMap().get(fieldToQuery).toString().contains(valueToQuery));
         } catch (ExecutionException | InterruptedException e) {

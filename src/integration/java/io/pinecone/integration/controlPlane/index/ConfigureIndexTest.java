@@ -28,6 +28,7 @@ public class ConfigureIndexTest {
         config = new PineconeClientConfig()
                 .withApiKey(System.getenv("PINECONE_API_KEY"))
                 .withEnvironment(System.getenv("PINECONE_ENVIRONMENT"));
+        logger.info(String.format("CONFIG: %s", config));
     }
 
     @BeforeEach
