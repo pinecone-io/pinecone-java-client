@@ -8,6 +8,7 @@ import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.openapitools.client.model.IndexModelSpec;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -26,7 +27,7 @@ public class UpdateAndQueryTest {
 
     @BeforeAll
     public static void setUp() throws IOException, InterruptedException {
-        PineconeConnection connection = createIndexIfNotExistsDataPlane(dimension);
+        PineconeConnection connection = createIndexIfNotExistsDataPlane(dimension, IndexModelSpec.SERIALIZED_NAME_POD);
         blockingStub = connection.getBlockingStub();
         futureStub = connection.getFutureStub();
     }
@@ -56,6 +57,7 @@ public class UpdateAndQueryTest {
                 .build();
 
         blockingStub.update(updateRequest);
+        Thread.sleep(3500);
 
         // Query by ID to verify
         QueryRequest queryRequest = QueryRequest.newBuilder()
@@ -113,6 +115,7 @@ public class UpdateAndQueryTest {
                 .build();
 
         blockingStub.update(updateRequest);
+        Thread.sleep(3500);
 
         // Query by vector to verify
         QueryRequest queryRequest = QueryRequest.newBuilder()
@@ -219,6 +222,7 @@ public class UpdateAndQueryTest {
                 .build();
 
         futureStub.update(updateRequest).get();
+        Thread.sleep(3500);
 
         // Query to verify
         QueryRequest queryRequest = QueryRequest.newBuilder()
@@ -308,6 +312,7 @@ public class UpdateAndQueryTest {
                 .build();
 
         futureStub.update(updateRequest).get();
+        Thread.sleep(3500);
 
         // Query by vector to verify
         QueryRequest queryRequest = QueryRequest.newBuilder()

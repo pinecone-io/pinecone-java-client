@@ -3,6 +3,7 @@ package io.pinecone.integration.dataplane;
 import io.pinecone.*;
 import io.pinecone.proto.*;
 import org.junit.jupiter.api.*;
+import org.openapitools.client.model.IndexModelSpec;
 
 import static io.pinecone.helpers.BuildUpsertRequest.*;
 import static io.pinecone.helpers.IndexManager.createIndexIfNotExistsDataPlane;
@@ -19,7 +20,7 @@ public class UpsertAndDescribeIndexStatsTest {
 
     @BeforeAll
     public static void setUp() throws IOException, InterruptedException {
-        PineconeConnection connection = createIndexIfNotExistsDataPlane(dimension);
+        PineconeConnection connection = createIndexIfNotExistsDataPlane(dimension, IndexModelSpec.SERIALIZED_NAME_POD);
         blockingStub = connection.getBlockingStub();
         futureStub = connection.getFutureStub();
     }

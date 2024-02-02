@@ -9,6 +9,7 @@ import io.pinecone.proto.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.openapitools.client.model.IndexModelSpec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +28,7 @@ public class PineconeClientLiveIntegTest {
 
     @BeforeAll
     public static void defineConfig() throws IOException, InterruptedException {
-        PineconeConnection connection = createIndexIfNotExistsDataPlane(3);
+        PineconeConnection connection = createIndexIfNotExistsDataPlane(3, IndexModelSpec.SERIALIZED_NAME_POD);
         blockingStub = connection.getBlockingStub();
     }
 

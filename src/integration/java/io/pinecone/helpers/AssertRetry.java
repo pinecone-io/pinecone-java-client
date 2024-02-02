@@ -8,6 +8,10 @@ public class AssertRetry {
     private static int delay = 1500;
 
     public static void assertWithRetry(AssertionRunnable assertionRunnable) throws InterruptedException {
+        assertWithRetry(assertionRunnable, 2);
+    }
+
+    public static void assertWithRetry(AssertionRunnable assertionRunnable, int backOff) throws InterruptedException {
         int retryCount = 0;
         boolean success = false;
 
@@ -17,7 +21,7 @@ public class AssertRetry {
                 success = true;
             } catch (AssertionError | ExecutionException | IOException e) {
                 retryCount++;
-                delay*=2;
+                delay*=backOff;
                 Thread.sleep(delay);
             }
         }
