@@ -44,7 +44,7 @@ public class IndexManager {
             IndexModel indexModel = isIndexReady(indexModels.get(i).getName(), controlPlaneClient);
             // ToDo: add pod type support
             if (indexModel.getDimension() == dimension
-                    && ((indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_POD) && indexModel.getSpec().getPod().getPodType().equalsIgnoreCase("p1.x1"))
+                    && ((indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_POD) && indexModel.getSpec().getPod() != null && indexModel.getSpec().getPod().getPodType().equalsIgnoreCase("p1.x1"))
                     || (indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_SERVERLESS)))) {
                 return indexModel.getName();
             }
