@@ -53,7 +53,7 @@ public class PineconeIndexOperationClient {
         return indexModel;
     }
 
-    public void configureIndexes(String indexName, ConfigureIndexRequest configureIndexRequest) {
+    public void configureIndex(String indexName, ConfigureIndexRequest configureIndexRequest) {
         try {
             manageIndexesApi.configureIndex(indexName, configureIndexRequest);
         } catch (ApiException apiException) {
