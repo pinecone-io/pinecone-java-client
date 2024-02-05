@@ -61,45 +61,44 @@ public class ConfigureIndexTest {
         }
     }
 
-// ToDo: Uncomment after regenerating the control plane code using open-api
-//    @Test
-//    public void scaleUpAndDown() {
-//        try {
-//            // Verify the starting state
-//            IndexModel indexModel = isIndexReady(indexName, controlPlaneClient);
-//            assert indexModel.getSpec().getPod() != null;
-//            assertEquals(1, indexModel.getSpec().getPod().getReplicas());
-//
-//            // Scale up for the test
-//            ConfigureIndexRequestSpecPod pod = new ConfigureIndexRequestSpecPod().replicas(3);
-//            ConfigureIndexRequestSpec spec = new ConfigureIndexRequestSpec().pod(pod);
-//            ConfigureIndexRequest configureIndexRequest = new ConfigureIndexRequest().spec(spec);
-//            controlPlaneClient.configureIndex(indexName, configureIndexRequest);
-//
-//            // Verify the scaled up replicas
-//            // assertWithRetry
-//            assertWithRetry(() -> {
-//                PodSpec podSpec = controlPlaneClient.describeIndex(indexName).getSpec().getPod();
-//                assert (podSpec != null);
-//                assertEquals(podSpec.getReplicas(), 3);
-//            });
-//
-//            // Scaling down
-//            pod = new ConfigureIndexRequestSpecPod().replicas(3);
-//            spec = new ConfigureIndexRequestSpec().pod(pod);
-//            configureIndexRequest = new ConfigureIndexRequest().spec(spec);
-//            controlPlaneClient.configureIndex(indexName, configureIndexRequest);
-//
-//            // Verify replicas were scaled down
-//            assertWithRetry(() -> {
-//                PodSpec podSpec = controlPlaneClient.describeIndex(indexName).getSpec().getPod();
-//                assert (podSpec != null);
-//                assertEquals(podSpec.getReplicas(), 1);
-//            });
-//        } catch (Exception exception) {
-//            throw new PineconeException("Test failed: " + exception.getStackTrace());
-//        }
-//    }
+    @Test
+    public void scaleUpAndDown() {
+        try {
+            // Verify the starting state
+            IndexModel indexModel = isIndexReady(indexName, controlPlaneClient);
+            assert indexModel.getSpec().getPod() != null;
+            assertEquals(1, indexModel.getSpec().getPod().getReplicas());
+
+            // Scale up for the test
+            ConfigureIndexRequestSpecPod pod = new ConfigureIndexRequestSpecPod().replicas(3);
+            ConfigureIndexRequestSpec spec = new ConfigureIndexRequestSpec().pod(pod);
+            ConfigureIndexRequest configureIndexRequest = new ConfigureIndexRequest().spec(spec);
+            controlPlaneClient.configureIndex(indexName, configureIndexRequest);
+
+            // Verify the scaled up replicas
+            // assertWithRetry
+            assertWithRetry(() -> {
+                PodSpec podSpec = controlPlaneClient.describeIndex(indexName).getSpec().getPod();
+                assert (podSpec != null);
+                assertEquals(podSpec.getReplicas(), 3);
+            });
+
+            // Scaling down
+            pod = new ConfigureIndexRequestSpecPod().replicas(3);
+            spec = new ConfigureIndexRequestSpec().pod(pod);
+            configureIndexRequest = new ConfigureIndexRequest().spec(spec);
+            controlPlaneClient.configureIndex(indexName, configureIndexRequest);
+
+            // Verify replicas were scaled down
+            assertWithRetry(() -> {
+                PodSpec podSpec = controlPlaneClient.describeIndex(indexName).getSpec().getPod();
+                assert (podSpec != null);
+                assertEquals(podSpec.getReplicas(), 1);
+            });
+        } catch (Exception exception) {
+            throw new PineconeException("Test failed: " + exception.getStackTrace());
+        }
+    }
 
     @Test
     public void changingBasePodType() {
