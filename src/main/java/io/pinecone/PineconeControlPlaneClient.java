@@ -2,6 +2,7 @@ package io.pinecone;
 
 import io.pinecone.exceptions.FailedRequestInfo;
 import io.pinecone.exceptions.HttpErrorMapper;
+import io.pinecone.exceptions.PineconeValidationException;
 import okhttp3.*;
 import org.openapitools.client.ApiClient;
 import org.openapitools.client.ApiException;
@@ -19,6 +20,9 @@ public class PineconeControlPlaneClient {
     }
 
     public PineconeControlPlaneClient(String apiKey, OkHttpClient okHttpClient) {
+        if(apiKey == null || apiKey.isEmpty()) {
+            throw new PineconeValidationException("The API key is required and cannot be empty or null");
+        }
         ApiClient apiClient = new ApiClient(okHttpClient);
         apiClient.setApiKey(apiKey);
         manageIndexesApi = new ManageIndexesApi();
