@@ -76,7 +76,6 @@ public class ConfigureIndexTest {
             controlPlaneClient.configureIndex(indexName, configureIndexRequest);
 
             // Verify the scaled up replicas
-            // assertWithRetry
             assertWithRetry(() -> {
                 PodSpec podSpec = controlPlaneClient.describeIndex(indexName).getSpec().getPod();
                 assert (podSpec != null);
