@@ -11,22 +11,14 @@ import org.openapitools.client.model.CreateIndexRequest;
 import org.openapitools.client.model.IndexList;
 import org.openapitools.client.model.IndexModel;
 
-public class PineconeIndexOperationClient {
+public class PineconeControlPlaneClient {
     private ManageIndexesApi manageIndexesApi;
 
-    public PineconeIndexOperationClient(PineconeClientConfig clientConfig) {
-        this(clientConfig.getApiKey(), new OkHttpClient());
-    }
-
-    public PineconeIndexOperationClient(PineconeClientConfig clientConfig, OkHttpClient okHttpClient) {
-        this(clientConfig.getApiKey(), okHttpClient);
-    }
-
-    public PineconeIndexOperationClient(String apiKey) {
+    public PineconeControlPlaneClient(String apiKey) {
         this(apiKey, new OkHttpClient());
     }
 
-    public PineconeIndexOperationClient(String apiKey, OkHttpClient okHttpClient) {
+    public PineconeControlPlaneClient(String apiKey, OkHttpClient okHttpClient) {
         ApiClient apiClient = new ApiClient(okHttpClient);
         apiClient.setApiKey(apiKey);
         manageIndexesApi = new ManageIndexesApi();

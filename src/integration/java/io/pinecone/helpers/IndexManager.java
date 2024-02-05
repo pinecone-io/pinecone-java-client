@@ -12,8 +12,10 @@ public class IndexManager {
     private static PineconeClientConfig config;
 
     public static PineconeConnection createIndexIfNotExistsDataPlane(int dimension, String indexType) throws IOException, InterruptedException {
-        config = new PineconeClientConfig().withApiKey(System.getenv("PINECONE_API_KEY")).withEnvironment(System.getenv("PINECONE_ENVIRONMENT"));
-        PineconeIndexOperationClient controlPlaneClient = new PineconeIndexOperationClient(config);
+        String apiKey = System.getenv("PINECONE_API_KEY");
+        String environment = System.getenv("PINECONE_ENVIRONMENT");
+        config = new PineconeClientConfig().withApiKey(apiKey).withEnvironment(environment);
+        PineconeControlPlaneClient controlPlaneClient = new PineconeControlPlaneClient(apiKey);
         IndexList indexList = controlPlaneClient.listIndexes();
 
         String indexName = findIndexWithDimensionAndType(indexList, dimension, controlPlaneClient, indexType);
@@ -21,6 +23,7 @@ public class IndexManager {
 
         // Do not proceed until the newly created index is ready
         isIndexReady(indexName, controlPlaneClient);
+        // ToDo: Update the constructor by removing dependency on PineconeClientConfig
         PineconeClient dataPlaneClient = new PineconeClient(config);
         String host = controlPlaneClient.describeIndex(indexName).getHost();
 
@@ -29,14 +32,14 @@ public class IndexManager {
                         .withConnectionUrl("https://" + host));
     }
 
-    public static String createIndexIfNotExistsControlPlane(PineconeIndexOperationClient controlPlaneClient, int dimension, String indexType) throws IOException, InterruptedException {
+    public static String createIndexIfNotExistsControlPlane(PineconeControlPlaneClient controlPlaneClient, int dimension, String indexType) throws IOException, InterruptedException {
         IndexList indexList = controlPlaneClient.listIndexes();
         String indexName = findIndexWithDimensionAndType(indexList, dimension, controlPlaneClient, indexType);
 
         return (indexName.isEmpty()) ? createNewIndex(controlPlaneClient, indexType, dimension) : indexName;
     }
 
-    private static String findIndexWithDimensionAndType(IndexList indexList, int dimension, PineconeIndexOperationClient controlPlaneClient, String indexType)
+    private static String findIndexWithDimensionAndType(IndexList indexList, int dimension, PineconeControlPlaneClient controlPlaneClient, String indexType)
             throws InterruptedException {
         int i = 0;
         List<IndexModel> indexModels = indexList.getIndexes();
@@ -44,7 +47,7 @@ public class IndexManager {
             IndexModel indexModel = isIndexReady(indexModels.get(i).getName(), controlPlaneClient);
             // ToDo: add pod type support
             if (indexModel.getDimension() == dimension
-                    && ((indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_POD) && indexModel.getSpec().getPod() != null && indexModel.getSpec().getPod().getPodType().equalsIgnoreCase("p1.x1"))
+                    && ((indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_POD) && indexModel.getSpec().getPod() != null && indexModel.getSpec().getPod().getReplicas() == 1 && indexModel.getSpec().getPod().getPodType().equalsIgnoreCase("p1.x1"))
                     || (indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_SERVERLESS)))) {
                 return indexModel.getName();
             }
@@ -53,7 +56,7 @@ public class IndexManager {
         return "";
     }
 
-    private static String createNewIndex(PineconeIndexOperationClient controlPlaneClient, String indexType, int dimension) throws IOException {
+    private static String createNewIndex(PineconeControlPlaneClient controlPlaneClient, String indexType, int dimension) throws IOException {
         String indexName = RandomStringBuilder.build("index-name", 8);
         String environment = System.getenv("PINECONE_ENVIRONMENT");
         CreateIndexRequestSpec createIndexRequestSpec;
@@ -76,7 +79,7 @@ public class IndexManager {
         return indexName;
     }
 
-    public static IndexModel isIndexReady(String indexName, PineconeIndexOperationClient controlPlaneClient)
+    public static IndexModel isIndexReady(String indexName, PineconeControlPlaneClient controlPlaneClient)
             throws InterruptedException {
         final IndexModel[] indexModels = new IndexModel[1];
         assertWithRetry(() -> {
