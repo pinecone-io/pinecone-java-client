@@ -9,6 +9,8 @@ public class HttpErrorMapper {
                 throw new PineconeBadRequestException(failedRequestInfo.getMessage());
             case 401:
                 throw new PineconeAuthorizationException(failedRequestInfo.getMessage());
+            case 403:
+                throw new PineconeForbiddenException(failedRequestInfo.getMessage());
             case 404:
                 throw new PineconeNotFoundException(failedRequestInfo.getMessage());
             case 409:

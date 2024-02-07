@@ -2,6 +2,7 @@ package io.pinecone;
 
 import io.pinecone.exceptions.FailedRequestInfo;
 import io.pinecone.exceptions.HttpErrorMapper;
+import io.pinecone.exceptions.PineconeValidationException;
 import okhttp3.*;
 import org.openapitools.client.ApiClient;
 import org.openapitools.client.ApiException;
@@ -11,22 +12,17 @@ import org.openapitools.client.model.CreateIndexRequest;
 import org.openapitools.client.model.IndexList;
 import org.openapitools.client.model.IndexModel;
 
-public class PineconeIndexOperationClient {
+public class PineconeControlPlaneClient {
     private ManageIndexesApi manageIndexesApi;
 
-    public PineconeIndexOperationClient(PineconeClientConfig clientConfig) {
-        this(clientConfig.getApiKey(), new OkHttpClient());
-    }
-
-    public PineconeIndexOperationClient(PineconeClientConfig clientConfig, OkHttpClient okHttpClient) {
-        this(clientConfig.getApiKey(), okHttpClient);
-    }
-
-    public PineconeIndexOperationClient(String apiKey) {
+    public PineconeControlPlaneClient(String apiKey) {
         this(apiKey, new OkHttpClient());
     }
 
-    public PineconeIndexOperationClient(String apiKey, OkHttpClient okHttpClient) {
+    public PineconeControlPlaneClient(String apiKey, OkHttpClient okHttpClient) {
+        if(apiKey == null || apiKey.isEmpty()) {
+            throw new PineconeValidationException("The API key is required and must not be empty or null");
+        }
         ApiClient apiClient = new ApiClient(okHttpClient);
         apiClient.setApiKey(apiKey);
         manageIndexesApi = new ManageIndexesApi();
