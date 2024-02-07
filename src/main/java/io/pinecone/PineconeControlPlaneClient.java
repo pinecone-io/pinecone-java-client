@@ -21,7 +21,7 @@ public class PineconeControlPlaneClient {
 
     public PineconeControlPlaneClient(String apiKey, OkHttpClient okHttpClient) {
         if(apiKey == null || apiKey.isEmpty()) {
-            throw new PineconeValidationException("The API key is required and cannot be empty or null");
+            throw new PineconeValidationException("apiKey is required and must not be empty or null");
         }
         ApiClient apiClient = new ApiClient(okHttpClient);
         apiClient.setApiKey(apiKey);
