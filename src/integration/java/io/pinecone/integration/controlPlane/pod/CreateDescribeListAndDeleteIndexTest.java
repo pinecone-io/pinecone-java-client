@@ -1,4 +1,4 @@
-package io.pinecone.integration.controlPlane.index.serverless;
+package io.pinecone.integration.controlPlane.pod;
 
 import io.pinecone.PineconeControlPlaneClient;
 import io.pinecone.helpers.RandomStringBuilder;
@@ -9,23 +9,24 @@ import org.openapitools.client.model.*;
 
 import java.util.Objects;
 
-import static io.pinecone.helpers.IndexManager.isIndexReady;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class CreateDescribeListAndDeleteIndexTest {
     private PineconeControlPlaneClient controlPlaneClient;
+    private final String apiKey = System.getenv("PINECONE_API_KEY");
+    private final String environment = System.getenv("PINECONE_ENVIRONMENT");
 
     @BeforeEach
     public void setUp() {
-        controlPlaneClient = new PineconeControlPlaneClient(System.getenv("PINECONE_API_KEY"));
+        controlPlaneClient = new PineconeControlPlaneClient(apiKey);
     }
 
     @Test
-    public void createAndDelete() throws ApiException, InterruptedException {
+    public void createAndDelete() throws InterruptedException {
         String indexName = RandomStringBuilder.build("index-name", 8);
-        ServerlessSpec serverlessSpec = new ServerlessSpec().cloud(ServerlessSpec.CloudEnum.AWS).region("us-west-2");
-        CreateIndexRequestSpec createIndexRequestSpec = new CreateIndexRequestSpec().serverless(serverlessSpec);
+        CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().environment(environment).podType("p1.x1");
+        CreateIndexRequestSpec createIndexRequestSpec = new CreateIndexRequestSpec().pod(podSpec);
 
         // Create the index
         CreateIndexRequest createIndexRequest = new CreateIndexRequest()
@@ -34,8 +35,6 @@ public class CreateDescribeListAndDeleteIndexTest {
                 .dimension(10)
                 .spec(createIndexRequestSpec);
         controlPlaneClient.createIndex(createIndexRequest);
-
-        isIndexReady(indexName, controlPlaneClient);
 
         // Describe the index
         IndexModel indexModel = controlPlaneClient.describeIndex(indexName);
