@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class CreateDescribeListAndDeleteIndexTest {
     private PineconeControlPlaneClient controlPlaneClient;
-    private final String apiKey = "";
+    private final String apiKey = System.getenv("PINECONE_API_KEY");
     private final String environment = System.getenv("PINECONE_ENVIRONMENT");
 
     @BeforeEach
