@@ -4,6 +4,7 @@ import io.pinecone.PineconeControlPlaneClient;
 import io.pinecone.helpers.RandomStringBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.openapitools.client.ApiException;
 import org.openapitools.client.model.*;
 
 import java.util.Objects;
@@ -13,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class CreateDescribeListAndDeleteIndexTest {
     private PineconeControlPlaneClient controlPlaneClient;
-    private final String apiKey = System.getenv("PINECONE_API_KEY");
+    private final String apiKey = "";
     private final String environment = System.getenv("PINECONE_ENVIRONMENT");
 
     @BeforeEach

@@ -2,15 +2,13 @@ package io.pinecone;
 
 import io.pinecone.exceptions.FailedRequestInfo;
 import io.pinecone.exceptions.HttpErrorMapper;
+import io.pinecone.exceptions.PineconeException;
 import io.pinecone.exceptions.PineconeValidationException;
 import okhttp3.*;
 import org.openapitools.client.ApiClient;
 import org.openapitools.client.ApiException;
 import org.openapitools.client.api.ManageIndexesApi;
-import org.openapitools.client.model.ConfigureIndexRequest;
-import org.openapitools.client.model.CreateIndexRequest;
-import org.openapitools.client.model.IndexList;
-import org.openapitools.client.model.IndexModel;
+import org.openapitools.client.model.*;
 
 public class PineconeControlPlaneClient {
     private ManageIndexesApi manageIndexesApi;
@@ -29,17 +27,17 @@ public class PineconeControlPlaneClient {
         manageIndexesApi.setApiClient(apiClient);
     }
 
-    public IndexModel createIndex(CreateIndexRequest createIndexRequest) {
+    public IndexModel createIndex(CreateIndexRequest createIndexRequest) throws PineconeException {
         IndexModel indexModel = new IndexModel();
         try {
-            manageIndexesApi.createIndex(createIndexRequest);
+            indexModel = manageIndexesApi.createIndex(createIndexRequest);
         } catch (ApiException apiException) {
             handleApiException(apiException);
         }
         return indexModel;
     }
 
-    public IndexModel describeIndex(String indexName) {
+    public IndexModel describeIndex(String indexName) throws PineconeException {
         IndexModel indexModel = new IndexModel();
         try {
             indexModel = manageIndexesApi.describeIndex(indexName);
@@ -49,7 +47,7 @@ public class PineconeControlPlaneClient {
         return indexModel;
     }
 
-    public void configureIndex(String indexName, ConfigureIndexRequest configureIndexRequest) {
+    public void configureIndex(String indexName, ConfigureIndexRequest configureIndexRequest) throws PineconeException {
         try {
             manageIndexesApi.configureIndex(indexName, configureIndexRequest);
         } catch (ApiException apiException) {
@@ -57,7 +55,7 @@ public class PineconeControlPlaneClient {
         }
     }
 
-    public IndexList listIndexes() {
+    public IndexList listIndexes() throws PineconeException {
         IndexList indexList = new IndexList();
         try {
             indexList = manageIndexesApi.listIndexes();
@@ -67,7 +65,7 @@ public class PineconeControlPlaneClient {
         return indexList;
     }
 
-    public void deleteIndex(String indexName) {
+    public void deleteIndex(String indexName) throws PineconeException {
         try {
             manageIndexesApi.deleteIndex(indexName);
         } catch (ApiException apiException) {
@@ -75,7 +73,45 @@ public class PineconeControlPlaneClient {
         }
     }
 
-    private void handleApiException(ApiException apiException) {
+    public CollectionModel createCollection(CreateCollectionRequest createCollectionRequest) throws PineconeException {
+        CollectionModel collection = null;
+        try {
+            collection = manageIndexesApi.createCollection(createCollectionRequest);
+        } catch (ApiException apiException) {
+            handleApiException(apiException);
+        }
+        return collection;
+    }
+
+    public CollectionModel describeCollection(String collectionName) throws PineconeException  {
+        CollectionModel collection = null;
+        try {
+            collection = manageIndexesApi.describeCollection(collectionName);
+        } catch (ApiException apiException) {
+            handleApiException(apiException);
+        }
+        return collection;
+    }
+
+    public CollectionList listCollections() throws PineconeException {
+        CollectionList collections = null;
+        try {
+            collections = manageIndexesApi.listCollections();
+        } catch (ApiException apiException) {
+            handleApiException(apiException);
+        }
+        return collections;
+    }
+
+    public void deleteCollection(String collectionName) throws PineconeException {
+        try {
+            manageIndexesApi.deleteCollection(collectionName);
+        } catch (ApiException apiException) {
+            handleApiException(apiException);
+        }
+    }
+
+    private void handleApiException(ApiException apiException) throws PineconeException {
         int statusCode = apiException.getCode();
         String responseBody = apiException.getResponseBody();
         FailedRequestInfo failedRequestInfo = new FailedRequestInfo(statusCode, responseBody);

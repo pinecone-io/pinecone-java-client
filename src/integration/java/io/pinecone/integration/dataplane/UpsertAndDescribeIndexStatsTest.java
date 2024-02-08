@@ -3,6 +3,7 @@ package io.pinecone.integration.dataplane;
 import io.pinecone.*;
 import io.pinecone.proto.*;
 import org.junit.jupiter.api.*;
+import org.openapitools.client.ApiException;
 import org.openapitools.client.model.IndexModelSpec;
 
 import static io.pinecone.helpers.BuildUpsertRequest.*;
@@ -19,14 +20,14 @@ public class UpsertAndDescribeIndexStatsTest {
     private static final int dimension = 3;
 
     @BeforeAll
-    public static void setUp() throws IOException, InterruptedException {
+    public static void setUp() throws ApiException, InterruptedException {
         PineconeConnection connection = createIndexIfNotExistsDataPlane(dimension, IndexModelSpec.SERIALIZED_NAME_POD);
         blockingStub = connection.getBlockingStub();
         futureStub = connection.getFutureStub();
     }
 
     @Test
-    public void UpsertRequiredVectorsAndDescribeIndexStatsSyncTest() throws InterruptedException {
+    public void UpsertRequiredVectorsAndDescribeIndexStatsSyncTest() throws ApiException, InterruptedException {
         // Get vector and namespace counts before upserting vectors with required parameters
         DescribeIndexStatsRequest describeIndexRequest = DescribeIndexStatsRequest.newBuilder().build();
         DescribeIndexStatsResponse describeIndexStatsResponse1 = blockingStub.describeIndexStats(describeIndexRequest);
@@ -49,7 +50,7 @@ public class UpsertAndDescribeIndexStatsTest {
     }
 
     @Test
-    public void UpsertOptionalVectorsAndDescribeIndexStatsSyncTest() throws InterruptedException {
+    public void UpsertOptionalVectorsAndDescribeIndexStatsSyncTest() throws ApiException, InterruptedException {
         // Get vector and namespace counts before upserting vectors with required parameters
         DescribeIndexStatsRequest describeIndexRequest = DescribeIndexStatsRequest.newBuilder().build();
         DescribeIndexStatsResponse describeIndexStatsResponse1 = blockingStub.describeIndexStats(describeIndexRequest);
@@ -72,7 +73,7 @@ public class UpsertAndDescribeIndexStatsTest {
 
 
     @Test
-    public void UpsertRequiredVectorsAndDescribeIndexStatsFutureTest() throws ExecutionException, InterruptedException {
+    public void UpsertRequiredVectorsAndDescribeIndexStatsFutureTest() throws ApiException, ExecutionException, InterruptedException {
         // Get vector and namespace counts before upserting vectors with required parameters
         DescribeIndexStatsRequest describeIndexRequest = DescribeIndexStatsRequest.newBuilder().build();
         DescribeIndexStatsResponse describeIndexStatsResponse1 = futureStub.describeIndexStats(describeIndexRequest).get();
@@ -94,7 +95,7 @@ public class UpsertAndDescribeIndexStatsTest {
     }
 
     @Test
-    public void UpsertOptionalVectorsAndDescribeIndexStatsFutureTest() throws ExecutionException, InterruptedException {
+    public void UpsertOptionalVectorsAndDescribeIndexStatsFutureTest() throws ApiException, ExecutionException, InterruptedException {
         // Get vector and namespace counts before upserting vectors with required parameters
         DescribeIndexStatsRequest describeIndexRequest = DescribeIndexStatsRequest.newBuilder().build();
         DescribeIndexStatsResponse describeIndexStatsResponse1 = futureStub.describeIndexStats(describeIndexRequest).get();

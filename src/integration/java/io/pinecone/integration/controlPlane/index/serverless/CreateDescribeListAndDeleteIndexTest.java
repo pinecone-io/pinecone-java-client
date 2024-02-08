@@ -4,6 +4,7 @@ import io.pinecone.PineconeControlPlaneClient;
 import io.pinecone.helpers.RandomStringBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.openapitools.client.ApiException;
 import org.openapitools.client.model.*;
 
 import java.util.Objects;
@@ -21,7 +22,7 @@ public class CreateDescribeListAndDeleteIndexTest {
     }
 
     @Test
-    public void createAndDelete() throws InterruptedException {
+    public void createAndDelete() throws ApiException, InterruptedException {
         String indexName = RandomStringBuilder.build("index-name", 8);
         ServerlessSpec serverlessSpec = new ServerlessSpec().cloud(ServerlessSpec.CloudEnum.AWS).region("us-west-2");
         CreateIndexRequestSpec createIndexRequestSpec = new CreateIndexRequestSpec().serverless(serverlessSpec);

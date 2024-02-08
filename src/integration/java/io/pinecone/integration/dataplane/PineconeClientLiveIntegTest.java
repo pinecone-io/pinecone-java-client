@@ -9,6 +9,7 @@ import io.pinecone.proto.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.openapitools.client.ApiException;
 import org.openapitools.client.model.IndexModelSpec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,13 +28,13 @@ public class PineconeClientLiveIntegTest {
     private static VectorServiceGrpc.VectorServiceBlockingStub blockingStub;
 
     @BeforeAll
-    public static void defineConfig() throws IOException, InterruptedException {
+    public static void defineConfig() throws ApiException, InterruptedException {
         PineconeConnection connection = createIndexIfNotExistsDataPlane(3, IndexModelSpec.SERIALIZED_NAME_POD);
         blockingStub = connection.getBlockingStub();
     }
 
     @Test
-    public void sanity() throws InterruptedException {
+    public void sanity() throws ApiException, InterruptedException {
         String namespace = RandomStringBuilder.build("ns", 8);
 
         // upsert

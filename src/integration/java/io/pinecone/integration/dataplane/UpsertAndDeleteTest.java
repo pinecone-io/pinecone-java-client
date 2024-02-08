@@ -7,6 +7,7 @@ import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.openapitools.client.ApiException;
 import org.openapitools.client.model.IndexModelSpec;
 
 import java.io.IOException;
@@ -25,7 +26,7 @@ public class UpsertAndDeleteTest {
     private static final int dimension = 3;
 
     @BeforeAll
-    public static void setUp() throws IOException, InterruptedException {
+    public static void setUp() throws ApiException, InterruptedException {
         PineconeConnection connection = createIndexIfNotExistsDataPlane(dimension, IndexModelSpec.SERIALIZED_NAME_POD);
         blockingStub = connection.getBlockingStub();
         futureStub = connection.getFutureStub();

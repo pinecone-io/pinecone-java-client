@@ -1,8 +1,10 @@
 package io.pinecone.exceptions;
 
+import org.openapitools.client.ApiException;
+
 public class HttpErrorMapper {
 
-    public static void mapHttpStatusError(FailedRequestInfo failedRequestInfo) {
+    public static void mapHttpStatusError(FailedRequestInfo failedRequestInfo) throws PineconeException {
         int statusCode = failedRequestInfo.getStatus();
         switch (statusCode) {
             case 400:

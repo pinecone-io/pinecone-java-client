@@ -7,6 +7,7 @@ import io.pinecone.integration.dataplane.PineconeClientLiveIntegTest;
 import io.pinecone.exceptions.PineconeBadRequestException;
 import io.pinecone.exceptions.PineconeNotFoundException;
 import org.junit.jupiter.api.*;
+import org.openapitools.client.ApiException;
 import org.openapitools.client.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,12 +30,12 @@ public class ConfigureIndexTest {
     }
 
     @BeforeEach
-    public void setUp() throws IOException, InterruptedException {
-        indexName = createIndexIfNotExistsControlPlane(controlPlaneClient, 5, IndexModelSpec.SERIALIZED_NAME_POD);
+    public void setUp() throws ApiException, InterruptedException {
+        indexName = createIndexIfNotExistsControlPlane(controlPlaneClient, 5, IndexModelSpec.SERIALIZED_NAME_POD, false);
     }
 
     @Test
-    public void configureIndexWithInvalidIndexName() {
+    public void configureIndexWithInvalidIndexName() throws ApiException {
         ConfigureIndexRequestSpecPod pod = new ConfigureIndexRequestSpecPod();
         ConfigureIndexRequestSpec spec = new ConfigureIndexRequestSpec().pod(pod);
         ConfigureIndexRequest configureIndexRequest = new ConfigureIndexRequest().spec(spec);
@@ -120,7 +121,7 @@ public class ConfigureIndexTest {
     }
 
     @Test
-    public void sizeIncrease() throws InterruptedException {
+    public void sizeIncrease() throws ApiException, InterruptedException {
         try {
             // Verify the starting state
             IndexModel indexModel = isIndexReady(indexName, controlPlaneClient);
