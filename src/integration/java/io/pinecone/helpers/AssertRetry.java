@@ -8,7 +8,7 @@ import java.util.concurrent.ExecutionException;
 
 public class AssertRetry {
     private static final int maxRetry = 5;
-    private static int delay = 3000;
+    private static int delay = 1500;
 
     public static void assertWithRetry(AssertionRunnable assertionRunnable) throws InterruptedException, PineconeException {
         assertWithRetry(assertionRunnable, 2);
