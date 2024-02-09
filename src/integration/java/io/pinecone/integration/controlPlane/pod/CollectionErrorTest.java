@@ -133,7 +133,6 @@ public class CollectionErrorTest {
             CreateCollectionRequest createCollectionRequest = new CreateCollectionRequest().name(RandomStringBuilder.build("coll4-", 8)).source(notReadyIndexName);
             controlPlaneClient.createCollection(createCollectionRequest);
         } catch (PineconeException exception) {
-            System.out.println("EXCEPTION " + exception.getMessage());
             assertTrue(exception.getMessage().contains("Source index is not ready"));
         }
     }
