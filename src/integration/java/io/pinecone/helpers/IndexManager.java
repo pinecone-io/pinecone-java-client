@@ -109,9 +109,35 @@ public class IndexManager {
         assertWithRetry(() -> {
             indexModels[0] = controlPlaneClient.describeIndex(indexName);
             assert (indexModels[0].getStatus().getReady());
-        }, 2);
+        }, 3);
 
         return indexModels[0];
+    }
+
+    public static IndexModel waitUntilIndexIsReady(PineconeControlPlaneClient controlPlaneClient, String indexName, Integer totalMsToWait) throws InterruptedException {
+        IndexModel index = controlPlaneClient.describeIndex(indexName);
+        int waitedTimeMs = 0;
+        int intervalMs = 1500;
+
+        while (!index.getStatus().getReady()) {
+            index = controlPlaneClient.describeIndex(indexName);
+            if (waitedTimeMs >= totalMsToWait) {
+                System.out.println("Index " + indexName + " not ready after " + waitedTimeMs + "ms");
+                break;
+            }
+            if (index.getStatus().getReady()) {
+                Thread.sleep(2500);
+                System.out.println("Index " + indexName + " is ready after " + waitedTimeMs + "ms");
+                break;
+            }
+            Thread.sleep(intervalMs);
+            waitedTimeMs += intervalMs;
+        }
+        return index;
+    }
+
+    public static IndexModel waitUntilIndexIsReady(PineconeControlPlaneClient controlPlaneClient, String indexName) throws InterruptedException {
+        return waitUntilIndexIsReady(controlPlaneClient, indexName, 120000);
     }
 
     public static CollectionModel createCollection(PineconeControlPlaneClient controlPlaneClient, String collectionName, String indexName, boolean waitUntilReady) throws InterruptedException {

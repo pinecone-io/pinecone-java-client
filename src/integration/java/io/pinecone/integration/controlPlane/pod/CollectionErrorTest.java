@@ -27,10 +27,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class CollectionErrorTest {
     private static final String apiKey = System.getenv("PINECONE_API_KEY");
     private static final String environment = System.getenv("PINECONE_ENVIRONMENT");
-    private static final String indexName = RandomStringBuilder.build("collection-error-test-", 8);
+    private static final String indexName = RandomStringBuilder.build("collection-error-test", 8);
     private static final List<String> upsertIds = Arrays.asList("v1", "v2", "v3");
     private static final int dimension = 3;
-    private static final String collectionName = RandomStringBuilder.build("reusable-coll-", 8);
+    private static final String collectionName = RandomStringBuilder.build("reusable-coll", 8);
     private static CollectionModel collection;
     private static PineconeControlPlaneClient controlPlaneClient;
 
@@ -60,7 +60,7 @@ public class CollectionErrorTest {
     @Test
     public void testCreateCollectionFromInvalidIndex() {
         try {
-            CreateCollectionRequest createCollectionRequest = new CreateCollectionRequest().name(RandomStringBuilder.build("coll1-", 8)).source("invalid-index");
+            CreateCollectionRequest createCollectionRequest = new CreateCollectionRequest().name(RandomStringBuilder.build("coll1", 8)).source("invalid-index");
             controlPlaneClient.createCollection(createCollectionRequest);
         } catch (PineconeException exception) {
             assertTrue(exception.getMessage().contains("Resource invalid-index not found"));
@@ -71,7 +71,7 @@ public class CollectionErrorTest {
         try {
             CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().environment(environment).sourceCollection("non-existent-collection");
             CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(podSpec);
-            CreateIndexRequest newCreateIndexRequest = new CreateIndexRequest().name(RandomStringBuilder.build("from-nonexistent-coll-", 8)).dimension(3).metric(IndexMetric.COSINE).spec(spec);
+            CreateIndexRequest newCreateIndexRequest = new CreateIndexRequest().name(RandomStringBuilder.build("from-nonexistent-coll", 8)).dimension(3).metric(IndexMetric.COSINE).spec(spec);
             controlPlaneClient.createIndex(newCreateIndexRequest);
         } catch (PineconeException exception) {
             assertTrue(exception.getMessage().contains("Resource non-existent-collection not found"));
@@ -116,7 +116,6 @@ public class CollectionErrorTest {
             CreateIndexRequest createIndexRequest = new CreateIndexRequest().name(RandomStringBuilder.build("from-coll-", 8)).dimension(dimension + 1).metric(IndexMetric.COSINE).spec(spec);
             controlPlaneClient.createIndex(createIndexRequest);
         } catch (PineconeException exception) {
-            System.out.println("Exception: " + exception);
             assertTrue(exception.getMessage().contains("Index and collection must have the same dimension"));
         }
     }
@@ -136,5 +135,4 @@ public class CollectionErrorTest {
             assertTrue(exception.getMessage().contains("Source index is not ready"));
         }
     }
-
 }

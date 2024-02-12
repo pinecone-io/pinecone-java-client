@@ -6,15 +6,13 @@ import io.pinecone.proto.*;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.openapitools.client.ApiException;
 import org.openapitools.client.model.*;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
 import static io.pinecone.helpers.IndexManager.createNewIndexAndConnect;
-import static io.pinecone.helpers.IndexManager.isIndexReady;
+import static io.pinecone.helpers.IndexManager.waitUntilIndexIsReady;
 import static io.pinecone.helpers.IndexManager.createCollection;
 import static io.pinecone.helpers.BuildUpsertRequest.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -55,7 +53,7 @@ public class CollectionTest {
         String collectionName = RandomStringBuilder.build("collection-test", 8);
 
         // Create collection from index
-        CollectionModel collection = createCollection(controlPlaneClient, indexName, collectionName, true);
+        CollectionModel collection = createCollection(controlPlaneClient, collectionName, indexName, true);
 
         assertEquals(collection.getName(), collectionName);
         assertEquals(collection.getEnvironment(), environment);
@@ -87,7 +85,7 @@ public class CollectionTest {
         assertTrue(collection.getSize() > 0);
 
         // Create index from collection
-        String newIndexName = "index-from-collection-" + collectionName;
+        String newIndexName = RandomStringBuilder.build("index-from-col-", 5);
         System.out.println("Creating index " + newIndexName + " from collection " + collectionName);
 
         CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().environment(environment).sourceCollection(collectionName);
@@ -95,10 +93,12 @@ public class CollectionTest {
         CreateIndexRequest newCreateIndexRequest = new CreateIndexRequest().name(newIndexName).dimension(dimension).metric(indexMetric).spec(spec);
         IndexModel indexFromCollection = controlPlaneClient.createIndex(newCreateIndexRequest);
         System.out.println("Index " + newIndexName + " created from collection " + collectionName + ". Waiting until index is ready...");
-        isIndexReady(newIndexName, controlPlaneClient);
+        indexFromCollection = waitUntilIndexIsReady(controlPlaneClient, newIndexName);
+        System.out.println("Index " + newIndexName + " is ready");
 
         IndexModel indexDescription = controlPlaneClient.describeIndex(newIndexName);
         assertEquals(indexDescription.getName(), newIndexName);
+        assertEquals(indexDescription.getSpec().getPod().getSourceCollection(), collectionName);
         assertEquals(indexDescription.getStatus().getReady(), true);
 
         // Set up new index data plane connection
@@ -107,11 +107,11 @@ public class CollectionTest {
         DescribeIndexStatsResponse describeResponse = newIndexDataPlaneClient.getBlockingStub().describeIndexStats(DescribeIndexStatsRequest.newBuilder().build());
 
         // Verify stats reflect the vectors in the collection
-        System.out.println("Index " + newIndexName + " stats: " + describeResponse);
         assertEquals(describeResponse.getTotalVectorCount(), 3);
 
         // Verify the vectors from the collection -> new index can be fetched
         FetchResponse fetchedVectors = newIndexDataPlaneClient.getBlockingStub().fetch(FetchRequest.newBuilder().addAllIds(upsertIds).setNamespace(namespace).build());
+        newIndexDataPlaneClient.close();
 
         for (String key : upsertIds) {
             assert (fetchedVectors.containsVectors(key));
@@ -119,7 +119,9 @@ public class CollectionTest {
 
         // Verify we can delete the collection
         controlPlaneClient.deleteCollection(collectionName);
+        Thread.sleep(2500);
         collections = controlPlaneClient.listCollections().getCollections();
+
 
         if (collections != null) {
             boolean isCollectionDeleted = true;
@@ -134,10 +136,9 @@ public class CollectionTest {
                 fail("Collection " + collectionName + " was not successfully deleted");
             }
         }
+
         // Clean up
         controlPlaneClient.deleteIndex(newIndexName);
-        controlPlaneClient.deleteCollection(collectionName);
-        newIndexDataPlaneClient.close();
     }
 
     @Test
@@ -145,7 +146,7 @@ public class CollectionTest {
         String collectionName = RandomStringBuilder.build("collection-test", 8);
 
         // Create collection from index
-        CollectionModel collection = createCollection(controlPlaneClient, indexName, collectionName, true);
+        CollectionModel collection = createCollection(controlPlaneClient, collectionName, indexName, true);
 
         assertEquals(collection.getName(), collectionName);
         assertEquals(collection.getEnvironment(), environment);
@@ -159,13 +160,14 @@ public class CollectionTest {
             }
         }
 
-        String indexName = RandomStringBuilder.build("from-coll-", 8);
+        String newIndexName = RandomStringBuilder.build("from-coll", 8);
         CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().environment(environment).sourceCollection(collectionName);
         CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(podSpec);
-        PineconeConnection dataPlaneConnection = createNewIndexAndConnect(controlPlaneClient, indexName, dimension, targetMetric, spec);
+        PineconeConnection dataPlaneConnection = createNewIndexAndConnect(controlPlaneClient, newIndexName, dimension, targetMetric, spec);
         VectorServiceGrpc.VectorServiceBlockingStub blockingStub = dataPlaneConnection.getBlockingStub();
 
-        controlPlaneClient.deleteIndex(indexName);
+        controlPlaneClient.deleteIndex(newIndexName);
+        controlPlaneClient.deleteCollection(collectionName);
         dataPlaneConnection.close();
     }
 
