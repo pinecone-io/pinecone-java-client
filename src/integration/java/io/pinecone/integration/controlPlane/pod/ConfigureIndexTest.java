@@ -27,7 +27,7 @@ public class ConfigureIndexTest {
     @BeforeAll
     public static void defineControlPlaneClient() throws InterruptedException {
         controlPlaneClient = new PineconeControlPlaneClient(System.getenv("PINECONE_API_KEY"));
-        IndexModel index = createIndexIfNotExistsControlPlane(controlPlaneClient, 5, IndexModelSpec.SERIALIZED_NAME_POD, false);
+        IndexModel index = createIndexIfNotExistsControlPlane(controlPlaneClient, 5, IndexModelSpec.SERIALIZED_NAME_POD, true);
         indexName = index.getName();
     }
 

@@ -99,7 +99,7 @@ public class CollectionTest {
         assertEquals(indexDescription.getName(), newIndexName);
         assertEquals(indexDescription.getSpec().getPod().getSourceCollection(), collectionName);
         assertEquals(indexDescription.getStatus().getReady(), true);
-        Thread.sleep(2500);
+        Thread.sleep(5000);
 
         // Set up new index data plane connection
         PineconeClient newIndexClient = new PineconeClient(new PineconeClientConfig().withApiKey(apiKey).withEnvironment(environment));
