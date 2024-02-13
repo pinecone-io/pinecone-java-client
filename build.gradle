@@ -135,7 +135,7 @@ task integrationTest(type: Test) {
 
     testLogging {
         events = [TestLogEvent.FAILED, TestLogEvent.PASSED, TestLogEvent.SKIPPED]
-        exceptionFormat = TestExceptionFormat.FULL
+        exceptionFormat = TestExceptionFormat.SHORT
         showExceptions = true
         showCauses = true
         showStackTraces = true
@@ -148,7 +148,7 @@ task integrationTest(type: Test) {
                     TestLogEvent.SKIPPED,
                     TestLogEvent.STANDARD_ERROR
             ]
-            exceptionFormat = TestExceptionFormat.FULL
+            exceptionFormat = TestExceptionFormat.SHORT
         }
 
         afterSuite { desc, result ->
