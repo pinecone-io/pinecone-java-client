@@ -146,6 +146,7 @@ task integrationTest(type: Test) {
                     TestLogEvent.FAILED,
                     TestLogEvent.PASSED,
                     TestLogEvent.SKIPPED,
+                    TestLogEvent.STANDARD_OUT
             ]
             exceptionFormat = TestExceptionFormat.SHORT
         }
