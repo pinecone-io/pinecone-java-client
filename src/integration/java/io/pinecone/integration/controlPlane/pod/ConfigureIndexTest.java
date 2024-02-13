@@ -21,17 +21,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ConfigureIndexTest {
     private static PineconeControlPlaneClient controlPlaneClient;
-    private String indexName;
+    private static String indexName;
     private static final Logger logger = LoggerFactory.getLogger(PineconeClientLiveIntegTest.class);
 
     @BeforeAll
-    public static void defineControlPlaneClient() {
+    public static void defineControlPlaneClient() throws InterruptedException {
         controlPlaneClient = new PineconeControlPlaneClient(System.getenv("PINECONE_API_KEY"));
+        indexName = createIndexIfNotExistsControlPlane(controlPlaneClient, 5, IndexModelSpec.SERIALIZED_NAME_POD, false);
     }
 
-    @BeforeEach
-    public void setUp() throws ApiException, InterruptedException {
-        indexName = createIndexIfNotExistsControlPlane(controlPlaneClient, 5, IndexModelSpec.SERIALIZED_NAME_POD, false);
+    @AfterAll
+    public static void cleanUp() {
+        controlPlaneClient.deleteIndex(indexName);
     }
 
     @Test
@@ -63,8 +64,7 @@ public class ConfigureIndexTest {
     }
 
     @Test
-    public void scaleUpAndDown() {
-        try {
+    public void scaleUpAndDown() throws InterruptedException {
             // Verify the starting state
             IndexModel indexModel = isIndexReady(indexName, controlPlaneClient);
             assert indexModel.getSpec().getPod() != null;
@@ -84,7 +84,7 @@ public class ConfigureIndexTest {
             });
 
             // Scaling down
-            pod = new ConfigureIndexRequestSpecPod().replicas(3);
+            pod = new ConfigureIndexRequestSpecPod().replicas(1);
             spec = new ConfigureIndexRequestSpec().pod(pod);
             configureIndexRequest = new ConfigureIndexRequest().spec(spec);
             controlPlaneClient.configureIndex(indexName, configureIndexRequest);
@@ -95,9 +95,6 @@ public class ConfigureIndexTest {
                 assert (podSpec != null);
                 assertEquals(podSpec.getReplicas(), 1);
             });
-        } catch (Exception exception) {
-            throw new PineconeException("Test failed: " + exception.getStackTrace());
-        }
     }
 
     @Test
@@ -156,10 +153,6 @@ public class ConfigureIndexTest {
 
         } catch (Exception exception) {
             logger.error(exception.getLocalizedMessage());
-        } finally {
-            // Delete this index since it'll be unused for future tests
-            controlPlaneClient.deleteIndex(indexName);
-            Thread.sleep(3500);
         }
     }
 }
