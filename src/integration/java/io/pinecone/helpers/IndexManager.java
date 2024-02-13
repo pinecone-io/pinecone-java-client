@@ -40,7 +40,7 @@ public class IndexManager {
         String indexName = RandomStringBuilder.build("index-name", 8);
         IndexModel index = findIndex(controlPlaneClient, indexName);
 
-        return (indexName.isEmpty()) ? createNewIndex(controlPlaneClient, indexName, indexType, dimension, waitUntilReady) : indexName;
+        return (index == null) ? createNewIndex(controlPlaneClient, indexName, indexType, dimension, waitUntilReady) : index;
     }
 
     private static String findIndexWithDimensionAndType(IndexList indexList, int dimension, PineconeControlPlaneClient controlPlaneClient, String indexType)
