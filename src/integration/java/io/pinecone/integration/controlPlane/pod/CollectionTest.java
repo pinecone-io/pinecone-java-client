@@ -91,9 +91,9 @@ public class CollectionTest {
         CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().environment(environment).sourceCollection(collectionName);
         CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(podSpec);
         CreateIndexRequest newCreateIndexRequest = new CreateIndexRequest().name(newIndexName).dimension(dimension).metric(indexMetric).spec(spec);
-        IndexModel indexFromCollection = controlPlaneClient.createIndex(newCreateIndexRequest);
+        controlPlaneClient.createIndex(newCreateIndexRequest);
         System.out.println("Index " + newIndexName + " created from collection " + collectionName + ". Waiting until index is ready...");
-        indexFromCollection = waitUntilIndexIsReady(controlPlaneClient, newIndexName);
+        waitUntilIndexIsReady(controlPlaneClient, newIndexName);
 
         IndexModel indexDescription = controlPlaneClient.describeIndex(newIndexName);
         assertEquals(indexDescription.getName(), newIndexName);
@@ -103,7 +103,7 @@ public class CollectionTest {
 
         // Set up new index data plane connection
         PineconeClient newIndexClient = new PineconeClient(new PineconeClientConfig().withApiKey(apiKey).withEnvironment(environment));
-        PineconeConnection newIndexDataPlaneClient = newIndexClient.connect(new PineconeConnectionConfig().withConnectionUrl("https://" + indexFromCollection.getHost()));
+        PineconeConnection newIndexDataPlaneClient = newIndexClient.connect(new PineconeConnectionConfig().withConnectionUrl("https://" + indexDescription.getHost()));
         VectorServiceGrpc.VectorServiceBlockingStub newIndexBlockingStub = newIndexDataPlaneClient.getBlockingStub();
         DescribeIndexStatsResponse describeResponse = newIndexBlockingStub.describeIndexStats(DescribeIndexStatsRequest.newBuilder().build());
 
