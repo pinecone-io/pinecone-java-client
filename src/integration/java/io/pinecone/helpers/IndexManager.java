@@ -81,7 +81,7 @@ public class IndexManager {
         controlPlaneClient.createIndex(createIndexRequest);
 
         if (waitUntilReady) {
-            waitUntilIndexIsReady(controlPlaneClient, indexName);
+            waitUntilIndexIsReady(controlPlaneClient, indexName, 200000);
         }
 
         return indexName;
@@ -92,7 +92,7 @@ public class IndexManager {
         controlPlaneClient.createIndex(createIndexRequest);
 
         // Wait until index is ready
-        waitUntilIndexIsReady(controlPlaneClient, indexName);
+        waitUntilIndexIsReady(controlPlaneClient, indexName, 200000);
         String host = controlPlaneClient.describeIndex(indexName).getHost();
 
         PineconeClientConfig specificConfig = new PineconeClientConfig().withApiKey(System.getenv("PINECONE_API_KEY")).withEnvironment(System.getenv("PINECONE_ENVIRONMENT"));
