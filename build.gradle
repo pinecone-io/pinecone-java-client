@@ -134,7 +134,7 @@ task integrationTest(type: Test) {
     outputs.upToDateWhen { false }
 
     testLogging {
-        events = [TestLogEvent.FAILED, TestLogEvent.PASSED, TestLogEvent.SKIPPED, TestLogEvent.STANDARD_OUT]
+        events = [TestLogEvent.FAILED, TestLogEvent.PASSED, TestLogEvent.SKIPPED]
         exceptionFormat = TestExceptionFormat.FULL
         showExceptions = true
         showCauses = true
@@ -146,8 +146,7 @@ task integrationTest(type: Test) {
                     TestLogEvent.FAILED,
                     TestLogEvent.PASSED,
                     TestLogEvent.SKIPPED,
-                    TestLogEvent.STANDARD_ERROR,
-                    TestLogEvent.STANDARD_OUT
+                    TestLogEvent.STANDARD_ERROR
             ]
             exceptionFormat = TestExceptionFormat.FULL
         }

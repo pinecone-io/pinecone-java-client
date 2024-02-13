@@ -152,10 +152,11 @@ public class CollectionTest {
         assertEquals(collection.getEnvironment(), environment);
         assertEquals(collection.getStatus(), CollectionModel.StatusEnum.READY);
 
+        // Use a different metric than the source index
         IndexMetric[] metrics = { IndexMetric.COSINE, IndexMetric.EUCLIDEAN, IndexMetric.DOTPRODUCT };
         IndexMetric targetMetric = IndexMetric.COSINE;
         for (IndexMetric metric : metrics) {
-            if (!metric.equals(targetMetric)) {
+            if (!metric.equals(indexMetric)) {
                 targetMetric = metric;
             }
         }
@@ -164,8 +165,12 @@ public class CollectionTest {
         CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().environment(environment).sourceCollection(collectionName);
         CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(podSpec);
         PineconeConnection dataPlaneConnection = createNewIndexAndConnect(controlPlaneClient, newIndexName, dimension, targetMetric, spec);
-        VectorServiceGrpc.VectorServiceBlockingStub blockingStub = dataPlaneConnection.getBlockingStub();
 
+        IndexModel newIndex = controlPlaneClient.describeIndex(newIndexName);
+        assertEquals(newIndex.getName(), newIndexName);
+        assertEquals(newIndex.getMetric(), targetMetric);
+
+        // Clean up
         controlPlaneClient.deleteIndex(newIndexName);
         controlPlaneClient.deleteCollection(collectionName);
         dataPlaneConnection.close();

@@ -5,8 +5,6 @@ import io.pinecone.PineconeControlPlaneClient;
 import io.pinecone.exceptions.PineconeException;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.VectorServiceGrpc;
-import net.bytebuddy.utility.RandomString;
-import org.junit.Ignore;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Disabled;
 import org.openapitools.client.model.*;
@@ -14,13 +12,13 @@ import org.openapitools.client.model.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
 import static io.pinecone.helpers.IndexManager.createNewIndexAndConnect;
 import static io.pinecone.helpers.IndexManager.createCollection;
+import static io.pinecone.helpers.IndexManager.waitUntilIndexIsReady;
 import static io.pinecone.helpers.BuildUpsertRequest.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -121,9 +119,9 @@ public class CollectionErrorTest {
     }
 
     @Test
-    public void testCreateCollectionFromNotReadyIndex() {
+    public void testCreateCollectionFromNotReadyIndex() throws InterruptedException {
+        String notReadyIndexName = RandomStringBuilder.build("from-coll4", 8);
         try {
-            String notReadyIndexName = RandomStringBuilder.build("from-coll4", 8);
             CreateIndexRequestSpecPod specPod = new CreateIndexRequestSpecPod().pods(1).podType("p1.x1").replicas(1).environment(environment);
             CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(specPod);
             CreateIndexRequest createIndexRequest = new CreateIndexRequest().name(notReadyIndexName).dimension(dimension).metric(IndexMetric.COSINE).spec(spec);
@@ -133,6 +131,10 @@ public class CollectionErrorTest {
             controlPlaneClient.createCollection(createCollectionRequest);
         } catch (PineconeException exception) {
             assertTrue(exception.getMessage().contains("Source index is not ready"));
+
+            // Wait for index to initialize and clean up
+            waitUntilIndexIsReady(controlPlaneClient, notReadyIndexName);
+            controlPlaneClient.deleteIndex(notReadyIndexName);
         }
     }
 }
