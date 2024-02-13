@@ -94,7 +94,6 @@ public class CollectionTest {
         IndexModel indexFromCollection = controlPlaneClient.createIndex(newCreateIndexRequest);
         System.out.println("Index " + newIndexName + " created from collection " + collectionName + ". Waiting until index is ready...");
         indexFromCollection = waitUntilIndexIsReady(controlPlaneClient, newIndexName);
-        System.out.println("Index " + newIndexName + " is ready");
 
         IndexModel indexDescription = controlPlaneClient.describeIndex(newIndexName);
         assertEquals(indexDescription.getName(), newIndexName);

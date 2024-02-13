@@ -146,9 +146,11 @@ task integrationTest(type: Test) {
                     TestLogEvent.FAILED,
                     TestLogEvent.PASSED,
                     TestLogEvent.SKIPPED,
+                    TestLogEvent.STANDARD_ERROR,
                     TestLogEvent.STANDARD_OUT
             ]
-            exceptionFormat = TestExceptionFormat.SHORT
+            exceptionFormat = TestExceptionFormat.FULL
+
         }
 
         afterSuite { desc, result ->
