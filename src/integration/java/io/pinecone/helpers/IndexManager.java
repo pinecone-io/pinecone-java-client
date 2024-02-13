@@ -163,7 +163,6 @@ public class IndexManager {
             timeWaited += 5000;
             collection = controlPlaneClient.describeCollection(collectionName);
             collectionReady = collection.getStatus();
-            System.out.println("Collection Ready? " + collectionReady);
         }
 
         if (timeWaited > 120000) {
