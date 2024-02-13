@@ -85,7 +85,7 @@ public class CollectionTest {
         assertTrue(collection.getSize() > 0);
 
         // Create index from collection
-        String newIndexName = RandomStringBuilder.build("index-from-col-", 5);
+        String newIndexName = RandomStringBuilder.build("index-from-col", 5);
         System.out.println("Creating index " + newIndexName + " from collection " + collectionName);
 
         CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().environment(environment).sourceCollection(collectionName);

@@ -135,8 +135,8 @@ public class IndexManager {
                 break;
             }
             if (index.getStatus().getReady()) {
-                Thread.sleep(2500);
-                System.out.println("Index " + indexName + " is ready after " + waitedTimeMs + "ms");
+                Thread.sleep(10000);
+                System.out.println("Index " + indexName + " is ready after " + waitedTimeMs + 10000 + "ms");
                 break;
             }
             Thread.sleep(intervalMs);
