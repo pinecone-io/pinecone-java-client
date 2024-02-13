@@ -99,17 +99,19 @@ public class CollectionTest {
         assertEquals(indexDescription.getName(), newIndexName);
         assertEquals(indexDescription.getSpec().getPod().getSourceCollection(), collectionName);
         assertEquals(indexDescription.getStatus().getReady(), true);
+        Thread.sleep(2500);
 
         // Set up new index data plane connection
         PineconeClient newIndexClient = new PineconeClient(new PineconeClientConfig().withApiKey(apiKey).withEnvironment(environment));
         PineconeConnection newIndexDataPlaneClient = newIndexClient.connect(new PineconeConnectionConfig().withConnectionUrl("https://" + indexFromCollection.getHost()));
-        DescribeIndexStatsResponse describeResponse = newIndexDataPlaneClient.getBlockingStub().describeIndexStats(DescribeIndexStatsRequest.newBuilder().build());
+        VectorServiceGrpc.VectorServiceBlockingStub newIndexBlockingStub = newIndexDataPlaneClient.getBlockingStub();
+        DescribeIndexStatsResponse describeResponse = newIndexBlockingStub.describeIndexStats(DescribeIndexStatsRequest.newBuilder().build());
 
         // Verify stats reflect the vectors in the collection
         assertEquals(describeResponse.getTotalVectorCount(), 3);
 
         // Verify the vectors from the collection -> new index can be fetched
-        FetchResponse fetchedVectors = newIndexDataPlaneClient.getBlockingStub().fetch(FetchRequest.newBuilder().addAllIds(upsertIds).setNamespace(namespace).build());
+        FetchResponse fetchedVectors = newIndexBlockingStub.fetch(FetchRequest.newBuilder().addAllIds(upsertIds).setNamespace(namespace).build());
         newIndexDataPlaneClient.close();
 
         for (String key : upsertIds) {

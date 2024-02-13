@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
@@ -29,7 +30,6 @@ public class CollectionErrorTest {
     private static final List<String> upsertIds = Arrays.asList("v1", "v2", "v3");
     private static final int dimension = 3;
     private static final String collectionName = RandomStringBuilder.build("reusable-coll", 8);
-    private static CollectionModel collection;
     private static PineconeControlPlaneClient controlPlaneClient;
 
     @BeforeAll
@@ -46,7 +46,7 @@ public class CollectionErrorTest {
         dataPlaneConnection.close();
 
         // Create collection from index
-        collection = createCollection(controlPlaneClient, collectionName, indexName, true);
+        createCollection(controlPlaneClient, collectionName, indexName, true);
     }
 
     @AfterAll
@@ -78,24 +78,25 @@ public class CollectionErrorTest {
 
     @Test
     public void testCreateIndexInMismatchedEnvironment() {
-        List<String> environments = Arrays.asList(
-                "eastus-azure",
-                "eu-west4-gcp",
-                "northamerica-northeast1-gcp",
-                "us-central1-gcp",
-                "us-west4-gcp",
-                "asia-southeast1-gcp",
-                "us-east-1-aws",
-                "asia-northeast1-gcp",
-                "eu-west1-gcp",
-                "eu-east1-gcp",
-                "eu-east4-gcp",
-                "us-west1-gcp"
-        );
-        environments.remove(collection.getEnvironment());
-        String mismatchedEnv = environments.get(new Random().nextInt(environments.size()));
-
         try {
+            List<String> environments = new LinkedList<>(Arrays.asList(
+                    "eastus-azure",
+                    "eu-west4-gcp",
+                    "northamerica-northeast1-gcp",
+                    "us-central1-gcp",
+                    "us-west4-gcp",
+                    "asia-southeast1-gcp",
+                    "us-east-1-aws",
+                    "asia-northeast1-gcp",
+                    "eu-west1-gcp",
+                    "eu-east1-gcp",
+                    "eu-east4-gcp",
+                    "us-west1-gcp"
+            ));
+            CollectionModel collection = controlPlaneClient.describeCollection(collectionName);
+            environments.remove(collection.getEnvironment());
+            String mismatchedEnv = environments.get(new Random().nextInt(environments.size()));
+
             CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().sourceCollection(collection.getName()).environment(mismatchedEnv);
             CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(podSpec);
             CreateIndexRequest createIndexRequest = new CreateIndexRequest().name(RandomStringBuilder.build("from-coll-", 8)).dimension(dimension).metric(IndexMetric.COSINE).spec(spec);
@@ -109,6 +110,7 @@ public class CollectionErrorTest {
     @Disabled("Bug reported in #global-cps")
     public void testCreateIndexWithMismatchedDimension() {
         try {
+            CollectionModel collection = controlPlaneClient.describeCollection(collectionName);
             CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().sourceCollection(collection.getName()).environment(collection.getEnvironment());
             CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(podSpec);
             CreateIndexRequest createIndexRequest = new CreateIndexRequest().name(RandomStringBuilder.build("from-coll-", 8)).dimension(dimension + 1).metric(IndexMetric.COSINE).spec(spec);
