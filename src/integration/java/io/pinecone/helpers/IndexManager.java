@@ -15,8 +15,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class IndexManager {
     private static PineconeClientConfig config;
 
-    public static PineconeConnection createIndexIfNotExistsDataPlane(int dimension, String indexType) throws InterruptedException, PineconeException {
-        String indexName = RandomStringBuilder.build("index-name", 8);
+    public static PineconeConnection createIndexIfNotExistsDataPlane(String indexName, int dimension, String indexType) throws InterruptedException, PineconeException {
         String apiKey = System.getenv("PINECONE_API_KEY");
         String environment = System.getenv("PINECONE_ENVIRONMENT");
         config = new PineconeClientConfig().withApiKey(apiKey).withEnvironment(environment);
@@ -135,8 +134,8 @@ public class IndexManager {
                 break;
             }
             if (index.getStatus().getReady()) {
-                Thread.sleep(10000);
-                System.out.println("Index " + indexName + " is ready after " + waitedTimeMs + 10000 + "ms");
+                Thread.sleep(3000);
+                System.out.println("Index " + indexName + " is ready after " + waitedTimeMs + 3000 + "ms");
                 break;
             }
             Thread.sleep(intervalMs);

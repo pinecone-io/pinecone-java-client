@@ -4,8 +4,10 @@ import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
 import io.grpc.StatusRuntimeException;
 import io.pinecone.PineconeConnection;
+import io.pinecone.PineconeControlPlaneClient;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.*;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.ApiException;
@@ -22,15 +24,25 @@ import static io.pinecone.helpers.IndexManager.createIndexIfNotExistsDataPlane;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class UpdateAndQueryTest {
+
+    private static PineconeControlPlaneClient controlPlaneClient;
+    private static final String indexName = RandomStringBuilder.build("index-name", 8);
+    private static final String apiKey = System.getenv("PINECONE_API_KEY");
     private static VectorServiceGrpc.VectorServiceBlockingStub blockingStub;
     private static VectorServiceGrpc.VectorServiceFutureStub futureStub;
     private static final int dimension = 3;
 
     @BeforeAll
     public static void setUp() throws ApiException, InterruptedException {
-        PineconeConnection connection = createIndexIfNotExistsDataPlane(dimension, IndexModelSpec.SERIALIZED_NAME_POD);
+        controlPlaneClient = new PineconeControlPlaneClient(apiKey);
+        PineconeConnection connection = createIndexIfNotExistsDataPlane(indexName, dimension, IndexModelSpec.SERIALIZED_NAME_POD);
         blockingStub = connection.getBlockingStub();
         futureStub = connection.getFutureStub();
+    }
+
+    @AfterAll
+    public static void cleanUp() {
+        controlPlaneClient.deleteIndex(indexName);
     }
 
     @Test

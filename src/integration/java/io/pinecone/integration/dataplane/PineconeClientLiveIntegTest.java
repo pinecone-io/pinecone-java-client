@@ -4,8 +4,10 @@ import com.google.common.primitives.Floats;
 import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
 import io.pinecone.PineconeConnection;
+import io.pinecone.PineconeControlPlaneClient;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.*;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -24,13 +26,22 @@ import static io.pinecone.helpers.AssertRetry.assertWithRetry;
 
 public class PineconeClientLiveIntegTest {
 
+    private static PineconeControlPlaneClient controlPlaneClient;
+    private static final String indexName = RandomStringBuilder.build("index-name", 8);
+    private static final String apiKey = System.getenv("PINECONE_API_KEY");
     private static final Logger logger = LoggerFactory.getLogger(PineconeClientLiveIntegTest.class);
     private static VectorServiceGrpc.VectorServiceBlockingStub blockingStub;
 
     @BeforeAll
     public static void defineConfig() throws ApiException, InterruptedException {
-        PineconeConnection connection = createIndexIfNotExistsDataPlane(3, IndexModelSpec.SERIALIZED_NAME_POD);
+        controlPlaneClient = new PineconeControlPlaneClient(apiKey);
+        PineconeConnection connection = createIndexIfNotExistsDataPlane(indexName, 3, IndexModelSpec.SERIALIZED_NAME_POD);
         blockingStub = connection.getBlockingStub();
+    }
+
+    @AfterAll
+    public static void cleanUp() {
+        controlPlaneClient.deleteIndex(indexName);
     }
 
     @Test
