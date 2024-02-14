@@ -46,7 +46,7 @@ public class CollectionErrorTest {
 
         // Upsert vectors to index and sleep for freshness
         blockingStub.upsert(buildRequiredUpsertRequestByDimension(upsertIds, dimension, ""));
-
+        dataPlaneConnection.close();
         Thread.sleep(3500);
 
         // Create collection from index
@@ -108,7 +108,7 @@ public class CollectionErrorTest {
 
             CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().sourceCollection(collection.getName()).environment(mismatchedEnv);
             CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(podSpec);
-            CreateIndexRequest createIndexRequest = new CreateIndexRequest().name(RandomStringBuilder.build("from-coll-", 8)).dimension(dimension).metric(IndexMetric.COSINE).spec(spec);
+            CreateIndexRequest createIndexRequest = new CreateIndexRequest().name(RandomStringBuilder.build("from-coll", 8)).dimension(dimension).metric(IndexMetric.COSINE).spec(spec);
             controlPlaneClient.createIndex(createIndexRequest);
         } catch (PineconeException exception) {
             assertTrue(exception.getMessage().contains("Source collection must be in the same environment as the index"));
@@ -122,7 +122,7 @@ public class CollectionErrorTest {
             CollectionModel collection = controlPlaneClient.describeCollection(collectionName);
             CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().sourceCollection(collection.getName()).environment(collection.getEnvironment());
             CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(podSpec);
-            CreateIndexRequest createIndexRequest = new CreateIndexRequest().name(RandomStringBuilder.build("from-coll-", 8)).dimension(dimension + 1).metric(IndexMetric.COSINE).spec(spec);
+            CreateIndexRequest createIndexRequest = new CreateIndexRequest().name(RandomStringBuilder.build("from-coll", 8)).dimension(dimension + 1).metric(IndexMetric.COSINE).spec(spec);
             controlPlaneClient.createIndex(createIndexRequest);
         } catch (PineconeException exception) {
             assertTrue(exception.getMessage().contains("Index and collection must have the same dimension"));
