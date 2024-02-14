@@ -131,18 +131,20 @@ public class IndexManager {
         assertEquals(collection.getStatus(), CollectionModel.StatusEnum.INITIALIZING);
 
         // Wait until collection is ready
-        int timeWaited = 0;
-        CollectionModel.StatusEnum collectionReady = collection.getStatus();
-        while (collectionReady != CollectionModel.StatusEnum.READY && timeWaited < 120000) {
-            System.out.println("Waiting for collection" + collectionName + " to be ready. Waited " + timeWaited + " milliseconds...");
-            Thread.sleep(5000);
-            timeWaited += 5000;
-            collection = controlPlaneClient.describeCollection(collectionName);
-            collectionReady = collection.getStatus();
-        }
+        if (waitUntilReady) {
+            int timeWaited = 0;
+            CollectionModel.StatusEnum collectionReady = collection.getStatus();
+            while (collectionReady != CollectionModel.StatusEnum.READY && timeWaited < 120000) {
+                System.out.println("Waiting for collection" + collectionName + " to be ready. Waited " + timeWaited + " milliseconds...");
+                Thread.sleep(5000);
+                timeWaited += 5000;
+                collection = controlPlaneClient.describeCollection(collectionName);
+                collectionReady = collection.getStatus();
+            }
 
-        if (timeWaited > 120000) {
-            fail("Collection: " + collectionName + " is not ready after 120 seconds");
+            if (timeWaited > 120000) {
+                fail("Collection: " + collectionName + " is not ready after 120 seconds");
+            }
         }
 
         return collection;

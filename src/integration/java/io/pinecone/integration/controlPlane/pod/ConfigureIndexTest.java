@@ -79,7 +79,7 @@ public class ConfigureIndexTest {
             });
 
             // Scaling down
-            pod = new ConfigureIndexRequestSpecPod().replicas(3);
+            pod = new ConfigureIndexRequestSpecPod().replicas(1);
             spec = new ConfigureIndexRequestSpec().pod(pod);
             configureIndexRequest = new ConfigureIndexRequest().spec(spec);
             controlPlaneClient.configureIndex(indexName, configureIndexRequest);

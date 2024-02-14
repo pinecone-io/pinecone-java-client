@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -27,9 +28,11 @@ public class CollectionErrorTest {
     private static final String apiKey = System.getenv("PINECONE_API_KEY");
     private static final String environment = System.getenv("PINECONE_ENVIRONMENT");
     private static final String indexName = RandomStringBuilder.build("collection-error-test", 8);
+    private static final String collectionName = RandomStringBuilder.build("reusable-coll", 8);
+    private static ArrayList<String> indexes = new ArrayList<>();
+    private static ArrayList<String> collections = new ArrayList<>();
     private static final List<String> upsertIds = Arrays.asList("v1", "v2", "v3");
     private static final int dimension = 4;
-    private static final String collectionName = RandomStringBuilder.build("reusable-coll", 8);
     private static PineconeControlPlaneClient controlPlaneClient;
 
     @BeforeAll
@@ -39,6 +42,7 @@ public class CollectionErrorTest {
         CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(podSpec);
         PineconeConnection dataPlaneConnection = createNewIndexAndConnect(controlPlaneClient, indexName, dimension, IndexMetric.COSINE, spec);
         VectorServiceGrpc.VectorServiceBlockingStub blockingStub = dataPlaneConnection.getBlockingStub();
+        indexes.add(indexName);
 
         // Upsert vectors to index and sleep for freshness
         blockingStub.upsert(buildRequiredUpsertRequestByDimension(upsertIds, dimension, ""));
@@ -47,12 +51,17 @@ public class CollectionErrorTest {
 
         // Create collection from index
         createCollection(controlPlaneClient, collectionName, indexName, true);
+        collections.add(collectionName);
     }
 
     @AfterAll
     public static void cleanUp() {
-        controlPlaneClient.deleteIndex(indexName);
-        controlPlaneClient.deleteCollection(collectionName);
+        for (String index : indexes) {
+            controlPlaneClient.deleteIndex(index);
+        }
+        for (String collection : collections) {
+            controlPlaneClient.deleteCollection(collection);
+        }
     }
 
     @Test
@@ -123,20 +132,21 @@ public class CollectionErrorTest {
     @Test
     public void testCreateCollectionFromNotReadyIndex() throws InterruptedException {
         String notReadyIndexName = RandomStringBuilder.build("from-coll4", 8);
+        String newCollectionName = RandomStringBuilder.build("coll4-", 8);
         try {
             CreateIndexRequestSpecPod specPod = new CreateIndexRequestSpecPod().pods(1).podType("p1.x1").replicas(1).environment(environment);
             CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(specPod);
             CreateIndexRequest createIndexRequest = new CreateIndexRequest().name(notReadyIndexName).dimension(dimension).metric(IndexMetric.COSINE).spec(spec);
             controlPlaneClient.createIndex(createIndexRequest);
+            indexes.add(notReadyIndexName);
 
-            CreateCollectionRequest createCollectionRequest = new CreateCollectionRequest().name(RandomStringBuilder.build("coll4-", 8)).source(notReadyIndexName);
-            controlPlaneClient.createCollection(createCollectionRequest);
+            createCollection(controlPlaneClient, newCollectionName, notReadyIndexName, true);
+            collections.add(newCollectionName);
         } catch (PineconeException exception) {
             assert (exception.getMessage().contains("Source index is not ready"));
         } finally {
-            // Wait for index to initialize and clean up
+            // Wait for index to initialize so it can be deleted in @AfterAll
             waitUntilIndexIsReady(controlPlaneClient, notReadyIndexName);
-            controlPlaneClient.deleteIndex(notReadyIndexName);
         }
     }
 }

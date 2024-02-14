@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.model.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -21,6 +22,8 @@ public class CollectionTest {
 
     private static PineconeControlPlaneClient controlPlaneClient;
     private static final String indexName = RandomStringBuilder.build("collection-test", 8);
+    private static ArrayList<String> indexes = new ArrayList<>();
+    private static ArrayList<String> collections = new ArrayList<>();
     private static final IndexMetric indexMetric = IndexMetric.COSINE;
     private static final List<String> upsertIds = Arrays.asList("v1", "v2", "v3");
     private static final String namespace = RandomStringBuilder.build("ns", 8);
@@ -29,12 +32,13 @@ public class CollectionTest {
     private static final int dimension = 4;
 
     @BeforeAll
-    public static void setUpIndex() throws InterruptedException {
+    public static void setUp() throws InterruptedException {
         controlPlaneClient = new PineconeControlPlaneClient(apiKey);
         CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().pods(1).podType("p1.x1").replicas(1).environment(environment);
         CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(podSpec);
         PineconeConnection dataPlaneConnection = createNewIndexAndConnect(controlPlaneClient, indexName, dimension, indexMetric, spec);
         VectorServiceGrpc.VectorServiceBlockingStub blockingStub = dataPlaneConnection.getBlockingStub();
+        indexes.add(indexName);
 
         // Upsert vectors to index and sleep for freshness
         blockingStub.upsert(buildRequiredUpsertRequestByDimension(upsertIds, dimension, namespace));
@@ -42,9 +46,16 @@ public class CollectionTest {
     }
 
     @AfterAll
-    public static void deleteIndex() throws InterruptedException {
-        Thread.sleep(5000);
-        controlPlaneClient.deleteIndex(indexName);
+    public static void cleanUp() throws InterruptedException {
+        Thread.sleep(3500);
+        // Clean up indexes
+        for (String index : indexes) {
+            controlPlaneClient.deleteIndex(index);
+        }
+        // Clean up collections
+        for (String collection : collections) {
+            controlPlaneClient.deleteCollection(collection);
+        }
     }
 
     @Test
@@ -53,16 +64,17 @@ public class CollectionTest {
 
         // Create collection from index
         CollectionModel collection = createCollection(controlPlaneClient, collectionName, indexName, true);
+        collections.add(collectionName);
 
         assertEquals(collection.getName(), collectionName);
         assertEquals(collection.getEnvironment(), environment);
         assertEquals(collection.getStatus(), CollectionModel.StatusEnum.READY);
 
         // Verify collection is listed
-        List<CollectionModel> collections = controlPlaneClient.listCollections().getCollections();
+        List<CollectionModel> collectionList = controlPlaneClient.listCollections().getCollections();
         boolean collectionFound = false;
-        if (collections != null && !collections.isEmpty()) {
-            for (CollectionModel col : collections) {
+        if (collectionList != null && !collectionList.isEmpty()) {
+            for (CollectionModel col : collectionList) {
                 if (col.getName().equals(collectionName)) {
                     collectionFound = true;
                     break;
@@ -91,6 +103,7 @@ public class CollectionTest {
         CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(podSpec);
         CreateIndexRequest newCreateIndexRequest = new CreateIndexRequest().name(newIndexName).dimension(dimension).metric(indexMetric).spec(spec);
         controlPlaneClient.createIndex(newCreateIndexRequest);
+        indexes.add(newIndexName);
         System.out.println("Index " + newIndexName + " created from collection " + collectionName + ". Waiting until index is ready...");
         waitUntilIndexIsReady(controlPlaneClient, newIndexName, 200000);
 
@@ -111,7 +124,6 @@ public class CollectionTest {
 
         // Verify the vectors from the collection -> new index can be fetched
         FetchResponse fetchedVectors = newIndexBlockingStub.fetch(FetchRequest.newBuilder().addAllIds(upsertIds).setNamespace(namespace).build());
-        newIndexDataPlaneClient.close();
 
         for (String key : upsertIds) {
             assert (fetchedVectors.containsVectors(key));
@@ -119,13 +131,14 @@ public class CollectionTest {
 
         // Verify we can delete the collection
         controlPlaneClient.deleteCollection(collectionName);
+        collections.remove(collectionName);
         Thread.sleep(2500);
-        collections = controlPlaneClient.listCollections().getCollections();
+        collectionList = controlPlaneClient.listCollections().getCollections();
 
 
-        if (collections != null) {
+        if (collectionList != null) {
             boolean isCollectionDeleted = true;
-            for (CollectionModel col : collections) {
+            for (CollectionModel col : collectionList) {
                 if (col.getName().equals(collectionName)) {
                     isCollectionDeleted = false;
                     break;
@@ -137,8 +150,7 @@ public class CollectionTest {
             }
         }
 
-        // Clean up
-        controlPlaneClient.deleteIndex(newIndexName);
+        newIndexDataPlaneClient.close();
     }
 
     @Test
@@ -147,6 +159,7 @@ public class CollectionTest {
 
         // Create collection from index
         CollectionModel collection = createCollection(controlPlaneClient, collectionName, indexName, true);
+        collections.add(collectionName);
 
         assertEquals(collection.getName(), collectionName);
         assertEquals(collection.getEnvironment(), environment);
@@ -165,14 +178,12 @@ public class CollectionTest {
         CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().environment(environment).sourceCollection(collectionName);
         CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(podSpec);
         PineconeConnection dataPlaneConnection = createNewIndexAndConnect(controlPlaneClient, newIndexName, dimension, targetMetric, spec);
+        indexes.add(newIndexName);
 
         IndexModel newIndex = controlPlaneClient.describeIndex(newIndexName);
         assertEquals(newIndex.getName(), newIndexName);
         assertEquals(newIndex.getMetric(), targetMetric);
 
-        // Clean up
-        controlPlaneClient.deleteIndex(newIndexName);
-        controlPlaneClient.deleteCollection(collectionName);
         dataPlaneConnection.close();
     }
 
