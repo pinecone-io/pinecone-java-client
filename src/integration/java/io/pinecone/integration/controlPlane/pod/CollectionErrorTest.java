@@ -42,7 +42,6 @@ public class CollectionErrorTest {
 
         // Upsert vectors to index and sleep for freshness
         blockingStub.upsert(buildRequiredUpsertRequestByDimension(upsertIds, dimension, ""));
-        dataPlaneConnection.close();
 
         Thread.sleep(3500);
 

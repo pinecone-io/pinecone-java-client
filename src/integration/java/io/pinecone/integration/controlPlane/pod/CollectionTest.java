@@ -39,7 +39,6 @@ public class CollectionTest {
         // Upsert vectors to index and sleep for freshness
         blockingStub.upsert(buildRequiredUpsertRequestByDimension(upsertIds, dimension, namespace));
         Thread.sleep(3500);
-        dataPlaneConnection.close();
     }
 
     @AfterAll
