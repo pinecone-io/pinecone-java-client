@@ -28,7 +28,7 @@ public class CollectionErrorTest {
     private static final String environment = System.getenv("PINECONE_ENVIRONMENT");
     private static final String indexName = RandomStringBuilder.build("collection-error-test", 8);
     private static final List<String> upsertIds = Arrays.asList("v1", "v2", "v3");
-    private static final int dimension = 3;
+    private static final int dimension = 4;
     private static final String collectionName = RandomStringBuilder.build("reusable-coll", 8);
     private static PineconeControlPlaneClient controlPlaneClient;
 
@@ -70,7 +70,7 @@ public class CollectionErrorTest {
         try {
             CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().environment(environment).sourceCollection("non-existent-collection");
             CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(podSpec);
-            CreateIndexRequest newCreateIndexRequest = new CreateIndexRequest().name(RandomStringBuilder.build("from-nonexistent-coll", 8)).dimension(3).metric(IndexMetric.COSINE).spec(spec);
+            CreateIndexRequest newCreateIndexRequest = new CreateIndexRequest().name(RandomStringBuilder.build("from-nonexistent-coll", 8)).dimension(dimension).metric(IndexMetric.COSINE).spec(spec);
             controlPlaneClient.createIndex(newCreateIndexRequest);
         } catch (PineconeException exception) {
             assertTrue(exception.getMessage().contains("Resource non-existent-collection not found"));

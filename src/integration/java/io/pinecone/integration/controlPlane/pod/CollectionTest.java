@@ -26,7 +26,7 @@ public class CollectionTest {
     private static final String namespace = RandomStringBuilder.build("ns", 8);
     private static final String apiKey = System.getenv("PINECONE_API_KEY");
     private static final String environment = System.getenv("PINECONE_ENVIRONMENT");
-    private static final int dimension = 3;
+    private static final int dimension = 4;
 
     @BeforeAll
     public static void setUpIndex() throws InterruptedException {
