@@ -37,7 +37,7 @@ public class CollectionTest {
         VectorServiceGrpc.VectorServiceBlockingStub blockingStub = dataPlaneConnection.getBlockingStub();
 
         // Upsert vectors to index and sleep for freshness
-        blockingStub.upsert(buildRequiredUpsertRequest(upsertIds, namespace));
+        blockingStub.upsert(buildRequiredUpsertRequestByDimension(upsertIds, dimension, namespace));
         Thread.sleep(3500);
         dataPlaneConnection.close();
     }
