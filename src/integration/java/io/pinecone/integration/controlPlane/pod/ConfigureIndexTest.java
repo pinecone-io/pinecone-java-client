@@ -1,4 +1,4 @@
-package io.pinecone.integration.controlPlane.index.pod;
+package io.pinecone.integration.controlPlane.pod;
 
 import io.pinecone.PineconeControlPlaneClient;
 import io.pinecone.exceptions.PineconeException;
