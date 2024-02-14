@@ -116,7 +116,7 @@ public class IndexManager {
         // Wait until index is ready
         waitUntilIndexIsReady(controlPlaneClient, indexName, 200000);
         // wait a bit more before we connect...
-        Thread.sleep(10000);
+        Thread.sleep(15000);
 
         String host = controlPlaneClient.describeIndex(indexName).getHost();
 

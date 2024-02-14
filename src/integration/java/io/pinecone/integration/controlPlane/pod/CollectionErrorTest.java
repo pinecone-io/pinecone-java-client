@@ -55,7 +55,9 @@ public class CollectionErrorTest {
     }
 
     @AfterAll
-    public static void cleanUp() {
+    public static void cleanUp() throws InterruptedException {
+        // wait for things to settle before cleanup...
+        Thread.sleep(3000);
         for (String index : indexes) {
             controlPlaneClient.deleteIndex(index);
         }

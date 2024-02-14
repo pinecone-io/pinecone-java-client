@@ -46,7 +46,9 @@ public class CollectionTest {
     }
 
     @AfterAll
-    public static void cleanUp() {
+    public static void cleanUp() throws InterruptedException {
+        // wait for things to settle before cleanup...
+        Thread.sleep(3000);
         // Clean up indexes
         for (String index : indexes) {
             controlPlaneClient.deleteIndex(index);
@@ -106,7 +108,7 @@ public class CollectionTest {
         System.out.println("Index " + newIndexName + " created from collection " + collectionName + ". Waiting until index is ready...");
         waitUntilIndexIsReady(controlPlaneClient, newIndexName, 250000);
         // wait a bit more to make sure index is ready...
-        Thread.sleep(15000);
+        Thread.sleep(30000);
 
         IndexModel indexDescription = controlPlaneClient.describeIndex(newIndexName);
         assertEquals(indexDescription.getName(), newIndexName);
