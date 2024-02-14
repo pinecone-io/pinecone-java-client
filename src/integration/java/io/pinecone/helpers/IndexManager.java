@@ -115,6 +115,9 @@ public class IndexManager {
 
         // Wait until index is ready
         waitUntilIndexIsReady(controlPlaneClient, indexName, 200000);
+        // wait a bit more before we connect...
+        Thread.sleep(10000);
+
         String host = controlPlaneClient.describeIndex(indexName).getHost();
 
         PineconeClientConfig specificConfig = new PineconeClientConfig().withApiKey(System.getenv("PINECONE_API_KEY"));

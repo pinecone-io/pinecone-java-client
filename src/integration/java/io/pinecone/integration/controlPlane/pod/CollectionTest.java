@@ -22,8 +22,8 @@ public class CollectionTest {
 
     private static PineconeControlPlaneClient controlPlaneClient;
     private static final String indexName = RandomStringBuilder.build("collection-test", 8);
-    private static ArrayList<String> indexes = new ArrayList<>();
-    private static ArrayList<String> collections = new ArrayList<>();
+    private static final ArrayList<String> indexes = new ArrayList<>();
+    private static final ArrayList<String> collections = new ArrayList<>();
     private static final IndexMetric indexMetric = IndexMetric.COSINE;
     private static final List<String> upsertIds = Arrays.asList("v1", "v2", "v3");
     private static final String namespace = RandomStringBuilder.build("ns", 8);
@@ -40,16 +40,13 @@ public class CollectionTest {
         VectorServiceGrpc.VectorServiceBlockingStub blockingStub = dataPlaneConnection.getBlockingStub();
         indexes.add(indexName);
 
-        // Upsert vectors to index and sleep for freshness
         blockingStub.upsert(buildRequiredUpsertRequestByDimension(upsertIds, dimension, namespace));
         dataPlaneConnection.close();
-        Thread.sleep(3500);
 
     }
 
     @AfterAll
-    public static void cleanUp() throws InterruptedException {
-        Thread.sleep(3500);
+    public static void cleanUp() {
         // Clean up indexes
         for (String index : indexes) {
             controlPlaneClient.deleteIndex(index);
@@ -107,13 +104,14 @@ public class CollectionTest {
         controlPlaneClient.createIndex(newCreateIndexRequest);
         indexes.add(newIndexName);
         System.out.println("Index " + newIndexName + " created from collection " + collectionName + ". Waiting until index is ready...");
-        waitUntilIndexIsReady(controlPlaneClient, newIndexName, 200000);
+        waitUntilIndexIsReady(controlPlaneClient, newIndexName, 250000);
+        // wait a bit more to make sure index is ready...
+        Thread.sleep(15000);
 
         IndexModel indexDescription = controlPlaneClient.describeIndex(newIndexName);
         assertEquals(indexDescription.getName(), newIndexName);
         assertEquals(indexDescription.getSpec().getPod().getSourceCollection(), collectionName);
         assertEquals(indexDescription.getStatus().getReady(), true);
-        Thread.sleep(5000);
 
         // Set up new index data plane connection
         PineconeClient newIndexClient = new PineconeClient(new PineconeClientConfig().withApiKey(apiKey).withEnvironment(environment));
@@ -134,7 +132,6 @@ public class CollectionTest {
         // Verify we can delete the collection
         controlPlaneClient.deleteCollection(collectionName);
         collections.remove(collectionName);
-        Thread.sleep(2500);
         collectionList = controlPlaneClient.listCollections().getCollections();
 
 

@@ -29,8 +29,8 @@ public class CollectionErrorTest {
     private static final String environment = System.getenv("PINECONE_ENVIRONMENT");
     private static final String indexName = RandomStringBuilder.build("collection-error-test", 8);
     private static final String collectionName = RandomStringBuilder.build("reusable-coll", 8);
-    private static ArrayList<String> indexes = new ArrayList<>();
-    private static ArrayList<String> collections = new ArrayList<>();
+    private static final ArrayList<String> indexes = new ArrayList<>();
+    private static final ArrayList<String> collections = new ArrayList<>();
     private static final List<String> upsertIds = Arrays.asList("v1", "v2", "v3");
     private static final int dimension = 4;
     private static PineconeControlPlaneClient controlPlaneClient;
