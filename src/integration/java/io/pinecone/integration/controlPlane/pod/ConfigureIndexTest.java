@@ -20,16 +20,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ConfigureIndexTest {
     private static PineconeControlPlaneClient controlPlaneClient;
-    private String indexName;
+    private static String indexName;
     private static final Logger logger = LoggerFactory.getLogger(PineconeClientLiveIntegTest.class);
 
     @BeforeAll
-    public static void defineControlPlaneClient() {
+    public static void setUp() throws InterruptedException, IOException {
         controlPlaneClient = new PineconeControlPlaneClient(System.getenv("PINECONE_API_KEY"));
-    }
-
-    @BeforeEach
-    public void setUp() throws IOException, InterruptedException {
         indexName = createIndexIfNotExistsControlPlane(controlPlaneClient, 5, IndexModelSpec.SERIALIZED_NAME_POD);
     }
 

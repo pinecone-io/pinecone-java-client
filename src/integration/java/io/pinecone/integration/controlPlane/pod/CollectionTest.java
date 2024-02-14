@@ -92,7 +92,7 @@ public class CollectionTest {
         CreateIndexRequest newCreateIndexRequest = new CreateIndexRequest().name(newIndexName).dimension(dimension).metric(indexMetric).spec(spec);
         controlPlaneClient.createIndex(newCreateIndexRequest);
         System.out.println("Index " + newIndexName + " created from collection " + collectionName + ". Waiting until index is ready...");
-        waitUntilIndexIsReady(controlPlaneClient, newIndexName);
+        waitUntilIndexIsReady(controlPlaneClient, newIndexName, 200000);
 
         IndexModel indexDescription = controlPlaneClient.describeIndex(newIndexName);
         assertEquals(indexDescription.getName(), newIndexName);
