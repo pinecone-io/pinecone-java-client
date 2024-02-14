@@ -72,6 +72,7 @@ public class CollectionErrorTest {
             CreateCollectionRequest createCollectionRequest = new CreateCollectionRequest().name(RandomStringBuilder.build("coll1", 8)).source("invalid-index");
             controlPlaneClient.createCollection(createCollectionRequest);
         } catch (PineconeException exception) {
+            System.out.println("Exception: " + exception.getMessage());
             assertTrue(exception.getMessage().contains("Resource invalid-index not found"));
         }
     }
@@ -83,6 +84,7 @@ public class CollectionErrorTest {
             CreateIndexRequest newCreateIndexRequest = new CreateIndexRequest().name(RandomStringBuilder.build("from-nonexistent-coll", 8)).dimension(dimension).metric(IndexMetric.COSINE).spec(spec);
             controlPlaneClient.createIndex(newCreateIndexRequest);
         } catch (PineconeException exception) {
+            System.out.println("Exception: " + exception.getMessage());
             assertTrue(exception.getMessage().contains("Resource non-existent-collection not found"));
         }
     }
@@ -113,6 +115,7 @@ public class CollectionErrorTest {
             CreateIndexRequest createIndexRequest = new CreateIndexRequest().name(RandomStringBuilder.build("from-coll", 8)).dimension(dimension).metric(IndexMetric.COSINE).spec(spec);
             controlPlaneClient.createIndex(createIndexRequest);
         } catch (PineconeException exception) {
+            System.out.println("Exception: " + exception.getMessage());
             assertTrue(exception.getMessage().contains("Source collection must be in the same environment as the index"));
         }
     }
@@ -127,6 +130,7 @@ public class CollectionErrorTest {
             CreateIndexRequest createIndexRequest = new CreateIndexRequest().name(RandomStringBuilder.build("from-coll", 8)).dimension(dimension + 1).metric(IndexMetric.COSINE).spec(spec);
             controlPlaneClient.createIndex(createIndexRequest);
         } catch (PineconeException exception) {
+            System.out.println("Exception: " + exception.getMessage());
             assertTrue(exception.getMessage().contains("Index and collection must have the same dimension"));
         }
     }
@@ -145,6 +149,7 @@ public class CollectionErrorTest {
             createCollection(controlPlaneClient, newCollectionName, notReadyIndexName, true);
             collections.add(newCollectionName);
         } catch (PineconeException exception) {
+            System.out.println("Exception: " + exception.getMessage());
             assert (exception.getMessage().contains("Source index is not ready"));
         } finally {
             // Wait for index to initialize so it can be deleted in @AfterAll
