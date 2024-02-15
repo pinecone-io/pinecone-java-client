@@ -57,13 +57,14 @@ public class CollectionErrorTest {
     @AfterAll
     public static void cleanUp() throws InterruptedException {
         // wait for things to settle before cleanup...
-        Thread.sleep(3000);
+        Thread.sleep(2500);
         for (String index : indexes) {
             controlPlaneClient.deleteIndex(index);
         }
         for (String collection : collections) {
             controlPlaneClient.deleteCollection(collection);
         }
+        Thread.sleep(2500);
     }
 
     @Test
@@ -102,8 +103,8 @@ public class CollectionErrorTest {
                     "us-east-1-aws",
                     "asia-northeast1-gcp",
                     "eu-west1-gcp",
-                    "eu-east1-gcp",
-                    "eu-east4-gcp",
+                    "us-east1-gcp",
+                    "us-east4-gcp",
                     "us-west1-gcp"
             ));
             CollectionModel collection = controlPlaneClient.describeCollection(collectionName);

@@ -48,7 +48,7 @@ public class CollectionTest {
     @AfterAll
     public static void cleanUp() throws InterruptedException {
         // wait for things to settle before cleanup...
-        Thread.sleep(3000);
+        Thread.sleep(2500);
         // Clean up indexes
         for (String index : indexes) {
             controlPlaneClient.deleteIndex(index);
@@ -57,6 +57,7 @@ public class CollectionTest {
         for (String collection : collections) {
             controlPlaneClient.deleteCollection(collection);
         }
+        Thread.sleep(2500);
     }
 
     @Test
@@ -134,6 +135,8 @@ public class CollectionTest {
         // Verify we can delete the collection
         controlPlaneClient.deleteCollection(collectionName);
         collections.remove(collectionName);
+        Thread.sleep(2500);
+
         collectionList = controlPlaneClient.listCollections().getCollections();
 
 
