@@ -301,7 +301,7 @@ public final class VectorServiceOuterClass {
           com.google.protobuf.StructProto.getDescriptor(),
           com.google.api.AnnotationsProto.getDescriptor(),
           com.google.api.FieldBehaviorProto.getDescriptor(),
-          grpc.gateway.protoc_gen_openapiv2.options.Annotations.getDescriptor(),
+//          grpc.gateway.protoc_gen_openapiv2.options.Annotations.getDescriptor(),
         });
     internal_static_SparseValues_descriptor =
       getDescriptor().getMessageTypes().get(0);
@@ -463,17 +463,17 @@ public final class VectorServiceOuterClass {
         com.google.protobuf.ExtensionRegistry.newInstance();
     registry.add(com.google.api.FieldBehaviorProto.fieldBehavior);
     registry.add(com.google.api.AnnotationsProto.http);
-    registry.add(grpc.gateway.protoc_gen_openapiv2.options.Annotations.openapiv2Field);
-    registry.add(grpc.gateway.protoc_gen_openapiv2.options.Annotations.openapiv2Operation);
-    registry.add(grpc.gateway.protoc_gen_openapiv2.options.Annotations.openapiv2Schema);
-    registry.add(grpc.gateway.protoc_gen_openapiv2.options.Annotations.openapiv2Swagger);
+//    registry.add(grpc.gateway.protoc_gen_openapiv2.options.Annotations.openapiv2Field);
+//    registry.add(grpc.gateway.protoc_gen_openapiv2.options.Annotations.openapiv2Operation);
+//    registry.add(grpc.gateway.protoc_gen_openapiv2.options.Annotations.openapiv2Schema);
+//    registry.add(grpc.gateway.protoc_gen_openapiv2.options.Annotations.openapiv2Swagger);
     com.google.protobuf.Descriptors.FileDescriptor
         .internalUpdateFileDescriptor(descriptor, registry);
     com.google.protobuf.StructProto.getDescriptor();
     com.google.api.AnnotationsProto.getDescriptor();
     com.google.api.FieldBehaviorProto.getDescriptor();
-    grpc.gateway.protoc_gen_openapiv2.options.Annotations.getDescriptor();
+//    grpc.gateway.protoc_gen_openapiv2.options.Annotations.getDescriptor();
   }
 
-  // @@protoc_insertion_point(outer_class_scope)
+//   @@protoc_insertion_point(outer_class_scope)
 }

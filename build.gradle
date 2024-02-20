@@ -1,7 +1,6 @@
 plugins {
     id 'com.github.johnrengelman.shadow' version '6.1.0'
     id 'java-library'
-    id 'com.google.protobuf' version '0.8.18'
     id 'maven-publish'
     id 'signing'
     id 'idea'
@@ -53,6 +52,7 @@ dependencies {
     implementation 'com.squareup.okhttp3:logging-interceptor:4.10.0'
     implementation 'io.gsonfire:gson-fire:1.8.5'
     implementation 'org.openapitools:jackson-databind-nullable:0.2.6'
+    implementation 'com.google.protobuf:protobuf-java:3.25.2'
     compileOnly "org.apache.tomcat:annotations-api:6.0.53" // necessary for Java 9+
 
     testImplementation("com.squareup.okhttp3:mockwebserver:4.10.0")
@@ -112,22 +112,6 @@ task relocateShadowJar(type: ConfigureShadowRelocation) {
 }
 
 tasks.shadowJar.dependsOn tasks.relocateShadowJar
-
-protobuf {
-    protoc {
-        artifact = "com.google.protobuf:protoc:3.19.4"
-    }
-    plugins {
-        grpc {
-            artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}"
-        }
-    }
-    generateProtoTasks {
-        all()*.plugins {
-            grpc {}
-        }
-    }
-}
 
 publishing {
     publications {
