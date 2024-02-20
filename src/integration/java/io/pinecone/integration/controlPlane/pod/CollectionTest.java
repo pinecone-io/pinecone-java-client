@@ -7,6 +7,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.model.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,6 +32,8 @@ public class CollectionTest {
     private static final String apiKey = System.getenv("PINECONE_API_KEY");
     private static final String environment = System.getenv("PINECONE_ENVIRONMENT");
     private static final int dimension = 4;
+
+    private static final Logger logger = LoggerFactory.getLogger(CollectionTest.class);
 
     @BeforeAll
     public static void setUp() throws InterruptedException {
@@ -99,14 +103,14 @@ public class CollectionTest {
 
         // Create index from collection
         String newIndexName = RandomStringBuilder.build("index-from-col", 5);
-        System.out.println("Creating index " + newIndexName + " from collection " + collectionName);
+        logger.info("Creating index " + newIndexName + " from collection " + collectionName);
 
         CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().environment(environment).sourceCollection(collectionName);
         CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(podSpec);
         CreateIndexRequest newCreateIndexRequest = new CreateIndexRequest().name(newIndexName).dimension(dimension).metric(indexMetric).spec(spec);
         controlPlaneClient.createIndex(newCreateIndexRequest);
         indexes.add(newIndexName);
-        System.out.println("Index " + newIndexName + " created from collection " + collectionName + ". Waiting until index is ready...");
+        logger.info("Index " + newIndexName + " created from collection " + collectionName + ". Waiting until index is ready...");
         waitUntilIndexIsReady(controlPlaneClient, newIndexName, 250000);
         // wait a bit more to make sure index is ready...
         Thread.sleep(30000);

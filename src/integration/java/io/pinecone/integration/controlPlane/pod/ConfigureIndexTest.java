@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class ConfigureIndexTest {
     private static PineconeControlPlaneClient controlPlaneClient;
     private static String indexName;
-    private static final Logger logger = LoggerFactory.getLogger(PineconeClientLiveIntegTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(ConfigureIndexTest.class);
 
     @BeforeAll
     public static void setUp() throws InterruptedException, IOException {
@@ -91,7 +91,7 @@ public class ConfigureIndexTest {
                 assertEquals(podSpec.getReplicas(), 1);
             });
         } catch (Exception exception) {
-            throw new PineconeException("Test failed: " + exception.getStackTrace());
+            throw new PineconeException("Test failed: " + exception.getLocalizedMessage());
         }
     }
 

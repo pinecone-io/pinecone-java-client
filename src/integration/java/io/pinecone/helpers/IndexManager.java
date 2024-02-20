@@ -3,6 +3,8 @@ package io.pinecone.helpers;
 import io.pinecone.*;
 import io.pinecone.exceptions.PineconeException;
 import org.openapitools.client.model.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
@@ -13,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 public class IndexManager {
     private static PineconeClientConfig config;
+    private static final Logger logger = LoggerFactory.getLogger(IndexManager.class);
 
     public static PineconeConnection createIndexIfNotExistsDataPlane(int dimension, String indexType) throws IOException, InterruptedException {
         String apiKey = System.getenv("PINECONE_API_KEY");
@@ -92,11 +95,11 @@ public class IndexManager {
         while (!index.getStatus().getReady()) {
             index = controlPlaneClient.describeIndex(indexName);
             if (waitedTimeMs >= totalMsToWait) {
-                System.out.println("Index " + indexName + " not ready after " + waitedTimeMs + "ms");
+                logger.info("Index " + indexName + " not ready after " + waitedTimeMs + "ms");
                 break;
             }
             if (index.getStatus().getReady()) {
-                System.out.println("Index " + indexName + " is ready after " + waitedTimeMs + "ms");
+                logger.info("Index " + indexName + " is ready after " + waitedTimeMs + "ms");
                 break;
             }
             Thread.sleep(intervalMs);
@@ -139,7 +142,7 @@ public class IndexManager {
             int timeWaited = 0;
             CollectionModel.StatusEnum collectionReady = collection.getStatus();
             while (collectionReady != CollectionModel.StatusEnum.READY && timeWaited < 120000) {
-                System.out.println("Waiting for collection" + collectionName + " to be ready. Waited " + timeWaited + " milliseconds...");
+                logger.info("Waiting for collection" + collectionName + " to be ready. Waited " + timeWaited + " milliseconds...");
                 Thread.sleep(5000);
                 timeWaited += 5000;
                 collection = controlPlaneClient.describeCollection(collectionName);

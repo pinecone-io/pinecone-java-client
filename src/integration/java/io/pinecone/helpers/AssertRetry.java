@@ -13,16 +13,21 @@ public class AssertRetry {
         assertWithRetry(assertionRunnable, 2);
     }
 
-    public static void assertWithRetry(AssertionRunnable assertionRunnable, int backOff) throws InterruptedException, PineconeException {
+    public static void assertWithRetry(AssertionRunnable assertionRunnable, int backOff) throws AssertionError, InterruptedException {
         int retryCount = 0;
         int delayCount = delay;
         boolean success = false;
 
-        while (retryCount < maxRetry && !success) {
+        while (!success) {
             try {
                 assertionRunnable.run();
                 success = true;
             } catch (AssertionError | ExecutionException | IOException e) {
+                // If we've hit the max number of retries throw and abort
+                if (retryCount == maxRetry) {
+                    throw new AssertionError(e.getLocalizedMessage());
+                }
+
                 retryCount++;
                 Thread.sleep(delayCount);
                 delayCount*=backOff;

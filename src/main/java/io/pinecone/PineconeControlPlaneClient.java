@@ -111,7 +111,7 @@ public class PineconeControlPlaneClient {
         }
     }
 
-    private void handleApiException(ApiException apiException) {
+    private void handleApiException(ApiException apiException) throws PineconeException {
         int statusCode = apiException.getCode();
         String responseBody = apiException.getResponseBody();
         FailedRequestInfo failedRequestInfo = new FailedRequestInfo(statusCode, responseBody);

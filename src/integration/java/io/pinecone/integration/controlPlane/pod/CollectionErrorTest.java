@@ -5,10 +5,12 @@ import io.pinecone.PineconeControlPlaneClient;
 import io.pinecone.exceptions.PineconeException;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.VectorServiceGrpc;
+import org.openapitools.client.model.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Disabled;
-import org.openapitools.client.model.*;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -34,6 +36,7 @@ public class CollectionErrorTest {
     private static final List<String> upsertIds = Arrays.asList("v1", "v2", "v3");
     private static final int dimension = 4;
     private static PineconeControlPlaneClient controlPlaneClient;
+    private static final Logger logger = LoggerFactory.getLogger(CollectionErrorTest.class);
 
     @BeforeAll
     public static void setUpIndexAndCollection() throws InterruptedException {
@@ -73,7 +76,7 @@ public class CollectionErrorTest {
             CreateCollectionRequest createCollectionRequest = new CreateCollectionRequest().name(RandomStringBuilder.build("coll1", 8)).source("invalid-index");
             controlPlaneClient.createCollection(createCollectionRequest);
         } catch (PineconeException exception) {
-            System.out.println("Exception: " + exception.getMessage());
+            logger.info("Exception: " + exception.getMessage());
             assertTrue(exception.getMessage().contains("Resource invalid-index not found"));
         }
     }
@@ -85,7 +88,7 @@ public class CollectionErrorTest {
             CreateIndexRequest newCreateIndexRequest = new CreateIndexRequest().name(RandomStringBuilder.build("from-nonexistent-coll", 8)).dimension(dimension).metric(IndexMetric.COSINE).spec(spec);
             controlPlaneClient.createIndex(newCreateIndexRequest);
         } catch (PineconeException exception) {
-            System.out.println("Exception: " + exception.getMessage());
+            logger.info("Exception: " + exception.getMessage());
             assertTrue(exception.getMessage().contains("Resource non-existent-collection not found"));
         }
     }
@@ -116,7 +119,7 @@ public class CollectionErrorTest {
             CreateIndexRequest createIndexRequest = new CreateIndexRequest().name(RandomStringBuilder.build("from-coll", 8)).dimension(dimension).metric(IndexMetric.COSINE).spec(spec);
             controlPlaneClient.createIndex(createIndexRequest);
         } catch (PineconeException exception) {
-            System.out.println("Exception: " + exception.getMessage());
+            logger.info("Exception: " + exception.getMessage());
             assertTrue(exception.getMessage().contains("Source collection must be in the same environment as the index"));
         }
     }
@@ -131,7 +134,7 @@ public class CollectionErrorTest {
             CreateIndexRequest createIndexRequest = new CreateIndexRequest().name(RandomStringBuilder.build("from-coll", 8)).dimension(dimension + 1).metric(IndexMetric.COSINE).spec(spec);
             controlPlaneClient.createIndex(createIndexRequest);
         } catch (PineconeException exception) {
-            System.out.println("Exception: " + exception.getMessage());
+            logger.info("Exception: " + exception.getMessage());
             assertTrue(exception.getMessage().contains("Index and collection must have the same dimension"));
         }
     }
@@ -150,7 +153,7 @@ public class CollectionErrorTest {
             createCollection(controlPlaneClient, newCollectionName, notReadyIndexName, true);
             collections.add(newCollectionName);
         } catch (PineconeException exception) {
-            System.out.println("Exception: " + exception.getMessage());
+            logger.info("Exception: " + exception.getMessage());
             assert (exception.getMessage().contains("Source index is not ready"));
         } finally {
             // Wait for index to initialize so it can be deleted in @AfterAll
