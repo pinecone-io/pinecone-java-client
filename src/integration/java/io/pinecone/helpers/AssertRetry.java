@@ -17,21 +17,22 @@ public class AssertRetry {
         int retryCount = 0;
         int delayCount = delay;
         boolean success = false;
+        String errorMessage = null;
 
-        while (!success) {
+        while (retryCount < maxRetry && !success) {
             try {
                 assertionRunnable.run();
                 success = true;
             } catch (AssertionError | ExecutionException | IOException e) {
-                // If we've hit the max number of retries throw and abort
-                if (retryCount == maxRetry) {
-                    throw new AssertionError(e.getLocalizedMessage());
-                }
-
+                errorMessage = e.getLocalizedMessage();
                 retryCount++;
                 Thread.sleep(delayCount);
                 delayCount*=backOff;
             }
+        }
+
+        if (!success) {
+            throw new AssertionError(errorMessage);
         }
     }
 
