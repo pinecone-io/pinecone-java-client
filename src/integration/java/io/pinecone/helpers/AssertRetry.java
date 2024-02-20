@@ -26,8 +26,8 @@ public class AssertRetry {
             } catch (AssertionError | ExecutionException | IOException e) {
                 errorMessage = e.getLocalizedMessage();
                 retryCount++;
-                Thread.sleep(delayCount);
                 delayCount*=backOff;
+                Thread.sleep(delayCount);
             }
         }
 
