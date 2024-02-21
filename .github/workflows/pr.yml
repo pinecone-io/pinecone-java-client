@@ -58,6 +58,7 @@ jobs:
             { java: 8, gradle: 6.8 },
             { java: 17, gradle: 7.3.1 }
         ]
+      max-parallel: 1
     steps:
     - uses: actions/checkout@v4
 
@@ -83,5 +84,5 @@ jobs:
       env:
         PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
         PINECONE_ENVIRONMENT: ${{ secrets.PINECONE_ENVIRONMENT }}
-        
+
 

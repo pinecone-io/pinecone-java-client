@@ -1,4 +1,4 @@
-package io.pinecone.integration.controlPlane.index.serverless;
+package io.pinecone.integration.controlPlane.serverless;
 
 import io.pinecone.PineconeControlPlaneClient;
 import io.pinecone.helpers.RandomStringBuilder;

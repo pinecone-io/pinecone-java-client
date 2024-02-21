@@ -1,4 +1,4 @@
-package io.pinecone.integration.controlPlane.index.pod;
+package io.pinecone.integration.controlPlane.pod;
 
 import io.pinecone.PineconeControlPlaneClient;
 import io.pinecone.exceptions.PineconeException;
@@ -20,16 +20,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ConfigureIndexTest {
     private static PineconeControlPlaneClient controlPlaneClient;
-    private String indexName;
-    private static final Logger logger = LoggerFactory.getLogger(PineconeClientLiveIntegTest.class);
+    private static String indexName;
+    private static final Logger logger = LoggerFactory.getLogger(ConfigureIndexTest.class);
 
     @BeforeAll
-    public static void defineControlPlaneClient() {
+    public static void setUp() throws InterruptedException, IOException {
         controlPlaneClient = new PineconeControlPlaneClient(System.getenv("PINECONE_API_KEY"));
-    }
-
-    @BeforeEach
-    public void setUp() throws IOException, InterruptedException {
         indexName = createIndexIfNotExistsControlPlane(controlPlaneClient, 5, IndexModelSpec.SERIALIZED_NAME_POD);
     }
 
@@ -83,7 +79,7 @@ public class ConfigureIndexTest {
             });
 
             // Scaling down
-            pod = new ConfigureIndexRequestSpecPod().replicas(3);
+            pod = new ConfigureIndexRequestSpecPod().replicas(1);
             spec = new ConfigureIndexRequestSpec().pod(pod);
             configureIndexRequest = new ConfigureIndexRequest().spec(spec);
             controlPlaneClient.configureIndex(indexName, configureIndexRequest);
@@ -95,7 +91,7 @@ public class ConfigureIndexTest {
                 assertEquals(podSpec.getReplicas(), 1);
             });
         } catch (Exception exception) {
-            throw new PineconeException("Test failed: " + exception.getStackTrace());
+            throw new PineconeException("Test failed: " + exception.getLocalizedMessage());
         }
     }
 

@@ -6,6 +6,8 @@ import io.grpc.StatusRuntimeException;
 import io.pinecone.PineconeConnection;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.*;
+import org.junit.After;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.model.IndexModelSpec;
@@ -21,15 +23,21 @@ import static io.pinecone.helpers.IndexManager.createIndexIfNotExistsDataPlane;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class UpdateAndQueryTest {
+    private static PineconeConnection connection;
     private static VectorServiceGrpc.VectorServiceBlockingStub blockingStub;
     private static VectorServiceGrpc.VectorServiceFutureStub futureStub;
     private static final int dimension = 3;
 
     @BeforeAll
     public static void setUp() throws IOException, InterruptedException {
-        PineconeConnection connection = createIndexIfNotExistsDataPlane(dimension, IndexModelSpec.SERIALIZED_NAME_POD);
+        connection = createIndexIfNotExistsDataPlane(dimension, IndexModelSpec.SERIALIZED_NAME_POD);
         blockingStub = connection.getBlockingStub();
         futureStub = connection.getFutureStub();
+    }
+
+    @AfterAll
+    public static void cleanUp() {
+        connection.close();
     }
 
     @Test

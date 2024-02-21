@@ -6,6 +6,7 @@ import com.google.protobuf.Value;
 import io.pinecone.PineconeConnection;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.*;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -24,12 +25,19 @@ import static io.pinecone.helpers.AssertRetry.assertWithRetry;
 public class PineconeClientLiveIntegTest {
 
     private static final Logger logger = LoggerFactory.getLogger(PineconeClientLiveIntegTest.class);
+
+    private static PineconeConnection connection;
     private static VectorServiceGrpc.VectorServiceBlockingStub blockingStub;
 
     @BeforeAll
     public static void defineConfig() throws IOException, InterruptedException {
-        PineconeConnection connection = createIndexIfNotExistsDataPlane(3, IndexModelSpec.SERIALIZED_NAME_POD);
+        connection = createIndexIfNotExistsDataPlane(3, IndexModelSpec.SERIALIZED_NAME_POD);
         blockingStub = connection.getBlockingStub();
+    }
+
+    @AfterAll
+    public static void cleanUp() {
+        connection.close();
     }
 
     @Test
