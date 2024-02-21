@@ -1,9 +1,10 @@
-package io.pinecone.integration.dataplane;
+package io.pinecone.integration.dataPlane;
 
 import com.google.common.primitives.Floats;
 import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
 import io.pinecone.PineconeConnection;
+import io.pinecone.PineconeConnectionConfig;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.*;
 import org.junit.jupiter.api.AfterAll;
@@ -31,6 +32,9 @@ public class PineconeClientLiveIntegTest {
 
     @BeforeAll
     public static void defineConfig() throws IOException, InterruptedException {
+        PineconeConnectionConfig config1 = new PineconeConnectionConfig().withConnectionUrl("url1");
+        PineconeConnectionConfig config2 = new PineconeConnectionConfig().withConnectionUrl("url2");
+
         connection = createIndexIfNotExistsDataPlane(3, IndexModelSpec.SERIALIZED_NAME_POD);
         blockingStub = connection.getBlockingStub();
     }
