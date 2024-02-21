@@ -163,7 +163,7 @@ public class IndexManager {
         assertWithRetry(() -> {
             indexModels[0] = controlPlaneClient.describeIndex(indexName);
             assert (indexModels[0].getStatus().getReady());
-        }, 3);
+        }, 4);
 
         return indexModels[0];
     }
