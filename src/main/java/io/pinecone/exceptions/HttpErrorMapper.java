@@ -2,7 +2,7 @@ package io.pinecone.exceptions;
 
 public class HttpErrorMapper {
 
-    public static void mapHttpStatusError(FailedRequestInfo failedRequestInfo) {
+    public static void mapHttpStatusError(FailedRequestInfo failedRequestInfo) throws PineconeException {
         int statusCode = failedRequestInfo.getStatus();
         switch (statusCode) {
             case 400:

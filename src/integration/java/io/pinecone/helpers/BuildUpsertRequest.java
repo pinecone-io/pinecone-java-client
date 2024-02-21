@@ -7,10 +7,7 @@ import io.pinecone.proto.SparseValues;
 import io.pinecone.proto.UpsertRequest;
 import io.pinecone.proto.Vector;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class BuildUpsertRequest {
     private static final float[][] upsertData = {{1.0F, 2.0F, 3.0F}, {4.0F, 5.0F, 6.0F}, {7.0F, 8.0F, 9.0F}};
@@ -35,6 +32,23 @@ public class BuildUpsertRequest {
             upsertVectors.add(Vector.newBuilder()
                     .addAllValues(Floats.asList(upsertData[i]))
                     .setId(upsertIds.get(i % upsertData.length))
+                    .build());
+        }
+
+        return UpsertRequest.newBuilder()
+                .addAllVectors(upsertVectors)
+                .setNamespace(namespace)
+                .build();
+    }
+
+    public static UpsertRequest buildRequiredUpsertRequestByDimension(List<String> upsertIds, int dimension, String namespace) {
+        if (upsertIds.isEmpty()) upsertIds = Arrays.asList("v1", "v2", "v3");
+
+        List<Vector> upsertVectors = new ArrayList<>();
+        for (String upsertId : upsertIds) {
+            upsertVectors.add(Vector.newBuilder()
+                    .addAllValues(generateVectorValuesByDimension(dimension))
+                    .setId(upsertId)
                     .build());
         }
 
@@ -107,5 +121,16 @@ public class BuildUpsertRequest {
         metadataMap.put(metadataFields[1], metadataValues2);
 
         return metadataMap;
+    }
+
+    public static ArrayList<Float> generateVectorValuesByDimension(int dimension) {
+        ArrayList<Float> values = new ArrayList<>();
+        Random random = new Random();
+
+        for (int i = 0; i < dimension; i++) {
+            values.add(random.nextFloat());
+        }
+
+        return values;
     }
 }
