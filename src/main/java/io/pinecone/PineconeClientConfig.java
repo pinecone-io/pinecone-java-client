@@ -135,7 +135,7 @@ public class PineconeClientConfig {
     }
 
     public String getUserAgent() {
-        String userAgentLanguage = "lang=java; pineconeClientVersion = v0.7.4";
+        String userAgentLanguage = "lang=java; pineconeClientVersion = v0.8.0";
         return (this.getUsageContext() != null) ?
                 userAgentLanguage + "; usageContext=" + this.getUsageContext() : userAgentLanguage;
     }
