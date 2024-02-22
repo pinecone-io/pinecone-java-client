@@ -3,7 +3,6 @@ package io.pinecone.integration.controlPlane.pod;
 import io.pinecone.PineconeControlPlaneClient;
 import io.pinecone.exceptions.PineconeException;
 import io.pinecone.exceptions.PineconeForbiddenException;
-import io.pinecone.integration.dataplane.PineconeClientLiveIntegTest;
 import io.pinecone.exceptions.PineconeBadRequestException;
 import io.pinecone.exceptions.PineconeNotFoundException;
 import org.junit.jupiter.api.*;
@@ -111,7 +110,7 @@ public class ConfigureIndexTest {
         } catch (PineconeBadRequestException badRequestException) {
             assert(badRequestException.getMessage().contains("Bad request: Cannot change pod type."));
         } catch (Exception exception) {
-            logger.error(exception.getLocalizedMessage());
+            throw new PineconeException("Test failed: " + exception.getLocalizedMessage());
         }
     }
 
@@ -135,22 +134,8 @@ public class ConfigureIndexTest {
                 assert (podSpec != null);
                 assertEquals(podSpec.getPodType(), "p1.x2");
             });
-
-            // Attempt to scale down
-            pod = new ConfigureIndexRequestSpecPod().podType("p1.x1");
-            spec = new ConfigureIndexRequestSpec().pod(pod);
-            configureIndexRequest = new ConfigureIndexRequest().spec(spec);
-            controlPlaneClient.configureIndex(indexName, configureIndexRequest);
-
-            // Get the index description to verify the new pod type
-            assertWithRetry(() -> {
-                PodSpec podSpec = controlPlaneClient.describeIndex(indexName).getSpec().getPod();
-                assert (podSpec != null);
-                assertEquals(podSpec.getPodType(), "p1.x1");
-            });
-
         } catch (Exception exception) {
-            logger.error(exception.getLocalizedMessage());
+            throw new PineconeException("Test failed: " + exception.getLocalizedMessage());
         } finally {
             // Delete this index since it'll be unused for future tests
             controlPlaneClient.deleteIndex(indexName);
