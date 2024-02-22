@@ -1,4 +1,4 @@
-package io.pinecone.integration.dataPlane;
+package io.pinecone.integration.dataplane;
 
 import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
@@ -6,6 +6,7 @@ import io.grpc.StatusRuntimeException;
 import io.pinecone.PineconeConnection;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.*;
+import org.junit.After;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

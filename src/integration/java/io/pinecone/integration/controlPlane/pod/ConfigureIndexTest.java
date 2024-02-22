@@ -3,6 +3,7 @@ package io.pinecone.integration.controlPlane.pod;
 import io.pinecone.PineconeControlPlaneClient;
 import io.pinecone.exceptions.PineconeException;
 import io.pinecone.exceptions.PineconeForbiddenException;
+import io.pinecone.integration.dataplane.PineconeClientLiveIntegTest;
 import io.pinecone.exceptions.PineconeBadRequestException;
 import io.pinecone.exceptions.PineconeNotFoundException;
 import org.junit.jupiter.api.*;

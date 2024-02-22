@@ -1,4 +1,4 @@
-package io.pinecone.integration.dataPlane;
+package io.pinecone.integration.dataplane;
 
 import io.pinecone.*;
 import io.pinecone.proto.*;
