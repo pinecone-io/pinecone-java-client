@@ -1,4 +1,4 @@
-package io.pinecone.integration.dataPlane;
+package io.pinecone.integration.dataplane;
 
 import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
