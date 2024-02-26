@@ -18,8 +18,8 @@ public class PineconeDataPlaneClient {
     public UpsertResponse upsert(
             String id,
             List<Float> values,
-            Iterable<? extends Long> sparseIndices,
-            Iterable<? extends Float> sparseValues,
+            List<Long> sparseIndices,
+            List<Float> sparseValues,
             com.google.protobuf.Struct metadata,
             String namespace) {
 
@@ -33,17 +33,17 @@ public class PineconeDataPlaneClient {
                 .setId(id)
                 .addAllValues(values);
 
-        // ToDo: add size validation
-//        if(sparseIndices.size() != sparseValues.size()) {
-//            throw new PineconeValidationException("Invalid Upsert Request. Please ensure that both sparse indices and values are of the same length.");
-//        }
+        if(sparseIndices.size() != sparseValues.size()) {
+            throw new PineconeValidationException("Invalid Upsert Request. Please ensure that both sparse indices and values are of the same length.");
+        }
 
-        if(sparseIndices != null && sparseValues != null) {
+        if(!sparseIndices.isEmpty()) {
             vectorBuilder.setSparseValues(SparseValues.newBuilder()
                     .addAllIndices(convertUnsigned32IntToSigned32Int(sparseIndices))
                     .addAllValues(sparseValues)
                     .build());
         }
+
 
         if(metadata != null) {
             vectorBuilder.setMetadata(metadata);
@@ -104,7 +104,7 @@ public class PineconeDataPlaneClient {
     }
 
     public QueryResponse query(String id, String namespace, int topK, Struct filter, boolean includeValues, boolean includeMetadata,
-                               List<Float> vectors, Iterable<? extends Long> sparseIndices, Iterable<? extends Float> sparseValues) {
+                               List<Float> vectors, List<Long> sparseIndices, List<Float> sparseValues) {
         QueryRequest.Builder queryRequest = QueryRequest.newBuilder();
 
         if (id == null && vectors.isEmpty()) {
@@ -128,11 +128,11 @@ public class PineconeDataPlaneClient {
             queryRequest.addAllVector(vectors);
         }
 
-        // ToDo: add size validation
-//        if(sparseIndices.size() != sparseValues.size()) {
-//            throw new PineconeValidationException("Invalid Upsert Request. Please ensure that both sparse indices and values are of the same length.");
-//        }
-        if(sparseIndices != null && sparseValues != null) {
+        if(sparseIndices.size() != sparseValues.size()) {
+            throw new PineconeValidationException("Invalid Upsert Request. Please ensure that both sparse indices and values are of the same length.");
+        }
+
+        if(!sparseIndices.isEmpty()) {
             queryRequest.setSparseVector(SparseValues.newBuilder()
                     .addAllIndices(convertUnsigned32IntToSigned32Int(sparseIndices))
                     .addAllValues(sparseValues)
@@ -162,8 +162,8 @@ public class PineconeDataPlaneClient {
                                  Iterable<? extends Float> values,
                                  Struct metadata,
                                  String namespace,
-                                 Iterable<? extends Long> sparseIndices,
-                                 Iterable<? extends Float> sparseValues) {
+                                 List<Long> sparseIndices,
+                                 List<Float> sparseValues) {
         UpdateRequest.Builder updateRequest = UpdateRequest.newBuilder();
 
         if (id == null) {
@@ -183,12 +183,12 @@ public class PineconeDataPlaneClient {
             updateRequest.setNamespace(namespace);
         }
 
-        // ToDo: add size validation
-//        if(sparseIndices.size() != sparseValues.size()) {
-//            throw new PineconeValidationException("Invalid Upsert Request. Please ensure that both sparse indices and values are of the same length.");
-//        }
+        // ToDo: confirm size 0 tests with required params only
+        if(sparseIndices.size() != sparseValues.size()) {
+            throw new PineconeValidationException("Invalid Upsert Request. Please ensure that both sparse indices and values are of the same length.");
+        }
 
-        if(sparseIndices != null && sparseValues != null) {
+        if(!sparseIndices.isEmpty()) {
             updateRequest.setSparseValues(SparseValues.newBuilder()
                     .addAllIndices(convertUnsigned32IntToSigned32Int(sparseIndices))
                     .addAllValues(sparseValues)
@@ -198,6 +198,7 @@ public class PineconeDataPlaneClient {
         return blockingStub.update(updateRequest.build());
     }
 
+    // ToDo: confirm Iterable
     public DeleteResponse delete(Iterable<String> ids, boolean deleteAll, String namespace, Struct filter) {
         DeleteRequest.Builder deleteRequestBuilder = DeleteRequest.newBuilder().setDeleteAll(deleteAll);
 
