@@ -81,7 +81,7 @@ public class PineconeDataPlaneClient {
         QueryRequest.Builder queryRequest = QueryRequest.newBuilder();
 
         if (id != null && !id.isEmpty() && vectors != null && !vectors.isEmpty()) {
-            throw new PineconeValidationException("Invalid Query Request. Both id and vectors cannot be present");
+            throw new PineconeValidationException("Invalid Query Request. Both Vector ID and vectors cannot be present.");
         }
 
         if (id != null && !id.isEmpty()) {
