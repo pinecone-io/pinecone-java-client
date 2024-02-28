@@ -116,7 +116,7 @@ public class UpsertDescribeIndexStatsAndDeleteTest {
                     generateVectorValuesByDimension(dimension),
                     generateSparseIndicesByDimension(dimension),
                     generateVectorValuesByDimension(dimension),
-                    generateMetadataStruct(),
+                    generateMetadataStruct(i, i),
                     namespace);
             vectorCount += upsertResponse.getUpsertedCount();
         }

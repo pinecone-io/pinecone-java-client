@@ -71,7 +71,8 @@ public class PineconeDataPlaneClient {
 
     public QueryResponse query(String id,
                                String namespace,
-                               int topK, Struct filter,
+                               int topK,
+                               Struct filter,
                                boolean includeValues,
                                boolean includeMetadata,
                                List<Float> vectors,
@@ -80,7 +81,7 @@ public class PineconeDataPlaneClient {
         QueryRequest.Builder queryRequest = QueryRequest.newBuilder();
 
         if (id != null && !id.isEmpty() && vectors != null && !vectors.isEmpty()) {
-            throw new PineconeValidationException("Invalid Query Request. Please include either id or vector");
+            throw new PineconeValidationException("Invalid Query Request. Both id and vectors cannot be present");
         }
 
         if (id != null && !id.isEmpty()) {

@@ -60,11 +60,12 @@ public class BuildUpsertRequest {
 
     public static Struct generateMetadataStruct(int metadataField0, int metadataField1) {
         HashMap<String, List<String>> metadataMap = createAndGetMetadataMap();
+        int metadataSize = metadataMap.get(metadataFields[0]).size();
         return Struct.newBuilder()
                 .putFields(metadataFields[0],
-                        Value.newBuilder().setStringValue(metadataMap.get(metadataFields[0]).get(metadataField0)).build())
+                        Value.newBuilder().setStringValue(metadataMap.get(metadataFields[0]).get(metadataField0 % metadataSize)).build())
                 .putFields(metadataFields[1],
-                        Value.newBuilder().setStringValue(metadataMap.get(metadataFields[1]).get(metadataField1)).build())
+                        Value.newBuilder().setStringValue(metadataMap.get(metadataFields[1]).get(metadataField1 % metadataSize)).build())
                 .build();
     }
 
