@@ -66,7 +66,6 @@ public class UpsertAndDescribeIndexStatsTest {
 
     @Test
     public void UpsertOptionalVectorsAndDescribeIndexStatsSyncTest() throws InterruptedException {
-        // Get vector count before upserting vectors with required+optional parameters
         int numOfVectors = 5;
         // Checks if number of sparse vectors < total number of vectors
         int numOfSparseVectors = 2;
@@ -77,7 +76,7 @@ public class UpsertAndDescribeIndexStatsTest {
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
         int startVectorCount = describeIndexStatsResponse1.getTotalVectorCount();
 
-        // upsert vectors with required parameters
+        // upsert vectors with required + optional parameters
         UpsertResponse upsertResponse = dataPlaneClient.batchUpsert(
                 getIdsList(numOfVectors),
                 getValuesList(numOfVectors, dimension),
