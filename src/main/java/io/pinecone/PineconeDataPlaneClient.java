@@ -12,19 +12,29 @@ public class PineconeDataPlaneClient {
 
     public PineconeDataPlaneClient(VectorServiceGrpc.VectorServiceBlockingStub blockingStub) {
         if (blockingStub == null) {
-            throw new IllegalArgumentException("BlockingStub cannot be null.");
+            throw new PineconeValidationException("BlockingStub cannot be null.");
         }
 
         this.blockingStub = blockingStub;
     }
 
-    public UpsertResponse upsert(
-            String id,
-            List<Float> values,
-            List<Long> sparseIndices,
-            List<Float> sparseValues,
-            com.google.protobuf.Struct metadata,
-            String namespace) {
+    public UpsertResponse upsert(String id,
+                                 List<Float> values) {
+        return upsert(id, values, null, null, null, null);
+    }
+
+    public UpsertResponse upsert(String id,
+                                 List<Float> values,
+                                 String namespace) {
+        return upsert(id, values, null, null, null, namespace);
+    }
+
+    public UpsertResponse upsert(String id,
+                                 List<Float> values,
+                                 List<Long> sparseIndices,
+                                 List<Float> sparseValues,
+                                 com.google.protobuf.Struct metadata,
+                                 String namespace) {
         UpsertRequest.Builder upsertRequest = UpsertRequest.newBuilder();
 
         if (id == null || id.isEmpty() || values == null || values.isEmpty()) {
@@ -52,52 +62,6 @@ public class PineconeDataPlaneClient {
 
         upsertRequest.addVectors(vectorBuilder.build());
 
-        if (namespace != null) {
-            upsertRequest.setNamespace(namespace);
-        }
-
-        return blockingStub.upsert(upsertRequest.build());
-    }
-
-    public UpsertResponse batchUpsert(
-            List<String> ids,
-            List<List<Float>> valuesList,
-            List<List<Long>> sparseIndicesList,
-            List<List<Float>> sparseValuesList,
-            List<com.google.protobuf.Struct> metadataList,
-            String namespace) {
-
-        UpsertRequest.Builder upsertRequest = UpsertRequest.newBuilder();
-
-        if (ids == null || ids.isEmpty() || valuesList == null || valuesList.isEmpty()) {
-            throw new PineconeValidationException("Invalid Upsert Request. Please ensure that vector IDs and values are provided and not empty.");
-        }
-
-        if (sparseIndicesList != null && sparseValuesList != null) {
-            if (sparseIndicesList.size() != sparseValuesList.size()) {
-                throw new PineconeValidationException("Invalid Upsert Request. Please ensure that both sparse indices and values are of the same length.");
-            }
-
-            for (int i = 0; i < ids.size(); i++) {
-                Vector.Builder vectorBuilder = Vector.newBuilder()
-                        .setId(ids.get(i))
-                        .addAllValues(valuesList.get(i));
-
-                if (sparseIndicesList.size() > i && sparseIndicesList.get(i) != null && sparseValuesList.size() > i && sparseValuesList.get(i) != null) {
-                    vectorBuilder.setSparseValues(SparseValues.newBuilder()
-                            .addAllIndices(convertUnsigned32IntToSigned32Int(sparseIndicesList.get(i)))
-                            .addAllValues(sparseValuesList.get(i))
-                            .build());
-                }
-
-                if (metadataList.size() > i && metadataList.get(i) != null) {
-                    vectorBuilder.setMetadata(metadataList.get(i));
-                }
-
-                upsertRequest.addVectors(vectorBuilder.build());
-            }
-        }
-
         if (namespace != null && !namespace.isEmpty()) {
             upsertRequest.setNamespace(namespace);
         }
@@ -105,8 +69,14 @@ public class PineconeDataPlaneClient {
         return blockingStub.upsert(upsertRequest.build());
     }
 
-    public QueryResponse query(String id, String namespace, int topK, Struct filter, boolean includeValues, boolean includeMetadata,
-                               List<Float> vectors, List<Long> sparseIndices, List<Float> sparseValues) {
+    public QueryResponse query(String id,
+                               String namespace,
+                               int topK, Struct filter,
+                               boolean includeValues,
+                               boolean includeMetadata,
+                               List<Float> vectors,
+                               List<Long> sparseIndices,
+                               List<Float> sparseValues) {
         QueryRequest.Builder queryRequest = QueryRequest.newBuilder();
 
         if (id != null && !id.isEmpty() && vectors != null && !vectors.isEmpty()) {
@@ -147,7 +117,8 @@ public class PineconeDataPlaneClient {
         return blockingStub.query(queryRequest.build());
     }
 
-    public FetchResponse fetch(List<String> ids, String namespace) {
+    public FetchResponse fetch(List<String> ids,
+                               String namespace) {
         FetchRequest.Builder fetchRequest = FetchRequest.newBuilder();
 
         if (ids == null || ids.isEmpty()) {
@@ -202,7 +173,9 @@ public class PineconeDataPlaneClient {
         return blockingStub.update(updateRequest.build());
     }
 
-    public DeleteResponse delete(List<String> ids, boolean deleteAll, String namespace, Struct filter) {
+    public DeleteResponse delete(List<String> ids,
+                                 boolean deleteAll,
+                                 String namespace, Struct filter) {
         DeleteRequest.Builder deleteRequestBuilder = DeleteRequest.newBuilder().setDeleteAll(deleteAll);
 
         if ((ids != null && !ids.isEmpty()) && filter != null) {
@@ -234,7 +207,7 @@ public class PineconeDataPlaneClient {
         return blockingStub.describeIndexStats(describeIndexStatsRequest.build());
     }
 
-    // ToDo: write tests
+    // ToDo: Add tests
     private Iterable<? extends Integer> convertUnsigned32IntToSigned32Int(Iterable<? extends Long> unsigned32IntValues) {
         List<Integer> int32Values = new ArrayList<>();
         for (Long value : unsigned32IntValues) {

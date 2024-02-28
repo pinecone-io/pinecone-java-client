@@ -13,18 +13,14 @@ import static io.pinecone.helpers.AssertRetry.assertWithRetry;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 public class UpsertAndDescribeIndexStatsTest {
     private static PineconeConnection connection;
     private static VectorServiceGrpc.VectorServiceBlockingStub blockingStub;
     private static VectorServiceGrpc.VectorServiceFutureStub futureStub;
     private static final int dimension = 3;
-    private static final List emptyList = new ArrayList<>();
     private static final Struct emptyFilterStruct = Struct.newBuilder().build();
-    private static final String emptyNamespace = "";
 
     @BeforeAll
     public static void setUp() throws IOException, InterruptedException {
@@ -44,53 +40,55 @@ public class UpsertAndDescribeIndexStatsTest {
         int numOfVectors = 3;
         PineconeDataPlaneClient dataPlaneClient = new PineconeDataPlaneClient(blockingStub);
         DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(emptyFilterStruct);
+        // Confirm the starting state by verifying the dimension of the index
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
-        int startVectorCount = describeIndexStatsResponse1.getTotalVectorCount();
+        int vectorCount = describeIndexStatsResponse1.getTotalVectorCount();
 
-        // upsert vectors with required parameters
-        UpsertResponse upsertResponse = dataPlaneClient.batchUpsert(getIdsList(numOfVectors),
-                getValuesList(numOfVectors, dimension),
-                emptyList,
-                emptyList,
-                emptyList,
-                emptyNamespace);
+        // Upsert vectors with required parameters
+        List<String> upsertIds = getIdsList(numOfVectors);
+        for (String id : upsertIds) {
+            UpsertResponse upsertResponse = dataPlaneClient.upsert(id, generateVectorValuesByDimension(dimension));
+            vectorCount += upsertResponse.getUpsertedCount();
+        }
+        int actualVectorCount = vectorCount;
 
         assertWithRetry(() -> {
             // call describeIndexStats to get updated vector count
             DescribeIndexStatsResponse describeIndexStatsResponse2 = dataPlaneClient.describeIndexStats(emptyFilterStruct);
 
             // verify the updated vector count
-            assertEquals(describeIndexStatsResponse2.getTotalVectorCount(), startVectorCount + upsertResponse.getUpsertedCount());
+            assertEquals(describeIndexStatsResponse2.getTotalVectorCount(), actualVectorCount);
         });
     }
 
     @Test
     public void UpsertOptionalVectorsAndDescribeIndexStatsSyncTest() throws InterruptedException {
         int numOfVectors = 5;
-        // Checks if number of sparse vectors < total number of vectors
-        int numOfSparseVectors = 2;
-        // Checks if number of metadata structs are < total number of vectors
-        int numOfMetadataStructs = 3;
         PineconeDataPlaneClient dataPlaneClient = new PineconeDataPlaneClient(blockingStub);
         DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(emptyFilterStruct);
+        // Confirm the starting state by verifying the dimension of the index
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
-        int startVectorCount = describeIndexStatsResponse1.getTotalVectorCount();
+        int vectorCount = describeIndexStatsResponse1.getTotalVectorCount();
 
         // upsert vectors with required + optional parameters
-        UpsertResponse upsertResponse = dataPlaneClient.batchUpsert(
-                getIdsList(numOfVectors),
-                getValuesList(numOfVectors, dimension),
-                getSparseIndicesList(numOfSparseVectors, dimension),
-                getValuesList(numOfSparseVectors, dimension),
-                getMetadataStruct(numOfMetadataStructs),
-                RandomStringBuilder.build("ns", 8));
-
+        List<String> upsertIds = getIdsList(numOfVectors);
+        String namespace = RandomStringBuilder.build("ns", 8);
+        for (String id : upsertIds) {
+            UpsertResponse upsertResponse = dataPlaneClient.upsert(id,
+                    generateVectorValuesByDimension(dimension),
+                    generateSparseIndicesByDimension(dimension),
+                    generateVectorValuesByDimension(dimension),
+                    generateMetadataStruct(),
+                    namespace);
+            vectorCount += upsertResponse.getUpsertedCount();
+        }
+        int actualVectorCount = vectorCount;
         assertWithRetry(() -> {
             // call describeIndexStats to get updated vector count
             DescribeIndexStatsResponse describeIndexStatsResponse2 = dataPlaneClient.describeIndexStats(emptyFilterStruct);
 
             // verify updated vector count
-            assertEquals(describeIndexStatsResponse2.getTotalVectorCount(), startVectorCount + upsertResponse.getUpsertedCount());
+            assertEquals(describeIndexStatsResponse2.getTotalVectorCount(), actualVectorCount);
         });
     }
 

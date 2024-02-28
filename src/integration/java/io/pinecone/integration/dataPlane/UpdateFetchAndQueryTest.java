@@ -5,6 +5,7 @@ import com.google.protobuf.Value;
 import io.grpc.StatusRuntimeException;
 import io.pinecone.PineconeConnection;
 import io.pinecone.PineconeDataPlaneClient;
+import io.pinecone.exceptions.PineconeException;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.*;
 import org.junit.jupiter.api.AfterAll;
@@ -28,7 +29,6 @@ public class UpdateFetchAndQueryTest {
     private static VectorServiceGrpc.VectorServiceBlockingStub blockingStub;
     private static VectorServiceGrpc.VectorServiceFutureStub futureStub;
     private static final int dimension = 3;
-    private static final List emptyList = new ArrayList<>();
 
     @BeforeAll
     public static void setUp() throws IOException, InterruptedException {
@@ -49,14 +49,9 @@ public class UpdateFetchAndQueryTest {
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
         PineconeDataPlaneClient dataPlaneClient = new PineconeDataPlaneClient(blockingStub);
-
-        dataPlaneClient.batchUpsert(
-                upsertIds,
-                getValuesList(numOfVectors, dimension),
-                emptyList,
-                emptyList,
-                emptyList,
-                namespace);
+        for (String id : upsertIds) {
+            dataPlaneClient.upsert(id, generateVectorValuesByDimension(dimension), namespace);
+        }
 
         // Verify the upserted vector count with fetch
         assertWithRetry(() -> {
@@ -92,22 +87,32 @@ public class UpdateFetchAndQueryTest {
     public void UpdateAllParamsFetchAndQuerySync() throws InterruptedException {
         int numOfVectors = 3;
         int numOfSparseVectors = 2;
-        int numOfMetadataStructs = 3;
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
         PineconeDataPlaneClient dataPlaneClient = new PineconeDataPlaneClient(blockingStub);
         DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(null);
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
         List<List<Long>> sparseIndicesList = getSparseIndicesList(numOfSparseVectors, dimension);
-        List<List<Float>> sparseValuesList = getValuesList(numOfSparseVectors, dimension);
+        List<List<Float>> sparseValuesList = getValuesListLists(numOfSparseVectors, dimension);
+
         // upsert vectors with required + optional parameters
-        dataPlaneClient.batchUpsert(
-                upsertIds,
-                getValuesList(numOfVectors, dimension),
-                sparseIndicesList,
-                sparseValuesList,
-                getMetadataStruct(numOfMetadataStructs),
-                namespace);
+        int index = 0;
+        for (int i=index; i<numOfSparseVectors; i++) {
+            dataPlaneClient.upsert(upsertIds.get(i),
+                    generateVectorValuesByDimension(dimension),
+                    sparseIndicesList.get(i),
+                    sparseValuesList.get(i),
+                    generateMetadataStruct(),
+                    namespace);
+            index++;
+        }
+
+        for(int j=index; j<numOfVectors; j++) {
+            dataPlaneClient.upsert(
+                    upsertIds.get(j),
+                    generateVectorValuesByDimension(dimension),
+                    namespace);
+        }
 
         // Verify the upserted vector count with fetch
         assertWithRetry(() -> {
@@ -166,13 +171,11 @@ public class UpdateFetchAndQueryTest {
         List<String> upsertIds = getIdsList(numOfVectors);
         PineconeDataPlaneClient dataPlaneClient = new PineconeDataPlaneClient(blockingStub);
 
-        dataPlaneClient.batchUpsert(
-                upsertIds,
-                getValuesList(numOfVectors, dimension),
-                emptyList,
-                emptyList,
-                emptyList,
-                namespace);
+        for(String id:upsertIds) {
+            dataPlaneClient.upsert(id,
+                    generateVectorValuesByDimension(dimension),
+                    namespace);
+        }
 
         // Verify the upserted vector count with fetch
         assertWithRetry(() -> {
@@ -208,13 +211,15 @@ public class UpdateFetchAndQueryTest {
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
 
         // upsert vectors with required+optional parameters
-        dataPlaneClient.batchUpsert(
-                upsertIds,
-                getValuesList(numOfVectors, dimension),
-                getSparseIndicesList(numOfSparseVectors, dimension),
-                getValuesList(numOfSparseVectors, dimension),
-                getMetadataStruct(numOfMetadataStructs),
-                namespace);
+        for(int i=0; i<upsertIds.size(); i++) {
+            dataPlaneClient.upsert(
+                    upsertIds.get(i),
+                    generateVectorValuesByDimension(dimension),
+                    generateSparseIndicesByDimension(dimension),
+                    generateVectorValuesByDimension(dimension),
+                    generateMetadataStruct(),
+                    namespace);
+        }
 
         // Verify the upserted vector count with fetch
         assertWithRetry(() -> {
@@ -250,32 +255,40 @@ public class UpdateFetchAndQueryTest {
         String fieldToQuery = metadataFields[0];
         String valueToQuery = createAndGetMetadataMap().get(fieldToQuery).get(0);
 
-        List<String> upsertIds = Arrays.asList("v1", "v2", "v3");
+        int numOfVectors = 3;
+        int numOfSparseVectors = 2;
+        int numOfMetadataStructs = 3;
         String namespace = RandomStringBuilder.build("ns", 8);
-        try {
-            blockingStub.upsert(buildOptionalUpsertRequest(upsertIds, namespace));
-            Thread.sleep(3500);
+        List<String> upsertIds = getIdsList(numOfVectors);
+        PineconeDataPlaneClient dataPlaneClient = new PineconeDataPlaneClient(blockingStub);
+        DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(null);
+        assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
 
-            QueryRequest queryRequest = QueryRequest.newBuilder()
-                    .setId(upsertIds.get(0))
-                    .setNamespace(namespace)
-                    .setTopK(3)
-                    .setIncludeValues(true)
-                    .setIncludeMetadata(true)
-                    .setFilter(Struct.newBuilder()
-                            .putFields(metadataFields[0], Value.newBuilder()
-                                    .setStructValue(Struct.newBuilder()
-                                            .putFields("$eq", Value.newBuilder()
-                                                    .setStringValue(valueToQuery)
-                                                    .build()))
-                                    .build())
+        try {
+            for(int i=0; i<upsertIds.size(); i++) {
+                dataPlaneClient.upsert(upsertIds.get(0),
+                        generateVectorValuesByDimension(dimension),
+                        generateSparseIndicesByDimension(dimension),
+                        generateVectorValuesByDimension(dimension),
+                        generateMetadataStruct(0, 0),
+                        namespace);
+
+            }
+
+            Struct filter = Struct.newBuilder()
+                    .putFields(metadataFields[0], Value.newBuilder()
+                            .setStructValue(Struct.newBuilder()
+                                    .putFields("$eq", Value.newBuilder()
+                                            .setStringValue(valueToQuery)
+                                            .build()))
                             .build())
                     .build();
-            QueryResponse queryResponse = blockingStub.query(queryRequest);
+            QueryResponse queryResponse = dataPlaneClient.query(upsertIds.get(0), namespace, 3, filter, true, true, null, null, null);
+
             // Verify the metadata field is correctly filtered in the query response
             assert (queryResponse.getMatches(0).getMetadata().getFieldsMap().get(fieldToQuery).toString().contains(valueToQuery));
-        } catch (InterruptedException e) {
-            // ignore
+        } catch (Exception e) {
+            throw new PineconeException(e.getLocalizedMessage());
         }
     }
 
