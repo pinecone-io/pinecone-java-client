@@ -1,4 +1,3 @@
-
 package io.pinecone;
 
 import com.google.protobuf.Struct;
@@ -12,6 +11,10 @@ public class PineconeDataPlaneClient {
     private VectorServiceGrpc.VectorServiceBlockingStub blockingStub;
 
     public PineconeDataPlaneClient(VectorServiceGrpc.VectorServiceBlockingStub blockingStub) {
+        if (blockingStub == null) {
+            throw new IllegalArgumentException("BlockingStub cannot be null.");
+        }
+
         this.blockingStub = blockingStub;
     }
 
@@ -25,7 +28,7 @@ public class PineconeDataPlaneClient {
 
         UpsertRequest.Builder upsertRequest = UpsertRequest.newBuilder();
 
-        if (id.isEmpty() || values.isEmpty()) {
+        if (id == null || id.isEmpty() || values == null || values.isEmpty()) {
             throw new PineconeValidationException("Invalid Upsert Request. Please ensure that vector data is provided and not empty.");
         }
 
@@ -33,19 +36,18 @@ public class PineconeDataPlaneClient {
                 .setId(id)
                 .addAllValues(values);
 
-        if(sparseIndices.size() != sparseValues.size()) {
+        if (sparseIndices != null && sparseValues != null && sparseIndices.size() != sparseValues.size()) {
             throw new PineconeValidationException("Invalid Upsert Request. Please ensure that both sparse indices and values are of the same length.");
         }
 
-        if(!sparseIndices.isEmpty()) {
+        if (sparseIndices != null && !sparseIndices.isEmpty()) {
             vectorBuilder.setSparseValues(SparseValues.newBuilder()
                     .addAllIndices(convertUnsigned32IntToSigned32Int(sparseIndices))
                     .addAllValues(sparseValues)
                     .build());
         }
 
-
-        if(metadata != null) {
+        if (metadata != null) {
             vectorBuilder.setMetadata(metadata);
         }
 
@@ -60,43 +62,45 @@ public class PineconeDataPlaneClient {
 
     public UpsertResponse batchUpsert(
             List<String> ids,
-            List<Iterable<? extends Float>> valuesList,
-            List<Iterable<? extends Long>> sparseIndicesList,
-            List<Iterable<? extends Float>> sparseValuesList,
+            List<List<Float>> valuesList,
+            List<List<Long>> sparseIndicesList,
+            List<List<Float>> sparseValuesList,
             List<com.google.protobuf.Struct> metadataList,
             String namespace) {
 
         UpsertRequest.Builder upsertRequest = UpsertRequest.newBuilder();
 
-        if (ids.isEmpty() || valuesList.isEmpty()) {
+        if (ids == null || ids.isEmpty() || valuesList == null || valuesList.isEmpty()) {
             throw new PineconeValidationException("Invalid Upsert Request. Please ensure that vector IDs and values are provided and not empty.");
         }
 
-        if(sparseIndicesList.size() != sparseValuesList.size()) {
-            throw new PineconeValidationException("Invalid Upsert Request. Please ensure that both sparse indices and values are of the same length.");
-        }
-
-        // ToDo: add tests for null pointer exception
-        for (int i = 0; i < ids.size(); i++) {
-            Vector.Builder vectorBuilder = Vector.newBuilder()
-                    .setId(ids.get(i))
-                    .addAllValues(valuesList.get(i));
-
-            if(sparseIndicesList.size() > i && sparseIndicesList.get(i) != null && sparseValuesList.size() > i && sparseValuesList.get(i) != null) {
-                vectorBuilder.setSparseValues(SparseValues.newBuilder()
-                        .addAllIndices(convertUnsigned32IntToSigned32Int(sparseIndicesList.get(i)))
-                        .addAllValues(sparseValuesList.get(i))
-                        .build());
+        if (sparseIndicesList != null && sparseValuesList != null) {
+            if (sparseIndicesList.size() != sparseValuesList.size()) {
+                throw new PineconeValidationException("Invalid Upsert Request. Please ensure that both sparse indices and values are of the same length.");
             }
 
-            if(metadataList.size() > i && metadataList.get(i) != null) {
-                vectorBuilder.setMetadata(metadataList.get(i));
-            }
+            // ToDo: add tests for null pointer exception
+            for (int i = 0; i < ids.size(); i++) {
+                Vector.Builder vectorBuilder = Vector.newBuilder()
+                        .setId(ids.get(i))
+                        .addAllValues(valuesList.get(i));
 
-            upsertRequest.addVectors(vectorBuilder.build());
+                if (sparseIndicesList.size() > i && sparseIndicesList.get(i) != null && sparseValuesList.size() > i && sparseValuesList.get(i) != null) {
+                    vectorBuilder.setSparseValues(SparseValues.newBuilder()
+                            .addAllIndices(convertUnsigned32IntToSigned32Int(sparseIndicesList.get(i)))
+                            .addAllValues(sparseValuesList.get(i))
+                            .build());
+                }
+
+                if (metadataList.size() > i && metadataList.get(i) != null) {
+                    vectorBuilder.setMetadata(metadataList.get(i));
+                }
+
+                upsertRequest.addVectors(vectorBuilder.build());
+            }
         }
 
-        if (namespace != null) {
+        if (namespace != null && !namespace.isEmpty()) {
             upsertRequest.setNamespace(namespace);
         }
 
@@ -107,12 +111,17 @@ public class PineconeDataPlaneClient {
                                List<Float> vectors, List<Long> sparseIndices, List<Float> sparseValues) {
         QueryRequest.Builder queryRequest = QueryRequest.newBuilder();
 
-        if (id == null && vectors.isEmpty()) {
+        // ToDo:Verify
+        if (id == null && (vectors == null || vectors.isEmpty())) {
             throw new PineconeValidationException("Invalid Query Request. Please include only one of the following parameters: id or vector");
         }
-        queryRequest.setId(id);
 
-        if (namespace != null) {
+        // ToDo:Verify
+        if (id != null && !id.isEmpty()) {
+            queryRequest.setId(id);
+        }
+
+        if (namespace != null && !namespace.isEmpty()) {
             queryRequest.setNamespace(namespace);
         }
 
@@ -124,34 +133,35 @@ public class PineconeDataPlaneClient {
             queryRequest.setFilter(filter);
         }
 
-        if (!vectors.isEmpty()) {
+        if (vectors != null && !vectors.isEmpty()) {
             queryRequest.addAllVector(vectors);
         }
 
-        if(sparseIndices.size() != sparseValues.size()) {
-            throw new PineconeValidationException("Invalid Upsert Request. Please ensure that both sparse indices and values are of the same length.");
-        }
+        if (sparseIndices != null && sparseValues != null) {
+            if (sparseIndices.size() != sparseValues.size()) {
+                throw new PineconeValidationException("Invalid Upsert Request. Please ensure that both sparse indices and values are of the same length.");
+            }
 
-        if(!sparseIndices.isEmpty()) {
             queryRequest.setSparseVector(SparseValues.newBuilder()
                     .addAllIndices(convertUnsigned32IntToSigned32Int(sparseIndices))
                     .addAllValues(sparseValues)
                     .build());
+
         }
 
         return blockingStub.query(queryRequest.build());
     }
 
-    public FetchResponse fetch(Iterable<String> ids, String namespace) {
+    public FetchResponse fetch(List<String> ids, String namespace) {
         FetchRequest.Builder fetchRequest = FetchRequest.newBuilder();
 
-        if (ids == null) {
+        if (ids == null || ids.isEmpty()) {
             throw new PineconeValidationException("Invalid Fetch Request. Vector IDs must be present");
         }
 
         fetchRequest.addAllIds(ids);
 
-        if (namespace != null) {
+        if (namespace != null && !namespace.isEmpty()) {
             fetchRequest.setNamespace(namespace);
         }
 
@@ -159,7 +169,7 @@ public class PineconeDataPlaneClient {
     }
 
     public UpdateResponse update(String id,
-                                 Iterable<? extends Float> values,
+                                 List<Float> values,
                                  Struct metadata,
                                  String namespace,
                                  List<Long> sparseIndices,
@@ -179,16 +189,16 @@ public class PineconeDataPlaneClient {
             updateRequest.setSetMetadata(metadata);
         }
 
-        if (namespace != null) {
+        if (namespace != null && !namespace.isEmpty()) {
             updateRequest.setNamespace(namespace);
         }
 
-        // ToDo: confirm size 0 tests with required params only
-        if(sparseIndices.size() != sparseValues.size()) {
-            throw new PineconeValidationException("Invalid Upsert Request. Please ensure that both sparse indices and values are of the same length.");
-        }
+        if (sparseIndices != null && sparseValues != null) {
+            if (sparseIndices.size() != sparseValues.size()) {
+                throw new PineconeValidationException("Invalid Update Request. Please ensure that both sparse indices and values are of the same length.");
+            }
 
-        if(!sparseIndices.isEmpty()) {
+            // ToDo: confirm size 0 tests with required params only
             updateRequest.setSparseValues(SparseValues.newBuilder()
                     .addAllIndices(convertUnsigned32IntToSigned32Int(sparseIndices))
                     .addAllValues(sparseValues)
@@ -198,21 +208,25 @@ public class PineconeDataPlaneClient {
         return blockingStub.update(updateRequest.build());
     }
 
-    // ToDo: confirm Iterable
-    public DeleteResponse delete(Iterable<String> ids, boolean deleteAll, String namespace, Struct filter) {
+    public DeleteResponse delete(List<String> ids, boolean deleteAll, String namespace, Struct filter) {
         DeleteRequest.Builder deleteRequestBuilder = DeleteRequest.newBuilder().setDeleteAll(deleteAll);
 
-        if (ids != null) {
+        if ((ids != null && !ids.isEmpty()) && filter != null) {
+            throw new PineconeValidationException("Invalid Delete Request. Both IDs and filter cannot be present.");
+        }
+
+        if (ids != null && !ids.isEmpty()) {
             deleteRequestBuilder.addAllIds(ids);
         }
 
-        if (namespace != null) {
+        if (namespace != null && !namespace.isEmpty()) {
             deleteRequestBuilder.setNamespace(namespace);
         }
 
         if (filter != null) {
             deleteRequestBuilder.setFilter(filter);
         }
+
         return blockingStub.delete(deleteRequestBuilder.build());
     }
 

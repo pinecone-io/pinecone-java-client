@@ -10,10 +10,70 @@ import io.pinecone.proto.Vector;
 import java.util.*;
 
 public class BuildUpsertRequest {
-    private static final float[][] upsertData = {{1.0F, 2.0F, 3.0F}, {4.0F, 5.0F, 6.0F}, {7.0F, 8.0F, 9.0F}};
+    // ToDo: Remove all buildUpsertRequest methods after future stub test changes are in and rename this class
+    public static final float[][] upsertValues = {{1.0F, 2.0F, 3.0F}, {4.0F, 5.0F, 6.0F}, {7.0F, 8.0F, 9.0F}};
     public static final String[] metadataFields = new String[]{"genre", "year"};
     public static final List<Integer> sparseIndices = Arrays.asList(0, 1, 2);
     public static final List<Float> sparseValues = Arrays.asList(0.11f, 0.22f, 0.33f);
+
+    public static List<String> getIdsList(int numOfVectors) {
+        List<String> idList = new ArrayList<>(numOfVectors);
+
+        for(int i=0; i<numOfVectors; i++) {
+            idList.add(RandomStringBuilder.build("v", 2));
+        }
+
+        return idList;
+    }
+
+    public static List<List<Float>> getValuesList(int valuesListSize, int dimension) {
+        List<List<Float>> valuesList = new ArrayList<>(dimension);
+        Random random = new Random();
+
+        for(int i = 0; i < valuesListSize; i++) {
+            List<Float> row = new ArrayList<>(dimension);
+            for (int j = 0; j < dimension; j++) {
+                row.add(random.nextFloat());
+            }
+            valuesList.add(row);
+        }
+
+        return valuesList;
+    }
+
+    public static List<List<Long>> getSparseIndicesList(int indicesListSize, int dimension) {
+        List<List<Long>> valuesList = new ArrayList<>(dimension);
+        Random random = new Random();
+        long maxUnsignedInt = (1L << 32) - 1;
+
+        for(int i = 0; i < indicesListSize; i++) {
+            List<Long> row = new ArrayList<>(dimension);
+            for (int j = 0; j < dimension; j++) {
+                row.add(random.nextLong() & maxUnsignedInt);
+            }
+            valuesList.add(row);
+        }
+
+        return valuesList;
+    }
+
+    public static List<Struct> getMetadataStruct(int metadataSize) {
+        HashMap<String, List<String>> metadataMap = createAndGetMetadataMap();
+
+        List<Struct> structList = new ArrayList<>(metadataSize);
+
+        for(int i=0; i<metadataSize; i++) {
+            structList.add(Struct.newBuilder()
+                    .putFields(metadataFields[0],
+                            Value.newBuilder().setStringValue(metadataMap.get(metadataFields[0]).get(i % metadataSize)).build())
+                    .putFields(metadataFields[1],
+                            Value.newBuilder().setStringValue(metadataMap.get(metadataFields[1]).get(i % metadataSize)).build())
+                    .build());
+        }
+
+        return structList;
+    }
+
     public static UpsertRequest buildRequiredUpsertRequest() {
         return buildRequiredUpsertRequest(new ArrayList<>(), "");
     }
@@ -28,10 +88,10 @@ public class BuildUpsertRequest {
         if (namespace.isEmpty()) namespace = RandomStringBuilder.build("ns", 8);
 
         List<Vector> upsertVectors = new ArrayList<>();
-        for (int i = 0; i < upsertData.length; i++) {
+        for (int i = 0; i < upsertValues.length; i++) {
             upsertVectors.add(Vector.newBuilder()
-                    .addAllValues(Floats.asList(upsertData[i]))
-                    .setId(upsertIds.get(i % upsertData.length))
+                    .addAllValues(Floats.asList(upsertValues[i]))
+                    .setId(upsertIds.get(i % upsertValues.length))
                     .build());
         }
 
@@ -84,7 +144,7 @@ public class BuildUpsertRequest {
 
             hybridVectors.add(
                     Vector.newBuilder()
-                            .addAllValues(Floats.asList(upsertData[i]))
+                            .addAllValues(Floats.asList(upsertValues[i]))
                             .setMetadata(Struct.newBuilder()
                                     .putFields(field1, Value.newBuilder().setStringValue(metadataMap.get(field1).get(i % metadataValuesLength)).build())
                                     .putFields(field2, Value.newBuilder().setStringValue(metadataMap.get(field2).get(i % metadataValuesLength)).build())
