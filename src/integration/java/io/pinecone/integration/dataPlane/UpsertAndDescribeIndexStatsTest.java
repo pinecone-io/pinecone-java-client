@@ -2,6 +2,7 @@ package io.pinecone.integration.dataPlane;
 
 import com.google.protobuf.Struct;
 import io.pinecone.*;
+import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.*;
 import org.junit.jupiter.api.*;
@@ -38,7 +39,7 @@ public class UpsertAndDescribeIndexStatsTest {
     public void UpsertRequiredVectorsAndDescribeIndexStatsSyncTest() throws InterruptedException {
         // Get vector count before upserting vectors with required parameters
         int numOfVectors = 3;
-        PineconeDataPlaneClient dataPlaneClient = new PineconeDataPlaneClient(blockingStub);
+        PineconeBlockingDataPlaneClient dataPlaneClient = new PineconeBlockingDataPlaneClient(blockingStub);
         DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(emptyFilterStruct);
         // Confirm the starting state by verifying the dimension of the index
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
@@ -64,7 +65,7 @@ public class UpsertAndDescribeIndexStatsTest {
     @Test
     public void UpsertOptionalVectorsAndDescribeIndexStatsSyncTest() throws InterruptedException {
         int numOfVectors = 5;
-        PineconeDataPlaneClient dataPlaneClient = new PineconeDataPlaneClient(blockingStub);
+        PineconeBlockingDataPlaneClient dataPlaneClient = new PineconeBlockingDataPlaneClient(blockingStub);
         DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(emptyFilterStruct);
         // Confirm the starting state by verifying the dimension of the index
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
@@ -90,6 +91,22 @@ public class UpsertAndDescribeIndexStatsTest {
             // verify updated vector count
             assertEquals(describeIndexStatsResponse2.getTotalVectorCount(), actualVectorCount);
         });
+    }
+
+    @Test
+    public void UpsertNullSparseIndicesNotNullSparseValuesSyncTest() {
+        PineconeBlockingDataPlaneClient dataPlaneClient = new PineconeBlockingDataPlaneClient(blockingStub);
+        String id = RandomStringBuilder.build(3);
+        try {
+            dataPlaneClient.upsert(id,
+                    generateVectorValuesByDimension(dimension),
+                    null,
+                    generateVectorValuesByDimension(dimension),
+                    null,
+                    null);
+        } catch (PineconeValidationException validationException) {
+            assertEquals(validationException.getLocalizedMessage(), "Invalid upsert request. Please ensure that both sparse indices and values are present.");
+        }
     }
 
     // ToDo: Update when future stub is added

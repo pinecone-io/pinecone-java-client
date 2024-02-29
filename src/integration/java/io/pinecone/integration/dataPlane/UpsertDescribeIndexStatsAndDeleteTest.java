@@ -3,7 +3,7 @@ package io.pinecone.integration.dataPlane;
 import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
 import io.pinecone.PineconeConnection;
-import io.pinecone.PineconeDataPlaneClient;
+import io.pinecone.PineconeBlockingDataPlaneClient;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.*;
 import org.junit.jupiter.api.AfterAll;
@@ -28,7 +28,6 @@ public class UpsertDescribeIndexStatsAndDeleteTest {
     private static final int dimension = 3;
     private static final List emptyList = new ArrayList<>();
     private static final Struct nullFilterStruct = null;
-    private static String emptyNamespace = "";
 
     @BeforeAll
     public static void setUp() throws IOException, InterruptedException {
@@ -43,12 +42,12 @@ public class UpsertDescribeIndexStatsAndDeleteTest {
     }
 
     @Test
-    public void UpsertVectorsAndDeleteByIdSyncTest() throws InterruptedException {
+    public void upsertVectorsAndDeleteByIdSyncTest() throws InterruptedException {
         // Upsert vectors with required parameters
         int numOfVectors = 3;
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
-        PineconeDataPlaneClient dataPlaneClient = new PineconeDataPlaneClient(blockingStub);
+        PineconeBlockingDataPlaneClient dataPlaneClient = new PineconeBlockingDataPlaneClient(blockingStub);
         int vectorCount = 0;
         for (String id : upsertIds) {
             UpsertResponse upsertResponse = dataPlaneClient.upsert(id,
@@ -103,11 +102,11 @@ public class UpsertDescribeIndexStatsAndDeleteTest {
     }
 
     @Test
-    public void UpsertVectorsAndDeleteByFilterSyncTest() throws InterruptedException {
+    public void upsertVectorsAndDeleteByFilterSyncTest() throws InterruptedException {
         int numOfVectors = 3;
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
-        PineconeDataPlaneClient dataPlaneClient = new PineconeDataPlaneClient(blockingStub);
+        PineconeBlockingDataPlaneClient dataPlaneClient = new PineconeBlockingDataPlaneClient(blockingStub);
 
         int vectorCount = 0;
         // Upsert vectors with required + optional and custom metadata parameters
@@ -157,7 +156,7 @@ public class UpsertDescribeIndexStatsAndDeleteTest {
 
     // ToDo: Update when future stub changes are in
 //    @Test
-//    public void UpsertVectorsAndDeleteByIdFutureTest() throws ExecutionException, InterruptedException {
+//    public void upsertVectorsAndDeleteByIdFutureTest() throws ExecutionException, InterruptedException {
 //        // Upsert vectors with required parameters
 //        String namespace = RandomStringBuilder.build("ns", 8);
 //        List<String> upsertIds = Arrays.asList("v1", "v2", "v3");
@@ -202,7 +201,7 @@ public class UpsertDescribeIndexStatsAndDeleteTest {
 //    }
 //
 //    @Test
-//    public void UpsertVectorsAndDeleteByNamespaceFutureTest() throws ExecutionException, InterruptedException {
+//    public void upsertVectorsAndDeleteByNamespaceFutureTest() throws ExecutionException, InterruptedException {
 //        // Upsert vectors with optional parameters
 //        String namespace = RandomStringBuilder.build("ns", 8);
 //        UpsertResponse upsertResponse = futureStub.upsert(buildOptionalUpsertRequest(namespace)).get();
@@ -229,7 +228,7 @@ public class UpsertDescribeIndexStatsAndDeleteTest {
 //    }
 //
 //    @Test
-//    public void UpsertVectorsAndDeleteByFilterFutureTest() throws InterruptedException, ExecutionException {
+//    public void upsertVectorsAndDeleteByFilterFutureTest() throws InterruptedException, ExecutionException {
 //        // Upsert vectors with optional and custom metadata parameters
 //        String namespace = RandomStringBuilder.build("ns", 8);
 //        String fieldToDelete = metadataFields[0];
