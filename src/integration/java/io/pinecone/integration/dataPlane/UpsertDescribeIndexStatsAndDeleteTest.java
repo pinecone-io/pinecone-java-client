@@ -27,7 +27,6 @@ public class UpsertDescribeIndexStatsAndDeleteTest {
     private static VectorServiceGrpc.VectorServiceBlockingStub blockingStub;
     private static VectorServiceGrpc.VectorServiceFutureStub futureStub;
     private static final int dimension = 3;
-    private static final List emptyList = new ArrayList<>();
     private static final Struct nullFilterStruct = null;
 
     @BeforeAll
@@ -142,7 +141,7 @@ public class UpsertDescribeIndexStatsAndDeleteTest {
                 .build();
 
         // Delete by filtering
-        dataPlaneClient.delete(emptyList, false, namespace, filterStruct);
+        dataPlaneClient.delete(new ArrayList<>(), false, namespace, filterStruct);
 
         // Update startVectorCount
         int updatedVectorCount = actualVectorCount - 1;
@@ -256,7 +255,7 @@ public class UpsertDescribeIndexStatsAndDeleteTest {
                 .build();
 
         // Delete by filtering
-        dataPlaneClient.delete(emptyList, false, namespace, filterStruct).get();
+        dataPlaneClient.delete(new ArrayList<>(), false, namespace, filterStruct).get();
 
         // Update startVectorCount
         int updatedVectorCount = actualVectorCount - 1;

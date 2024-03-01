@@ -39,34 +39,6 @@ public class UpsertAndDescribeIndexStatsTest {
     }
 
     @Test
-    public void upsertRequiredVectorsAndDescribeIndexStatsSyncTest() throws InterruptedException {
-        // Get vector count before upserting vectors with required parameters
-        int numOfVectors = 3;
-        PineconeBlockingDataPlaneClient dataPlaneClient = new PineconeBlockingDataPlaneClient(blockingStub);
-        DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(emptyFilterStruct);
-        // Confirm the starting state by verifying the dimension of the index
-        assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
-        int vectorCount = describeIndexStatsResponse1.getTotalVectorCount();
-
-        // Upsert vectors with required parameters
-        List<String> upsertIds = getIdsList(numOfVectors);
-        for (String id : upsertIds) {
-            UpsertResponse upsertResponse = dataPlaneClient.upsert(id, generateVectorValuesByDimension(dimension));
-            vectorCount += upsertResponse.getUpsertedCount();
-        }
-
-        int actualVectorCount = vectorCount;
-
-        assertWithRetry(() -> {
-            // call describeIndexStats to get updated vector count
-            DescribeIndexStatsResponse describeIndexStatsResponse2 = dataPlaneClient.describeIndexStats(emptyFilterStruct);
-
-            // verify the updated vector count
-            assertEquals(describeIndexStatsResponse2.getTotalVectorCount(), actualVectorCount);
-        });
-    }
-
-    @Test
     public void upsertOptionalVectorsAndQueryIndexSyncTest() throws InterruptedException {
         int numOfVectors = 5;
         PineconeBlockingDataPlaneClient dataPlaneClient = new PineconeBlockingDataPlaneClient(blockingStub);
@@ -142,33 +114,6 @@ public class UpsertAndDescribeIndexStatsTest {
         } catch (PineconeValidationException validationException) {
             assertEquals(validationException.getLocalizedMessage(), "Invalid upsert request. Please ensure that both sparse indices and values are present.");
         }
-    }
-
-    @Test
-    public void upsertRequiredVectorsAndDescribeIndexStatsFutureTest() throws InterruptedException, ExecutionException {
-        // Get vector count before upserting vectors with required parameters
-        int numOfVectors = 3;
-        PineconeFutureDataPlaneClient dataPlaneClient = new PineconeFutureDataPlaneClient(futureStub);
-        DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(emptyFilterStruct).get();
-        // Confirm the starting state by verifying the dimension of the index
-        assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
-        int vectorCount = describeIndexStatsResponse1.getTotalVectorCount();
-
-        // Upsert vectors with required parameters
-        List<String> upsertIds = getIdsList(numOfVectors);
-        for (String id : upsertIds) {
-            UpsertResponse upsertResponse = dataPlaneClient.upsert(id, generateVectorValuesByDimension(dimension)).get();
-            vectorCount += upsertResponse.getUpsertedCount();
-        }
-        int actualVectorCount = vectorCount;
-
-        assertWithRetry(() -> {
-            // call describeIndexStats to get updated vector count
-            DescribeIndexStatsResponse describeIndexStatsResponse2 = dataPlaneClient.describeIndexStats(emptyFilterStruct).get();
-
-            // verify the updated vector count
-            assertEquals(describeIndexStatsResponse2.getTotalVectorCount(), actualVectorCount);
-        });
     }
 
     @Test

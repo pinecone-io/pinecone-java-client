@@ -2,7 +2,6 @@ package io.pinecone.unsigned_indices_model;
 
 import io.pinecone.proto.SparseValues;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 

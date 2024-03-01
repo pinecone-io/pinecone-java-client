@@ -76,11 +76,8 @@ public class QueryErrorTest {
         }
     }
 
-    // ToDo: @Test public void queryWithIncorrectVectorDimensionFuture()
     @Test
     public void queryWithIncorrectVectorDimensionFuture() throws ExecutionException, InterruptedException {
-        int numOfVectors = 3;
-
         String namespace = RandomStringBuilder.build("ns", 8);
         PineconeFutureDataPlaneClient dataPlaneClient = new PineconeFutureDataPlaneClient(futureStub);
         DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(null).get();
