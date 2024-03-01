@@ -80,7 +80,7 @@ public class IndexManager {
         CreateIndexRequest createIndexRequest = new CreateIndexRequest()
                 .name(indexName)
                 .dimension(dimension)
-                .metric(IndexMetric.EUCLIDEAN)
+                .metric(IndexMetric.DOTPRODUCT)
                 .spec(createIndexRequestSpec);
         controlPlaneClient.createIndex(createIndexRequest);
 
