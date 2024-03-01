@@ -128,8 +128,6 @@ public class PineconeFutureDataPlaneClient {
 
         ListenableFuture<QueryResponse> queryResponseFuture = futureStub.query(queryRequest.build());
 
-        // return Futures.transform(queryResponseFuture, queryResponse -> new QueryResponseWithUnsignedIndices(queryResponse), MoreExecutors.directExecutor());
-
         return Futures.transform(queryResponseFuture,
                 QueryResponseWithUnsignedIndices::new, MoreExecutors.directExecutor());
     }
