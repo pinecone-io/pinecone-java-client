@@ -252,7 +252,7 @@ public class UpdateFetchAndQueryTest {
     }
 
     @Test
-    public void upsertNullSparseIndicesNotNullSparseValuesSyncTest() {
+    public void updateNullSparseIndicesNotNullSparseValuesSyncTest() {
         PineconeBlockingDataPlaneClient dataPlaneClient = new PineconeBlockingDataPlaneClient(blockingStub);
         String id = RandomStringBuilder.build(3);
 
@@ -476,7 +476,7 @@ public class UpdateFetchAndQueryTest {
     }
 
     @Test
-    public void upsertNullSparseIndicesNotNullSparseValuesFutureTest() {
+    public void updateNullSparseIndicesNotNullSparseValuesFutureTest() {
         PineconeFutureDataPlaneClient dataPlaneClient = new PineconeFutureDataPlaneClient(futureStub);
         String id = RandomStringBuilder.build(3);
 
