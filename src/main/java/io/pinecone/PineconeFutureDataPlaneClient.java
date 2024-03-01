@@ -1,9 +1,12 @@
 package io.pinecone;
 
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.Struct;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.proto.*;
+import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
 
 import java.util.List;
 
@@ -11,7 +14,6 @@ import static io.pinecone.utils.SparseIndicesConverter.convertUnsigned32IntToSig
 
 public class PineconeFutureDataPlaneClient {
 
-    private final String defaultNamespace = "";
     private final VectorServiceGrpc.VectorServiceFutureStub futureStub;
 
     public PineconeFutureDataPlaneClient(VectorServiceGrpc.VectorServiceFutureStub futureStub) {
@@ -75,8 +77,7 @@ public class PineconeFutureDataPlaneClient {
         return futureStub.upsert(upsertRequest.build());
     }
 
-
-    public ListenableFuture<QueryResponse> query(int topK,
+    public ListenableFuture<QueryResponseWithUnsignedIndices> query(int topK,
                                                  List<Float> vector,
                                                  List<Long> sparseIndices,
                                                  List<Float> sparseValues,
@@ -125,10 +126,15 @@ public class PineconeFutureDataPlaneClient {
                     .build());
         }
 
-        return futureStub.query(queryRequest.build());
+        ListenableFuture<QueryResponse> queryResponseFuture = futureStub.query(queryRequest.build());
+
+        // return Futures.transform(queryResponseFuture, queryResponse -> new QueryResponseWithUnsignedIndices(queryResponse), MoreExecutors.directExecutor());
+
+        return Futures.transform(queryResponseFuture,
+                QueryResponseWithUnsignedIndices::new, MoreExecutors.directExecutor());
     }
 
-    public ListenableFuture<QueryResponse> queryByVectorId(int topK,
+    public ListenableFuture<QueryResponseWithUnsignedIndices> queryByVectorId(int topK,
                                                            String id,
                                                            String namespace,
                                                            Struct filter,
@@ -137,20 +143,20 @@ public class PineconeFutureDataPlaneClient {
         return query(topK, null, null, null, id, namespace, filter, includeValues, includeMetadata);
     }
 
-    public ListenableFuture<QueryResponse> queryByVectorId(int topK,
+    public ListenableFuture<QueryResponseWithUnsignedIndices> queryByVectorId(int topK,
                                                            String id,
                                                            String namespace,
                                                            Struct filter) {
         return query(topK, null, null, null, id, namespace, filter, false, false);
     }
 
-    public ListenableFuture<QueryResponse> queryByVectorId(int topK,
+    public ListenableFuture<QueryResponseWithUnsignedIndices> queryByVectorId(int topK,
                                                            String id,
                                                            String namespace) {
         return query(topK, null, null, null, id, namespace, null, false, false);
     }
 
-    public ListenableFuture<QueryResponse> queryByVectorId(int topK,
+    public ListenableFuture<QueryResponseWithUnsignedIndices> queryByVectorId(int topK,
                                                            String id) {
         return query(topK, null, null, null, id, null, null, false, false);
     }
@@ -229,13 +235,12 @@ public class PineconeFutureDataPlaneClient {
         return futureStub.update(updateRequest.build());
     }
 
-
     public ListenableFuture<DeleteResponse> deleteByIds(List<String> ids, String namespace) {
         return delete(ids, false, namespace, null);
     }
 
     public ListenableFuture<DeleteResponse> deleteByIds(List<String> ids) {
-        return delete(ids, false, defaultNamespace, null);
+        return delete(ids, false, null, null);
     }
 
     public ListenableFuture<DeleteResponse> deleteByFilter(Struct filter, String namespace) {
@@ -243,7 +248,7 @@ public class PineconeFutureDataPlaneClient {
     }
 
     public ListenableFuture<DeleteResponse> deleteByFilter(Struct filter) {
-        return delete(null, false, defaultNamespace, filter);
+        return delete(null, false, null, filter);
     }
 
     public ListenableFuture<DeleteResponse> deleteAll(String namespace) {

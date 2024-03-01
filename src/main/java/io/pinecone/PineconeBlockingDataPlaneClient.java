@@ -3,6 +3,7 @@ package io.pinecone;
 import com.google.protobuf.Struct;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.proto.*;
+import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
 
 import java.util.List;
 
@@ -10,7 +11,6 @@ import static io.pinecone.utils.SparseIndicesConverter.convertUnsigned32IntToSig
 
 public class PineconeBlockingDataPlaneClient {
 
-    private final String defaultNamespace = "";
     private final VectorServiceGrpc.VectorServiceBlockingStub blockingStub;
 
     public PineconeBlockingDataPlaneClient(VectorServiceGrpc.VectorServiceBlockingStub blockingStub) {
@@ -74,7 +74,7 @@ public class PineconeBlockingDataPlaneClient {
         return blockingStub.upsert(upsertRequest.build());
     }
 
-    public QueryResponse query(int topK,
+    public QueryResponseWithUnsignedIndices query(int topK,
                                List<Float> vector,
                                List<Long> sparseIndices,
                                List<Float> sparseValues,
@@ -123,10 +123,10 @@ public class PineconeBlockingDataPlaneClient {
                     .build());
         }
 
-        return blockingStub.query(queryRequest.build());
+        return new QueryResponseWithUnsignedIndices(blockingStub.query(queryRequest.build()));
     }
 
-    public QueryResponse queryByVectorId(int topK,
+    public QueryResponseWithUnsignedIndices queryByVectorId(int topK,
                                          String id,
                                          String namespace,
                                          Struct filter,
@@ -135,20 +135,20 @@ public class PineconeBlockingDataPlaneClient {
         return query(topK, null, null, null, id, namespace, filter, includeValues, includeMetadata);
     }
 
-    public QueryResponse queryByVectorId(int topK,
+    public QueryResponseWithUnsignedIndices queryByVectorId(int topK,
                                          String id,
                                          String namespace,
                                          Struct filter) {
         return query(topK, null, null, null, id, namespace, filter, false, false);
     }
 
-    public QueryResponse queryByVectorId(int topK,
+    public QueryResponseWithUnsignedIndices queryByVectorId(int topK,
                                          String id,
                                          String namespace) {
         return query(topK, null, null, null, id, namespace, null, false, false);
     }
 
-    public QueryResponse queryByVectorId(int topK,
+    public QueryResponseWithUnsignedIndices queryByVectorId(int topK,
                                          String id) {
         return query(topK, null, null, null, id, null, null, false, false);
     }
@@ -232,7 +232,7 @@ public class PineconeBlockingDataPlaneClient {
     }
 
     public DeleteResponse deleteByIds(List<String> ids) {
-        return delete(ids, false, defaultNamespace, null);
+        return delete(ids, false, null, null);
     }
 
     public DeleteResponse deleteByFilter(Struct filter, String namespace) {
@@ -240,7 +240,7 @@ public class PineconeBlockingDataPlaneClient {
     }
 
     public DeleteResponse deleteByFilter(Struct filter) {
-        return delete(null, false, defaultNamespace, filter);
+        return delete(null, false, null, filter);
     }
 
     public DeleteResponse deleteAll(String namespace) {

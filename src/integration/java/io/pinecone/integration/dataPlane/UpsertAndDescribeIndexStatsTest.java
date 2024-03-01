@@ -5,13 +5,14 @@ import io.pinecone.*;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.*;
+import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
+import io.pinecone.unsigned_indices_model.ScoredVectorWithUnsignedIndices;
 import org.junit.jupiter.api.*;
 import org.openapitools.client.model.IndexModelSpec;
 
 import static io.pinecone.helpers.BuildUpsertRequest.*;
 import static io.pinecone.helpers.IndexManager.createIndexIfNotExistsDataPlane;
 import static io.pinecone.helpers.AssertRetry.assertWithRetry;
-import static io.pinecone.utils.SparseIndicesConverter.convertUnsigned32IntToSigned32Int;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
@@ -92,7 +93,7 @@ public class UpsertAndDescribeIndexStatsTest {
 
         // Query by vector to verify
         assertWithRetry(() -> {
-            QueryResponse queryResponse = dataPlaneClient.query(
+            QueryResponseWithUnsignedIndices queryResponse = dataPlaneClient.query(
                     topK,
                     values,
                     sparseIndices,
@@ -103,7 +104,7 @@ public class UpsertAndDescribeIndexStatsTest {
                     true,
                     true);
 
-            ScoredVector scoredVectorV1 = null;
+            ScoredVectorWithUnsignedIndices scoredVectorV1 = null;
             for (int i = 0; i < topK; i++) {
                 if (upsertIds.get(0).equals(queryResponse.getMatches(i).getId())) {
                     scoredVectorV1 = queryResponse.getMatches(i);
@@ -120,10 +121,10 @@ public class UpsertAndDescribeIndexStatsTest {
             assertEquals(scoredVectorV1.getMetadata(), metadataStruct);
 
             // Verify the initial sparse values set for upsert operation
-            assertEquals(scoredVectorV1.getSparseValues().getIndicesList(), convertUnsigned32IntToSigned32Int(sparseIndices));
+            assertEquals(scoredVectorV1.getSparseValuesWithUnsignedIndices().getIndicesWithUnsigned32IntList(), sparseIndices);
 
             // Verify the initial sparse values set for upsert operation
-            assertEquals(scoredVectorV1.getSparseValues().getValuesList(), sparseValues);
+            assertEquals(scoredVectorV1.getSparseValuesWithUnsignedIndices().getValuesList(), sparseValues);
         });
     }
 
@@ -197,7 +198,7 @@ public class UpsertAndDescribeIndexStatsTest {
 
         // Query by vector to verify
         assertWithRetry(() -> {
-            QueryResponse queryResponse = dataPlaneClient.query(
+            QueryResponseWithUnsignedIndices queryResponse = dataPlaneClient.query(
                     topK,
                     values,
                     sparseIndices,
@@ -208,7 +209,7 @@ public class UpsertAndDescribeIndexStatsTest {
                     true,
                     true).get();
 
-            ScoredVector scoredVectorV1 = null;
+            ScoredVectorWithUnsignedIndices scoredVectorV1 = null;
             for (int i = 0; i < topK; i++) {
                 if (upsertIds.get(0).equals(queryResponse.getMatches(i).getId())) {
                     scoredVectorV1 = queryResponse.getMatches(i);
@@ -225,10 +226,10 @@ public class UpsertAndDescribeIndexStatsTest {
             assertEquals(scoredVectorV1.getMetadata(), metadataStruct);
 
             // Verify the initial sparse values set for upsert operation
-            assertEquals(scoredVectorV1.getSparseValues().getIndicesList(), convertUnsigned32IntToSigned32Int(sparseIndices));
+            assertEquals(scoredVectorV1.getSparseValuesWithUnsignedIndices().getIndicesWithUnsigned32IntList(), sparseIndices);
 
             // Verify the initial sparse values set for upsert operation
-            assertEquals(scoredVectorV1.getSparseValues().getValuesList(), sparseValues);
+            assertEquals(scoredVectorV1.getSparseValuesWithUnsignedIndices().getValuesList(), sparseValues);
         });
     }
 

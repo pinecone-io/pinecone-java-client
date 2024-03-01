@@ -10,6 +10,8 @@ import io.pinecone.exceptions.PineconeException;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.*;
+import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
+import io.pinecone.unsigned_indices_model.ScoredVectorWithUnsignedIndices;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -71,7 +73,7 @@ public class UpdateFetchAndQueryTest {
 
         // Query by ID to verify
         assertWithRetry(() -> {
-            QueryResponse queryResponse = dataPlaneClient.query(1,
+            QueryResponseWithUnsignedIndices queryResponse = dataPlaneClient.query(1,
                     null,
                     null,
                     null,
@@ -141,7 +143,7 @@ public class UpdateFetchAndQueryTest {
 
         // Query by vector to verify
         assertWithRetry(() -> {
-            QueryResponse queryResponse = dataPlaneClient.query(
+            QueryResponseWithUnsignedIndices queryResponse = dataPlaneClient.query(
                     5,
                     valuesToUpdate,
                     null,
@@ -152,7 +154,7 @@ public class UpdateFetchAndQueryTest {
                     true,
                     true);
 
-            ScoredVector scoredVectorV1 = queryResponse.getMatches(0);
+            ScoredVectorWithUnsignedIndices scoredVectorV1 = queryResponse.getMatches(0);
             // Verify the correct vector id was updated
             assertEquals(scoredVectorV1.getId(), idToUpdate);
 
@@ -163,7 +165,7 @@ public class UpdateFetchAndQueryTest {
             assertEquals(scoredVectorV1.getMetadata(), metadataToUpdate);
 
             // Verify the initial sparse values set for upsert operation
-            assertEquals(scoredVectorV1.getSparseValues().getValuesList(), sparseValuesList.get(0));
+            assertEquals(scoredVectorV1.getSparseValuesWithUnsignedIndices().getValuesList(), sparseValuesList.get(0));
         });
     }
 
@@ -236,7 +238,7 @@ public class UpdateFetchAndQueryTest {
                     .build();
 
             assertWithRetry(() -> {
-                QueryResponse queryResponse = dataPlaneClient.queryByVectorId(3,
+                QueryResponseWithUnsignedIndices queryResponse = dataPlaneClient.queryByVectorId(3,
                         upsertIds.get(0),
                         namespace,
                         filter,
@@ -295,7 +297,7 @@ public class UpdateFetchAndQueryTest {
 
         // Query by ID to verify
         assertWithRetry(() -> {
-            QueryResponse queryResponse = dataPlaneClient.query(1,
+            QueryResponseWithUnsignedIndices queryResponse = dataPlaneClient.query(1,
                     null,
                     null,
                     null,
@@ -365,7 +367,7 @@ public class UpdateFetchAndQueryTest {
 
         // Query by vector to verify
         assertWithRetry(() -> {
-            QueryResponse queryResponse = dataPlaneClient.query(
+            QueryResponseWithUnsignedIndices queryResponse = dataPlaneClient.query(
                     5,
                     valuesToUpdate,
                     null,
@@ -376,7 +378,7 @@ public class UpdateFetchAndQueryTest {
                     true,
                     true).get();
 
-            ScoredVector scoredVectorV1 = queryResponse.getMatches(0);
+            ScoredVectorWithUnsignedIndices scoredVectorV1 = queryResponse.getMatches(0);
             // Verify the correct vector id was updated
             assertEquals(scoredVectorV1.getId(), idToUpdate);
 
@@ -387,7 +389,7 @@ public class UpdateFetchAndQueryTest {
             assertEquals(scoredVectorV1.getMetadata(), metadataToUpdate);
 
             // Verify the initial sparse values set for upsert operation
-            assertEquals(scoredVectorV1.getSparseValues().getValuesList(), sparseValuesList.get(0));
+            assertEquals(scoredVectorV1.getSparseValuesWithUnsignedIndices().getValuesList(), sparseValuesList.get(0));
         });
     }
 
@@ -460,7 +462,7 @@ public class UpdateFetchAndQueryTest {
                     .build();
 
             assertWithRetry(() -> {
-                QueryResponse queryResponse = dataPlaneClient.queryByVectorId(3,
+                QueryResponseWithUnsignedIndices queryResponse = dataPlaneClient.queryByVectorId(3,
                         upsertIds.get(0),
                         namespace,
                         filter,
