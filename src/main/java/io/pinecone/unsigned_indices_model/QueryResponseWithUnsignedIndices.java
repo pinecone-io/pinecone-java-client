@@ -15,6 +15,7 @@ public class QueryResponseWithUnsignedIndices {
     public QueryResponseWithUnsignedIndices(QueryResponse queryResponse) {
         if (queryResponse == null) {
             this.matches = Collections.emptyList();
+            this.namespace = "";
         } else {
             this.matches = convertToScoredVectorWithUnsignedIndices(queryResponse.getMatchesList());
             this.namespace = queryResponse.getNamespace();

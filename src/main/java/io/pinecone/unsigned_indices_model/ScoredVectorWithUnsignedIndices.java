@@ -3,6 +3,7 @@ package io.pinecone.unsigned_indices_model;
 import com.google.protobuf.Struct;
 import io.pinecone.proto.ScoredVector;
 
+import java.util.Collections;
 import java.util.List;
 
 public class ScoredVectorWithUnsignedIndices {
@@ -15,7 +16,11 @@ public class ScoredVectorWithUnsignedIndices {
 
     public ScoredVectorWithUnsignedIndices(ScoredVector scoredVector) {
         if (scoredVector == null) {
-
+            this.score = 0F;
+            this.id = "";
+            this.values = Collections.emptyList();
+            this.metadata = Struct.newBuilder().build();
+            this.sparseValuesWithUnsignedIndices = new SparseValuesWithUnsignedIndices();
         } else {
             this.score = scoredVector.getScore();
             this.id = scoredVector.getId();
@@ -57,7 +62,6 @@ public class ScoredVectorWithUnsignedIndices {
         this.metadata = metadata;
     }
 
-    // ToDo: Handle null
     public SparseValuesWithUnsignedIndices getSparseValuesWithUnsignedIndices() {
         return sparseValuesWithUnsignedIndices;
     }

@@ -8,16 +8,23 @@ import java.util.List;
 import static io.pinecone.utils.SparseIndicesConverter.convertSigned32IntToUnsigned32Int;
 
 public class SparseValuesWithUnsignedIndices {
+
     private List<Long> indicesWithUnsigned32Int;
     private List<Float> values;
 
+    public SparseValuesWithUnsignedIndices() {
+        this.indicesWithUnsigned32Int = Collections.emptyList();
+        this.values = Collections.emptyList();
+    }
+
     public SparseValuesWithUnsignedIndices(SparseValues sparseValues) {
-        if(sparseValues == null){
+        if (sparseValues == null) {
             this.indicesWithUnsigned32Int = Collections.emptyList();
             this.values = Collections.emptyList();
+        } else {
+            this.indicesWithUnsigned32Int = convertSigned32IntToUnsigned32Int(sparseValues.getIndicesList());
+            this.values = sparseValues.getValuesList();
         }
-        this.indicesWithUnsigned32Int = convertSigned32IntToUnsigned32Int(sparseValues.getIndicesList());
-        this.values = sparseValues.getValuesList();
     }
 
     public List<Long> getIndicesWithUnsigned32IntList() {
