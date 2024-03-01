@@ -1,4 +1,4 @@
-package io.pinecone;
+package io.pinecone.configs;
 
 import io.pinecone.exceptions.PineconeValidationException;
 

@@ -1,4 +1,4 @@
-package io.pinecone;
+package io.pinecone.clients;
 
 import io.pinecone.exceptions.FailedRequestInfo;
 import io.pinecone.exceptions.HttpErrorMapper;

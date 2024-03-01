@@ -1,9 +1,9 @@
 package io.pinecone.integration.dataPlane;
 
 import io.grpc.StatusRuntimeException;
-import io.pinecone.PineconeBlockingDataPlaneClient;
-import io.pinecone.PineconeConnection;
-import io.pinecone.PineconeFutureDataPlaneClient;
+import io.pinecone.clients.PineconeBlockingDataPlaneClient;
+import io.pinecone.configs.PineconeConnection;
+import io.pinecone.clients.PineconeFutureDataPlaneClient;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.*;

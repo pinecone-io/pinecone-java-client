@@ -1,4 +1,4 @@
-package io.pinecone;
+package io.pinecone.clients;
 
 import com.google.protobuf.Struct;
 import io.pinecone.exceptions.PineconeValidationException;

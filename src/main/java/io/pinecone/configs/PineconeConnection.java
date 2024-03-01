@@ -1,4 +1,4 @@
-package io.pinecone;
+package io.pinecone.configs;
 
 import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
@@ -6,6 +6,7 @@ import io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.NegotiationType;
 import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.MetadataUtils;
+import io.pinecone.clients.PineconeControlPlaneClient;
 import io.pinecone.exceptions.PineconeException;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.proto.VectorServiceGrpc;
@@ -36,6 +37,14 @@ public class PineconeConnection implements AutoCloseable {
 
     private VectorServiceGrpc.VectorServiceFutureStub futureStub;
 
+    public PineconeConnection(String apiKey, String indexName) {
+        this.clientConfig = new PineconeClientConfig().withApiKey(apiKey);
+        String host = getHost(apiKey, indexName);
+        this.connectionConfig = new PineconeConnectionConfig().withConnectionUrl(host);
+        channel = buildChannel(host);
+        initialize();
+    }
+
     public PineconeConnection(PineconeClientConfig clientConfig, PineconeConnectionConfig connectionConfig) {
         this.connectionConfig = connectionConfig;
         this.clientConfig = clientConfig;
@@ -43,20 +52,32 @@ public class PineconeConnection implements AutoCloseable {
 
         channel = connectionConfig.getCustomChannelBuilder() != null
                 ? connectionConfig.getCustomChannelBuilder().apply(clientConfig, connectionConfig)
-                : buildChannel(clientConfig, connectionConfig);
+                : buildChannel(connectionConfig.getConnectionUrl());
+        initialize();
+    }
+
+    private void initialize() {
         channel.notifyWhenStateChanged(channel.getState(false), this::onConnectivityStateChanged);
         Metadata metadata = assembleMetadata(clientConfig);
-        blockingStub = VectorServiceGrpc
+        blockingStub = generateBlockingStub(metadata);
+        futureStub = generateFutureStub(metadata);
+        logger.debug("created new PineconeConnection for channel: {}", channel);
+    }
+
+    private VectorServiceGrpc.VectorServiceBlockingStub generateBlockingStub(Metadata metadata) {
+        return VectorServiceGrpc
                 .newBlockingStub(channel)
                 .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(metadata))
                 .withMaxInboundMessageSize(DEFAULT_MAX_MESSAGE_SIZE)
                 .withMaxOutboundMessageSize(DEFAULT_MAX_MESSAGE_SIZE);
-        futureStub = VectorServiceGrpc
+    }
+
+    private VectorServiceGrpc.VectorServiceFutureStub generateFutureStub(Metadata metadata) {
+        return VectorServiceGrpc
                 .newFutureStub(channel)
                 .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(metadata))
                 .withMaxInboundMessageSize(DEFAULT_MAX_MESSAGE_SIZE)
                 .withMaxOutboundMessageSize(DEFAULT_MAX_MESSAGE_SIZE);
-        logger.debug("created new PineconeConnection for channel: {}", channel);
     }
 
     /**
@@ -73,7 +94,6 @@ public class PineconeConnection implements AutoCloseable {
             logger.warn("Channel shutdown interrupted before termination confirmed");
         }
     }
-
 
     public ManagedChannel getChannel() {
         return channel;
@@ -92,9 +112,8 @@ public class PineconeConnection implements AutoCloseable {
                 channel.getState(false), channel);
     }
 
-    public static ManagedChannel buildChannel(PineconeClientConfig clientConfig,
-                                              PineconeConnectionConfig config) {
-        String endpoint = getEndpoint(clientConfig, config);
+    public static ManagedChannel buildChannel(String host) {
+        String endpoint = getEndpoint(host);
         NettyChannelBuilder builder = NettyChannelBuilder.forTarget(endpoint);
 
         try {
@@ -116,17 +135,18 @@ public class PineconeConnection implements AutoCloseable {
         return metadata;
     }
 
-    static String getEndpoint(PineconeClientConfig clientConfig, PineconeConnectionConfig connectionConfig) {
-        String endpoint = (connectionConfig.getConnectionUrl() != null) ?
-                connectionConfig.getConnectionUrl().replaceFirst("https?://", "") :
-                String.format("%s-%s.svc.%s.pinecone.io",
-                        connectionConfig.getIndexName(),
-                        clientConfig.getProjectName(),
-                        clientConfig.getEnvironment());
+    public static String getEndpoint(String host) {
+        if(host != null && !host.isEmpty()) {
+            return host.replaceFirst("https?://", "");
+        }
+        else {
+            throw new PineconeValidationException("Index host cannot be null or empty");
+        }
+    }
 
-        logger.debug("Pinecone endpoint is: " + endpoint);
-
-        return endpoint;
+    private static String getHost(String apiKey, String indexName) {
+        PineconeControlPlaneClient controlPlaneClient = new PineconeControlPlaneClient(apiKey);
+        return controlPlaneClient.describeIndex(indexName).getHost();
     }
 
     void validateConfigs() throws PineconeValidationException {
@@ -141,12 +161,10 @@ public class PineconeConnection implements AutoCloseable {
         this.clientConfig.validate();
         this.connectionConfig.validate();
 
-        if (this.connectionConfig.getIndexName() != null) {
-            if (this.clientConfig.getEnvironment() == null || this.clientConfig.getProjectName() == null) {
-                throw new PineconeValidationException("Cannot connect with indexName "
-                        + this.connectionConfig.getIndexName()
-                        + " unless PineconeClientConfig contains projectName and environment");
-            }
+        if(connectionConfig.getIndexName() != null && !connectionConfig.getIndexName().isEmpty()
+                && (connectionConfig.getConnectionUrl() == null || connectionConfig.getConnectionUrl().isEmpty())) {
+            String host = getHost(clientConfig.getApiKey(), connectionConfig.getIndexName());
+            connectionConfig.withConnectionUrl(host);
         }
     }
 }

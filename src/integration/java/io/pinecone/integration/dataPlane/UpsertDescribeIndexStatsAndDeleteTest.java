@@ -2,9 +2,9 @@ package io.pinecone.integration.dataPlane;
 
 import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
-import io.pinecone.PineconeConnection;
-import io.pinecone.PineconeBlockingDataPlaneClient;
-import io.pinecone.PineconeFutureDataPlaneClient;
+import io.pinecone.configs.PineconeConnection;
+import io.pinecone.clients.PineconeBlockingDataPlaneClient;
+import io.pinecone.clients.PineconeFutureDataPlaneClient;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.*;
 import org.junit.jupiter.api.AfterAll;

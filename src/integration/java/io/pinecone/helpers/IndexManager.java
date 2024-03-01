@@ -1,6 +1,10 @@
 package io.pinecone.helpers;
 
-import io.pinecone.*;
+import io.pinecone.clients.PineconeControlPlaneClient;
+import io.pinecone.configs.PineconeClient;
+import io.pinecone.configs.PineconeClientConfig;
+import io.pinecone.configs.PineconeConnection;
+import io.pinecone.configs.PineconeConnectionConfig;
 import io.pinecone.exceptions.PineconeException;
 import org.openapitools.client.model.*;
 import org.slf4j.Logger;
@@ -14,13 +18,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class IndexManager {
-    private static PineconeClientConfig config;
     private static final Logger logger = LoggerFactory.getLogger(IndexManager.class);
 
     public static PineconeConnection createIndexIfNotExistsDataPlane(int dimension, String indexType) throws IOException, InterruptedException {
         String apiKey = System.getenv("PINECONE_API_KEY");
-        String environment = System.getenv("PINECONE_ENVIRONMENT");
-        config = new PineconeClientConfig().withApiKey(apiKey).withEnvironment(environment);
         PineconeControlPlaneClient controlPlaneClient = new PineconeControlPlaneClient(apiKey);
         IndexList indexList = controlPlaneClient.listIndexes();
 
@@ -29,13 +30,7 @@ public class IndexManager {
 
         // Do not proceed until the newly created index is ready
         isIndexReady(indexName, controlPlaneClient);
-        // ToDo: Update the constructor by removing dependency on PineconeClientConfig
-        PineconeClient dataPlaneClient = new PineconeClient(config);
-        String host = controlPlaneClient.describeIndex(indexName).getHost();
-
-        return dataPlaneClient.connect(
-                new PineconeConnectionConfig()
-                        .withConnectionUrl("https://" + host));
+        return new PineconeConnection(apiKey, indexName);
     }
 
     public static String createIndexIfNotExistsControlPlane(PineconeControlPlaneClient controlPlaneClient, int dimension, String indexType) throws IOException, InterruptedException {
@@ -113,6 +108,7 @@ public class IndexManager {
     }
 
     public static PineconeConnection createNewIndexAndConnect(PineconeControlPlaneClient controlPlaneClient, String indexName, int dimension, IndexMetric metric, CreateIndexRequestSpec spec) throws InterruptedException, PineconeException {
+        String apiKey = System.getenv("PINECONE_API_KEY");
         CreateIndexRequest createIndexRequest = new CreateIndexRequest().name(indexName).dimension(dimension).metric(metric).spec(spec);
         controlPlaneClient.createIndex(createIndexRequest);
 

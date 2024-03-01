@@ -1,11 +1,10 @@
 package io.pinecone.integration.controlPlane.pod;
 
-import io.pinecone.PineconeConnection;
-import io.pinecone.PineconeControlPlaneClient;
+import io.pinecone.configs.PineconeConnection;
+import io.pinecone.clients.PineconeControlPlaneClient;
 import io.pinecone.exceptions.PineconeException;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.VectorServiceGrpc;
-import org.junit.Ignore;
 import org.openapitools.client.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
