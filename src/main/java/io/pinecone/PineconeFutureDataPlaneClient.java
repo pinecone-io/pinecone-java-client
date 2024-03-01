@@ -1,5 +1,6 @@
 package io.pinecone;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.Struct;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.proto.*;
@@ -8,36 +9,36 @@ import java.util.List;
 
 import static io.pinecone.utils.SparseIndicesConverter.convertUnsigned32IntToSigned32Int;
 
-public class PineconeBlockingDataPlaneClient {
+public class PineconeFutureDataPlaneClient {
 
     private final String defaultNamespace = "";
-    private final VectorServiceGrpc.VectorServiceBlockingStub blockingStub;
+    private final VectorServiceGrpc.VectorServiceFutureStub futureStub;
 
-    public PineconeBlockingDataPlaneClient(VectorServiceGrpc.VectorServiceBlockingStub blockingStub) {
-        if (blockingStub == null) {
-            throw new PineconeValidationException("BlockingStub cannot be null.");
+    public PineconeFutureDataPlaneClient(VectorServiceGrpc.VectorServiceFutureStub futureStub) {
+        if (futureStub == null) {
+            throw new PineconeValidationException("FutureStub cannot be null.");
         }
 
-        this.blockingStub = blockingStub;
+        this.futureStub = futureStub;
     }
 
-    public UpsertResponse upsert(String id,
-                                 List<Float> values) {
+    public ListenableFuture<UpsertResponse> upsert(String id,
+                                                   List<Float> values) {
         return upsert(id, values, null, null, null, null);
     }
 
-    public UpsertResponse upsert(String id,
-                                 List<Float> values,
-                                 String namespace) {
+    public ListenableFuture<UpsertResponse> upsert(String id,
+                                                   List<Float> values,
+                                                   String namespace) {
         return upsert(id, values, null, null, null, namespace);
     }
 
-    public UpsertResponse upsert(String id,
-                                 List<Float> values,
-                                 List<Long> sparseIndices,
-                                 List<Float> sparseValues,
-                                 com.google.protobuf.Struct metadata,
-                                 String namespace) {
+    public ListenableFuture<UpsertResponse> upsert(String id,
+                                                   List<Float> values,
+                                                   List<Long> sparseIndices,
+                                                   List<Float> sparseValues,
+                                                   com.google.protobuf.Struct metadata,
+                                                   String namespace) {
         UpsertRequest.Builder upsertRequest = UpsertRequest.newBuilder();
 
         if (id == null || id.isEmpty() || values == null || values.isEmpty()) {
@@ -71,18 +72,19 @@ public class PineconeBlockingDataPlaneClient {
             upsertRequest.setNamespace(namespace);
         }
 
-        return blockingStub.upsert(upsertRequest.build());
+        return futureStub.upsert(upsertRequest.build());
     }
 
-    public QueryResponse query(int topK,
-                               List<Float> vector,
-                               List<Long> sparseIndices,
-                               List<Float> sparseValues,
-                               String id,
-                               String namespace,
-                               Struct filter,
-                               boolean includeValues,
-                               boolean includeMetadata) {
+
+    public ListenableFuture<QueryResponse> query(int topK,
+                                                 List<Float> vector,
+                                                 List<Long> sparseIndices,
+                                                 List<Float> sparseValues,
+                                                 String id,
+                                                 String namespace,
+                                                 Struct filter,
+                                                 boolean includeValues,
+                                                 boolean includeMetadata) {
         QueryRequest.Builder queryRequest = QueryRequest.newBuilder();
 
         if (id != null && !id.isEmpty() && vector != null && !vector.isEmpty()) {
@@ -123,42 +125,42 @@ public class PineconeBlockingDataPlaneClient {
                     .build());
         }
 
-        return blockingStub.query(queryRequest.build());
+        return futureStub.query(queryRequest.build());
     }
 
-    public QueryResponse queryByVectorId(int topK,
-                                         String id,
-                                         String namespace,
-                                         Struct filter,
-                                         boolean includeValues,
-                                         boolean includeMetadata) {
+    public ListenableFuture<QueryResponse> queryByVectorId(int topK,
+                                                           String id,
+                                                           String namespace,
+                                                           Struct filter,
+                                                           boolean includeValues,
+                                                           boolean includeMetadata) {
         return query(topK, null, null, null, id, namespace, filter, includeValues, includeMetadata);
     }
 
-    public QueryResponse queryByVectorId(int topK,
-                                         String id,
-                                         String namespace,
-                                         Struct filter) {
+    public ListenableFuture<QueryResponse> queryByVectorId(int topK,
+                                                           String id,
+                                                           String namespace,
+                                                           Struct filter) {
         return query(topK, null, null, null, id, namespace, filter, false, false);
     }
 
-    public QueryResponse queryByVectorId(int topK,
-                                         String id,
-                                         String namespace) {
+    public ListenableFuture<QueryResponse> queryByVectorId(int topK,
+                                                           String id,
+                                                           String namespace) {
         return query(topK, null, null, null, id, namespace, null, false, false);
     }
 
-    public QueryResponse queryByVectorId(int topK,
-                                         String id) {
+    public ListenableFuture<QueryResponse> queryByVectorId(int topK,
+                                                           String id) {
         return query(topK, null, null, null, id, null, null, false, false);
     }
 
-    public FetchResponse fetch(List<String> ids) {
+    public ListenableFuture<FetchResponse> fetch(List<String> ids) {
         return fetch(ids, null);
     }
 
-    public FetchResponse fetch(List<String> ids,
-                               String namespace) {
+    public ListenableFuture<FetchResponse> fetch(List<String> ids,
+                                                 String namespace) {
         FetchRequest.Builder fetchRequest = FetchRequest.newBuilder();
 
         if (ids == null || ids.isEmpty()) {
@@ -171,26 +173,26 @@ public class PineconeBlockingDataPlaneClient {
             fetchRequest.setNamespace(namespace);
         }
 
-        return blockingStub.fetch(fetchRequest.build());
+        return futureStub.fetch(fetchRequest.build());
     }
 
-    public UpdateResponse update(String id,
-                                 List<Float> values) {
+    public ListenableFuture<UpdateResponse> update(String id,
+                                                   List<Float> values) {
         return update(id, values, null, null, null, null);
     }
 
-    public UpdateResponse update(String id,
-                                 List<Float> values,
-                                 String namespace) {
+    public ListenableFuture<UpdateResponse> update(String id,
+                                                   List<Float> values,
+                                                   String namespace) {
         return update(id, values, null, namespace, null, null);
     }
 
-    public UpdateResponse update(String id,
-                                 List<Float> values,
-                                 Struct metadata,
-                                 String namespace,
-                                 List<Long> sparseIndices,
-                                 List<Float> sparseValues) {
+    public ListenableFuture<UpdateResponse> update(String id,
+                                                   List<Float> values,
+                                                   Struct metadata,
+                                                   String namespace,
+                                                   List<Long> sparseIndices,
+                                                   List<Float> sparseValues) {
         UpdateRequest.Builder updateRequest = UpdateRequest.newBuilder();
 
         if (id == null) {
@@ -224,30 +226,31 @@ public class PineconeBlockingDataPlaneClient {
                     .build());
         }
 
-        return blockingStub.update(updateRequest.build());
+        return futureStub.update(updateRequest.build());
     }
 
-    public DeleteResponse deleteByIds(List<String> ids, String namespace) {
+
+    public ListenableFuture<DeleteResponse> deleteByIds(List<String> ids, String namespace) {
         return delete(ids, false, namespace, null);
     }
 
-    public DeleteResponse deleteByIds(List<String> ids) {
+    public ListenableFuture<DeleteResponse> deleteByIds(List<String> ids) {
         return delete(ids, false, defaultNamespace, null);
     }
 
-    public DeleteResponse deleteByFilter(Struct filter, String namespace) {
+    public ListenableFuture<DeleteResponse> deleteByFilter(Struct filter, String namespace) {
         return delete(null, false, namespace, filter);
     }
 
-    public DeleteResponse deleteByFilter(Struct filter) {
+    public ListenableFuture<DeleteResponse> deleteByFilter(Struct filter) {
         return delete(null, false, defaultNamespace, filter);
     }
 
-    public DeleteResponse deleteAll(String namespace) {
+    public ListenableFuture<DeleteResponse> deleteAll(String namespace) {
         return delete(null, true, namespace, null);
     }
 
-    public DeleteResponse delete(List<String> ids,
+    public ListenableFuture<DeleteResponse> delete(List<String> ids,
                                  boolean deleteAll,
                                  String namespace,
                                  Struct filter) {
@@ -265,16 +268,17 @@ public class PineconeBlockingDataPlaneClient {
             deleteRequest.setFilter(filter);
         }
 
-        return blockingStub.delete(deleteRequest.build());
+        return futureStub.delete(deleteRequest.build());
     }
 
-    public DescribeIndexStatsResponse describeIndexStats(Struct filter) {
+
+    public ListenableFuture<DescribeIndexStatsResponse> describeIndexStats(Struct filter) {
         DescribeIndexStatsRequest.Builder describeIndexStatsRequest = DescribeIndexStatsRequest.newBuilder();
 
         if (filter != null) {
             describeIndexStatsRequest.setFilter(filter);
         }
 
-        return blockingStub.describeIndexStats(describeIndexStatsRequest.build());
+        return futureStub.describeIndexStats(describeIndexStatsRequest.build());
     }
 }

@@ -1,11 +1,11 @@
-package io.pinecone;
+package io.pinecone.utils;
 
 import io.pinecone.exceptions.PineconeValidationException;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Helpers {
+public class SparseIndicesConverter {
     public static Iterable<? extends Integer> convertUnsigned32IntToSigned32Int(Iterable<? extends Long> unsigned32IntValues) {
         List<Integer> int32Values = new ArrayList<>();
         for (Long value : unsigned32IntValues) {

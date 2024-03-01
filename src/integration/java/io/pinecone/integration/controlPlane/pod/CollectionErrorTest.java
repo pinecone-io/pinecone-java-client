@@ -27,7 +27,6 @@ import static io.pinecone.helpers.IndexManager.waitUntilIndexIsReady;
 import static io.pinecone.helpers.BuildUpsertRequest.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Ignore
 public class CollectionErrorTest {
     private static final String apiKey = System.getenv("PINECONE_API_KEY");
     private static final String environment = System.getenv("PINECONE_ENVIRONMENT");

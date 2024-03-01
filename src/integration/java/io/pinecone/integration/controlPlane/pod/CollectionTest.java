@@ -21,7 +21,6 @@ import static io.pinecone.helpers.IndexManager.createCollection;
 import static io.pinecone.helpers.BuildUpsertRequest.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-@Ignore
 public class CollectionTest {
 
     private static PineconeControlPlaneClient controlPlaneClient;
