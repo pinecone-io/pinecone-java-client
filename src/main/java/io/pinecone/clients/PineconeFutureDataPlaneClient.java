@@ -1,4 +1,4 @@
-package io.pinecone;
+package io.pinecone.clients;
 
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;

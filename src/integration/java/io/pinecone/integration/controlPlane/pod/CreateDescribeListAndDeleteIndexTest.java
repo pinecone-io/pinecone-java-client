@@ -1,6 +1,6 @@
 package io.pinecone.integration.controlPlane.pod;
 
-import io.pinecone.PineconeControlPlaneClient;
+import io.pinecone.clients.PineconeControlPlaneClient;
 import io.pinecone.helpers.RandomStringBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

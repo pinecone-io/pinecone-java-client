@@ -1,9 +1,12 @@
 package io.pinecone.integration.controlPlane.pod;
 
-import io.pinecone.*;
+import io.pinecone.clients.PineconeControlPlaneClient;
+import io.pinecone.configs.PineconeClient;
+import io.pinecone.configs.PineconeClientConfig;
+import io.pinecone.configs.PineconeConnection;
+import io.pinecone.configs.PineconeConnectionConfig;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.*;
-import org.junit.Ignore;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -195,5 +198,4 @@ public class CollectionTest {
 
         dataPlaneConnection.close();
     }
-
 }

@@ -1,7 +1,9 @@
 package io.pinecone.integration.dataPlane;
 
 import com.google.protobuf.Struct;
-import io.pinecone.*;
+import io.pinecone.clients.PineconeBlockingDataPlaneClient;
+import io.pinecone.clients.PineconeFutureDataPlaneClient;
+import io.pinecone.configs.PineconeConnection;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.*;

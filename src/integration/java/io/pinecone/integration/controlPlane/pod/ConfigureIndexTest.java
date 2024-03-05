@@ -1,11 +1,10 @@
 package io.pinecone.integration.controlPlane.pod;
 
-import io.pinecone.PineconeControlPlaneClient;
+import io.pinecone.clients.PineconeControlPlaneClient;
 import io.pinecone.exceptions.PineconeException;
 import io.pinecone.exceptions.PineconeForbiddenException;
 import io.pinecone.exceptions.PineconeBadRequestException;
 import io.pinecone.exceptions.PineconeNotFoundException;
-import org.junit.Ignore;
 import org.junit.jupiter.api.*;
 import org.openapitools.client.model.*;
 import org.slf4j.Logger;
