@@ -13,7 +13,7 @@ public class PineconeConnectionTest {
         PineconeConnectionConfig connectionConfig = new PineconeConnectionConfig()
                 .withConnectionUrl("https://steps-784-123-eqasas0aaaa1213aasasc-1223-f1eea9.svc.production.pinecone.io");
 
-        String endpoint = PineconeConnection.getEndpoint(connectionConfig.getConnectionUrl());
+        String endpoint = PineconeConnection.formatEndpoint(connectionConfig.getConnectionUrl());
 
         assertEquals("steps-784-123-eqasas0aaaa1213aasasc-1223-f1eea9.svc.production.pinecone.io", endpoint);
     }
@@ -23,7 +23,7 @@ public class PineconeConnectionTest {
         PineconeConnectionConfig connectionConfig = new PineconeConnectionConfig()
                 .withConnectionUrl("http://steps-784-123-eqasas0aaaa1213aasasc-1223-f1eea9.svc.production.pinecone.io");
 
-        String endpoint = PineconeConnection.getEndpoint(connectionConfig.getConnectionUrl());
+        String endpoint = PineconeConnection.formatEndpoint(connectionConfig.getConnectionUrl());
 
         assertEquals("steps-784-123-eqasas0aaaa1213aasasc-1223-f1eea9.svc.production.pinecone.io", endpoint);
     }

@@ -23,11 +23,6 @@ public class PineconeClientConfig {
 
     private String environment;
 
-    /**
-     * Optional server-side timeout in seconds for all operations. Default: 20 seconds.
-     */
-    private int serverSideTimeoutSec = 20;
-
     private String usageContext;
     /**
      * Creates a new default config.
@@ -39,7 +34,6 @@ public class PineconeClientConfig {
         apiKey = other.apiKey;
         projectName = other.projectName;
         environment = other.environment;
-        serverSideTimeoutSec = other.serverSideTimeoutSec;
         usageContext = other.usageContext;
     }
 
@@ -82,22 +76,6 @@ public class PineconeClientConfig {
         return config;
     }
 
-    /**
-     * @return See {@link PineconeClientConfig#serverSideTimeoutSec}.
-     */
-    public int getServerSideTimeoutSec() {
-        return serverSideTimeoutSec;
-    }
-
-    /**
-     * @return A copy of this object with a new value for {@link PineconeClientConfig#serverSideTimeoutSec}.
-     */
-    public PineconeClientConfig withServerSideTimeoutSec(int serverSideTimeout) {
-        PineconeClientConfig config = new PineconeClientConfig(this);
-        config.serverSideTimeoutSec = serverSideTimeout;
-        return config;
-    }
-
     public String getUsageContext() {
         return usageContext;
     }
@@ -119,7 +97,6 @@ public class PineconeClientConfig {
                 + "apiKey=" + maskedApiKey()
                 + ", projectName=" + projectName
                 + ", environment=" + environment
-                + ", serverSideTimeoutSec=" + getServerSideTimeoutSec()
                 + ")";
     }
 

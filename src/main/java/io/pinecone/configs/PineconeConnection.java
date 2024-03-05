@@ -48,7 +48,7 @@ public class PineconeConnection implements AutoCloseable {
     public PineconeConnection(PineconeClientConfig clientConfig, PineconeConnectionConfig connectionConfig) {
         this.connectionConfig = connectionConfig;
         this.clientConfig = clientConfig;
-        validateConfigs();
+        validateConfigsAndGetHostIfEmpty();
 
         channel = connectionConfig.getCustomChannelBuilder() != null
                 ? connectionConfig.getCustomChannelBuilder().apply(clientConfig, connectionConfig)
@@ -113,7 +113,7 @@ public class PineconeConnection implements AutoCloseable {
     }
 
     public static ManagedChannel buildChannel(String host) {
-        String endpoint = getEndpoint(host);
+        String endpoint = formatEndpoint(host);
         NettyChannelBuilder builder = NettyChannelBuilder.forTarget(endpoint);
 
         try {
@@ -135,7 +135,7 @@ public class PineconeConnection implements AutoCloseable {
         return metadata;
     }
 
-    public static String getEndpoint(String host) {
+    public static String formatEndpoint(String host) {
         if(host != null && !host.isEmpty()) {
             return host.replaceFirst("https?://", "");
         }
@@ -149,7 +149,7 @@ public class PineconeConnection implements AutoCloseable {
         return controlPlaneClient.describeIndex(indexName).getHost();
     }
 
-    void validateConfigs() throws PineconeValidationException {
+    void validateConfigsAndGetHostIfEmpty() throws PineconeValidationException {
         if (this.clientConfig == null) {
             throw new PineconeValidationException("PineconeClientConfiguration may not be null");
         }
