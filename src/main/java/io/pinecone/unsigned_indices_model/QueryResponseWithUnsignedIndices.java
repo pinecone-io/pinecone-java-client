@@ -2,6 +2,7 @@ package io.pinecone.unsigned_indices_model;
 
 import io.pinecone.proto.QueryResponse;
 import io.pinecone.proto.ScoredVector;
+import io.pinecone.proto.Usage;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,14 +12,18 @@ public class QueryResponseWithUnsignedIndices {
 
     private List<ScoredVectorWithUnsignedIndices> matches;
     private String namespace;
+    private Usage usage;
+
 
     public QueryResponseWithUnsignedIndices(QueryResponse queryResponse) {
         if (queryResponse == null) {
             this.matches = Collections.emptyList();
             this.namespace = "";
+            this.usage = null;
         } else {
             this.matches = convertToScoredVectorWithUnsignedIndices(queryResponse.getMatchesList());
             this.namespace = queryResponse.getNamespace();
+            this.usage = queryResponse.getUsage();
         }
     }
 
@@ -51,5 +56,31 @@ public class QueryResponseWithUnsignedIndices {
 
     public void setNamespace(String namespace) {
         this.namespace = namespace;
+    }
+
+    public Usage getUsage() { return usage; }
+
+    public void setUsage(Usage usage) { this.usage = usage; }
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private String toIndentedString(Object o) {
+        if (o == null) {
+            return "null";
+        }
+        return o.toString().replace("\n", "\n    ");
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("class QueryResponseWithUnsignedIndices {").append("\n");
+        sb.append("    matches: ").append(toIndentedString(matches)).append("\n");
+        sb.append("    namespace: ").append(toIndentedString(namespace)).append("\n");
+        sb.append("    usage: ").append(usage).append("\n");
+        sb.append("}");
+        return sb.toString();
     }
 }

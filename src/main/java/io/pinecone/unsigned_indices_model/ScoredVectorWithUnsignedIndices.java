@@ -69,4 +69,28 @@ public class ScoredVectorWithUnsignedIndices {
     public void setSparseValuesWithUnsignedIndices(SparseValuesWithUnsignedIndices sparseValuesWithUnsignedIndices) {
         this.sparseValuesWithUnsignedIndices = sparseValuesWithUnsignedIndices;
     }
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private String toIndentedString(Object o) {
+        if (o == null) {
+            return "null";
+        }
+        return o.toString().replace("\n", "\n    ");
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("ScoredVectorWithUnsignedIndices {").append("\n");
+        sb.append("    score: ").append(toIndentedString(score)).append("\n");
+        sb.append("    id: ").append(toIndentedString(id)).append("\n");
+        sb.append("    values: ").append(toIndentedString(values)).append("\n");
+        sb.append("    metadata: ").append(toIndentedString(metadata)).append("\n");
+        sb.append("    sparseValuesWithUnsignedIndices: ").append(toIndentedString(sparseValuesWithUnsignedIndices)).append("\n");
+        sb.append("}");
+        return sb.toString();
+    }
 }
