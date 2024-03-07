@@ -42,4 +42,25 @@ public class SparseValuesWithUnsignedIndices {
     public void setValues(List<Float> values) {
         this.values = values;
     }
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private String toIndentedString(Object o) {
+        if (o == null) {
+            return "null";
+        }
+        return o.toString().replace("\n", "\n    ");
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("SparseValuesWithUnsignedIndices {").append("\n");
+        sb.append("    indicesWithUnsigned32Int: ").append(toIndentedString(indicesWithUnsigned32Int)).append("\n");
+        sb.append("    values: ").append(toIndentedString(values)).append("\n");
+        sb.append("}");
+        return sb.toString();
+    }
 }
