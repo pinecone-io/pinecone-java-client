@@ -68,7 +68,7 @@ public class IndexManager {
             CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().environment(environment).podType("p1.x1");
             createIndexRequestSpec = new CreateIndexRequestSpec().pod(podSpec);
         } else {
-            ServerlessSpec serverlessSpec = new ServerlessSpec().cloud(ServerlessSpec.CloudEnum.AWS).region(environment);
+            ServerlessSpec serverlessSpec = new ServerlessSpec().cloud(ServerlessSpec.CloudEnum.AWS).region("us-west-2");
             createIndexRequestSpec = new CreateIndexRequestSpec().serverless(serverlessSpec);
         }
 

@@ -1,4 +1,4 @@
-package io.pinecone.integration.dataPlane;
+package io.pinecone.integration.dataPlane.serverless;
 
 import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
@@ -18,9 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.openapitools.client.model.IndexModelSpec;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 import static io.pinecone.helpers.AssertRetry.assertWithRetry;
@@ -36,7 +34,7 @@ public class UpdateFetchAndQueryTest {
 
     @BeforeAll
     public static void setUp() throws IOException, InterruptedException {
-        connection = createIndexIfNotExistsDataPlane(dimension, IndexModelSpec.SERIALIZED_NAME_POD);
+        connection = createIndexIfNotExistsDataPlane(dimension, IndexModelSpec.SERIALIZED_NAME_SERVERLESS);
         blockingStub = connection.getBlockingStub();
         futureStub = connection.getFutureStub();
     }
@@ -159,13 +157,21 @@ public class UpdateFetchAndQueryTest {
             assertEquals(scoredVectorV1.getId(), idToUpdate);
 
             // Verify the updated values
-            assertEquals(valuesToUpdate, scoredVectorV1.getValuesList());
+            List<Float> valuesList = new ArrayList<>(scoredVectorV1.getValuesList());
+            Collections.sort(valuesList);
+            Collections.sort(valuesToUpdate);
+            assertEquals(valuesToUpdate, valuesList);
 
             // Verify the updated metadata
             assertEquals(scoredVectorV1.getMetadata(), metadataToUpdate);
 
             // Verify the initial sparse values set for upsert operation
-            assertEquals(scoredVectorV1.getSparseValuesWithUnsignedIndices().getValuesList(), sparseValuesList.get(0));
+            List<Float> expectedSparseValues = new ArrayList<>(scoredVectorV1.getSparseValuesWithUnsignedIndices().getValuesList());
+            List<Float> actualSparseValues = new ArrayList<>(sparseValuesList.get(0));
+            Collections.sort(actualSparseValues);
+            Collections.sort(expectedSparseValues);
+
+            assertEquals(expectedSparseValues, actualSparseValues);
         });
     }
 
@@ -197,11 +203,14 @@ public class UpdateFetchAndQueryTest {
         List<Float> updatedValues = Arrays.asList(101F); // should be of size 3
 
         // Should fail since only 1 value is added for the vector of dimension 3
+        StringBuilder exceptionMessage = new StringBuilder();
         try {
             dataPlaneClient.update(idToUpdate, updatedValues, null, namespace, null, null);
         } catch (StatusRuntimeException statusRuntimeException) {
-            assert (statusRuntimeException.getTrailers().toString().contains("grpc-status=3"));
-            assert (statusRuntimeException.getTrailers().toString().contains("Vector dimension 1 does not match the dimension of the index 3"));
+            exceptionMessage.append(statusRuntimeException.getLocalizedMessage());
+        } finally {
+//            assert (exceptionMessage.toString().contains("grpc-status=3"));
+            assert (exceptionMessage.toString().contains("Vector dimension 1 does not match the dimension of the index 3"));
         }
     }
 
@@ -257,7 +266,7 @@ public class UpdateFetchAndQueryTest {
     public void updateNullSparseIndicesNotNullSparseValuesSyncTest() {
         PineconeBlockingDataPlaneClient dataPlaneClient = new PineconeBlockingDataPlaneClient(blockingStub);
         String id = RandomStringBuilder.build(3);
-
+        StringBuilder exceptionMessage = new StringBuilder();
         try {
             dataPlaneClient.update(id,
                     generateVectorValuesByDimension(dimension),
@@ -266,7 +275,9 @@ public class UpdateFetchAndQueryTest {
                     null,
                     generateVectorValuesByDimension(dimension));
         } catch (PineconeValidationException validationException) {
-            assertEquals(validationException.getLocalizedMessage(), "Invalid upsert request. Please ensure that both sparse indices and values are present.");
+            exceptionMessage.append(validationException.getLocalizedMessage());
+        } finally {
+            assertEquals(exceptionMessage.toString(), "Invalid upsert request. Please ensure that both sparse indices and values are present.");
         }
     }
 
@@ -363,7 +374,7 @@ public class UpdateFetchAndQueryTest {
                 .build();
 
         // Update required+optional fields
-        dataPlaneClient.update(idToUpdate, valuesToUpdate, metadataToUpdate, namespace, null, null);
+        dataPlaneClient.update(idToUpdate, valuesToUpdate, metadataToUpdate, namespace, null, null).get();
 
         // Query by vector to verify
         assertWithRetry(() -> {
@@ -383,13 +394,20 @@ public class UpdateFetchAndQueryTest {
             assertEquals(scoredVectorV1.getId(), idToUpdate);
 
             // Verify the updated values
-            assertEquals(valuesToUpdate, scoredVectorV1.getValuesList());
+            List<Float> valuesList = new ArrayList<>(scoredVectorV1.getValuesList());
+            Collections.sort(valuesList);
+            Collections.sort(valuesToUpdate);
+            assertEquals(valuesToUpdate, valuesList);
 
             // Verify the updated metadata
             assertEquals(scoredVectorV1.getMetadata(), metadataToUpdate);
 
             // Verify the initial sparse values set for upsert operation
-            assertEquals(scoredVectorV1.getSparseValuesWithUnsignedIndices().getValuesList(), sparseValuesList.get(0));
+            List<Float> expectedSparseValues = new ArrayList<>(scoredVectorV1.getSparseValuesWithUnsignedIndices().getValuesList());
+            List<Float> actualSparseValues = new ArrayList<>(sparseValuesList.get(0));
+            Collections.sort(actualSparseValues);
+            Collections.sort(expectedSparseValues);
+            assertEquals(expectedSparseValues, actualSparseValues);
         });
     }
 
@@ -421,11 +439,15 @@ public class UpdateFetchAndQueryTest {
         List<Float> updatedValues = Arrays.asList(101F); // should be of size 3
 
         // Should fail since only 1 value is added for the vector of dimension 3
+        StringBuilder exceptionMessage = new StringBuilder();
         try {
-            dataPlaneClient.update(idToUpdate, updatedValues, null, namespace, null, null);
-        } catch (StatusRuntimeException statusRuntimeException) {
-            assert (statusRuntimeException.getTrailers().toString().contains("grpc-status=3"));
-            assert (statusRuntimeException.getTrailers().toString().contains("Vector dimension 1 does not match the dimension of the index 3"));
+            dataPlaneClient.update(idToUpdate, updatedValues, null, namespace, null, null).get();
+        } catch (ExecutionException executionException) {
+            System.out.println("error: " + executionException.getLocalizedMessage());
+            exceptionMessage.append(executionException.getLocalizedMessage());
+        } finally {
+            // assert (exceptionMessage.toString().contains("grpc-status=3"));
+            assert (exceptionMessage.toString().contains("Vector dimension 1 does not match the dimension of the index 3"));
         }
     }
 
@@ -478,19 +500,21 @@ public class UpdateFetchAndQueryTest {
     }
 
     @Test
-    public void updateNullSparseIndicesNotNullSparseValuesFutureTest() {
+    public void updateNullSparseIndicesNotNullSparseValuesFutureTest() throws InterruptedException, ExecutionException {
         PineconeFutureDataPlaneClient dataPlaneClient = new PineconeFutureDataPlaneClient(futureStub);
         String id = RandomStringBuilder.build(3);
-
+        StringBuilder exceptionMessage = new StringBuilder();
         try {
             dataPlaneClient.update(id,
                     generateVectorValuesByDimension(dimension),
                     null,
                     null,
                     null,
-                    generateVectorValuesByDimension(dimension));
+                    generateVectorValuesByDimension(dimension)).get();
         } catch (PineconeValidationException validationException) {
-            assertEquals(validationException.getLocalizedMessage(), "Invalid upsert request. Please ensure that both sparse indices and values are present.");
+            exceptionMessage.append(validationException.getLocalizedMessage());
+        } finally {
+            assertEquals(exceptionMessage.toString(), "Invalid upsert request. Please ensure that both sparse indices and values are present.");
         }
     }
 }

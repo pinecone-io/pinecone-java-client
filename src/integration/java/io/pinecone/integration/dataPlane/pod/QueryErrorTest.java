@@ -1,4 +1,4 @@
-package io.pinecone.integration.dataPlane;
+package io.pinecone.integration.dataPlane.pod;
 
 import io.grpc.StatusRuntimeException;
 import io.pinecone.clients.PineconeBlockingDataPlaneClient;

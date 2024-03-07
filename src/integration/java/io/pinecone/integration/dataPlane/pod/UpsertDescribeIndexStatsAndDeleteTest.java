@@ -1,4 +1,4 @@
-package io.pinecone.integration.dataPlane;
+package io.pinecone.integration.dataPlane.pod;
 
 import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
@@ -154,7 +154,6 @@ public class UpsertDescribeIndexStatsAndDeleteTest {
         });
     }
 
-    // ToDo: Update when future stub changes are in
     @Test
     public void upsertVectorsAndDeleteByIdFutureTest() throws InterruptedException, ExecutionException {
         // Upsert vectors with required parameters
