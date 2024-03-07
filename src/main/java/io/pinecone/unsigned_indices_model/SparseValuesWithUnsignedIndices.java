@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static io.pinecone.utils.SparseIndicesConverter.convertSigned32IntToUnsigned32Int;
+import static io.pinecone.utils.StringUtils.toIndentedString;
 
 public class SparseValuesWithUnsignedIndices {
 
@@ -41,17 +42,6 @@ public class SparseValuesWithUnsignedIndices {
 
     public void setValues(List<Float> values) {
         this.values = values;
-    }
-
-    /**
-     * Convert the given object to string with each line indented by 4 spaces
-     * (except the first line).
-     */
-    private String toIndentedString(Object o) {
-        if (o == null) {
-            return "null";
-        }
-        return o.toString().replace("\n", "\n    ");
     }
 
     @Override

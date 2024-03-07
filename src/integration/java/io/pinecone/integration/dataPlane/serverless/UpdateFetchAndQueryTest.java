@@ -83,6 +83,9 @@ public class UpdateFetchAndQueryTest {
 
             List<Float> queryResponseValues = queryResponse.getMatches(0).getValuesList();
             assert (updatedValues.equals(queryResponseValues));
+
+            // Verify usage is greater than zero
+            assert (queryResponse.getUsage().getReadUnits() > 0);
         });
     }
 
@@ -170,8 +173,10 @@ public class UpdateFetchAndQueryTest {
             List<Float> actualSparseValues = new ArrayList<>(sparseValuesList.get(0));
             Collections.sort(actualSparseValues);
             Collections.sort(expectedSparseValues);
-
             assertEquals(expectedSparseValues, actualSparseValues);
+
+            // Verify usage is greater than zero
+            assert (queryResponse.getUsage().getReadUnits() > 0);
         });
     }
 
@@ -209,7 +214,6 @@ public class UpdateFetchAndQueryTest {
         } catch (StatusRuntimeException statusRuntimeException) {
             exceptionMessage.append(statusRuntimeException.getLocalizedMessage());
         } finally {
-//            assert (exceptionMessage.toString().contains("grpc-status=3"));
             assert (exceptionMessage.toString().contains("Vector dimension 1 does not match the dimension of the index 3"));
         }
     }
@@ -320,6 +324,9 @@ public class UpdateFetchAndQueryTest {
 
             List<Float> queryResponseValues = queryResponse.getMatches(0).getValuesList();
             assert (updatedValues.equals(queryResponseValues));
+
+            // Verify usage is greater than zero
+            assert (queryResponse.getUsage().getReadUnits() > 0);
         });
     }
 
@@ -408,6 +415,9 @@ public class UpdateFetchAndQueryTest {
             Collections.sort(actualSparseValues);
             Collections.sort(expectedSparseValues);
             assertEquals(expectedSparseValues, actualSparseValues);
+
+            // Verify usage is greater than zero
+            assert (queryResponse.getUsage().getReadUnits() > 0);
         });
     }
 
@@ -443,10 +453,8 @@ public class UpdateFetchAndQueryTest {
         try {
             dataPlaneClient.update(idToUpdate, updatedValues, null, namespace, null, null).get();
         } catch (ExecutionException executionException) {
-            System.out.println("error: " + executionException.getLocalizedMessage());
             exceptionMessage.append(executionException.getLocalizedMessage());
         } finally {
-            // assert (exceptionMessage.toString().contains("grpc-status=3"));
             assert (exceptionMessage.toString().contains("Vector dimension 1 does not match the dimension of the index 3"));
         }
     }

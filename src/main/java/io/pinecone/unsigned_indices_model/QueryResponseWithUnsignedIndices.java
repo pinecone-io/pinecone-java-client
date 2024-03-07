@@ -8,12 +8,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static io.pinecone.utils.StringUtils.toIndentedString;
+
 public class QueryResponseWithUnsignedIndices {
 
     private List<ScoredVectorWithUnsignedIndices> matches;
     private String namespace;
     private Usage usage;
-
 
     public QueryResponseWithUnsignedIndices(QueryResponse queryResponse) {
         if (queryResponse == null) {
@@ -32,7 +33,6 @@ public class QueryResponseWithUnsignedIndices {
     }
 
     public ScoredVectorWithUnsignedIndices getMatches(int index) {
-        // todo: add
         return matches.get(index);
     }
 
@@ -62,17 +62,6 @@ public class QueryResponseWithUnsignedIndices {
     public Usage getUsage() { return usage; }
 
     public void setUsage(Usage usage) { this.usage = usage; }
-
-    /**
-     * Convert the given object to string with each line indented by 4 spaces
-     * (except the first line).
-     */
-    private String toIndentedString(Object o) {
-        if (o == null) {
-            return "null";
-        }
-        return o.toString().replace("\n", "\n    ");
-    }
 
     @Override
     public String toString() {

@@ -6,6 +6,8 @@ import io.pinecone.proto.ScoredVector;
 import java.util.Collections;
 import java.util.List;
 
+import static io.pinecone.utils.StringUtils.toIndentedString;
+
 public class ScoredVectorWithUnsignedIndices {
 
     private float score;
@@ -68,17 +70,6 @@ public class ScoredVectorWithUnsignedIndices {
 
     public void setSparseValuesWithUnsignedIndices(SparseValuesWithUnsignedIndices sparseValuesWithUnsignedIndices) {
         this.sparseValuesWithUnsignedIndices = sparseValuesWithUnsignedIndices;
-    }
-
-    /**
-     * Convert the given object to string with each line indented by 4 spaces
-     * (except the first line).
-     */
-    private String toIndentedString(Object o) {
-        if (o == null) {
-            return "null";
-        }
-        return o.toString().replace("\n", "\n    ");
     }
 
     @Override
