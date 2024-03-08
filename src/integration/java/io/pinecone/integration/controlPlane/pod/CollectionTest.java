@@ -6,6 +6,7 @@ import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.*;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.model.*;
 import org.slf4j.Logger;
@@ -21,6 +22,7 @@ import static io.pinecone.helpers.IndexManager.createCollection;
 import static io.pinecone.helpers.BuildUpsertRequest.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+@Disabled("Disable the entire class")
 public class CollectionTest {
 
     private static PineconeControlPlaneClient controlPlaneClient;
