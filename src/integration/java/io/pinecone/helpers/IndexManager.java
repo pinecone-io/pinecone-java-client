@@ -1,6 +1,7 @@
 package io.pinecone.helpers;
 
 import io.pinecone.clients.PineconeControlPlaneClient;
+import io.pinecone.configs.PineconeConfig;
 import io.pinecone.configs.PineconeConnection;
 import io.pinecone.exceptions.PineconeException;
 import org.openapitools.client.model.*;
@@ -27,7 +28,10 @@ public class IndexManager {
 
         // Do not proceed until the newly created index is ready
         isIndexReady(indexName, controlPlaneClient);
-        return new PineconeConnection(apiKey, indexName);
+
+        // Adding to test PineconeConnection(pineconeConfig, indexName) constructor
+        PineconeConfig config = new PineconeConfig(apiKey);
+        return new PineconeConnection(config, indexName);
     }
 
     public static String createIndexIfNotExistsControlPlane(PineconeControlPlaneClient controlPlaneClient, int dimension, String indexType) throws IOException, InterruptedException {
