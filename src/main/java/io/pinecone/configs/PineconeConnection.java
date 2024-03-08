@@ -34,10 +34,6 @@ public class PineconeConnection implements AutoCloseable {
      */
     private VectorServiceGrpc.VectorServiceBlockingStub blockingStub;
 
-    /**
-     * The gRPC stub for making asynchronous ListenableFuture-style RPC calls to the Pinecone.
-     * Provides non-blocking behavior. Access to this stub is thread-safe, suitable for concurrent usage.
-     */
     private VectorServiceGrpc.VectorServiceFutureStub futureStub;
 
     public PineconeConnection(String apiKey, String indexName) {
