@@ -1,10 +1,7 @@
 package io.pinecone.helpers;
 
 import io.pinecone.clients.PineconeControlPlaneClient;
-import io.pinecone.configs.PineconeClient;
-import io.pinecone.configs.PineconeClientConfig;
 import io.pinecone.configs.PineconeConnection;
-import io.pinecone.configs.PineconeConnectionConfig;
 import io.pinecone.exceptions.PineconeException;
 import org.openapitools.client.model.*;
 import org.slf4j.Logger;
@@ -117,14 +114,7 @@ public class IndexManager {
         // wait a bit more before we connect...
         Thread.sleep(15000);
 
-        String host = controlPlaneClient.describeIndex(indexName).getHost();
-
-        PineconeClientConfig specificConfig = new PineconeClientConfig().withApiKey(System.getenv("PINECONE_API_KEY"));
-        PineconeClient dataPlaneClient = new PineconeClient(specificConfig);
-
-        return dataPlaneClient.connect(
-                new PineconeConnectionConfig()
-                        .withConnectionUrl("https://" + host));
+        return new PineconeConnection(apiKey, indexName);
     }
 
     public static CollectionModel createCollection(PineconeControlPlaneClient controlPlaneClient, String collectionName, String indexName, boolean waitUntilReady) throws InterruptedException {

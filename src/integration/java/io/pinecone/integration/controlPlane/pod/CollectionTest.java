@@ -1,10 +1,7 @@
 package io.pinecone.integration.controlPlane.pod;
 
 import io.pinecone.clients.PineconeControlPlaneClient;
-import io.pinecone.configs.PineconeClient;
-import io.pinecone.configs.PineconeClientConfig;
-import io.pinecone.configs.PineconeConnection;
-import io.pinecone.configs.PineconeConnectionConfig;
+import io.pinecone.configs.*;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.*;
 import org.junit.jupiter.api.AfterAll;
@@ -125,9 +122,8 @@ public class CollectionTest {
         assertEquals(indexDescription.getStatus().getReady(), true);
 
         // Set up new index data plane connection
-        PineconeClient newIndexClient = new PineconeClient(new PineconeClientConfig().withApiKey(apiKey).withEnvironment(environment));
-        PineconeConnection newIndexDataPlaneClient = newIndexClient.connect(new PineconeConnectionConfig().withConnectionUrl("https://" + indexDescription.getHost()));
-        VectorServiceGrpc.VectorServiceBlockingStub newIndexBlockingStub = newIndexDataPlaneClient.getBlockingStub();
+        PineconeConnection connection = new PineconeConnection(apiKey, indexName);
+        VectorServiceGrpc.VectorServiceBlockingStub newIndexBlockingStub = connection.getBlockingStub();
         DescribeIndexStatsResponse describeResponse = newIndexBlockingStub.describeIndexStats(DescribeIndexStatsRequest.newBuilder().build());
 
         // Verify stats reflect the vectors in the collection
@@ -162,7 +158,7 @@ public class CollectionTest {
             }
         }
 
-        newIndexDataPlaneClient.close();
+        connection.close();
     }
 
     @Test
