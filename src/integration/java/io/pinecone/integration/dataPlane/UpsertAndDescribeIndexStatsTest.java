@@ -157,9 +157,12 @@ public class UpsertAndDescribeIndexStatsTest {
                     true).get();
 
             ScoredVectorWithUnsignedIndices scoredVectorV1 = null;
-            for (int i = 0; i < topK; i++) {
-                if (upsertIds.get(0).equals(queryResponse.getMatches(i).getId())) {
-                    scoredVectorV1 = queryResponse.getMatches(i);
+            // if the sizes are not equal, let the following assertions fail and retry again
+            if(queryResponse.getMatchesList().size() == upsertIds.size()) {
+                for (int i = 0; i < topK; i++) {
+                    if (upsertIds.get(0).equals(queryResponse.getMatches(i).getId())) {
+                        scoredVectorV1 = queryResponse.getMatches(i);
+                    }
                 }
             }
 
