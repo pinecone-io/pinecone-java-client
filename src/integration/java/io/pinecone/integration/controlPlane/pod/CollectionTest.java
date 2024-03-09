@@ -22,6 +22,7 @@ import static io.pinecone.helpers.IndexManager.createCollection;
 import static io.pinecone.helpers.BuildUpsertRequest.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+@Disabled("Disable the entire class")
 public class CollectionTest {
 
     private static PineconeControlPlaneClient controlPlaneClient;

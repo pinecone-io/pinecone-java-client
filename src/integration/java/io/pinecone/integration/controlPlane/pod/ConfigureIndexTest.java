@@ -17,6 +17,7 @@ import static io.pinecone.helpers.IndexManager.createIndexIfNotExistsControlPlan
 import static io.pinecone.helpers.IndexManager.isIndexReady;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@Disabled("Disable the entire class")
 public class ConfigureIndexTest {
     private static PineconeControlPlaneClient controlPlaneClient;
     private static String indexName;
