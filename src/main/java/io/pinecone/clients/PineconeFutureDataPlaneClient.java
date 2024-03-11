@@ -4,15 +4,14 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.Struct;
+import io.pinecone.commons.PineconeDataPlaneInterface;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.proto.*;
 import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
 
 import java.util.List;
 
-import static io.pinecone.utils.SparseIndicesConverter.convertUnsigned32IntToSigned32Int;
-
-public class PineconeFutureDataPlaneClient implements PineconeDataPlaneClient<ListenableFuture<UpsertResponse>,
+public class PineconeFutureDataPlaneClient implements PineconeDataPlaneInterface<ListenableFuture<UpsertResponse>,
         ListenableFuture<QueryResponseWithUnsignedIndices>, ListenableFuture<FetchResponse>,
         ListenableFuture<UpdateResponse>, ListenableFuture<DeleteResponse>,
         ListenableFuture<DescribeIndexStatsResponse>> {
@@ -47,7 +46,8 @@ public class PineconeFutureDataPlaneClient implements PineconeDataPlaneClient<Li
                                                    List<Float> sparseValues,
                                                    com.google.protobuf.Struct metadata,
                                                    String namespace) {
-        UpsertRequest upsertRequest = validateUpsertRequest(id, values, sparseIndices, sparseValues, metadata, namespace);
+        UpsertRequest upsertRequest = validateUpsertRequest(id, values, sparseIndices, sparseValues, metadata,
+                namespace);
 
         return futureStub.upsert(upsertRequest);
     }
@@ -62,7 +62,8 @@ public class PineconeFutureDataPlaneClient implements PineconeDataPlaneClient<Li
                                                                     Struct filter,
                                                                     boolean includeValues,
                                                                     boolean includeMetadata) {
-        QueryRequest queryRequest = validateQueryRequest(topK, vector, sparseIndices, sparseValues, id, namespace, filter, includeValues, includeMetadata);
+        QueryRequest queryRequest = validateQueryRequest(topK, vector, sparseIndices, sparseValues, id, namespace,
+                filter, includeValues, includeMetadata);
 
         ListenableFuture<QueryResponse> queryResponseFuture = futureStub.query(queryRequest);
 
@@ -134,7 +135,8 @@ public class PineconeFutureDataPlaneClient implements PineconeDataPlaneClient<Li
                                                    String namespace,
                                                    List<Long> sparseIndices,
                                                    List<Float> sparseValues) {
-        UpdateRequest updateRequest = validateUpdateRequest(id, values, metadata, namespace, sparseIndices, sparseValues);
+        UpdateRequest updateRequest = validateUpdateRequest(id, values, metadata, namespace, sparseIndices,
+                sparseValues);
 
         return futureStub.update(updateRequest);
     }

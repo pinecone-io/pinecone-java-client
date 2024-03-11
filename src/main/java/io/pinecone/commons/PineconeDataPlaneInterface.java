@@ -1,4 +1,4 @@
-package io.pinecone.clients;
+package io.pinecone.commons;
 
 import com.google.protobuf.Struct;
 import io.pinecone.exceptions.PineconeValidationException;
@@ -8,7 +8,7 @@ import java.util.List;
 
 import static io.pinecone.utils.SparseIndicesConverter.convertUnsigned32IntToSigned32Int;
 
-public interface PineconeDataPlaneClient<T, U, V, W, X, Y> {
+public interface PineconeDataPlaneInterface<T, U, V, W, X, Y> {
     // default methods
     default UpsertRequest validateUpsertRequest(String id,
                                                 List<Float> values,
