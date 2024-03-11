@@ -29,9 +29,11 @@ public class IndexManager {
         // Do not proceed until the newly created index is ready
         isIndexReady(indexName, controlPlaneClient);
 
-        // Adding to test PineconeConnection(pineconeConfig, indexName) constructor
+        // Adding to test PineconeConnection(pineconeConfig, host) constructor
+        String host = controlPlaneClient.describeIndex(indexName).getHost();
         PineconeConfig config = new PineconeConfig(apiKey);
-        return new PineconeConnection(config, indexName);
+        config.setHost(host);
+        return new PineconeConnection(config);
     }
 
     public static String createIndexIfNotExistsControlPlane(PineconeControlPlaneClient controlPlaneClient, int dimension, String indexType) throws IOException, InterruptedException {
@@ -118,7 +120,8 @@ public class IndexManager {
         // wait a bit more before we connect...
         Thread.sleep(15000);
 
-        return new PineconeConnection(apiKey, indexName);
+        PineconeConfig config = new PineconeConfig(apiKey);
+        return new PineconeConnection(config, indexName);
     }
 
     public static CollectionModel createCollection(PineconeControlPlaneClient controlPlaneClient, String collectionName, String indexName, boolean waitUntilReady) throws InterruptedException {

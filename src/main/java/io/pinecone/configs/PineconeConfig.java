@@ -8,7 +8,7 @@ public class PineconeConfig {
     private String apiKey;
     private String host;
     private String usageContext;
-    private ManagedChannel customChannelBuilder;
+    private ManagedChannel customManagedChannel;
 
     public PineconeConfig(String apiKey) {
         this.apiKey = apiKey;
@@ -38,12 +38,12 @@ public class PineconeConfig {
         this.usageContext = usageContext;
     }
 
-    public ManagedChannel getCustomChannelBuilder() {
-        return this.customChannelBuilder;
+    public ManagedChannel getCustomManagedChannel() {
+        return this.customManagedChannel;
     }
 
-    public void setCustomChannelBuilder(ManagedChannel customChannelBuilder) {
-        this.customChannelBuilder = customChannelBuilder;
+    public void setCustomManagedChannel(ManagedChannel customManagedChannel) {
+        this.customManagedChannel = customManagedChannel;
     }
 
     public interface CustomChannelBuilder {
@@ -57,7 +57,10 @@ public class PineconeConfig {
 
     public String getUserAgent() {
         String userAgentLanguage = "lang=java; pineconeClientVersion = v0.8.0";
-        return (this.getUsageContext() != null) ?
-                userAgentLanguage + "; usageContext=" + this.getUsageContext() : userAgentLanguage;
+        if (this.getUsageContext() == null) {
+            return userAgentLanguage;
+        } else {
+            return userAgentLanguage + "; usageContext=" + this.getUsageContext();
+        }
     }
 }

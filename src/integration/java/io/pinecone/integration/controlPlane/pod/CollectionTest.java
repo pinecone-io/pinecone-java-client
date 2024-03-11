@@ -124,7 +124,8 @@ public class CollectionTest {
         assertEquals(indexDescription.getStatus().getReady(), true);
 
         // Set up new index data plane connection
-        PineconeConnection connection = new PineconeConnection(apiKey, indexName);
+        PineconeConfig config = new PineconeConfig(apiKey);
+        PineconeConnection connection = new PineconeConnection(config, indexName);
         VectorServiceGrpc.VectorServiceBlockingStub newIndexBlockingStub = connection.getBlockingStub();
         DescribeIndexStatsResponse describeResponse = newIndexBlockingStub.describeIndexStats(DescribeIndexStatsRequest.newBuilder().build());
 

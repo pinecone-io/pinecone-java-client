@@ -36,17 +36,23 @@ public class PineconeConnection implements AutoCloseable {
 
     private VectorServiceGrpc.VectorServiceFutureStub futureStub;
 
-    public PineconeConnection(String apiKey, String indexName) {
-        this.config = new PineconeConfig(apiKey);
-        String host = getHost(apiKey, indexName);
-        channel = buildChannel(host);
+    public PineconeConnection(PineconeConfig config) {
+        this.config = config;
+        if (config.getCustomManagedChannel() != null) {
+            channel = config.getCustomManagedChannel();
+        } else {
+            if (config.getHost() == null || config.getHost().isEmpty()) {
+                throw new PineconeValidationException("Index-name or host is required for data plane operations");
+            }
+            channel = buildChannel(config.getHost());
+        }
         initialize();
     }
 
     public PineconeConnection(PineconeConfig config, String indexName) {
         this.config = config;
-        if (config.getCustomChannelBuilder() != null) {
-            channel = config.getCustomChannelBuilder();
+        if (config.getCustomManagedChannel() != null) {
+            channel = config.getCustomManagedChannel();
         } else {
             if (config.getHost() == null || config.getHost().isEmpty()) {
                 config.setHost(getHost(config.getApiKey(), indexName));
