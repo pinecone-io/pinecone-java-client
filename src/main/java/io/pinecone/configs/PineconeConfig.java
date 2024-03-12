@@ -7,7 +7,7 @@ public class PineconeConfig {
 
     private String apiKey;
     private String host;
-    private String userContext;
+    private String integrationId;
     private ManagedChannel customManagedChannel;
 
     public PineconeConfig(String apiKey) {
@@ -30,12 +30,12 @@ public class PineconeConfig {
         this.host = host;
     }
 
-    public String getUserContext() {
-        return userContext;
+    public String getIntegrationId() {
+        return integrationId;
     }
 
-    public void setUserContext(String userContext) {
-        this.userContext = userContext;
+    public void setIntegrationId(String integrationId) {
+        this.integrationId = integrationId;
     }
 
     public ManagedChannel getCustomManagedChannel() {
@@ -57,10 +57,10 @@ public class PineconeConfig {
 
     public String getUserAgent() {
         String userAgentLanguage = "lang=java; pineconeClientVersion = v0.8.0";
-        if (this.getUserContext() == null) {
+        if (this.getIntegrationId() == null) {
             return userAgentLanguage;
         } else {
-            return userAgentLanguage + "; usageContext=" + this.getUserContext();
+            return userAgentLanguage + "; usageContext=" + this.getIntegrationId();
         }
     }
 }
