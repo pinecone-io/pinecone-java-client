@@ -1,10 +1,8 @@
 package io.pinecone.helpers;
 
 import io.pinecone.clients.PineconeControlPlaneClient;
-import io.pinecone.configs.PineconeClient;
-import io.pinecone.configs.PineconeClientConfig;
+import io.pinecone.configs.PineconeConfig;
 import io.pinecone.configs.PineconeConnection;
-import io.pinecone.configs.PineconeConnectionConfig;
 import io.pinecone.exceptions.PineconeException;
 import org.openapitools.client.model.*;
 import org.slf4j.Logger;
@@ -30,7 +28,12 @@ public class IndexManager {
 
         // Do not proceed until the newly created index is ready
         isIndexReady(indexName, controlPlaneClient);
-        return new PineconeConnection(apiKey, indexName);
+
+        // Adding to test PineconeConnection(pineconeConfig, host) constructor
+        String host = controlPlaneClient.describeIndex(indexName).getHost();
+        PineconeConfig config = new PineconeConfig(apiKey);
+        config.setHost(host);
+        return new PineconeConnection(config);
     }
 
     public static String createIndexIfNotExistsControlPlane(PineconeControlPlaneClient controlPlaneClient, int dimension, String indexType) throws IOException, InterruptedException {
@@ -117,14 +120,8 @@ public class IndexManager {
         // wait a bit more before we connect...
         Thread.sleep(15000);
 
-        String host = controlPlaneClient.describeIndex(indexName).getHost();
-
-        PineconeClientConfig specificConfig = new PineconeClientConfig().withApiKey(System.getenv("PINECONE_API_KEY"));
-        PineconeClient dataPlaneClient = new PineconeClient(specificConfig);
-
-        return dataPlaneClient.connect(
-                new PineconeConnectionConfig()
-                        .withConnectionUrl("https://" + host));
+        PineconeConfig config = new PineconeConfig(apiKey);
+        return new PineconeConnection(config, indexName);
     }
 
     public static CollectionModel createCollection(PineconeControlPlaneClient controlPlaneClient, String collectionName, String indexName, boolean waitUntilReady) throws InterruptedException {

@@ -25,8 +25,7 @@ public class PineconeConnection implements AutoCloseable {
     private static final int DEFAULT_MAX_MESSAGE_SIZE = 64 * 1000 * 1000;
 
     private static final Logger logger = LoggerFactory.getLogger(PineconeConnection.class);
-    private final PineconeConnectionConfig connectionConfig;
-    private final PineconeClientConfig clientConfig;
+    private final PineconeConfig config;
     final ManagedChannel channel;
 
     /**
@@ -37,28 +36,35 @@ public class PineconeConnection implements AutoCloseable {
 
     private VectorServiceGrpc.VectorServiceFutureStub futureStub;
 
-    public PineconeConnection(String apiKey, String indexName) {
-        this.clientConfig = new PineconeClientConfig().withApiKey(apiKey);
-        String host = getHost(apiKey, indexName);
-        this.connectionConfig = new PineconeConnectionConfig().withConnectionUrl(host);
-        channel = buildChannel(host);
+    public PineconeConnection(PineconeConfig config) {
+        this.config = config;
+        if (config.getCustomManagedChannel() != null) {
+            channel = config.getCustomManagedChannel();
+        } else {
+            if (config.getHost() == null || config.getHost().isEmpty()) {
+                throw new PineconeValidationException("Index-name or host is required for data plane operations");
+            }
+            channel = buildChannel(config.getHost());
+        }
         initialize();
     }
 
-    public PineconeConnection(PineconeClientConfig clientConfig, PineconeConnectionConfig connectionConfig) {
-        this.connectionConfig = connectionConfig;
-        this.clientConfig = clientConfig;
-        validateConfigsAndGetHostIfEmpty();
-
-        channel = connectionConfig.getCustomChannelBuilder() != null
-                ? connectionConfig.getCustomChannelBuilder().apply(clientConfig, connectionConfig)
-                : buildChannel(connectionConfig.getConnectionUrl());
+    public PineconeConnection(PineconeConfig config, String indexName) {
+        this.config = config;
+        if (config.getCustomManagedChannel() != null) {
+            channel = config.getCustomManagedChannel();
+        } else {
+            if (config.getHost() == null || config.getHost().isEmpty()) {
+                config.setHost(getHost(config.getApiKey(), indexName));
+            }
+            channel = buildChannel(config.getHost());
+        }
         initialize();
     }
 
     private void initialize() {
         channel.notifyWhenStateChanged(channel.getState(false), this::onConnectivityStateChanged);
-        Metadata metadata = assembleMetadata(clientConfig);
+        Metadata metadata = assembleMetadata(config);
         blockingStub = generateBlockingStub(metadata);
         futureStub = generateFutureStub(metadata);
         logger.debug("created new PineconeConnection for channel: {}", channel);
@@ -127,19 +133,18 @@ public class PineconeConnection implements AutoCloseable {
         return builder.build();
     }
 
-    private static Metadata assembleMetadata(PineconeClientConfig clientConfig) {
+    private static Metadata assembleMetadata(PineconeConfig config) {
         Metadata metadata = new Metadata();
         metadata.put(Metadata.Key.of("api-key",
-                Metadata.ASCII_STRING_MARSHALLER), clientConfig.getApiKey());
-        metadata.put(Metadata.Key.of("User-Agent", Metadata.ASCII_STRING_MARSHALLER), clientConfig.getUserAgent());
+                Metadata.ASCII_STRING_MARSHALLER), config.getApiKey());
+        metadata.put(Metadata.Key.of("User-Agent", Metadata.ASCII_STRING_MARSHALLER), config.getUserAgent());
         return metadata;
     }
 
     public static String formatEndpoint(String host) {
-        if(host != null && !host.isEmpty()) {
+        if (host != null && !host.isEmpty()) {
             return host.replaceFirst("https?://", "");
-        }
-        else {
+        } else {
             throw new PineconeValidationException("Index host cannot be null or empty");
         }
     }
@@ -147,24 +152,5 @@ public class PineconeConnection implements AutoCloseable {
     private static String getHost(String apiKey, String indexName) {
         PineconeControlPlaneClient controlPlaneClient = new PineconeControlPlaneClient(apiKey);
         return controlPlaneClient.describeIndex(indexName).getHost();
-    }
-
-    void validateConfigsAndGetHostIfEmpty() throws PineconeValidationException {
-        if (this.clientConfig == null) {
-            throw new PineconeValidationException("PineconeClientConfiguration may not be null");
-        }
-
-        if (this.connectionConfig == null) {
-            throw new PineconeValidationException("PineconeConnectionConfig may not be null");
-        }
-
-        this.clientConfig.validate();
-        this.connectionConfig.validate();
-
-        if(connectionConfig.getIndexName() != null && !connectionConfig.getIndexName().isEmpty()
-                && (connectionConfig.getConnectionUrl() == null || connectionConfig.getConnectionUrl().isEmpty())) {
-            String host = getHost(clientConfig.getApiKey(), connectionConfig.getIndexName());
-            connectionConfig.withConnectionUrl(host);
-        }
     }
 }

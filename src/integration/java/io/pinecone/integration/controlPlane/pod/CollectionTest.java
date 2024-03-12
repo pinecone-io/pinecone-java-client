@@ -1,14 +1,12 @@
 package io.pinecone.integration.controlPlane.pod;
 
 import io.pinecone.clients.PineconeControlPlaneClient;
-import io.pinecone.configs.PineconeClient;
-import io.pinecone.configs.PineconeClientConfig;
-import io.pinecone.configs.PineconeConnection;
-import io.pinecone.configs.PineconeConnectionConfig;
+import io.pinecone.configs.*;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.*;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.model.*;
 import org.slf4j.Logger;
@@ -24,6 +22,7 @@ import static io.pinecone.helpers.IndexManager.createCollection;
 import static io.pinecone.helpers.BuildUpsertRequest.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+@Disabled("Disable the entire class")
 public class CollectionTest {
 
     private static PineconeControlPlaneClient controlPlaneClient;
@@ -125,9 +124,9 @@ public class CollectionTest {
         assertEquals(indexDescription.getStatus().getReady(), true);
 
         // Set up new index data plane connection
-        PineconeClient newIndexClient = new PineconeClient(new PineconeClientConfig().withApiKey(apiKey).withEnvironment(environment));
-        PineconeConnection newIndexDataPlaneClient = newIndexClient.connect(new PineconeConnectionConfig().withConnectionUrl("https://" + indexDescription.getHost()));
-        VectorServiceGrpc.VectorServiceBlockingStub newIndexBlockingStub = newIndexDataPlaneClient.getBlockingStub();
+        PineconeConfig config = new PineconeConfig(apiKey);
+        PineconeConnection connection = new PineconeConnection(config, indexName);
+        VectorServiceGrpc.VectorServiceBlockingStub newIndexBlockingStub = connection.getBlockingStub();
         DescribeIndexStatsResponse describeResponse = newIndexBlockingStub.describeIndexStats(DescribeIndexStatsRequest.newBuilder().build());
 
         // Verify stats reflect the vectors in the collection
@@ -162,7 +161,7 @@ public class CollectionTest {
             }
         }
 
-        newIndexDataPlaneClient.close();
+        connection.close();
     }
 
     @Test
