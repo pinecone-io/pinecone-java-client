@@ -29,6 +29,12 @@ public class ConfigureIndexTest {
         indexName = createIndexIfNotExistsControlPlane(controlPlaneClient, 5, IndexModelSpec.SERIALIZED_NAME_POD);
     }
 
+    @AfterAll
+    public static void cleanUp() throws InterruptedException {
+        controlPlaneClient.deleteIndex(indexName);
+        Thread.sleep(3500);
+    }
+
     @Test
     public void configureIndexWithInvalidIndexName() {
         ConfigureIndexRequestSpecPod pod = new ConfigureIndexRequestSpecPod();
@@ -137,10 +143,6 @@ public class ConfigureIndexTest {
             });
         } catch (Exception exception) {
             throw new PineconeException("Test failed: " + exception.getLocalizedMessage());
-        } finally {
-            // Delete this index since it'll be unused for future tests
-            controlPlaneClient.deleteIndex(indexName);
-            Thread.sleep(3500);
         }
     }
 }

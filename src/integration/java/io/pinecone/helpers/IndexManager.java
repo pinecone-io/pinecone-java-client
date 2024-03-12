@@ -135,7 +135,7 @@ public class IndexManager {
             int timeWaited = 0;
             CollectionModel.StatusEnum collectionReady = collection.getStatus();
             while (collectionReady != CollectionModel.StatusEnum.READY && timeWaited < 120000) {
-                logger.info("Waiting for collection" + collectionName + " to be ready. Waited " + timeWaited + " milliseconds...");
+                logger.info("Waiting for collection " + collectionName + " to be ready. Waited " + timeWaited + " milliseconds...");
                 Thread.sleep(5000);
                 timeWaited += 5000;
                 collection = controlPlaneClient.describeCollection(collectionName);
