@@ -23,7 +23,6 @@ import static io.pinecone.helpers.BuildUpsertRequest.*;
 import static io.pinecone.helpers.AssertRetry.assertWithRetry;
 import static org.junit.jupiter.api.Assertions.*;
 
-@Disabled("Disable the entire class")
 public class CollectionTest {
     private static final String indexName = RandomStringBuilder.build("collection-test", 8);
     private static final String collectionName = RandomStringBuilder.build("collection-test", 8);
