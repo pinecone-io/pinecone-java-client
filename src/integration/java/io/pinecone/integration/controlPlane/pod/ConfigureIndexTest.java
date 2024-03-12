@@ -17,7 +17,6 @@ import static io.pinecone.helpers.IndexManager.createIndexIfNotExistsControlPlan
 import static io.pinecone.helpers.IndexManager.isIndexReady;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@Disabled("Disable the entire class")
 public class ConfigureIndexTest {
     private static PineconeControlPlaneClient controlPlaneClient;
     private static String indexName;
@@ -27,6 +26,12 @@ public class ConfigureIndexTest {
     public static void setUp() throws InterruptedException, IOException {
         controlPlaneClient = new PineconeControlPlaneClient(System.getenv("PINECONE_API_KEY"));
         indexName = createIndexIfNotExistsControlPlane(controlPlaneClient, 5, IndexModelSpec.SERIALIZED_NAME_POD);
+    }
+
+    @AfterAll
+    public static void cleanUp() throws InterruptedException {
+        controlPlaneClient.deleteIndex(indexName);
+        Thread.sleep(3500);
     }
 
     @Test
@@ -137,10 +142,6 @@ public class ConfigureIndexTest {
             });
         } catch (Exception exception) {
             throw new PineconeException("Test failed: " + exception.getLocalizedMessage());
-        } finally {
-            // Delete this index since it'll be unused for future tests
-            controlPlaneClient.deleteIndex(indexName);
-            Thread.sleep(3500);
         }
     }
 }
