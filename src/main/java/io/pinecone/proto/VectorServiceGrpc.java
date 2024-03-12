@@ -9,39 +9,39 @@ import static io.grpc.MethodDescriptor.generateFullMethodName;
  * </pre>
  */
 @javax.annotation.Generated(
-    value = "by gRPC proto compiler (version 1.58.0)",
+    value = "by gRPC proto compiler (version 1.62.2)",
     comments = "Source: vector_service.proto")
 @io.grpc.stub.annotations.GrpcGenerated
 public final class VectorServiceGrpc {
 
   private VectorServiceGrpc() {}
 
-  public static final String SERVICE_NAME = "VectorService";
+  public static final java.lang.String SERVICE_NAME = "VectorService";
 
   // Static method descriptors that strictly reflect the proto.
-  private static volatile io.grpc.MethodDescriptor<UpsertRequest,
-      UpsertResponse> getUpsertMethod;
+  private static volatile io.grpc.MethodDescriptor<io.pinecone.proto.UpsertRequest,
+      io.pinecone.proto.UpsertResponse> getUpsertMethod;
 
   @io.grpc.stub.annotations.RpcMethod(
       fullMethodName = SERVICE_NAME + '/' + "Upsert",
-      requestType = UpsertRequest.class,
-      responseType = UpsertResponse.class,
+      requestType = io.pinecone.proto.UpsertRequest.class,
+      responseType = io.pinecone.proto.UpsertResponse.class,
       methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
-  public static io.grpc.MethodDescriptor<UpsertRequest,
-      UpsertResponse> getUpsertMethod() {
-    io.grpc.MethodDescriptor<UpsertRequest, UpsertResponse> getUpsertMethod;
+  public static io.grpc.MethodDescriptor<io.pinecone.proto.UpsertRequest,
+      io.pinecone.proto.UpsertResponse> getUpsertMethod() {
+    io.grpc.MethodDescriptor<io.pinecone.proto.UpsertRequest, io.pinecone.proto.UpsertResponse> getUpsertMethod;
     if ((getUpsertMethod = VectorServiceGrpc.getUpsertMethod) == null) {
       synchronized (VectorServiceGrpc.class) {
         if ((getUpsertMethod = VectorServiceGrpc.getUpsertMethod) == null) {
           VectorServiceGrpc.getUpsertMethod = getUpsertMethod =
-              io.grpc.MethodDescriptor.<UpsertRequest, UpsertResponse>newBuilder()
+              io.grpc.MethodDescriptor.<io.pinecone.proto.UpsertRequest, io.pinecone.proto.UpsertResponse>newBuilder()
               .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
               .setFullMethodName(generateFullMethodName(SERVICE_NAME, "Upsert"))
               .setSampledToLocalTracing(true)
               .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  UpsertRequest.getDefaultInstance()))
+                  io.pinecone.proto.UpsertRequest.getDefaultInstance()))
               .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  UpsertResponse.getDefaultInstance()))
+                  io.pinecone.proto.UpsertResponse.getDefaultInstance()))
               .setSchemaDescriptor(new VectorServiceMethodDescriptorSupplier("Upsert"))
               .build();
         }
@@ -50,29 +50,29 @@ public final class VectorServiceGrpc {
     return getUpsertMethod;
   }
 
-  private static volatile io.grpc.MethodDescriptor<DeleteRequest,
-      DeleteResponse> getDeleteMethod;
+  private static volatile io.grpc.MethodDescriptor<io.pinecone.proto.DeleteRequest,
+      io.pinecone.proto.DeleteResponse> getDeleteMethod;
 
   @io.grpc.stub.annotations.RpcMethod(
       fullMethodName = SERVICE_NAME + '/' + "Delete",
-      requestType = DeleteRequest.class,
-      responseType = DeleteResponse.class,
+      requestType = io.pinecone.proto.DeleteRequest.class,
+      responseType = io.pinecone.proto.DeleteResponse.class,
       methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
-  public static io.grpc.MethodDescriptor<DeleteRequest,
-      DeleteResponse> getDeleteMethod() {
-    io.grpc.MethodDescriptor<DeleteRequest, DeleteResponse> getDeleteMethod;
+  public static io.grpc.MethodDescriptor<io.pinecone.proto.DeleteRequest,
+      io.pinecone.proto.DeleteResponse> getDeleteMethod() {
+    io.grpc.MethodDescriptor<io.pinecone.proto.DeleteRequest, io.pinecone.proto.DeleteResponse> getDeleteMethod;
     if ((getDeleteMethod = VectorServiceGrpc.getDeleteMethod) == null) {
       synchronized (VectorServiceGrpc.class) {
         if ((getDeleteMethod = VectorServiceGrpc.getDeleteMethod) == null) {
           VectorServiceGrpc.getDeleteMethod = getDeleteMethod =
-              io.grpc.MethodDescriptor.<DeleteRequest, DeleteResponse>newBuilder()
+              io.grpc.MethodDescriptor.<io.pinecone.proto.DeleteRequest, io.pinecone.proto.DeleteResponse>newBuilder()
               .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
               .setFullMethodName(generateFullMethodName(SERVICE_NAME, "Delete"))
               .setSampledToLocalTracing(true)
               .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  DeleteRequest.getDefaultInstance()))
+                  io.pinecone.proto.DeleteRequest.getDefaultInstance()))
               .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  DeleteResponse.getDefaultInstance()))
+                  io.pinecone.proto.DeleteResponse.getDefaultInstance()))
               .setSchemaDescriptor(new VectorServiceMethodDescriptorSupplier("Delete"))
               .build();
         }
@@ -81,29 +81,29 @@ public final class VectorServiceGrpc {
     return getDeleteMethod;
   }
 
-  private static volatile io.grpc.MethodDescriptor<FetchRequest,
-      FetchResponse> getFetchMethod;
+  private static volatile io.grpc.MethodDescriptor<io.pinecone.proto.FetchRequest,
+      io.pinecone.proto.FetchResponse> getFetchMethod;
 
   @io.grpc.stub.annotations.RpcMethod(
       fullMethodName = SERVICE_NAME + '/' + "Fetch",
-      requestType = FetchRequest.class,
-      responseType = FetchResponse.class,
+      requestType = io.pinecone.proto.FetchRequest.class,
+      responseType = io.pinecone.proto.FetchResponse.class,
       methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
-  public static io.grpc.MethodDescriptor<FetchRequest,
-      FetchResponse> getFetchMethod() {
-    io.grpc.MethodDescriptor<FetchRequest, FetchResponse> getFetchMethod;
+  public static io.grpc.MethodDescriptor<io.pinecone.proto.FetchRequest,
+      io.pinecone.proto.FetchResponse> getFetchMethod() {
+    io.grpc.MethodDescriptor<io.pinecone.proto.FetchRequest, io.pinecone.proto.FetchResponse> getFetchMethod;
     if ((getFetchMethod = VectorServiceGrpc.getFetchMethod) == null) {
       synchronized (VectorServiceGrpc.class) {
         if ((getFetchMethod = VectorServiceGrpc.getFetchMethod) == null) {
           VectorServiceGrpc.getFetchMethod = getFetchMethod =
-              io.grpc.MethodDescriptor.<FetchRequest, FetchResponse>newBuilder()
+              io.grpc.MethodDescriptor.<io.pinecone.proto.FetchRequest, io.pinecone.proto.FetchResponse>newBuilder()
               .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
               .setFullMethodName(generateFullMethodName(SERVICE_NAME, "Fetch"))
               .setSampledToLocalTracing(true)
               .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  FetchRequest.getDefaultInstance()))
+                  io.pinecone.proto.FetchRequest.getDefaultInstance()))
               .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  FetchResponse.getDefaultInstance()))
+                  io.pinecone.proto.FetchResponse.getDefaultInstance()))
               .setSchemaDescriptor(new VectorServiceMethodDescriptorSupplier("Fetch"))
               .build();
         }
@@ -112,29 +112,29 @@ public final class VectorServiceGrpc {
     return getFetchMethod;
   }
 
-  private static volatile io.grpc.MethodDescriptor<ListRequest,
-      ListResponse> getListMethod;
+  private static volatile io.grpc.MethodDescriptor<io.pinecone.proto.ListRequest,
+      io.pinecone.proto.ListResponse> getListMethod;
 
   @io.grpc.stub.annotations.RpcMethod(
       fullMethodName = SERVICE_NAME + '/' + "List",
-      requestType = ListRequest.class,
-      responseType = ListResponse.class,
+      requestType = io.pinecone.proto.ListRequest.class,
+      responseType = io.pinecone.proto.ListResponse.class,
       methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
-  public static io.grpc.MethodDescriptor<ListRequest,
-      ListResponse> getListMethod() {
-    io.grpc.MethodDescriptor<ListRequest, ListResponse> getListMethod;
+  public static io.grpc.MethodDescriptor<io.pinecone.proto.ListRequest,
+      io.pinecone.proto.ListResponse> getListMethod() {
+    io.grpc.MethodDescriptor<io.pinecone.proto.ListRequest, io.pinecone.proto.ListResponse> getListMethod;
     if ((getListMethod = VectorServiceGrpc.getListMethod) == null) {
       synchronized (VectorServiceGrpc.class) {
         if ((getListMethod = VectorServiceGrpc.getListMethod) == null) {
           VectorServiceGrpc.getListMethod = getListMethod =
-              io.grpc.MethodDescriptor.<ListRequest, ListResponse>newBuilder()
+              io.grpc.MethodDescriptor.<io.pinecone.proto.ListRequest, io.pinecone.proto.ListResponse>newBuilder()
               .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
               .setFullMethodName(generateFullMethodName(SERVICE_NAME, "List"))
               .setSampledToLocalTracing(true)
               .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  ListRequest.getDefaultInstance()))
+                  io.pinecone.proto.ListRequest.getDefaultInstance()))
               .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  ListResponse.getDefaultInstance()))
+                  io.pinecone.proto.ListResponse.getDefaultInstance()))
               .setSchemaDescriptor(new VectorServiceMethodDescriptorSupplier("List"))
               .build();
         }
@@ -143,29 +143,29 @@ public final class VectorServiceGrpc {
     return getListMethod;
   }
 
-  private static volatile io.grpc.MethodDescriptor<QueryRequest,
-      QueryResponse> getQueryMethod;
+  private static volatile io.grpc.MethodDescriptor<io.pinecone.proto.QueryRequest,
+      io.pinecone.proto.QueryResponse> getQueryMethod;
 
   @io.grpc.stub.annotations.RpcMethod(
       fullMethodName = SERVICE_NAME + '/' + "Query",
-      requestType = QueryRequest.class,
-      responseType = QueryResponse.class,
+      requestType = io.pinecone.proto.QueryRequest.class,
+      responseType = io.pinecone.proto.QueryResponse.class,
       methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
-  public static io.grpc.MethodDescriptor<QueryRequest,
-      QueryResponse> getQueryMethod() {
-    io.grpc.MethodDescriptor<QueryRequest, QueryResponse> getQueryMethod;
+  public static io.grpc.MethodDescriptor<io.pinecone.proto.QueryRequest,
+      io.pinecone.proto.QueryResponse> getQueryMethod() {
+    io.grpc.MethodDescriptor<io.pinecone.proto.QueryRequest, io.pinecone.proto.QueryResponse> getQueryMethod;
     if ((getQueryMethod = VectorServiceGrpc.getQueryMethod) == null) {
       synchronized (VectorServiceGrpc.class) {
         if ((getQueryMethod = VectorServiceGrpc.getQueryMethod) == null) {
           VectorServiceGrpc.getQueryMethod = getQueryMethod =
-              io.grpc.MethodDescriptor.<QueryRequest, QueryResponse>newBuilder()
+              io.grpc.MethodDescriptor.<io.pinecone.proto.QueryRequest, io.pinecone.proto.QueryResponse>newBuilder()
               .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
               .setFullMethodName(generateFullMethodName(SERVICE_NAME, "Query"))
               .setSampledToLocalTracing(true)
               .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  QueryRequest.getDefaultInstance()))
+                  io.pinecone.proto.QueryRequest.getDefaultInstance()))
               .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  QueryResponse.getDefaultInstance()))
+                  io.pinecone.proto.QueryResponse.getDefaultInstance()))
               .setSchemaDescriptor(new VectorServiceMethodDescriptorSupplier("Query"))
               .build();
         }
@@ -174,29 +174,29 @@ public final class VectorServiceGrpc {
     return getQueryMethod;
   }
 
-  private static volatile io.grpc.MethodDescriptor<UpdateRequest,
-      UpdateResponse> getUpdateMethod;
+  private static volatile io.grpc.MethodDescriptor<io.pinecone.proto.UpdateRequest,
+      io.pinecone.proto.UpdateResponse> getUpdateMethod;
 
   @io.grpc.stub.annotations.RpcMethod(
       fullMethodName = SERVICE_NAME + '/' + "Update",
-      requestType = UpdateRequest.class,
-      responseType = UpdateResponse.class,
+      requestType = io.pinecone.proto.UpdateRequest.class,
+      responseType = io.pinecone.proto.UpdateResponse.class,
       methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
-  public static io.grpc.MethodDescriptor<UpdateRequest,
-      UpdateResponse> getUpdateMethod() {
-    io.grpc.MethodDescriptor<UpdateRequest, UpdateResponse> getUpdateMethod;
+  public static io.grpc.MethodDescriptor<io.pinecone.proto.UpdateRequest,
+      io.pinecone.proto.UpdateResponse> getUpdateMethod() {
+    io.grpc.MethodDescriptor<io.pinecone.proto.UpdateRequest, io.pinecone.proto.UpdateResponse> getUpdateMethod;
     if ((getUpdateMethod = VectorServiceGrpc.getUpdateMethod) == null) {
       synchronized (VectorServiceGrpc.class) {
         if ((getUpdateMethod = VectorServiceGrpc.getUpdateMethod) == null) {
           VectorServiceGrpc.getUpdateMethod = getUpdateMethod =
-              io.grpc.MethodDescriptor.<UpdateRequest, UpdateResponse>newBuilder()
+              io.grpc.MethodDescriptor.<io.pinecone.proto.UpdateRequest, io.pinecone.proto.UpdateResponse>newBuilder()
               .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
               .setFullMethodName(generateFullMethodName(SERVICE_NAME, "Update"))
               .setSampledToLocalTracing(true)
               .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  UpdateRequest.getDefaultInstance()))
+                  io.pinecone.proto.UpdateRequest.getDefaultInstance()))
               .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  UpdateResponse.getDefaultInstance()))
+                  io.pinecone.proto.UpdateResponse.getDefaultInstance()))
               .setSchemaDescriptor(new VectorServiceMethodDescriptorSupplier("Update"))
               .build();
         }
@@ -205,29 +205,29 @@ public final class VectorServiceGrpc {
     return getUpdateMethod;
   }
 
-  private static volatile io.grpc.MethodDescriptor<DescribeIndexStatsRequest,
-      DescribeIndexStatsResponse> getDescribeIndexStatsMethod;
+  private static volatile io.grpc.MethodDescriptor<io.pinecone.proto.DescribeIndexStatsRequest,
+      io.pinecone.proto.DescribeIndexStatsResponse> getDescribeIndexStatsMethod;
 
   @io.grpc.stub.annotations.RpcMethod(
       fullMethodName = SERVICE_NAME + '/' + "DescribeIndexStats",
-      requestType = DescribeIndexStatsRequest.class,
-      responseType = DescribeIndexStatsResponse.class,
+      requestType = io.pinecone.proto.DescribeIndexStatsRequest.class,
+      responseType = io.pinecone.proto.DescribeIndexStatsResponse.class,
       methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
-  public static io.grpc.MethodDescriptor<DescribeIndexStatsRequest,
-      DescribeIndexStatsResponse> getDescribeIndexStatsMethod() {
-    io.grpc.MethodDescriptor<DescribeIndexStatsRequest, DescribeIndexStatsResponse> getDescribeIndexStatsMethod;
+  public static io.grpc.MethodDescriptor<io.pinecone.proto.DescribeIndexStatsRequest,
+      io.pinecone.proto.DescribeIndexStatsResponse> getDescribeIndexStatsMethod() {
+    io.grpc.MethodDescriptor<io.pinecone.proto.DescribeIndexStatsRequest, io.pinecone.proto.DescribeIndexStatsResponse> getDescribeIndexStatsMethod;
     if ((getDescribeIndexStatsMethod = VectorServiceGrpc.getDescribeIndexStatsMethod) == null) {
       synchronized (VectorServiceGrpc.class) {
         if ((getDescribeIndexStatsMethod = VectorServiceGrpc.getDescribeIndexStatsMethod) == null) {
           VectorServiceGrpc.getDescribeIndexStatsMethod = getDescribeIndexStatsMethod =
-              io.grpc.MethodDescriptor.<DescribeIndexStatsRequest, DescribeIndexStatsResponse>newBuilder()
+              io.grpc.MethodDescriptor.<io.pinecone.proto.DescribeIndexStatsRequest, io.pinecone.proto.DescribeIndexStatsResponse>newBuilder()
               .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
               .setFullMethodName(generateFullMethodName(SERVICE_NAME, "DescribeIndexStats"))
               .setSampledToLocalTracing(true)
               .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  DescribeIndexStatsRequest.getDefaultInstance()))
+                  io.pinecone.proto.DescribeIndexStatsRequest.getDefaultInstance()))
               .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  DescribeIndexStatsResponse.getDefaultInstance()))
+                  io.pinecone.proto.DescribeIndexStatsResponse.getDefaultInstance()))
               .setSchemaDescriptor(new VectorServiceMethodDescriptorSupplier("DescribeIndexStats"))
               .build();
         }
@@ -242,7 +242,7 @@ public final class VectorServiceGrpc {
   public static VectorServiceStub newStub(io.grpc.Channel channel) {
     io.grpc.stub.AbstractStub.StubFactory<VectorServiceStub> factory =
       new io.grpc.stub.AbstractStub.StubFactory<VectorServiceStub>() {
-        @Override
+        @java.lang.Override
         public VectorServiceStub newStub(io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
           return new VectorServiceStub(channel, callOptions);
         }
@@ -257,7 +257,7 @@ public final class VectorServiceGrpc {
       io.grpc.Channel channel) {
     io.grpc.stub.AbstractStub.StubFactory<VectorServiceBlockingStub> factory =
       new io.grpc.stub.AbstractStub.StubFactory<VectorServiceBlockingStub>() {
-        @Override
+        @java.lang.Override
         public VectorServiceBlockingStub newStub(io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
           return new VectorServiceBlockingStub(channel, callOptions);
         }
@@ -272,7 +272,7 @@ public final class VectorServiceGrpc {
       io.grpc.Channel channel) {
     io.grpc.stub.AbstractStub.StubFactory<VectorServiceFutureStub> factory =
       new io.grpc.stub.AbstractStub.StubFactory<VectorServiceFutureStub>() {
-        @Override
+        @java.lang.Override
         public VectorServiceFutureStub newStub(io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
           return new VectorServiceFutureStub(channel, callOptions);
         }
@@ -290,96 +290,88 @@ public final class VectorServiceGrpc {
 
     /**
      * <pre>
-     * Upsert
-     * The `Upsert` operation writes vectors into a namespace.
-     * If a new value is upserted for an existing vector id, it will overwrite the previous value.
+     * Upsert vectors
+     * The `upsert` operation writes vectors into a namespace. If a new value is upserted for an existing vector ID, it will overwrite the previous value.
+     * For guidance and examples, see [Upsert data](https://docs.pinecone.io/docs/upsert-data).
      * </pre>
      */
-    default void upsert(UpsertRequest request,
-                        io.grpc.stub.StreamObserver<UpsertResponse> responseObserver) {
+    default void upsert(io.pinecone.proto.UpsertRequest request,
+        io.grpc.stub.StreamObserver<io.pinecone.proto.UpsertResponse> responseObserver) {
       io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getUpsertMethod(), responseObserver);
     }
 
     /**
      * <pre>
-     * Delete
-     * The `Delete` operation deletes vectors, by id, from a single namespace.
-     * You can delete items by their id, from a single namespace.
+     * Delete vectors
+     * The `delete` operation deletes vectors, by id, from a single namespace.
+     * For guidance and examples, see [Delete data](https://docs.pinecone.io/docs/delete-data).
      * </pre>
      */
-    default void delete(DeleteRequest request,
-                        io.grpc.stub.StreamObserver<DeleteResponse> responseObserver) {
+    default void delete(io.pinecone.proto.DeleteRequest request,
+        io.grpc.stub.StreamObserver<io.pinecone.proto.DeleteResponse> responseObserver) {
       io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getDeleteMethod(), responseObserver);
     }
 
     /**
      * <pre>
-     * Fetch
-     * The `Fetch` operation looks up and returns vectors, by ID, from a single namespace.
-     * The returned vectors include the vector data and/or metadata.
+     * Fetch vectors
+     * The `fetch` operation looks up and returns vectors, by ID, from a single namespace. The returned vectors include the vector data and/or metadata.
+     * For guidance and examples, see [Fetch data](https://docs.pinecone.io/reference/fetch).
      * </pre>
      */
-    default void fetch(FetchRequest request,
-                       io.grpc.stub.StreamObserver<FetchResponse> responseObserver) {
+    default void fetch(io.pinecone.proto.FetchRequest request,
+        io.grpc.stub.StreamObserver<io.pinecone.proto.FetchResponse> responseObserver) {
       io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getFetchMethod(), responseObserver);
     }
 
     /**
      * <pre>
-     * List
-     * The `List` operations lists the IDs of vectors in a single namespace.
-     * An optional prefix can be passed to limit the listing to those ids that start
-     * with the given prefix.
-     * Ids are returned in sorted order (bitwise/"C" collation).
-     * A maximum of 100 ids are returned at a time.
-     * A pagination token is also returned to allow the client to list the next 100.
-     * The absence of the pagination token indicates that there are no more ids that
-     * match the given parameters.
+     * List vector IDs
+     * The `list` operation lists the IDs of vectors in a single namespace of a serverless index. An optional prefix can be passed to limit the results to IDs with a common prefix.
+     * `list` returns up to 100 IDs at a time by default in sorted order (bitwise/"C" collation). If the `limit` parameter is set, `list` returns up to that number of IDs instead. Whenever there are additional IDs to return, the response also includes a `pagination_token` that you can use to get the next batch of IDs. When the response does not include a `pagination_token`, there are no more IDs to return.
+     * For guidance and examples, see [Get record IDs](https://docs.pinecone.io/docs/get-record-ids).
+     * **Note:** `list` is supported only for serverless indexes.
      * </pre>
      */
-    default void list(ListRequest request,
-                      io.grpc.stub.StreamObserver<ListResponse> responseObserver) {
+    default void list(io.pinecone.proto.ListRequest request,
+        io.grpc.stub.StreamObserver<io.pinecone.proto.ListResponse> responseObserver) {
       io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getListMethod(), responseObserver);
     }
 
     /**
      * <pre>
-     * Query
-     * The `Query` operation searches a namespace, using a query vector.
-     * It retrieves the ids of the most similar items in a namespace, along with their similarity scores.
+     * Query vectors
+     * The `query` operation searches a namespace, using a query vector. It retrieves the ids of the most similar items in a namespace, along with their similarity scores.
+     * For guidance and examples, see [Query data](https://docs.pinecone.io/docs/query-data).
      * </pre>
      */
-    default void query(QueryRequest request,
-                       io.grpc.stub.StreamObserver<QueryResponse> responseObserver) {
+    default void query(io.pinecone.proto.QueryRequest request,
+        io.grpc.stub.StreamObserver<io.pinecone.proto.QueryResponse> responseObserver) {
       io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getQueryMethod(), responseObserver);
     }
 
     /**
      * <pre>
-     * Update
-     * The `Update` operation updates vector in a namespace.
-     * If a value is included, it will overwrite the previous value.
-     * If a set_metadata is included, the values of the fields specified in it will be added or overwrite the previous value.
+     * Update a vector
+     * The `update` operation updates a vector in a namespace. If a value is included, it will overwrite the previous value. If a `set_metadata` is included, the values of the fields specified in it will be added or overwrite the previous value.
+     * For guidance and examples, see [Update data](https://docs.pinecone.io/reference/update).
      * </pre>
      */
-    default void update(UpdateRequest request,
-                        io.grpc.stub.StreamObserver<UpdateResponse> responseObserver) {
+    default void update(io.pinecone.proto.UpdateRequest request,
+        io.grpc.stub.StreamObserver<io.pinecone.proto.UpdateResponse> responseObserver) {
       io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getUpdateMethod(), responseObserver);
     }
 
     /**
      * <pre>
-     * DescribeIndexStats
-     * The `DescribeIndexStats` operation returns statistics about the index's
-     * contents, including the vector count per namespace, the number of
-     * dimensions, and the index fullness. The index fullness result  may be
-     * inaccurate during pod resizing; to get the status of a pod resizing
-     * process, use
-     * [`describe_index`](https://www.pinecone.io/docs/api/operation/describe_index/).
+     * Get index stats
+     * The `describe_index_stats` operation returns statistics about the contents of an index, including the vector count per namespace and the number of dimensions, and the index fullness.
+     * Serverless indexes scale automatically as needed, so index fullness is relevant only for pod-based indexes.
+     * For pod-based indexes, the index fullness result may be inaccurate during pod resizing; to get the status of a pod resizing process, use [`describe_index`](https://www.pinecone.io/docs/api/operation/describe_index/).
      * </pre>
      */
-    default void describeIndexStats(DescribeIndexStatsRequest request,
-                                    io.grpc.stub.StreamObserver<DescribeIndexStatsResponse> responseObserver) {
+    default void describeIndexStats(io.pinecone.proto.DescribeIndexStatsRequest request,
+        io.grpc.stub.StreamObserver<io.pinecone.proto.DescribeIndexStatsResponse> responseObserver) {
       io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getDescribeIndexStatsMethod(), responseObserver);
     }
   }
@@ -394,7 +386,7 @@ public final class VectorServiceGrpc {
   public static abstract class VectorServiceImplBase
       implements io.grpc.BindableService, AsyncService {
 
-    @Override public final io.grpc.ServerServiceDefinition bindService() {
+    @java.lang.Override public final io.grpc.ServerServiceDefinition bindService() {
       return VectorServiceGrpc.bindService(this);
     }
   }
@@ -413,7 +405,7 @@ public final class VectorServiceGrpc {
       super(channel, callOptions);
     }
 
-    @Override
+    @java.lang.Override
     protected VectorServiceStub build(
         io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
       return new VectorServiceStub(channel, callOptions);
@@ -421,102 +413,94 @@ public final class VectorServiceGrpc {
 
     /**
      * <pre>
-     * Upsert
-     * The `Upsert` operation writes vectors into a namespace.
-     * If a new value is upserted for an existing vector id, it will overwrite the previous value.
+     * Upsert vectors
+     * The `upsert` operation writes vectors into a namespace. If a new value is upserted for an existing vector ID, it will overwrite the previous value.
+     * For guidance and examples, see [Upsert data](https://docs.pinecone.io/docs/upsert-data).
      * </pre>
      */
-    public void upsert(UpsertRequest request,
-                       io.grpc.stub.StreamObserver<UpsertResponse> responseObserver) {
+    public void upsert(io.pinecone.proto.UpsertRequest request,
+        io.grpc.stub.StreamObserver<io.pinecone.proto.UpsertResponse> responseObserver) {
       io.grpc.stub.ClientCalls.asyncUnaryCall(
           getChannel().newCall(getUpsertMethod(), getCallOptions()), request, responseObserver);
     }
 
     /**
      * <pre>
-     * Delete
-     * The `Delete` operation deletes vectors, by id, from a single namespace.
-     * You can delete items by their id, from a single namespace.
+     * Delete vectors
+     * The `delete` operation deletes vectors, by id, from a single namespace.
+     * For guidance and examples, see [Delete data](https://docs.pinecone.io/docs/delete-data).
      * </pre>
      */
-    public void delete(DeleteRequest request,
-                       io.grpc.stub.StreamObserver<DeleteResponse> responseObserver) {
+    public void delete(io.pinecone.proto.DeleteRequest request,
+        io.grpc.stub.StreamObserver<io.pinecone.proto.DeleteResponse> responseObserver) {
       io.grpc.stub.ClientCalls.asyncUnaryCall(
           getChannel().newCall(getDeleteMethod(), getCallOptions()), request, responseObserver);
     }
 
     /**
      * <pre>
-     * Fetch
-     * The `Fetch` operation looks up and returns vectors, by ID, from a single namespace.
-     * The returned vectors include the vector data and/or metadata.
+     * Fetch vectors
+     * The `fetch` operation looks up and returns vectors, by ID, from a single namespace. The returned vectors include the vector data and/or metadata.
+     * For guidance and examples, see [Fetch data](https://docs.pinecone.io/reference/fetch).
      * </pre>
      */
-    public void fetch(FetchRequest request,
-                      io.grpc.stub.StreamObserver<FetchResponse> responseObserver) {
+    public void fetch(io.pinecone.proto.FetchRequest request,
+        io.grpc.stub.StreamObserver<io.pinecone.proto.FetchResponse> responseObserver) {
       io.grpc.stub.ClientCalls.asyncUnaryCall(
           getChannel().newCall(getFetchMethod(), getCallOptions()), request, responseObserver);
     }
 
     /**
      * <pre>
-     * List
-     * The `List` operations lists the IDs of vectors in a single namespace.
-     * An optional prefix can be passed to limit the listing to those ids that start
-     * with the given prefix.
-     * Ids are returned in sorted order (bitwise/"C" collation).
-     * A maximum of 100 ids are returned at a time.
-     * A pagination token is also returned to allow the client to list the next 100.
-     * The absence of the pagination token indicates that there are no more ids that
-     * match the given parameters.
+     * List vector IDs
+     * The `list` operation lists the IDs of vectors in a single namespace of a serverless index. An optional prefix can be passed to limit the results to IDs with a common prefix.
+     * `list` returns up to 100 IDs at a time by default in sorted order (bitwise/"C" collation). If the `limit` parameter is set, `list` returns up to that number of IDs instead. Whenever there are additional IDs to return, the response also includes a `pagination_token` that you can use to get the next batch of IDs. When the response does not include a `pagination_token`, there are no more IDs to return.
+     * For guidance and examples, see [Get record IDs](https://docs.pinecone.io/docs/get-record-ids).
+     * **Note:** `list` is supported only for serverless indexes.
      * </pre>
      */
-    public void list(ListRequest request,
-                     io.grpc.stub.StreamObserver<ListResponse> responseObserver) {
+    public void list(io.pinecone.proto.ListRequest request,
+        io.grpc.stub.StreamObserver<io.pinecone.proto.ListResponse> responseObserver) {
       io.grpc.stub.ClientCalls.asyncUnaryCall(
           getChannel().newCall(getListMethod(), getCallOptions()), request, responseObserver);
     }
 
     /**
      * <pre>
-     * Query
-     * The `Query` operation searches a namespace, using a query vector.
-     * It retrieves the ids of the most similar items in a namespace, along with their similarity scores.
+     * Query vectors
+     * The `query` operation searches a namespace, using a query vector. It retrieves the ids of the most similar items in a namespace, along with their similarity scores.
+     * For guidance and examples, see [Query data](https://docs.pinecone.io/docs/query-data).
      * </pre>
      */
-    public void query(QueryRequest request,
-                      io.grpc.stub.StreamObserver<QueryResponse> responseObserver) {
+    public void query(io.pinecone.proto.QueryRequest request,
+        io.grpc.stub.StreamObserver<io.pinecone.proto.QueryResponse> responseObserver) {
       io.grpc.stub.ClientCalls.asyncUnaryCall(
           getChannel().newCall(getQueryMethod(), getCallOptions()), request, responseObserver);
     }
 
     /**
      * <pre>
-     * Update
-     * The `Update` operation updates vector in a namespace.
-     * If a value is included, it will overwrite the previous value.
-     * If a set_metadata is included, the values of the fields specified in it will be added or overwrite the previous value.
+     * Update a vector
+     * The `update` operation updates a vector in a namespace. If a value is included, it will overwrite the previous value. If a `set_metadata` is included, the values of the fields specified in it will be added or overwrite the previous value.
+     * For guidance and examples, see [Update data](https://docs.pinecone.io/reference/update).
      * </pre>
      */
-    public void update(UpdateRequest request,
-                       io.grpc.stub.StreamObserver<UpdateResponse> responseObserver) {
+    public void update(io.pinecone.proto.UpdateRequest request,
+        io.grpc.stub.StreamObserver<io.pinecone.proto.UpdateResponse> responseObserver) {
       io.grpc.stub.ClientCalls.asyncUnaryCall(
           getChannel().newCall(getUpdateMethod(), getCallOptions()), request, responseObserver);
     }
 
     /**
      * <pre>
-     * DescribeIndexStats
-     * The `DescribeIndexStats` operation returns statistics about the index's
-     * contents, including the vector count per namespace, the number of
-     * dimensions, and the index fullness. The index fullness result  may be
-     * inaccurate during pod resizing; to get the status of a pod resizing
-     * process, use
-     * [`describe_index`](https://www.pinecone.io/docs/api/operation/describe_index/).
+     * Get index stats
+     * The `describe_index_stats` operation returns statistics about the contents of an index, including the vector count per namespace and the number of dimensions, and the index fullness.
+     * Serverless indexes scale automatically as needed, so index fullness is relevant only for pod-based indexes.
+     * For pod-based indexes, the index fullness result may be inaccurate during pod resizing; to get the status of a pod resizing process, use [`describe_index`](https://www.pinecone.io/docs/api/operation/describe_index/).
      * </pre>
      */
-    public void describeIndexStats(DescribeIndexStatsRequest request,
-                                   io.grpc.stub.StreamObserver<DescribeIndexStatsResponse> responseObserver) {
+    public void describeIndexStats(io.pinecone.proto.DescribeIndexStatsRequest request,
+        io.grpc.stub.StreamObserver<io.pinecone.proto.DescribeIndexStatsResponse> responseObserver) {
       io.grpc.stub.ClientCalls.asyncUnaryCall(
           getChannel().newCall(getDescribeIndexStatsMethod(), getCallOptions()), request, responseObserver);
     }
@@ -536,7 +520,7 @@ public final class VectorServiceGrpc {
       super(channel, callOptions);
     }
 
-    @Override
+    @java.lang.Override
     protected VectorServiceBlockingStub build(
         io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
       return new VectorServiceBlockingStub(channel, callOptions);
@@ -544,95 +528,87 @@ public final class VectorServiceGrpc {
 
     /**
      * <pre>
-     * Upsert
-     * The `Upsert` operation writes vectors into a namespace.
-     * If a new value is upserted for an existing vector id, it will overwrite the previous value.
+     * Upsert vectors
+     * The `upsert` operation writes vectors into a namespace. If a new value is upserted for an existing vector ID, it will overwrite the previous value.
+     * For guidance and examples, see [Upsert data](https://docs.pinecone.io/docs/upsert-data).
      * </pre>
      */
-    public UpsertResponse upsert(UpsertRequest request) {
+    public io.pinecone.proto.UpsertResponse upsert(io.pinecone.proto.UpsertRequest request) {
       return io.grpc.stub.ClientCalls.blockingUnaryCall(
           getChannel(), getUpsertMethod(), getCallOptions(), request);
     }
 
     /**
      * <pre>
-     * Delete
-     * The `Delete` operation deletes vectors, by id, from a single namespace.
-     * You can delete items by their id, from a single namespace.
+     * Delete vectors
+     * The `delete` operation deletes vectors, by id, from a single namespace.
+     * For guidance and examples, see [Delete data](https://docs.pinecone.io/docs/delete-data).
      * </pre>
      */
-    public DeleteResponse delete(DeleteRequest request) {
+    public io.pinecone.proto.DeleteResponse delete(io.pinecone.proto.DeleteRequest request) {
       return io.grpc.stub.ClientCalls.blockingUnaryCall(
           getChannel(), getDeleteMethod(), getCallOptions(), request);
     }
 
     /**
      * <pre>
-     * Fetch
-     * The `Fetch` operation looks up and returns vectors, by ID, from a single namespace.
-     * The returned vectors include the vector data and/or metadata.
+     * Fetch vectors
+     * The `fetch` operation looks up and returns vectors, by ID, from a single namespace. The returned vectors include the vector data and/or metadata.
+     * For guidance and examples, see [Fetch data](https://docs.pinecone.io/reference/fetch).
      * </pre>
      */
-    public FetchResponse fetch(FetchRequest request) {
+    public io.pinecone.proto.FetchResponse fetch(io.pinecone.proto.FetchRequest request) {
       return io.grpc.stub.ClientCalls.blockingUnaryCall(
           getChannel(), getFetchMethod(), getCallOptions(), request);
     }
 
     /**
      * <pre>
-     * List
-     * The `List` operations lists the IDs of vectors in a single namespace.
-     * An optional prefix can be passed to limit the listing to those ids that start
-     * with the given prefix.
-     * Ids are returned in sorted order (bitwise/"C" collation).
-     * A maximum of 100 ids are returned at a time.
-     * A pagination token is also returned to allow the client to list the next 100.
-     * The absence of the pagination token indicates that there are no more ids that
-     * match the given parameters.
+     * List vector IDs
+     * The `list` operation lists the IDs of vectors in a single namespace of a serverless index. An optional prefix can be passed to limit the results to IDs with a common prefix.
+     * `list` returns up to 100 IDs at a time by default in sorted order (bitwise/"C" collation). If the `limit` parameter is set, `list` returns up to that number of IDs instead. Whenever there are additional IDs to return, the response also includes a `pagination_token` that you can use to get the next batch of IDs. When the response does not include a `pagination_token`, there are no more IDs to return.
+     * For guidance and examples, see [Get record IDs](https://docs.pinecone.io/docs/get-record-ids).
+     * **Note:** `list` is supported only for serverless indexes.
      * </pre>
      */
-    public ListResponse list(ListRequest request) {
+    public io.pinecone.proto.ListResponse list(io.pinecone.proto.ListRequest request) {
       return io.grpc.stub.ClientCalls.blockingUnaryCall(
           getChannel(), getListMethod(), getCallOptions(), request);
     }
 
     /**
      * <pre>
-     * Query
-     * The `Query` operation searches a namespace, using a query vector.
-     * It retrieves the ids of the most similar items in a namespace, along with their similarity scores.
+     * Query vectors
+     * The `query` operation searches a namespace, using a query vector. It retrieves the ids of the most similar items in a namespace, along with their similarity scores.
+     * For guidance and examples, see [Query data](https://docs.pinecone.io/docs/query-data).
      * </pre>
      */
-    public QueryResponse query(QueryRequest request) {
+    public io.pinecone.proto.QueryResponse query(io.pinecone.proto.QueryRequest request) {
       return io.grpc.stub.ClientCalls.blockingUnaryCall(
           getChannel(), getQueryMethod(), getCallOptions(), request);
     }
 
     /**
      * <pre>
-     * Update
-     * The `Update` operation updates vector in a namespace.
-     * If a value is included, it will overwrite the previous value.
-     * If a set_metadata is included, the values of the fields specified in it will be added or overwrite the previous value.
+     * Update a vector
+     * The `update` operation updates a vector in a namespace. If a value is included, it will overwrite the previous value. If a `set_metadata` is included, the values of the fields specified in it will be added or overwrite the previous value.
+     * For guidance and examples, see [Update data](https://docs.pinecone.io/reference/update).
      * </pre>
      */
-    public UpdateResponse update(UpdateRequest request) {
+    public io.pinecone.proto.UpdateResponse update(io.pinecone.proto.UpdateRequest request) {
       return io.grpc.stub.ClientCalls.blockingUnaryCall(
           getChannel(), getUpdateMethod(), getCallOptions(), request);
     }
 
     /**
      * <pre>
-     * DescribeIndexStats
-     * The `DescribeIndexStats` operation returns statistics about the index's
-     * contents, including the vector count per namespace, the number of
-     * dimensions, and the index fullness. The index fullness result  may be
-     * inaccurate during pod resizing; to get the status of a pod resizing
-     * process, use
-     * [`describe_index`](https://www.pinecone.io/docs/api/operation/describe_index/).
+     * Get index stats
+     * The `describe_index_stats` operation returns statistics about the contents of an index, including the vector count per namespace and the number of dimensions, and the index fullness.
+     * Serverless indexes scale automatically as needed, so index fullness is relevant only for pod-based indexes.
+     * For pod-based indexes, the index fullness result may be inaccurate during pod resizing; to get the status of a pod resizing process, use [`describe_index`](https://www.pinecone.io/docs/api/operation/describe_index/).
      * </pre>
      */
-    public DescribeIndexStatsResponse describeIndexStats(DescribeIndexStatsRequest request) {
+    public io.pinecone.proto.DescribeIndexStatsResponse describeIndexStats(io.pinecone.proto.DescribeIndexStatsRequest request) {
       return io.grpc.stub.ClientCalls.blockingUnaryCall(
           getChannel(), getDescribeIndexStatsMethod(), getCallOptions(), request);
     }
@@ -652,7 +628,7 @@ public final class VectorServiceGrpc {
       super(channel, callOptions);
     }
 
-    @Override
+    @java.lang.Override
     protected VectorServiceFutureStub build(
         io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
       return new VectorServiceFutureStub(channel, callOptions);
@@ -660,102 +636,94 @@ public final class VectorServiceGrpc {
 
     /**
      * <pre>
-     * Upsert
-     * The `Upsert` operation writes vectors into a namespace.
-     * If a new value is upserted for an existing vector id, it will overwrite the previous value.
+     * Upsert vectors
+     * The `upsert` operation writes vectors into a namespace. If a new value is upserted for an existing vector ID, it will overwrite the previous value.
+     * For guidance and examples, see [Upsert data](https://docs.pinecone.io/docs/upsert-data).
      * </pre>
      */
-    public com.google.common.util.concurrent.ListenableFuture<UpsertResponse> upsert(
-        UpsertRequest request) {
+    public com.google.common.util.concurrent.ListenableFuture<io.pinecone.proto.UpsertResponse> upsert(
+        io.pinecone.proto.UpsertRequest request) {
       return io.grpc.stub.ClientCalls.futureUnaryCall(
           getChannel().newCall(getUpsertMethod(), getCallOptions()), request);
     }
 
     /**
      * <pre>
-     * Delete
-     * The `Delete` operation deletes vectors, by id, from a single namespace.
-     * You can delete items by their id, from a single namespace.
+     * Delete vectors
+     * The `delete` operation deletes vectors, by id, from a single namespace.
+     * For guidance and examples, see [Delete data](https://docs.pinecone.io/docs/delete-data).
      * </pre>
      */
-    public com.google.common.util.concurrent.ListenableFuture<DeleteResponse> delete(
-        DeleteRequest request) {
+    public com.google.common.util.concurrent.ListenableFuture<io.pinecone.proto.DeleteResponse> delete(
+        io.pinecone.proto.DeleteRequest request) {
       return io.grpc.stub.ClientCalls.futureUnaryCall(
           getChannel().newCall(getDeleteMethod(), getCallOptions()), request);
     }
 
     /**
      * <pre>
-     * Fetch
-     * The `Fetch` operation looks up and returns vectors, by ID, from a single namespace.
-     * The returned vectors include the vector data and/or metadata.
+     * Fetch vectors
+     * The `fetch` operation looks up and returns vectors, by ID, from a single namespace. The returned vectors include the vector data and/or metadata.
+     * For guidance and examples, see [Fetch data](https://docs.pinecone.io/reference/fetch).
      * </pre>
      */
-    public com.google.common.util.concurrent.ListenableFuture<FetchResponse> fetch(
-        FetchRequest request) {
+    public com.google.common.util.concurrent.ListenableFuture<io.pinecone.proto.FetchResponse> fetch(
+        io.pinecone.proto.FetchRequest request) {
       return io.grpc.stub.ClientCalls.futureUnaryCall(
           getChannel().newCall(getFetchMethod(), getCallOptions()), request);
     }
 
     /**
      * <pre>
-     * List
-     * The `List` operations lists the IDs of vectors in a single namespace.
-     * An optional prefix can be passed to limit the listing to those ids that start
-     * with the given prefix.
-     * Ids are returned in sorted order (bitwise/"C" collation).
-     * A maximum of 100 ids are returned at a time.
-     * A pagination token is also returned to allow the client to list the next 100.
-     * The absence of the pagination token indicates that there are no more ids that
-     * match the given parameters.
+     * List vector IDs
+     * The `list` operation lists the IDs of vectors in a single namespace of a serverless index. An optional prefix can be passed to limit the results to IDs with a common prefix.
+     * `list` returns up to 100 IDs at a time by default in sorted order (bitwise/"C" collation). If the `limit` parameter is set, `list` returns up to that number of IDs instead. Whenever there are additional IDs to return, the response also includes a `pagination_token` that you can use to get the next batch of IDs. When the response does not include a `pagination_token`, there are no more IDs to return.
+     * For guidance and examples, see [Get record IDs](https://docs.pinecone.io/docs/get-record-ids).
+     * **Note:** `list` is supported only for serverless indexes.
      * </pre>
      */
-    public com.google.common.util.concurrent.ListenableFuture<ListResponse> list(
-        ListRequest request) {
+    public com.google.common.util.concurrent.ListenableFuture<io.pinecone.proto.ListResponse> list(
+        io.pinecone.proto.ListRequest request) {
       return io.grpc.stub.ClientCalls.futureUnaryCall(
           getChannel().newCall(getListMethod(), getCallOptions()), request);
     }
 
     /**
      * <pre>
-     * Query
-     * The `Query` operation searches a namespace, using a query vector.
-     * It retrieves the ids of the most similar items in a namespace, along with their similarity scores.
+     * Query vectors
+     * The `query` operation searches a namespace, using a query vector. It retrieves the ids of the most similar items in a namespace, along with their similarity scores.
+     * For guidance and examples, see [Query data](https://docs.pinecone.io/docs/query-data).
      * </pre>
      */
-    public com.google.common.util.concurrent.ListenableFuture<QueryResponse> query(
-        QueryRequest request) {
+    public com.google.common.util.concurrent.ListenableFuture<io.pinecone.proto.QueryResponse> query(
+        io.pinecone.proto.QueryRequest request) {
       return io.grpc.stub.ClientCalls.futureUnaryCall(
           getChannel().newCall(getQueryMethod(), getCallOptions()), request);
     }
 
     /**
      * <pre>
-     * Update
-     * The `Update` operation updates vector in a namespace.
-     * If a value is included, it will overwrite the previous value.
-     * If a set_metadata is included, the values of the fields specified in it will be added or overwrite the previous value.
+     * Update a vector
+     * The `update` operation updates a vector in a namespace. If a value is included, it will overwrite the previous value. If a `set_metadata` is included, the values of the fields specified in it will be added or overwrite the previous value.
+     * For guidance and examples, see [Update data](https://docs.pinecone.io/reference/update).
      * </pre>
      */
-    public com.google.common.util.concurrent.ListenableFuture<UpdateResponse> update(
-        UpdateRequest request) {
+    public com.google.common.util.concurrent.ListenableFuture<io.pinecone.proto.UpdateResponse> update(
+        io.pinecone.proto.UpdateRequest request) {
       return io.grpc.stub.ClientCalls.futureUnaryCall(
           getChannel().newCall(getUpdateMethod(), getCallOptions()), request);
     }
 
     /**
      * <pre>
-     * DescribeIndexStats
-     * The `DescribeIndexStats` operation returns statistics about the index's
-     * contents, including the vector count per namespace, the number of
-     * dimensions, and the index fullness. The index fullness result  may be
-     * inaccurate during pod resizing; to get the status of a pod resizing
-     * process, use
-     * [`describe_index`](https://www.pinecone.io/docs/api/operation/describe_index/).
+     * Get index stats
+     * The `describe_index_stats` operation returns statistics about the contents of an index, including the vector count per namespace and the number of dimensions, and the index fullness.
+     * Serverless indexes scale automatically as needed, so index fullness is relevant only for pod-based indexes.
+     * For pod-based indexes, the index fullness result may be inaccurate during pod resizing; to get the status of a pod resizing process, use [`describe_index`](https://www.pinecone.io/docs/api/operation/describe_index/).
      * </pre>
      */
-    public com.google.common.util.concurrent.ListenableFuture<DescribeIndexStatsResponse> describeIndexStats(
-        DescribeIndexStatsRequest request) {
+    public com.google.common.util.concurrent.ListenableFuture<io.pinecone.proto.DescribeIndexStatsResponse> describeIndexStats(
+        io.pinecone.proto.DescribeIndexStatsRequest request) {
       return io.grpc.stub.ClientCalls.futureUnaryCall(
           getChannel().newCall(getDescribeIndexStatsMethod(), getCallOptions()), request);
     }
@@ -782,45 +750,45 @@ public final class VectorServiceGrpc {
       this.methodId = methodId;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
+    @java.lang.Override
+    @java.lang.SuppressWarnings("unchecked")
     public void invoke(Req request, io.grpc.stub.StreamObserver<Resp> responseObserver) {
       switch (methodId) {
         case METHODID_UPSERT:
-          serviceImpl.upsert((UpsertRequest) request,
-              (io.grpc.stub.StreamObserver<UpsertResponse>) responseObserver);
+          serviceImpl.upsert((io.pinecone.proto.UpsertRequest) request,
+              (io.grpc.stub.StreamObserver<io.pinecone.proto.UpsertResponse>) responseObserver);
           break;
         case METHODID_DELETE:
-          serviceImpl.delete((DeleteRequest) request,
-              (io.grpc.stub.StreamObserver<DeleteResponse>) responseObserver);
+          serviceImpl.delete((io.pinecone.proto.DeleteRequest) request,
+              (io.grpc.stub.StreamObserver<io.pinecone.proto.DeleteResponse>) responseObserver);
           break;
         case METHODID_FETCH:
-          serviceImpl.fetch((FetchRequest) request,
-              (io.grpc.stub.StreamObserver<FetchResponse>) responseObserver);
+          serviceImpl.fetch((io.pinecone.proto.FetchRequest) request,
+              (io.grpc.stub.StreamObserver<io.pinecone.proto.FetchResponse>) responseObserver);
           break;
         case METHODID_LIST:
-          serviceImpl.list((ListRequest) request,
-              (io.grpc.stub.StreamObserver<ListResponse>) responseObserver);
+          serviceImpl.list((io.pinecone.proto.ListRequest) request,
+              (io.grpc.stub.StreamObserver<io.pinecone.proto.ListResponse>) responseObserver);
           break;
         case METHODID_QUERY:
-          serviceImpl.query((QueryRequest) request,
-              (io.grpc.stub.StreamObserver<QueryResponse>) responseObserver);
+          serviceImpl.query((io.pinecone.proto.QueryRequest) request,
+              (io.grpc.stub.StreamObserver<io.pinecone.proto.QueryResponse>) responseObserver);
           break;
         case METHODID_UPDATE:
-          serviceImpl.update((UpdateRequest) request,
-              (io.grpc.stub.StreamObserver<UpdateResponse>) responseObserver);
+          serviceImpl.update((io.pinecone.proto.UpdateRequest) request,
+              (io.grpc.stub.StreamObserver<io.pinecone.proto.UpdateResponse>) responseObserver);
           break;
         case METHODID_DESCRIBE_INDEX_STATS:
-          serviceImpl.describeIndexStats((DescribeIndexStatsRequest) request,
-              (io.grpc.stub.StreamObserver<DescribeIndexStatsResponse>) responseObserver);
+          serviceImpl.describeIndexStats((io.pinecone.proto.DescribeIndexStatsRequest) request,
+              (io.grpc.stub.StreamObserver<io.pinecone.proto.DescribeIndexStatsResponse>) responseObserver);
           break;
         default:
           throw new AssertionError();
       }
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
+    @java.lang.Override
+    @java.lang.SuppressWarnings("unchecked")
     public io.grpc.stub.StreamObserver<Req> invoke(
         io.grpc.stub.StreamObserver<Resp> responseObserver) {
       switch (methodId) {
@@ -836,50 +804,50 @@ public final class VectorServiceGrpc {
           getUpsertMethod(),
           io.grpc.stub.ServerCalls.asyncUnaryCall(
             new MethodHandlers<
-              UpsertRequest,
-              UpsertResponse>(
+              io.pinecone.proto.UpsertRequest,
+              io.pinecone.proto.UpsertResponse>(
                 service, METHODID_UPSERT)))
         .addMethod(
           getDeleteMethod(),
           io.grpc.stub.ServerCalls.asyncUnaryCall(
             new MethodHandlers<
-              DeleteRequest,
-              DeleteResponse>(
+              io.pinecone.proto.DeleteRequest,
+              io.pinecone.proto.DeleteResponse>(
                 service, METHODID_DELETE)))
         .addMethod(
           getFetchMethod(),
           io.grpc.stub.ServerCalls.asyncUnaryCall(
             new MethodHandlers<
-              FetchRequest,
-              FetchResponse>(
+              io.pinecone.proto.FetchRequest,
+              io.pinecone.proto.FetchResponse>(
                 service, METHODID_FETCH)))
         .addMethod(
           getListMethod(),
           io.grpc.stub.ServerCalls.asyncUnaryCall(
             new MethodHandlers<
-              ListRequest,
-              ListResponse>(
+              io.pinecone.proto.ListRequest,
+              io.pinecone.proto.ListResponse>(
                 service, METHODID_LIST)))
         .addMethod(
           getQueryMethod(),
           io.grpc.stub.ServerCalls.asyncUnaryCall(
             new MethodHandlers<
-              QueryRequest,
-              QueryResponse>(
+              io.pinecone.proto.QueryRequest,
+              io.pinecone.proto.QueryResponse>(
                 service, METHODID_QUERY)))
         .addMethod(
           getUpdateMethod(),
           io.grpc.stub.ServerCalls.asyncUnaryCall(
             new MethodHandlers<
-              UpdateRequest,
-              UpdateResponse>(
+              io.pinecone.proto.UpdateRequest,
+              io.pinecone.proto.UpdateResponse>(
                 service, METHODID_UPDATE)))
         .addMethod(
           getDescribeIndexStatsMethod(),
           io.grpc.stub.ServerCalls.asyncUnaryCall(
             new MethodHandlers<
-              DescribeIndexStatsRequest,
-              DescribeIndexStatsResponse>(
+              io.pinecone.proto.DescribeIndexStatsRequest,
+              io.pinecone.proto.DescribeIndexStatsResponse>(
                 service, METHODID_DESCRIBE_INDEX_STATS)))
         .build();
   }
@@ -888,12 +856,12 @@ public final class VectorServiceGrpc {
       implements io.grpc.protobuf.ProtoFileDescriptorSupplier, io.grpc.protobuf.ProtoServiceDescriptorSupplier {
     VectorServiceBaseDescriptorSupplier() {}
 
-    @Override
+    @java.lang.Override
     public com.google.protobuf.Descriptors.FileDescriptor getFileDescriptor() {
-      return VectorServiceOuterClass.getDescriptor();
+      return io.pinecone.proto.VectorServiceOuterClass.getDescriptor();
     }
 
-    @Override
+    @java.lang.Override
     public com.google.protobuf.Descriptors.ServiceDescriptor getServiceDescriptor() {
       return getFileDescriptor().findServiceByName("VectorService");
     }
@@ -907,13 +875,13 @@ public final class VectorServiceGrpc {
   private static final class VectorServiceMethodDescriptorSupplier
       extends VectorServiceBaseDescriptorSupplier
       implements io.grpc.protobuf.ProtoMethodDescriptorSupplier {
-    private final String methodName;
+    private final java.lang.String methodName;
 
-    VectorServiceMethodDescriptorSupplier(String methodName) {
+    VectorServiceMethodDescriptorSupplier(java.lang.String methodName) {
       this.methodName = methodName;
     }
 
-    @Override
+    @java.lang.Override
     public com.google.protobuf.Descriptors.MethodDescriptor getMethodDescriptor() {
       return getServiceDescriptor().findMethodByName(methodName);
     }
