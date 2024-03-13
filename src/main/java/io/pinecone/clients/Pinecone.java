@@ -116,14 +116,14 @@ public class Pinecone {
         }
     }
 
-    public Index getIndex(String indexName) {
+    public Index createIndexConnection(String indexName) {
         PineconeConnection connection = new PineconeConnection(config, indexName);
-        return new Index(connection.getBlockingStub());
+        return new Index(connection);
     }
 
-    public AsyncIndex getAsyncIndex(String indexName) {
+    public AsyncIndex createAsyncIndexConnection(String indexName) {
         PineconeConnection connection = new PineconeConnection(config, indexName);
-        return new AsyncIndex(connection.getFutureStub());
+        return new AsyncIndex(connection);
     }
 
     private void handleApiException(ApiException apiException) throws PineconeException {

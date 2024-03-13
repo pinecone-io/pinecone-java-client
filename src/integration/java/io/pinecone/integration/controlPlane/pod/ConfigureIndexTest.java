@@ -7,8 +7,6 @@ import io.pinecone.exceptions.PineconeBadRequestException;
 import io.pinecone.exceptions.PineconeNotFoundException;
 import org.junit.jupiter.api.*;
 import org.openapitools.client.model.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 

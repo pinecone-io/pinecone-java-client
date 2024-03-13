@@ -11,7 +11,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.model.IndexModelSpec;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -34,8 +33,8 @@ public class QueryErrorTest {
 
         String indexName = findIndexWithDimensionAndType(pinecone, dimension, indexType);
         if (indexName.isEmpty()) indexName = createNewIndex(pinecone, dimension, indexType);
-        index = pinecone.getIndex(indexName);
-        asyncIndex = pinecone.getAsyncIndex(indexName);
+        index = pinecone.createIndexConnection(indexName);
+        asyncIndex = pinecone.createAsyncIndexConnection(indexName);
     }
 
     @Test
@@ -80,8 +79,8 @@ public class QueryErrorTest {
     @Test
     public void queryWithIncorrectVectorDimensionFuture() throws ExecutionException, InterruptedException {
         String namespace = RandomStringBuilder.build("ns", 8);
-        DescribeIndexStatsResponse describeIndexStatsResponse1 = asyncIndex.describeIndexStats(null).get();
-        assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
+        DescribeIndexStatsResponse describeIndexStatsResponse = asyncIndex.describeIndexStats(null).get();
+        assertEquals(describeIndexStatsResponse.getDimension(), dimension);
 
         StringBuilder exceptionMessage = new StringBuilder();
         // Query with incorrect dimensions

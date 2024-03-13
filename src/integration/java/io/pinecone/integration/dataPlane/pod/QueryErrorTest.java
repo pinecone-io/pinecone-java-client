@@ -24,15 +24,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class QueryErrorTest {
 
     private static PineconeConnection connection;
-    private static VectorServiceGrpc.VectorServiceBlockingStub blockingStub;
-    private static VectorServiceGrpc.VectorServiceFutureStub futureStub;
     private static final int dimension = 3;
 
     @BeforeAll
     public static void setUp() throws IOException, InterruptedException {
         connection = createIndexIfNotExistsDataPlane(dimension, IndexModelSpec.SERIALIZED_NAME_POD);
-        blockingStub = connection.getBlockingStub();
-        futureStub = connection.getFutureStub();
     }
 
     @AfterAll
@@ -43,7 +39,7 @@ public class QueryErrorTest {
     @Test
     public void queryWithIncorrectVectorDimensionSync() {
         String namespace = RandomStringBuilder.build("ns", 8);
-        Index dataPlaneClient = new Index(blockingStub);
+        Index dataPlaneClient = new Index(connection);
         DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(null);
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
 
@@ -62,7 +58,7 @@ public class QueryErrorTest {
 
     @Test
     public void QueryWithNullSparseIndicesNotNullSparseValuesSyncTest() {
-        Index dataPlaneClient = new Index(blockingStub);
+        Index dataPlaneClient = new Index(connection);
         String id = RandomStringBuilder.build(3);
 
         try {
@@ -80,7 +76,7 @@ public class QueryErrorTest {
     @Test
     public void queryWithIncorrectVectorDimensionFuture() throws ExecutionException, InterruptedException {
         String namespace = RandomStringBuilder.build("ns", 8);
-        AsyncIndex dataPlaneClient = new AsyncIndex(futureStub);
+        AsyncIndex dataPlaneClient = new AsyncIndex(connection);
         DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(null).get();
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
 
@@ -99,7 +95,7 @@ public class QueryErrorTest {
 
     @Test
     public void QueryWithNullSparseIndicesNotNullSparseValuesFutureTest() throws ExecutionException, InterruptedException {
-        AsyncIndex dataPlaneClient = new AsyncIndex(futureStub);
+        AsyncIndex dataPlaneClient = new AsyncIndex(connection);
         String id = RandomStringBuilder.build(3);
 
         try {

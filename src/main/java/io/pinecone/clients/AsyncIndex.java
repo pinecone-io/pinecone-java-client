@@ -5,25 +5,32 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.Struct;
 import io.pinecone.commons.PineconeDataPlaneInterface;
+import io.pinecone.configs.PineconeConnection;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.proto.*;
 import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class AsyncIndex implements PineconeDataPlaneInterface<ListenableFuture<UpsertResponse>,
         ListenableFuture<QueryResponseWithUnsignedIndices>, ListenableFuture<FetchResponse>,
         ListenableFuture<UpdateResponse>, ListenableFuture<DeleteResponse>,
-        ListenableFuture<DescribeIndexStatsResponse>> {
+        ListenableFuture<DescribeIndexStatsResponse>>, AutoCloseable {
 
+    private final PineconeConnection connection;
     private final VectorServiceGrpc.VectorServiceFutureStub futureStub;
 
-    public AsyncIndex(VectorServiceGrpc.VectorServiceFutureStub futureStub) {
-        if (futureStub == null) {
-            throw new PineconeValidationException("FutureStub cannot be null.");
-        }
+    private static final Logger logger = LoggerFactory.getLogger(AsyncIndex.class);
 
-        this.futureStub = futureStub;
+    public AsyncIndex(PineconeConnection connection) {
+        if(connection == null) {
+            throw new PineconeValidationException("Pinecone connection object cannot be null.");
+        }
+        this.connection = connection;
+        this.futureStub = connection.getFutureStub();
     }
 
     @Override
@@ -181,5 +188,20 @@ public class AsyncIndex implements PineconeDataPlaneInterface<ListenableFuture<U
         DescribeIndexStatsRequest describeIndexStatsRequest = validateDescribeIndexStatsRequest(filter);
 
         return futureStub.describeIndexStats(describeIndexStatsRequest);
+    }
+
+    /**
+     * Close the connection and release all resources. A PineconeConnection's underlying gRPC components use resources
+     * like threads and TCP connections. To prevent leaking these resources the connection should be closed when it
+     * will no longer be used. If it may be used again leave it running.
+     */
+    @Override
+    public void close() {
+        try {
+            logger.debug("closing channel");
+            connection.getChannel().shutdownNow().awaitTermination(5, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            logger.warn("Channel shutdown interrupted before termination confirmed");
+        }
     }
 }

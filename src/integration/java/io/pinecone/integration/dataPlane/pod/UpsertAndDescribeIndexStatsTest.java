@@ -23,17 +23,12 @@ import java.util.concurrent.ExecutionException;
 
 public class UpsertAndDescribeIndexStatsTest {
     private static PineconeConnection connection;
-    private static VectorServiceGrpc.VectorServiceBlockingStub blockingStub;
-    private static VectorServiceGrpc.VectorServiceFutureStub futureStub;
     private static final int dimension = 3;
     private static final Struct emptyFilterStruct = Struct.newBuilder().build();
 
     @BeforeAll
     public static void setUp() throws IOException, InterruptedException {
-        connection = createIndexIfNotExistsDataPlane(dimension, IndexModelSpec.SERIALIZED_NAME_POD);
-        blockingStub = connection.getBlockingStub();
-        futureStub = connection.getFutureStub();
-    }
+        connection = createIndexIfNotExistsDataPlane(dimension, IndexModelSpec.SERIALIZED_NAME_POD);}
 
     @AfterAll
     public static void cleanUp() {
@@ -43,7 +38,7 @@ public class UpsertAndDescribeIndexStatsTest {
     @Test
     public void upsertOptionalVectorsAndQueryIndexSyncTest() throws InterruptedException {
         int numOfVectors = 5;
-        Index dataPlaneClient = new Index(blockingStub);
+        Index dataPlaneClient = new Index(connection);
         DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(emptyFilterStruct);
         // Confirm the starting state by verifying the dimension of the index
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
@@ -104,7 +99,7 @@ public class UpsertAndDescribeIndexStatsTest {
 
     @Test
     public void upsertNullSparseIndicesNotNullSparseValuesSyncTest() {
-        Index dataPlaneClient = new Index(blockingStub);
+        Index dataPlaneClient = new Index(connection);
         String id = RandomStringBuilder.build(3);
         try {
             dataPlaneClient.upsert(id,
@@ -121,7 +116,7 @@ public class UpsertAndDescribeIndexStatsTest {
     @Test
     public void upsertOptionalVectorsAndQueryIndexFutureTest() throws InterruptedException, ExecutionException {
         int numOfVectors = 5;
-        AsyncIndex dataPlaneClient = new AsyncIndex(futureStub);
+        AsyncIndex dataPlaneClient = new AsyncIndex(connection);
         DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(emptyFilterStruct).get();
         // Confirm the starting state by verifying the dimension of the index
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
@@ -185,7 +180,7 @@ public class UpsertAndDescribeIndexStatsTest {
 
     @Test
     public void upsertNullSparseIndicesNotNullSparseValuesFutureTest() {
-        AsyncIndex dataPlaneClient = new AsyncIndex(futureStub);
+        AsyncIndex dataPlaneClient = new AsyncIndex(connection);
         String id = RandomStringBuilder.build(3);
         try {
             dataPlaneClient.upsert(id,

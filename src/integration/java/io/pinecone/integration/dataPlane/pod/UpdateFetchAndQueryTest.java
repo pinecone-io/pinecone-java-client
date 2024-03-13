@@ -52,7 +52,7 @@ public class UpdateFetchAndQueryTest {
         int numOfVectors = 3;
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
-        Index dataPlaneClient = new Index(blockingStub);
+        Index dataPlaneClient = new Index(connection);
         for (String id : upsertIds) {
             dataPlaneClient.upsert(id, generateVectorValuesByDimension(dimension), namespace);
         }
@@ -94,7 +94,7 @@ public class UpdateFetchAndQueryTest {
         int numOfSparseVectors = 2;
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
-        Index dataPlaneClient = new Index(blockingStub);
+        Index dataPlaneClient = new Index(connection);
         DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(null);
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
         List<List<Long>> sparseIndicesList = getSparseIndicesList(numOfSparseVectors, dimension);
@@ -175,7 +175,7 @@ public class UpdateFetchAndQueryTest {
         int numOfVectors = 3;
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
-        Index dataPlaneClient = new Index(blockingStub);
+        Index dataPlaneClient = new Index(connection);
 
         for (String id : upsertIds) {
             dataPlaneClient.upsert(id,
@@ -214,7 +214,7 @@ public class UpdateFetchAndQueryTest {
         int numOfVectors = 3;
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
-        Index dataPlaneClient = new Index(blockingStub);
+        Index dataPlaneClient = new Index(connection);
         DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(null);
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
 
@@ -255,7 +255,7 @@ public class UpdateFetchAndQueryTest {
 
     @Test
     public void updateNullSparseIndicesNotNullSparseValuesSyncTest() {
-        Index dataPlaneClient = new Index(blockingStub);
+        Index dataPlaneClient = new Index(connection);
         String id = RandomStringBuilder.build(3);
 
         try {
@@ -276,7 +276,7 @@ public class UpdateFetchAndQueryTest {
         int numOfVectors = 3;
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
-        AsyncIndex dataPlaneClient = new AsyncIndex(futureStub);
+        AsyncIndex dataPlaneClient = new AsyncIndex(connection);
         for (String id : upsertIds) {
             dataPlaneClient.upsert(id, generateVectorValuesByDimension(dimension), namespace);
         }
@@ -318,7 +318,7 @@ public class UpdateFetchAndQueryTest {
         int numOfSparseVectors = 2;
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
-        AsyncIndex dataPlaneClient = new AsyncIndex(futureStub);
+        AsyncIndex dataPlaneClient = new AsyncIndex(connection);
         DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(null).get();
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
         List<List<Long>> sparseIndicesList = getSparseIndicesList(numOfSparseVectors, dimension);
@@ -399,7 +399,7 @@ public class UpdateFetchAndQueryTest {
         int numOfVectors = 3;
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
-        AsyncIndex dataPlaneClient = new AsyncIndex(futureStub);
+        AsyncIndex dataPlaneClient = new AsyncIndex(connection);
 
         for (String id : upsertIds) {
             dataPlaneClient.upsert(id,
@@ -438,7 +438,7 @@ public class UpdateFetchAndQueryTest {
         int numOfVectors = 3;
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
-        AsyncIndex dataPlaneClient = new AsyncIndex(futureStub);
+        AsyncIndex dataPlaneClient = new AsyncIndex(connection);
         DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(null).get();
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
 
@@ -479,7 +479,7 @@ public class UpdateFetchAndQueryTest {
 
     @Test
     public void updateNullSparseIndicesNotNullSparseValuesFutureTest() {
-        AsyncIndex dataPlaneClient = new AsyncIndex(futureStub);
+        AsyncIndex dataPlaneClient = new AsyncIndex(connection);
         String id = RandomStringBuilder.build(3);
 
         try {

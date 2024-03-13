@@ -47,7 +47,7 @@ public class UpsertDescribeIndexStatsAndDeleteTest {
         int numOfVectors = 3;
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
-        Index dataPlaneClient = new Index(blockingStub);
+        Index dataPlaneClient = new Index(connection);
         int vectorCount = 0;
         for (String id : upsertIds) {
             UpsertResponse upsertResponse = dataPlaneClient.upsert(id,
@@ -106,7 +106,7 @@ public class UpsertDescribeIndexStatsAndDeleteTest {
         int numOfVectors = 3;
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
-        Index dataPlaneClient = new Index(blockingStub);
+        Index dataPlaneClient = new Index(connection);
 
         int vectorCount = 0;
         // Upsert vectors with required + optional and custom metadata parameters
@@ -161,7 +161,7 @@ public class UpsertDescribeIndexStatsAndDeleteTest {
         int numOfVectors = 3;
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
-        AsyncIndex dataPlaneClient = new AsyncIndex(futureStub);
+        AsyncIndex dataPlaneClient = new AsyncIndex(connection);
         int vectorCount = 0;
         for (String id : upsertIds) {
             UpsertResponse upsertResponse = dataPlaneClient.upsert(id,
@@ -220,7 +220,7 @@ public class UpsertDescribeIndexStatsAndDeleteTest {
         int numOfVectors = 3;
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
-        AsyncIndex dataPlaneClient = new AsyncIndex(futureStub);
+        AsyncIndex dataPlaneClient = new AsyncIndex(connection);
 
         int vectorCount = 0;
         // Upsert vectors with required + optional and custom metadata parameters
