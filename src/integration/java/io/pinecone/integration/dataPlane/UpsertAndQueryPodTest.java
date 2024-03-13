@@ -1,4 +1,4 @@
-package io.pinecone.integration.dataPlane.pod;
+package io.pinecone.integration.dataPlane;
 
 import com.google.protobuf.Struct;
 import io.pinecone.clients.Index;
@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-public class UpsertAndQueryTest {
+public class UpsertAndQueryPodTest {
     private static PineconeConnection connection;
     private static final int dimension = 3;
     private static final Struct emptyFilterStruct = Struct.newBuilder().build();

@@ -1,46 +1,45 @@
-package io.pinecone.integration.dataPlane.serverless;
+package io.pinecone.integration.dataPlane;
 
 import io.grpc.StatusRuntimeException;
-import io.pinecone.clients.AsyncIndex;
 import io.pinecone.clients.Index;
-import io.pinecone.clients.Pinecone;
+import io.pinecone.configs.PineconeConnection;
+import io.pinecone.clients.AsyncIndex;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.helpers.RandomStringBuilder;
-import io.pinecone.proto.DescribeIndexStatsResponse;
+import io.pinecone.proto.*;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.model.IndexModelSpec;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import static io.pinecone.helpers.BuildUpsertRequest.generateVectorValuesByDimension;
-import static io.pinecone.helpers.IndexManager.*;
+import static io.pinecone.helpers.BuildUpsertRequest.*;
+import static io.pinecone.helpers.IndexManager.createIndexIfNotExistsDataPlane;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class QueryErrorTest {
+public class QueryErrorPodTest {
 
-    private static Index index;
-    private static AsyncIndex asyncIndex;
+    private static PineconeConnection connection;
     private static final int dimension = 3;
 
     @BeforeAll
-    public static void setUp() throws InterruptedException {
-        String apiKey = System.getenv("PINECONE_API_KEY");
-        String indexType = IndexModelSpec.SERIALIZED_NAME_SERVERLESS;
-        Pinecone pinecone = new Pinecone(apiKey);
+    public static void setUp() throws IOException, InterruptedException {
+        connection = createIndexIfNotExistsDataPlane(dimension, IndexModelSpec.SERIALIZED_NAME_POD);
+    }
 
-        String indexName = findIndexWithDimensionAndType(pinecone, dimension, indexType);
-        if (indexName.isEmpty()) indexName = createNewIndex(pinecone, dimension, indexType);
-        index = pinecone.createIndexConnection(indexName);
-        asyncIndex = pinecone.createAsyncIndexConnection(indexName);
+    @AfterAll
+    public static void cleanUp() {
+        connection.close();
     }
 
     @Test
     public void queryWithIncorrectVectorDimensionSync() {
         String namespace = RandomStringBuilder.build("ns", 8);
-
+        Index index = new Index(connection);
         DescribeIndexStatsResponse describeIndexStatsResponse1 = index.describeIndexStats(null);
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
 
@@ -59,8 +58,8 @@ public class QueryErrorTest {
 
     @Test
     public void QueryWithNullSparseIndicesNotNullSparseValuesSyncTest() {
+        Index index = new Index(connection);
         String id = RandomStringBuilder.build(3);
-        StringBuilder exceptionMessage = new StringBuilder();
 
         try {
             index.update(id,
@@ -70,17 +69,16 @@ public class QueryErrorTest {
                     null,
                     generateVectorValuesByDimension(dimension));
         } catch (PineconeValidationException validationException) {
-            exceptionMessage.append(validationException.getLocalizedMessage());
-        } finally {
-            assertEquals(exceptionMessage.toString(), "Invalid upsert request. Please ensure that both sparse indices and values are present.");
+            assertEquals(validationException.getLocalizedMessage(), "Invalid upsert request. Please ensure that both sparse indices and values are present.");
         }
     }
 
     @Test
     public void queryWithIncorrectVectorDimensionFuture() throws ExecutionException, InterruptedException {
         String namespace = RandomStringBuilder.build("ns", 8);
-        DescribeIndexStatsResponse describeIndexStatsResponse = asyncIndex.describeIndexStats(null).get();
-        assertEquals(describeIndexStatsResponse.getDimension(), dimension);
+        AsyncIndex asyncIndex = new AsyncIndex(connection);
+        DescribeIndexStatsResponse describeIndexStatsResponse1 = asyncIndex.describeIndexStats(null).get();
+        assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
 
         StringBuilder exceptionMessage = new StringBuilder();
         // Query with incorrect dimensions
@@ -97,8 +95,9 @@ public class QueryErrorTest {
 
     @Test
     public void QueryWithNullSparseIndicesNotNullSparseValuesFutureTest() throws ExecutionException, InterruptedException {
+        AsyncIndex asyncIndex = new AsyncIndex(connection);
         String id = RandomStringBuilder.build(3);
-        StringBuilder exceptionMessage = new StringBuilder();
+
         try {
             asyncIndex.update(id,
                     generateVectorValuesByDimension(dimension),
@@ -107,9 +106,7 @@ public class QueryErrorTest {
                     null,
                     generateVectorValuesByDimension(dimension)).get();
         } catch (PineconeValidationException validationException) {
-            exceptionMessage.append(validationException.getLocalizedMessage());
-        } finally {
-            assertEquals(exceptionMessage.toString(), "Invalid upsert request. Please ensure that both sparse indices and values are present.");
+            assertEquals(validationException.getLocalizedMessage(), "Invalid upsert request. Please ensure that both sparse indices and values are present.");
         }
     }
 }

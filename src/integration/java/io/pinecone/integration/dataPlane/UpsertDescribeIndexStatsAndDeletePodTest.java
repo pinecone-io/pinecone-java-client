@@ -1,4 +1,4 @@
-package io.pinecone.integration.dataPlane.pod;
+package io.pinecone.integration.dataPlane;
 
 import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
@@ -22,7 +22,7 @@ import static io.pinecone.helpers.BuildUpsertRequest.*;
 import static io.pinecone.helpers.IndexManager.createIndexIfNotExistsDataPlane;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class UpsertDescribeIndexStatsAndDeleteTest {
+public class UpsertDescribeIndexStatsAndDeletePodTest {
     private static PineconeConnection connection;
     private static VectorServiceGrpc.VectorServiceBlockingStub blockingStub;
     private static VectorServiceGrpc.VectorServiceFutureStub futureStub;

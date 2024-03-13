@@ -1,4 +1,4 @@
-package io.pinecone.integration.dataPlane.serverless;
+package io.pinecone.integration.dataPlane;
 
 import com.google.protobuf.Struct;
 import io.pinecone.clients.AsyncIndex;
@@ -25,7 +25,7 @@ import static io.pinecone.helpers.BuildUpsertRequest.*;
 import static io.pinecone.helpers.IndexManager.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class UpsertAndQueryTest {
+public class UpsertAndQueryServerlessTest {
     private static Index index;
     private static AsyncIndex asyncIndex;
     private static final int dimension = 3;
