@@ -109,7 +109,7 @@ public class IndexManager {
     }
 
     public static IndexModel waitUntilIndexIsReady(Pinecone pinecone, String indexName) throws InterruptedException {
-        return waitUntilIndexIsReady(pinecone, indexName, 200000);
+        return waitUntilIndexIsReady(pinecone, indexName, 300000);
     }
 
     public static PineconeConnection createNewIndexAndConnect(Pinecone pinecone, String indexName, int dimension, IndexMetric metric, CreateIndexRequestSpec spec) throws InterruptedException, PineconeException {
