@@ -1,4 +1,4 @@
-package io.pinecone.integration.dataPlane;
+package io.pinecone.integration.dataPlane.pod;
 
 import com.google.protobuf.Struct;
 import io.pinecone.clients.Index;

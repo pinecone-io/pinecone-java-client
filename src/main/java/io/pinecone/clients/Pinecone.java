@@ -1,5 +1,7 @@
 package io.pinecone.clients;
 
+import io.pinecone.configs.PineconeConfig;
+import io.pinecone.configs.PineconeConnection;
 import io.pinecone.exceptions.FailedRequestInfo;
 import io.pinecone.exceptions.HttpErrorMapper;
 import io.pinecone.exceptions.PineconeException;
@@ -11,7 +13,9 @@ import org.openapitools.client.api.ManageIndexesApi;
 import org.openapitools.client.model.*;
 
 public class Pinecone {
-    private ManageIndexesApi manageIndexesApi;
+
+    private final ManageIndexesApi manageIndexesApi;
+    private final PineconeConfig config;
 
     public Pinecone(String apiKey) {
         this(apiKey, new OkHttpClient());
@@ -21,6 +25,7 @@ public class Pinecone {
         if(apiKey == null || apiKey.isEmpty()) {
             throw new PineconeValidationException("The API key is required and must not be empty or null");
         }
+        config = new PineconeConfig(apiKey);
         ApiClient apiClient = new ApiClient(okHttpClient);
         apiClient.setApiKey(apiKey);
         manageIndexesApi = new ManageIndexesApi();
@@ -109,6 +114,16 @@ public class Pinecone {
         } catch (ApiException apiException) {
             handleApiException(apiException);
         }
+    }
+
+    public Index getIndex(String indexName) {
+        PineconeConnection connection = new PineconeConnection(config, indexName);
+        return new Index(connection.getBlockingStub());
+    }
+
+    public AsyncIndex getAsyncIndex(String indexName) {
+        PineconeConnection connection = new PineconeConnection(config, indexName);
+        return new AsyncIndex(connection.getFutureStub());
     }
 
     private void handleApiException(ApiException apiException) throws PineconeException {

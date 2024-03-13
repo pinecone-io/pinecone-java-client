@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class ConfigureIndexTest {
     private static Pinecone controlPlaneClient;
     private static String indexName;
-    private static final Logger logger = LoggerFactory.getLogger(ConfigureIndexTest.class);
 
     @BeforeAll
     public static void setUp() throws InterruptedException, IOException {
@@ -49,7 +48,7 @@ public class ConfigureIndexTest {
 
     @Test
     public void configureIndexExceedingQuota() {
-        ConfigureIndexRequestSpecPod pod = new ConfigureIndexRequestSpecPod().replicas(20);
+        ConfigureIndexRequestSpecPod pod = new ConfigureIndexRequestSpecPod().replicas(40);
         ConfigureIndexRequestSpec spec = new ConfigureIndexRequestSpec().pod(pod);
         ConfigureIndexRequest configureIndexRequest = new ConfigureIndexRequest().spec(spec);
         try {
@@ -121,7 +120,7 @@ public class ConfigureIndexTest {
     }
 
     @Test
-    public void sizeIncrease() throws InterruptedException {
+    public void sizeIncrease() {
         try {
             // Verify the starting state
             IndexModel indexModel = isIndexReady(indexName, controlPlaneClient);

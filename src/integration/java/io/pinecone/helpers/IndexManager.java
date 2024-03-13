@@ -1,5 +1,6 @@
 package io.pinecone.helpers;
 
+import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.configs.PineconeConfig;
 import io.pinecone.configs.PineconeConnection;
@@ -20,35 +21,37 @@ public class IndexManager {
 
     public static PineconeConnection createIndexIfNotExistsDataPlane(int dimension, String indexType) throws IOException, InterruptedException {
         String apiKey = System.getenv("PINECONE_API_KEY");
-        Pinecone controlPlaneClient = new Pinecone(apiKey);
-        IndexList indexList = controlPlaneClient.listIndexes();
+        Pinecone pinecone = new Pinecone(apiKey);
 
-        String indexName = findIndexWithDimensionAndType(indexList, dimension, controlPlaneClient, indexType);
-        if (indexName.isEmpty()) indexName = createNewIndex(controlPlaneClient, indexType, dimension);
+        String indexName = findIndexWithDimensionAndType(pinecone, dimension, indexType);
+        if (indexName.isEmpty()) indexName = createNewIndex(pinecone, dimension, indexType);
 
         // Do not proceed until the newly created index is ready
-        isIndexReady(indexName, controlPlaneClient);
+        isIndexReady(indexName, pinecone);
 
         // Adding to test PineconeConnection(pineconeConfig, host) constructor
-        String host = controlPlaneClient.describeIndex(indexName).getHost();
+        String host = pinecone.describeIndex(indexName).getHost();
         PineconeConfig config = new PineconeConfig(apiKey);
         config.setHost(host);
         return new PineconeConnection(config);
     }
 
-    public static String createIndexIfNotExistsControlPlane(Pinecone controlPlaneClient, int dimension, String indexType) throws IOException, InterruptedException {
-        IndexList indexList = controlPlaneClient.listIndexes();
-        String indexName = findIndexWithDimensionAndType(indexList, dimension, controlPlaneClient, indexType);
+    public static String createIndexIfNotExistsControlPlane(Pinecone pinecone, int dimension, String indexType) throws IOException, InterruptedException {
+        String indexName = findIndexWithDimensionAndType(pinecone, dimension, indexType);
 
-        return (indexName.isEmpty()) ? createNewIndex(controlPlaneClient, indexType, dimension) : indexName;
+        return (indexName.isEmpty()) ? createNewIndex(pinecone, dimension, indexType) : indexName;
     }
 
-    private static String findIndexWithDimensionAndType(IndexList indexList, int dimension, Pinecone controlPlaneClient, String indexType)
+    public static String findIndexWithDimensionAndType(Pinecone pinecone, int dimension, String indexType)
             throws InterruptedException {
+        String indexName = "";
         int i = 0;
-        List<IndexModel> indexModels = indexList.getIndexes();
+        List<IndexModel> indexModels = pinecone.listIndexes().getIndexes();
+        if(indexModels == null) {
+            return indexName;
+        }
         while (i < indexModels.size()) {
-            IndexModel indexModel = isIndexReady(indexModels.get(i).getName(), controlPlaneClient);
+             IndexModel indexModel = isIndexReady(indexModels.get(i).getName(), pinecone);
             if (indexModel.getDimension() == dimension
                     && ((indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_POD)
                         && indexModel.getSpec().getPod() != null
@@ -59,10 +62,10 @@ public class IndexManager {
             }
             i++;
         }
-        return "";
+        return indexName;
     }
 
-    private static String createNewIndex(Pinecone controlPlaneClient, String indexType, int dimension) throws IOException {
+    public static String createNewIndex(Pinecone pinecone, int dimension, String indexType) {
         String indexName = RandomStringBuilder.build("index-name", 8);
         String environment = System.getenv("PINECONE_ENVIRONMENT");
         CreateIndexRequestSpec createIndexRequestSpec;
@@ -80,18 +83,18 @@ public class IndexManager {
                 .dimension(dimension)
                 .metric(IndexMetric.DOTPRODUCT)
                 .spec(createIndexRequestSpec);
-        controlPlaneClient.createIndex(createIndexRequest);
+        pinecone.createIndex(createIndexRequest);
 
         return indexName;
     }
 
-    public static IndexModel waitUntilIndexIsReady(Pinecone controlPlaneClient, String indexName, Integer totalMsToWait) throws InterruptedException {
-        IndexModel index = controlPlaneClient.describeIndex(indexName);
+    public static IndexModel waitUntilIndexIsReady(Pinecone pinecone, String indexName, Integer totalMsToWait) throws InterruptedException {
+        IndexModel index = pinecone.describeIndex(indexName);
         int waitedTimeMs = 0;
         int intervalMs = 1500;
 
         while (!index.getStatus().getReady()) {
-            index = controlPlaneClient.describeIndex(indexName);
+            index = pinecone.describeIndex(indexName);
             if (waitedTimeMs >= totalMsToWait) {
                 logger.info("Index " + indexName + " not ready after " + waitedTimeMs + "ms");
                 break;
@@ -106,17 +109,17 @@ public class IndexManager {
         return index;
     }
 
-    public static IndexModel waitUntilIndexIsReady(Pinecone controlPlaneClient, String indexName) throws InterruptedException {
-        return waitUntilIndexIsReady(controlPlaneClient, indexName, 120000);
+    public static IndexModel waitUntilIndexIsReady(Pinecone pinecone, String indexName) throws InterruptedException {
+        return waitUntilIndexIsReady(pinecone, indexName, 120000);
     }
 
-    public static PineconeConnection createNewIndexAndConnect(Pinecone controlPlaneClient, String indexName, int dimension, IndexMetric metric, CreateIndexRequestSpec spec) throws InterruptedException, PineconeException {
+    public static PineconeConnection createNewIndexAndConnect(Pinecone pinecone, String indexName, int dimension, IndexMetric metric, CreateIndexRequestSpec spec) throws InterruptedException, PineconeException {
         String apiKey = System.getenv("PINECONE_API_KEY");
         CreateIndexRequest createIndexRequest = new CreateIndexRequest().name(indexName).dimension(dimension).metric(metric).spec(spec);
-        controlPlaneClient.createIndex(createIndexRequest);
+        pinecone.createIndex(createIndexRequest);
 
         // Wait until index is ready
-        waitUntilIndexIsReady(controlPlaneClient, indexName, 200000);
+        waitUntilIndexIsReady(pinecone, indexName, 200000);
         // wait a bit more before we connect...
         Thread.sleep(15000);
 
@@ -124,9 +127,9 @@ public class IndexManager {
         return new PineconeConnection(config, indexName);
     }
 
-    public static CollectionModel createCollection(Pinecone controlPlaneClient, String collectionName, String indexName, boolean waitUntilReady) throws InterruptedException {
+    public static CollectionModel createCollection(Pinecone pinecone, String collectionName, String indexName, boolean waitUntilReady) throws InterruptedException {
         CreateCollectionRequest createCollectionRequest = new CreateCollectionRequest().name(collectionName).source(indexName);
-        CollectionModel collection = controlPlaneClient.createCollection(createCollectionRequest);
+        CollectionModel collection = pinecone.createCollection(createCollectionRequest);
 
         assertEquals(collection.getStatus(), CollectionModel.StatusEnum.INITIALIZING);
 
@@ -138,7 +141,7 @@ public class IndexManager {
                 logger.info("Waiting for collection " + collectionName + " to be ready. Waited " + timeWaited + " milliseconds...");
                 Thread.sleep(5000);
                 timeWaited += 5000;
-                collection = controlPlaneClient.describeCollection(collectionName);
+                collection = pinecone.describeCollection(collectionName);
                 collectionReady = collection.getStatus();
             }
 
@@ -150,11 +153,11 @@ public class IndexManager {
         return collection;
     }
 
-    public static IndexModel isIndexReady(String indexName, Pinecone controlPlaneClient)
+    public static IndexModel isIndexReady(String indexName, Pinecone pinecone)
             throws InterruptedException {
         final IndexModel[] indexModels = new IndexModel[1];
         assertWithRetry(() -> {
-            indexModels[0] = controlPlaneClient.describeIndex(indexName);
+            indexModels[0] = pinecone.describeIndex(indexName);
             assert (indexModels[0].getStatus().getReady());
         }, 4);
 

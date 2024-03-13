@@ -1,4 +1,4 @@
-package io.pinecone.integration.dataPlane;
+package io.pinecone.integration.dataPlane.pod;
 
 import io.grpc.StatusRuntimeException;
 import io.pinecone.clients.Index;
@@ -42,20 +42,21 @@ public class QueryErrorTest {
 
     @Test
     public void queryWithIncorrectVectorDimensionSync() {
-        int numOfVectors = 3;
-
         String namespace = RandomStringBuilder.build("ns", 8);
         Index dataPlaneClient = new Index(blockingStub);
         DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(null);
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
 
+        StringBuilder exceptionMessage = new StringBuilder();
         // Query with incorrect dimensions
         try {
             List<Float> vector = Arrays.asList(100F);
             dataPlaneClient.query(5, vector, null, null, null, namespace, null, true, true);
         } catch (StatusRuntimeException statusRuntimeException) {
-            assert (statusRuntimeException.getTrailers().toString().contains("grpc-status=3"));
-            assert (statusRuntimeException.getTrailers().toString().contains("grpc-message=Query vector dimension 1 does not match the dimension of the index 3"));
+            exceptionMessage.append(statusRuntimeException.getTrailers().toString());
+        } finally {
+            assert (exceptionMessage.toString().contains("grpc-status=3"));
+            assert (exceptionMessage.toString().contains("grpc-message=Query vector dimension 1 does not match the dimension of the index 3"));
         }
     }
 
@@ -83,18 +84,21 @@ public class QueryErrorTest {
         DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(null).get();
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
 
+        StringBuilder exceptionMessage = new StringBuilder();
         // Query with incorrect dimensions
         try {
             List<Float> vector = Arrays.asList(100F);
-            dataPlaneClient.query(5, vector, null, null, null, namespace, null, true, true);
-        } catch (StatusRuntimeException statusRuntimeException) {
-            assert (statusRuntimeException.getTrailers().toString().contains("grpc-status=3"));
-            assert (statusRuntimeException.getTrailers().toString().contains("grpc-message=Query vector dimension 1 does not match the dimension of the index 3"));
+            dataPlaneClient.query(5, vector, null, null, null, namespace, null, true, true).get();
+        } catch (ExecutionException executionException) {
+            exceptionMessage.append(executionException.getLocalizedMessage());
+        } finally {
+            assert (exceptionMessage.toString().contains("grpc-status=3"));
+            assert (exceptionMessage.toString().contains("grpc-message=Query vector dimension 1 does not match the dimension of the index 3"));
         }
     }
 
     @Test
-    public void QueryWithNullSparseIndicesNotNullSparseValuesFutureTest() {
+    public void QueryWithNullSparseIndicesNotNullSparseValuesFutureTest() throws ExecutionException, InterruptedException {
         AsyncIndex dataPlaneClient = new AsyncIndex(futureStub);
         String id = RandomStringBuilder.build(3);
 
@@ -104,7 +108,7 @@ public class QueryErrorTest {
                     null,
                     null,
                     null,
-                    generateVectorValuesByDimension(dimension));
+                    generateVectorValuesByDimension(dimension)).get();
         } catch (PineconeValidationException validationException) {
             assertEquals(validationException.getLocalizedMessage(), "Invalid upsert request. Please ensure that both sparse indices and values are present.");
         }
