@@ -109,7 +109,7 @@ public class IndexManager {
     }
 
     public static IndexModel waitUntilIndexIsReady(Pinecone pinecone, String indexName) throws InterruptedException {
-        return waitUntilIndexIsReady(pinecone, indexName, 120000);
+        return waitUntilIndexIsReady(pinecone, indexName, 200000);
     }
 
     public static PineconeConnection createNewIndexAndConnect(Pinecone pinecone, String indexName, int dimension, IndexMetric metric, CreateIndexRequestSpec spec) throws InterruptedException, PineconeException {
@@ -118,7 +118,7 @@ public class IndexManager {
         pinecone.createIndex(createIndexRequest);
 
         // Wait until index is ready
-        waitUntilIndexIsReady(pinecone, indexName, 200000);
+        waitUntilIndexIsReady(pinecone, indexName);
         // wait a bit more before we connect...
         Thread.sleep(15000);
 
