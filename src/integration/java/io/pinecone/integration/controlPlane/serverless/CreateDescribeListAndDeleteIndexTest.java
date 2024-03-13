@@ -8,7 +8,7 @@ import org.openapitools.client.model.*;
 
 import java.util.Objects;
 
-import static io.pinecone.helpers.IndexManager.isIndexReady;
+import static io.pinecone.helpers.IndexManager.waitUntilIndexIsReady;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -34,7 +34,7 @@ public class CreateDescribeListAndDeleteIndexTest {
                 .spec(createIndexRequestSpec);
         controlPlaneClient.createIndex(createIndexRequest);
 
-        isIndexReady(indexName, controlPlaneClient);
+        waitUntilIndexIsReady(controlPlaneClient, indexName);
 
         // Describe the index
         IndexModel indexModel = controlPlaneClient.describeIndex(indexName);
