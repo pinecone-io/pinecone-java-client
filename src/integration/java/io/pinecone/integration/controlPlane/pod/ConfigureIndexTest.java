@@ -1,7 +1,6 @@
 package io.pinecone.integration.controlPlane.pod;
 
 import io.pinecone.clients.Pinecone;
-import io.pinecone.exceptions.PineconeException;
 import io.pinecone.exceptions.PineconeForbiddenException;
 import io.pinecone.exceptions.PineconeBadRequestException;
 import io.pinecone.exceptions.PineconeNotFoundException;
@@ -12,7 +11,6 @@ import org.openapitools.client.model.*;
 import java.io.IOException;
 
 import static io.pinecone.helpers.AssertRetry.assertWithRetry;
-import static io.pinecone.helpers.IndexManager.createIndexIfNotExistsControlPlane;
 import static io.pinecone.helpers.IndexManager.waitUntilIndexIsReady;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -21,7 +19,7 @@ public class ConfigureIndexTest {
     private static final String indexName = RandomStringBuilder.build("configure-index", 8);;
 
     @BeforeAll
-    public static void setUp() throws InterruptedException, IOException {
+    public static void setUp() throws InterruptedException {
         controlPlaneClient = new Pinecone(System.getenv("PINECONE_API_KEY"));
 
         // Create index to work with
@@ -58,55 +56,48 @@ public class ConfigureIndexTest {
         ConfigureIndexRequestSpec spec = new ConfigureIndexRequestSpec().pod(pod);
         ConfigureIndexRequest configureIndexRequest = new ConfigureIndexRequest().spec(spec);
         try {
-            waitUntilIndexIsReady(controlPlaneClient, indexName);
             controlPlaneClient.configureIndex(indexName, configureIndexRequest);
         } catch (PineconeForbiddenException forbiddenException) {
             assert (forbiddenException.getLocalizedMessage().contains("Increase your quota or upgrade to create more indexes."));
-        } catch (Exception exception) {
-            throw new PineconeException("Expected PineconeForbiddenException but the test threw: " + exception.getLocalizedMessage());
         }
     }
 
     @Test
-    public void scaleUpAndDown() {
-        try {
-            // Verify the starting state
-            IndexModel indexModel = waitUntilIndexIsReady(controlPlaneClient, indexName);
-            assert indexModel.getSpec().getPod() != null;
-            assertEquals(1, indexModel.getSpec().getPod().getReplicas());
+    public void scaleUpAndDown() throws InterruptedException {
+        // Verify the starting state
+        IndexModel indexModel = waitUntilIndexIsReady(controlPlaneClient, indexName);
+        assert indexModel.getSpec().getPod() != null;
+        assertEquals(1, indexModel.getSpec().getPod().getReplicas());
 
-            // Scale up for the test
-            ConfigureIndexRequestSpecPod pod = new ConfigureIndexRequestSpecPod().replicas(3);
-            ConfigureIndexRequestSpec spec = new ConfigureIndexRequestSpec().pod(pod);
-            ConfigureIndexRequest configureIndexRequest = new ConfigureIndexRequest().spec(spec);
-            controlPlaneClient.configureIndex(indexName, configureIndexRequest);
+        // Scale up for the test
+        ConfigureIndexRequestSpecPod upPod = new ConfigureIndexRequestSpecPod().replicas(3);
+        ConfigureIndexRequestSpec upSpec = new ConfigureIndexRequestSpec().pod(upPod);
+        ConfigureIndexRequest upConfigureIndexRequest = new ConfigureIndexRequest().spec(upSpec);
 
-            // Verify the scaled up replicas
-            assertWithRetry(() -> {
-                PodSpec podSpec = controlPlaneClient.describeIndex(indexName).getSpec().getPod();
-                assert (podSpec != null);
-                assertEquals(podSpec.getReplicas(), 3);
-            });
+        // Verify the scaled up replicas
+        assertWithRetry(() -> {
+            controlPlaneClient.configureIndex(indexName, upConfigureIndexRequest);
+            PodSpec podSpec = controlPlaneClient.describeIndex(indexName).getSpec().getPod();
+            assert (podSpec != null);
+            assertEquals(podSpec.getReplicas(), 3);
+        });
 
-            // Scaling down
-            pod = new ConfigureIndexRequestSpecPod().replicas(1);
-            spec = new ConfigureIndexRequestSpec().pod(pod);
-            configureIndexRequest = new ConfigureIndexRequest().spec(spec);
-            controlPlaneClient.configureIndex(indexName, configureIndexRequest);
+        // Scaling down
+        ConfigureIndexRequestSpecPod downPod = new ConfigureIndexRequestSpecPod().replicas(1);
+        ConfigureIndexRequestSpec downSpec = new ConfigureIndexRequestSpec().pod(downPod);
+        ConfigureIndexRequest downConfigureIndexRequest = new ConfigureIndexRequest().spec(downSpec);
 
-            // Verify replicas were scaled down
-            assertWithRetry(() -> {
-                PodSpec podSpec = controlPlaneClient.describeIndex(indexName).getSpec().getPod();
-                assert (podSpec != null);
-                assertEquals(podSpec.getReplicas(), 1);
-            });
-        } catch (Exception exception) {
-            throw new PineconeException("Test failed: " + exception.getLocalizedMessage());
-        }
+        // Verify replicas were scaled down
+        assertWithRetry(() -> {
+            controlPlaneClient.configureIndex(indexName, downConfigureIndexRequest);
+            PodSpec podSpec = controlPlaneClient.describeIndex(indexName).getSpec().getPod();
+            assert (podSpec != null);
+            assertEquals(podSpec.getReplicas(), 1);
+        });
     }
 
     @Test
-    public void changingBasePodType() {
+    public void changingBasePodType() throws InterruptedException {
         try {
             // Verify the starting state
             IndexModel indexModel = waitUntilIndexIsReady(controlPlaneClient, indexName);
@@ -120,33 +111,27 @@ public class ConfigureIndexTest {
             controlPlaneClient.configureIndex(indexName, configureIndexRequest);
         } catch (PineconeBadRequestException badRequestException) {
             assert(badRequestException.getMessage().contains("Bad request: Cannot change pod type."));
-        } catch (Exception exception) {
-            throw new PineconeException("Test failed: " + exception.getLocalizedMessage());
         }
     }
 
     @Test
-    public void sizeIncrease() {
-        try {
-            // Verify the starting state
-            IndexModel indexModel = waitUntilIndexIsReady(controlPlaneClient, indexName);
-            assert indexModel.getSpec().getPod() != null;
-            assertEquals("p1.x1", indexModel.getSpec().getPod().getPodType());
+    public void sizeIncrease() throws InterruptedException {
+        // Verify the starting state
+        IndexModel indexModel = waitUntilIndexIsReady(controlPlaneClient, indexName);
+        assert indexModel.getSpec().getPod() != null;
+        assertEquals("p1.x1", indexModel.getSpec().getPod().getPodType());
 
-            // Change the pod type to a larger one
-            ConfigureIndexRequestSpecPod pod = new ConfigureIndexRequestSpecPod().podType("p1.x2");
-            ConfigureIndexRequestSpec spec = new ConfigureIndexRequestSpec().pod(pod);
-            ConfigureIndexRequest configureIndexRequest = new ConfigureIndexRequest().spec(spec);
+        // Change the pod type to a larger one
+        ConfigureIndexRequestSpecPod pod = new ConfigureIndexRequestSpecPod().podType("p1.x2");
+        ConfigureIndexRequestSpec spec = new ConfigureIndexRequestSpec().pod(pod);
+        ConfigureIndexRequest configureIndexRequest = new ConfigureIndexRequest().spec(spec);
+
+        // Get the index description to verify the new pod type
+        assertWithRetry(() -> {
             controlPlaneClient.configureIndex(indexName, configureIndexRequest);
-
-            // Get the index description to verify the new pod type
-            assertWithRetry(() -> {
-                PodSpec podSpec = controlPlaneClient.describeIndex(indexName).getSpec().getPod();
-                assert (podSpec != null);
-                assertEquals(podSpec.getPodType(), "p1.x2");
-            });
-        } catch (Exception exception) {
-            throw new PineconeException("Test failed: " + exception.getLocalizedMessage());
-        }
+            PodSpec podSpec = controlPlaneClient.describeIndex(indexName).getSpec().getPod();
+            assert (podSpec != null);
+            assertEquals(podSpec.getPodType(), "p1.x2");
+        });
     }
 }

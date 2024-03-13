@@ -202,7 +202,7 @@ public class UpdateFetchAndQueryPodTest {
     }
 
     @Test
-    public void queryWithFilersSyncTest() {
+    public void queryWithFilersSyncTest() throws InterruptedException {
         // Upsert vectors with all parameters
         String fieldToQuery = metadataFields[0];
         String valueToQuery = createAndGetMetadataMap().get(fieldToQuery).get(0);
@@ -214,39 +214,35 @@ public class UpdateFetchAndQueryPodTest {
         DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(null);
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
 
-        try {
-            for (int i = 0; i < upsertIds.size(); i++) {
-                dataPlaneClient.upsert(upsertIds.get(0),
-                        generateVectorValuesByDimension(dimension),
-                        generateSparseIndicesByDimension(dimension),
-                        generateVectorValuesByDimension(dimension),
-                        generateMetadataStruct(0, 0),
-                        namespace);
-            }
-
-            Struct filter = Struct.newBuilder()
-                    .putFields(metadataFields[0], Value.newBuilder()
-                            .setStructValue(Struct.newBuilder()
-                                    .putFields("$eq", Value.newBuilder()
-                                            .setStringValue(valueToQuery)
-                                            .build()))
-                            .build())
-                    .build();
-
-            assertWithRetry(() -> {
-                QueryResponseWithUnsignedIndices queryResponse = dataPlaneClient.queryByVectorId(3,
-                        upsertIds.get(0),
-                        namespace,
-                        filter,
-                        true,
-                        true);
-
-                // Verify the metadata field is correctly filtered in the query response
-                assert (queryResponse.getMatches(0).getMetadata().getFieldsMap().get(fieldToQuery).toString().contains(valueToQuery));
-            });
-        } catch (Exception e) {
-            throw new PineconeException(e.getLocalizedMessage());
+        for (int i = 0; i < upsertIds.size(); i++) {
+            dataPlaneClient.upsert(upsertIds.get(0),
+                    generateVectorValuesByDimension(dimension),
+                    generateSparseIndicesByDimension(dimension),
+                    generateVectorValuesByDimension(dimension),
+                    generateMetadataStruct(0, 0),
+                    namespace);
         }
+
+        Struct filter = Struct.newBuilder()
+                .putFields(metadataFields[0], Value.newBuilder()
+                        .setStructValue(Struct.newBuilder()
+                                .putFields("$eq", Value.newBuilder()
+                                        .setStringValue(valueToQuery)
+                                        .build()))
+                        .build())
+                .build();
+
+        assertWithRetry(() -> {
+            QueryResponseWithUnsignedIndices queryResponse = dataPlaneClient.queryByVectorId(3,
+                    upsertIds.get(0),
+                    namespace,
+                    filter,
+                    true,
+                    true);
+
+            // Verify the metadata field is correctly filtered in the query response
+            assert (queryResponse.getMatches(0).getMetadata().getFieldsMap().get(fieldToQuery).toString().contains(valueToQuery));
+        });
     }
 
     @Test
@@ -438,39 +434,35 @@ public class UpdateFetchAndQueryPodTest {
         DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(null).get();
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
 
-        try {
-            for (int i = 0; i < upsertIds.size(); i++) {
-                dataPlaneClient.upsert(upsertIds.get(0),
-                        generateVectorValuesByDimension(dimension),
-                        generateSparseIndicesByDimension(dimension),
-                        generateVectorValuesByDimension(dimension),
-                        generateMetadataStruct(0, 0),
-                        namespace).get();
-            }
-
-            Struct filter = Struct.newBuilder()
-                    .putFields(metadataFields[0], Value.newBuilder()
-                            .setStructValue(Struct.newBuilder()
-                                    .putFields("$eq", Value.newBuilder()
-                                            .setStringValue(valueToQuery)
-                                            .build()))
-                            .build())
-                    .build();
-
-            assertWithRetry(() -> {
-                QueryResponseWithUnsignedIndices queryResponse = dataPlaneClient.queryByVectorId(3,
-                        upsertIds.get(0),
-                        namespace,
-                        filter,
-                        true,
-                        true).get();
-
-                // Verify the metadata field is correctly filtered in the query response
-                assert (queryResponse.getMatches(0).getMetadata().getFieldsMap().get(fieldToQuery).toString().contains(valueToQuery));
-            });
-        } catch (Exception exception) {
-            throw exception;
+        for (int i = 0; i < upsertIds.size(); i++) {
+            dataPlaneClient.upsert(upsertIds.get(0),
+                    generateVectorValuesByDimension(dimension),
+                    generateSparseIndicesByDimension(dimension),
+                    generateVectorValuesByDimension(dimension),
+                    generateMetadataStruct(0, 0),
+                    namespace).get();
         }
+
+        Struct filter = Struct.newBuilder()
+                .putFields(metadataFields[0], Value.newBuilder()
+                        .setStructValue(Struct.newBuilder()
+                                .putFields("$eq", Value.newBuilder()
+                                        .setStringValue(valueToQuery)
+                                        .build()))
+                        .build())
+                .build();
+
+        assertWithRetry(() -> {
+            QueryResponseWithUnsignedIndices queryResponse = dataPlaneClient.queryByVectorId(3,
+                    upsertIds.get(0),
+                    namespace,
+                    filter,
+                    true,
+                    true).get();
+
+            // Verify the metadata field is correctly filtered in the query response
+            assert (queryResponse.getMatches(0).getMetadata().getFieldsMap().get(fieldToQuery).toString().contains(valueToQuery));
+        });
     }
 
     @Test
