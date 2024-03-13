@@ -3,8 +3,8 @@ package io.pinecone.integration.dataPlane;
 import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
 import io.pinecone.configs.PineconeConnection;
-import io.pinecone.clients.PineconeBlockingDataPlaneClient;
-import io.pinecone.clients.PineconeFutureDataPlaneClient;
+import io.pinecone.clients.Index;
+import io.pinecone.clients.AsyncIndex;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.*;
 import org.junit.jupiter.api.AfterAll;
@@ -47,7 +47,7 @@ public class UpsertDescribeIndexStatsAndDeleteTest {
         int numOfVectors = 3;
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
-        PineconeBlockingDataPlaneClient dataPlaneClient = new PineconeBlockingDataPlaneClient(blockingStub);
+        Index dataPlaneClient = new Index(blockingStub);
         int vectorCount = 0;
         for (String id : upsertIds) {
             UpsertResponse upsertResponse = dataPlaneClient.upsert(id,
@@ -106,7 +106,7 @@ public class UpsertDescribeIndexStatsAndDeleteTest {
         int numOfVectors = 3;
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
-        PineconeBlockingDataPlaneClient dataPlaneClient = new PineconeBlockingDataPlaneClient(blockingStub);
+        Index dataPlaneClient = new Index(blockingStub);
 
         int vectorCount = 0;
         // Upsert vectors with required + optional and custom metadata parameters
@@ -161,7 +161,7 @@ public class UpsertDescribeIndexStatsAndDeleteTest {
         int numOfVectors = 3;
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
-        PineconeFutureDataPlaneClient dataPlaneClient = new PineconeFutureDataPlaneClient(futureStub);
+        AsyncIndex dataPlaneClient = new AsyncIndex(futureStub);
         int vectorCount = 0;
         for (String id : upsertIds) {
             UpsertResponse upsertResponse = dataPlaneClient.upsert(id,
@@ -220,7 +220,7 @@ public class UpsertDescribeIndexStatsAndDeleteTest {
         int numOfVectors = 3;
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
-        PineconeFutureDataPlaneClient dataPlaneClient = new PineconeFutureDataPlaneClient(futureStub);
+        AsyncIndex dataPlaneClient = new AsyncIndex(futureStub);
 
         int vectorCount = 0;
         // Upsert vectors with required + optional and custom metadata parameters

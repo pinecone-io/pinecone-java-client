@@ -1,6 +1,6 @@
 package io.pinecone.integration.controlPlane.pod;
 
-import io.pinecone.clients.PineconeControlPlaneClient;
+import io.pinecone.clients.Pinecone;
 import io.pinecone.exceptions.PineconeException;
 import io.pinecone.exceptions.PineconeForbiddenException;
 import io.pinecone.exceptions.PineconeBadRequestException;
@@ -18,13 +18,13 @@ import static io.pinecone.helpers.IndexManager.isIndexReady;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ConfigureIndexTest {
-    private static PineconeControlPlaneClient controlPlaneClient;
+    private static Pinecone controlPlaneClient;
     private static String indexName;
     private static final Logger logger = LoggerFactory.getLogger(ConfigureIndexTest.class);
 
     @BeforeAll
     public static void setUp() throws InterruptedException, IOException {
-        controlPlaneClient = new PineconeControlPlaneClient(System.getenv("PINECONE_API_KEY"));
+        controlPlaneClient = new Pinecone(System.getenv("PINECONE_API_KEY"));
         indexName = createIndexIfNotExistsControlPlane(controlPlaneClient, 5, IndexModelSpec.SERIALIZED_NAME_POD);
     }
 

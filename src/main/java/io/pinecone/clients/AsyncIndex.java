@@ -11,14 +11,14 @@ import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
 
 import java.util.List;
 
-public class PineconeFutureDataPlaneClient implements PineconeDataPlaneInterface<ListenableFuture<UpsertResponse>,
+public class AsyncIndex implements PineconeDataPlaneInterface<ListenableFuture<UpsertResponse>,
         ListenableFuture<QueryResponseWithUnsignedIndices>, ListenableFuture<FetchResponse>,
         ListenableFuture<UpdateResponse>, ListenableFuture<DeleteResponse>,
         ListenableFuture<DescribeIndexStatsResponse>> {
 
     private final VectorServiceGrpc.VectorServiceFutureStub futureStub;
 
-    public PineconeFutureDataPlaneClient(VectorServiceGrpc.VectorServiceFutureStub futureStub) {
+    public AsyncIndex(VectorServiceGrpc.VectorServiceFutureStub futureStub) {
         if (futureStub == null) {
             throw new PineconeValidationException("FutureStub cannot be null.");
         }

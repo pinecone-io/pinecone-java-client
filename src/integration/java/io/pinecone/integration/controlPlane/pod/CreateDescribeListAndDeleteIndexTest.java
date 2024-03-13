@@ -1,6 +1,6 @@
 package io.pinecone.integration.controlPlane.pod;
 
-import io.pinecone.clients.PineconeControlPlaneClient;
+import io.pinecone.clients.Pinecone;
 import io.pinecone.helpers.RandomStringBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,13 +12,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class CreateDescribeListAndDeleteIndexTest {
-    private PineconeControlPlaneClient controlPlaneClient;
+    private Pinecone controlPlaneClient;
     private final String apiKey = System.getenv("PINECONE_API_KEY");
     private final String environment = System.getenv("PINECONE_ENVIRONMENT");
 
     @BeforeEach
     public void setUp() {
-        controlPlaneClient = new PineconeControlPlaneClient(apiKey);
+        controlPlaneClient = new Pinecone(apiKey);
     }
 
     @Test

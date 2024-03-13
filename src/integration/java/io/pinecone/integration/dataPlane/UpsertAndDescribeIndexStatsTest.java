@@ -1,8 +1,8 @@
 package io.pinecone.integration.dataPlane;
 
 import com.google.protobuf.Struct;
-import io.pinecone.clients.PineconeBlockingDataPlaneClient;
-import io.pinecone.clients.PineconeFutureDataPlaneClient;
+import io.pinecone.clients.Index;
+import io.pinecone.clients.AsyncIndex;
 import io.pinecone.configs.PineconeConnection;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.helpers.RandomStringBuilder;
@@ -43,7 +43,7 @@ public class UpsertAndDescribeIndexStatsTest {
     @Test
     public void upsertOptionalVectorsAndQueryIndexSyncTest() throws InterruptedException {
         int numOfVectors = 5;
-        PineconeBlockingDataPlaneClient dataPlaneClient = new PineconeBlockingDataPlaneClient(blockingStub);
+        Index dataPlaneClient = new Index(blockingStub);
         DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(emptyFilterStruct);
         // Confirm the starting state by verifying the dimension of the index
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
@@ -104,7 +104,7 @@ public class UpsertAndDescribeIndexStatsTest {
 
     @Test
     public void upsertNullSparseIndicesNotNullSparseValuesSyncTest() {
-        PineconeBlockingDataPlaneClient dataPlaneClient = new PineconeBlockingDataPlaneClient(blockingStub);
+        Index dataPlaneClient = new Index(blockingStub);
         String id = RandomStringBuilder.build(3);
         try {
             dataPlaneClient.upsert(id,
@@ -121,7 +121,7 @@ public class UpsertAndDescribeIndexStatsTest {
     @Test
     public void upsertOptionalVectorsAndQueryIndexFutureTest() throws InterruptedException, ExecutionException {
         int numOfVectors = 5;
-        PineconeFutureDataPlaneClient dataPlaneClient = new PineconeFutureDataPlaneClient(futureStub);
+        AsyncIndex dataPlaneClient = new AsyncIndex(futureStub);
         DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(emptyFilterStruct).get();
         // Confirm the starting state by verifying the dimension of the index
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
@@ -185,7 +185,7 @@ public class UpsertAndDescribeIndexStatsTest {
 
     @Test
     public void upsertNullSparseIndicesNotNullSparseValuesFutureTest() {
-        PineconeFutureDataPlaneClient dataPlaneClient = new PineconeFutureDataPlaneClient(futureStub);
+        AsyncIndex dataPlaneClient = new AsyncIndex(futureStub);
         String id = RandomStringBuilder.build(3);
         try {
             dataPlaneClient.upsert(id,

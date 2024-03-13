@@ -1,9 +1,9 @@
 package io.pinecone.integration.dataPlane;
 
 import io.grpc.StatusRuntimeException;
-import io.pinecone.clients.PineconeBlockingDataPlaneClient;
+import io.pinecone.clients.Index;
 import io.pinecone.configs.PineconeConnection;
-import io.pinecone.clients.PineconeFutureDataPlaneClient;
+import io.pinecone.clients.AsyncIndex;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.*;
@@ -45,7 +45,7 @@ public class QueryErrorTest {
         int numOfVectors = 3;
 
         String namespace = RandomStringBuilder.build("ns", 8);
-        PineconeBlockingDataPlaneClient dataPlaneClient = new PineconeBlockingDataPlaneClient(blockingStub);
+        Index dataPlaneClient = new Index(blockingStub);
         DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(null);
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
 
@@ -61,7 +61,7 @@ public class QueryErrorTest {
 
     @Test
     public void QueryWithNullSparseIndicesNotNullSparseValuesSyncTest() {
-        PineconeBlockingDataPlaneClient dataPlaneClient = new PineconeBlockingDataPlaneClient(blockingStub);
+        Index dataPlaneClient = new Index(blockingStub);
         String id = RandomStringBuilder.build(3);
 
         try {
@@ -79,7 +79,7 @@ public class QueryErrorTest {
     @Test
     public void queryWithIncorrectVectorDimensionFuture() throws ExecutionException, InterruptedException {
         String namespace = RandomStringBuilder.build("ns", 8);
-        PineconeFutureDataPlaneClient dataPlaneClient = new PineconeFutureDataPlaneClient(futureStub);
+        AsyncIndex dataPlaneClient = new AsyncIndex(futureStub);
         DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(null).get();
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
 
@@ -95,7 +95,7 @@ public class QueryErrorTest {
 
     @Test
     public void QueryWithNullSparseIndicesNotNullSparseValuesFutureTest() {
-        PineconeFutureDataPlaneClient dataPlaneClient = new PineconeFutureDataPlaneClient(futureStub);
+        AsyncIndex dataPlaneClient = new AsyncIndex(futureStub);
         String id = RandomStringBuilder.build(3);
 
         try {

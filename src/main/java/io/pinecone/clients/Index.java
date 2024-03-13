@@ -8,12 +8,12 @@ import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
 
 import java.util.List;
 
-public class PineconeBlockingDataPlaneClient implements PineconeDataPlaneInterface<UpsertResponse,
+public class Index implements PineconeDataPlaneInterface<UpsertResponse,
         QueryResponseWithUnsignedIndices, FetchResponse, UpdateResponse, DeleteResponse, DescribeIndexStatsResponse> {
 
     private final VectorServiceGrpc.VectorServiceBlockingStub blockingStub;
 
-    public PineconeBlockingDataPlaneClient(VectorServiceGrpc.VectorServiceBlockingStub blockingStub) {
+    public Index(VectorServiceGrpc.VectorServiceBlockingStub blockingStub) {
         if (blockingStub == null) {
             throw new PineconeValidationException("BlockingStub cannot be null.");
         }

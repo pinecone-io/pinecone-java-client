@@ -10,14 +10,14 @@ import org.openapitools.client.ApiException;
 import org.openapitools.client.api.ManageIndexesApi;
 import org.openapitools.client.model.*;
 
-public class PineconeControlPlaneClient {
+public class Pinecone {
     private ManageIndexesApi manageIndexesApi;
 
-    public PineconeControlPlaneClient(String apiKey) {
+    public Pinecone(String apiKey) {
         this(apiKey, new OkHttpClient());
     }
 
-    public PineconeControlPlaneClient(String apiKey, OkHttpClient okHttpClient) {
+    public Pinecone(String apiKey, OkHttpClient okHttpClient) {
         if(apiKey == null || apiKey.isEmpty()) {
             throw new PineconeValidationException("The API key is required and must not be empty or null");
         }

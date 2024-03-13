@@ -1,6 +1,6 @@
 package io.pinecone.helpers;
 
-import io.pinecone.clients.PineconeControlPlaneClient;
+import io.pinecone.clients.Pinecone;
 import io.pinecone.configs.PineconeConfig;
 import io.pinecone.configs.PineconeConnection;
 import io.pinecone.exceptions.PineconeException;
@@ -20,7 +20,7 @@ public class IndexManager {
 
     public static PineconeConnection createIndexIfNotExistsDataPlane(int dimension, String indexType) throws IOException, InterruptedException {
         String apiKey = System.getenv("PINECONE_API_KEY");
-        PineconeControlPlaneClient controlPlaneClient = new PineconeControlPlaneClient(apiKey);
+        Pinecone controlPlaneClient = new Pinecone(apiKey);
         IndexList indexList = controlPlaneClient.listIndexes();
 
         String indexName = findIndexWithDimensionAndType(indexList, dimension, controlPlaneClient, indexType);
@@ -36,14 +36,14 @@ public class IndexManager {
         return new PineconeConnection(config);
     }
 
-    public static String createIndexIfNotExistsControlPlane(PineconeControlPlaneClient controlPlaneClient, int dimension, String indexType) throws IOException, InterruptedException {
+    public static String createIndexIfNotExistsControlPlane(Pinecone controlPlaneClient, int dimension, String indexType) throws IOException, InterruptedException {
         IndexList indexList = controlPlaneClient.listIndexes();
         String indexName = findIndexWithDimensionAndType(indexList, dimension, controlPlaneClient, indexType);
 
         return (indexName.isEmpty()) ? createNewIndex(controlPlaneClient, indexType, dimension) : indexName;
     }
 
-    private static String findIndexWithDimensionAndType(IndexList indexList, int dimension, PineconeControlPlaneClient controlPlaneClient, String indexType)
+    private static String findIndexWithDimensionAndType(IndexList indexList, int dimension, Pinecone controlPlaneClient, String indexType)
             throws InterruptedException {
         int i = 0;
         List<IndexModel> indexModels = indexList.getIndexes();
@@ -62,7 +62,7 @@ public class IndexManager {
         return "";
     }
 
-    private static String createNewIndex(PineconeControlPlaneClient controlPlaneClient, String indexType, int dimension) throws IOException {
+    private static String createNewIndex(Pinecone controlPlaneClient, String indexType, int dimension) throws IOException {
         String indexName = RandomStringBuilder.build("index-name", 8);
         String environment = System.getenv("PINECONE_ENVIRONMENT");
         CreateIndexRequestSpec createIndexRequestSpec;
@@ -85,7 +85,7 @@ public class IndexManager {
         return indexName;
     }
 
-    public static IndexModel waitUntilIndexIsReady(PineconeControlPlaneClient controlPlaneClient, String indexName, Integer totalMsToWait) throws InterruptedException {
+    public static IndexModel waitUntilIndexIsReady(Pinecone controlPlaneClient, String indexName, Integer totalMsToWait) throws InterruptedException {
         IndexModel index = controlPlaneClient.describeIndex(indexName);
         int waitedTimeMs = 0;
         int intervalMs = 1500;
@@ -106,11 +106,11 @@ public class IndexManager {
         return index;
     }
 
-    public static IndexModel waitUntilIndexIsReady(PineconeControlPlaneClient controlPlaneClient, String indexName) throws InterruptedException {
+    public static IndexModel waitUntilIndexIsReady(Pinecone controlPlaneClient, String indexName) throws InterruptedException {
         return waitUntilIndexIsReady(controlPlaneClient, indexName, 120000);
     }
 
-    public static PineconeConnection createNewIndexAndConnect(PineconeControlPlaneClient controlPlaneClient, String indexName, int dimension, IndexMetric metric, CreateIndexRequestSpec spec) throws InterruptedException, PineconeException {
+    public static PineconeConnection createNewIndexAndConnect(Pinecone controlPlaneClient, String indexName, int dimension, IndexMetric metric, CreateIndexRequestSpec spec) throws InterruptedException, PineconeException {
         String apiKey = System.getenv("PINECONE_API_KEY");
         CreateIndexRequest createIndexRequest = new CreateIndexRequest().name(indexName).dimension(dimension).metric(metric).spec(spec);
         controlPlaneClient.createIndex(createIndexRequest);
@@ -124,7 +124,7 @@ public class IndexManager {
         return new PineconeConnection(config, indexName);
     }
 
-    public static CollectionModel createCollection(PineconeControlPlaneClient controlPlaneClient, String collectionName, String indexName, boolean waitUntilReady) throws InterruptedException {
+    public static CollectionModel createCollection(Pinecone controlPlaneClient, String collectionName, String indexName, boolean waitUntilReady) throws InterruptedException {
         CreateCollectionRequest createCollectionRequest = new CreateCollectionRequest().name(collectionName).source(indexName);
         CollectionModel collection = controlPlaneClient.createCollection(createCollectionRequest);
 
@@ -150,7 +150,7 @@ public class IndexManager {
         return collection;
     }
 
-    public static IndexModel isIndexReady(String indexName, PineconeControlPlaneClient controlPlaneClient)
+    public static IndexModel isIndexReady(String indexName, Pinecone controlPlaneClient)
             throws InterruptedException {
         final IndexModel[] indexModels = new IndexModel[1];
         assertWithRetry(() -> {
