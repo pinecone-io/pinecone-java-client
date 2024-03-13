@@ -53,11 +53,14 @@ public class IndexManager {
         while (i < indexModels.size()) {
             IndexModel indexModel = waitUntilIndexIsReady(pinecone, indexModels.get(i).getName());
             if (indexModel.getDimension() == dimension
-                    && ((indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_POD)
-                        && indexModel.getSpec().getPod() != null
-                        && indexModel.getSpec().getPod().getReplicas() == 1
-                        && indexModel.getSpec().getPod().getPodType().equalsIgnoreCase("p1.x1"))
-                    || (indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_SERVERLESS)))) {
+                    &&
+                    (
+                            indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_POD)
+                                    && indexModel.getSpec().getPod() != null
+                                    && indexModel.getSpec().getPod().getReplicas() == 1
+                                    && indexModel.getSpec().getPod().getPodType().equalsIgnoreCase("p1.x1")
+                    )
+                    || (indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_SERVERLESS))) {
                 return indexModel.getName();
             }
             i++;
@@ -71,10 +74,12 @@ public class IndexManager {
         CreateIndexRequestSpec createIndexRequestSpec;
 
         if (indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_POD)) {
-            CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().environment(environment).podType("p1.x1");
+            CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().environment(environment).podType("p1" +
+                    ".x1");
             createIndexRequestSpec = new CreateIndexRequestSpec().pod(podSpec);
         } else {
-            ServerlessSpec serverlessSpec = new ServerlessSpec().cloud(ServerlessSpec.CloudEnum.AWS).region(environment);
+            ServerlessSpec serverlessSpec =
+                    new ServerlessSpec().cloud(ServerlessSpec.CloudEnum.AWS).region(environment);
             createIndexRequestSpec = new CreateIndexRequestSpec().serverless(serverlessSpec);
         }
 
@@ -137,7 +142,8 @@ public class IndexManager {
             int timeWaited = 0;
             CollectionModel.StatusEnum collectionReady = collection.getStatus();
             while (collectionReady != CollectionModel.StatusEnum.READY && timeWaited < 120000) {
-                logger.info("Waiting for collection " + collectionName + " to be ready. Waited " + timeWaited + " milliseconds...");
+                logger.info("Waiting for collection " + collectionName + " to be ready. Waited " + timeWaited + " " +
+                        "milliseconds...");
                 Thread.sleep(5000);
                 timeWaited += 5000;
                 collection = pinecone.describeCollection(collectionName);

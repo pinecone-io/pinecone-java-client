@@ -5,6 +5,7 @@ import io.pinecone.exceptions.PineconeException;
 import io.pinecone.exceptions.PineconeForbiddenException;
 import io.pinecone.exceptions.PineconeBadRequestException;
 import io.pinecone.exceptions.PineconeNotFoundException;
+import io.pinecone.helpers.RandomStringBuilder;
 import org.junit.jupiter.api.*;
 import org.openapitools.client.model.*;
 
@@ -17,12 +18,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ConfigureIndexTest {
     private static Pinecone controlPlaneClient;
-    private static String indexName;
+    private static final String indexName = RandomStringBuilder.build("configure-index", 8);;
 
     @BeforeAll
     public static void setUp() throws InterruptedException, IOException {
         controlPlaneClient = new Pinecone(System.getenv("PINECONE_API_KEY"));
-        indexName = createIndexIfNotExistsControlPlane(controlPlaneClient, 5, IndexModelSpec.SERIALIZED_NAME_POD);
+
+        // Create index to work with
+        CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().pods(1).podType("p1.x1").replicas(1).environment("us-east4-gcp");
+        CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(podSpec);
+        CreateIndexRequest request = new CreateIndexRequest().name(indexName).dimension(5).metric(IndexMetric.COSINE).spec(spec);
+        controlPlaneClient.createIndex(request);
+        waitUntilIndexIsReady(controlPlaneClient, indexName);
     }
 
     @AfterAll
