@@ -270,10 +270,6 @@ public class CollectionTest {
         } catch (PineconeException exception) {
             logger.info("Exception: " + exception.getMessage());
             assert (exception.getMessage().contains("Source index is not ready"));
-        } finally {
-            Thread.sleep(2500);
-            // clean up index and collection
-            controlPlaneClient.deleteIndex(notReadyIndexName);
         }
     }
 }
