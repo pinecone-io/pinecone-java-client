@@ -132,13 +132,13 @@ public class CollectionTest {
         logger.info("Index " + newIndexName + " created from collection " + collectionName + ". Waiting until index " +
                 "is ready...");
         waitUntilIndexIsReady(controlPlaneClient, newIndexName, 250000);
-        // wait a bit more to make sure index is ready...
-        Thread.sleep(30000);
 
-        IndexModel indexDescription = controlPlaneClient.describeIndex(newIndexName);
-        assertEquals(indexDescription.getName(), newIndexName);
-        assertEquals(indexDescription.getSpec().getPod().getSourceCollection(), collectionName);
-        assertEquals(indexDescription.getStatus().getReady(), true);
+        assertWithRetry(() -> {
+            IndexModel indexDescription = controlPlaneClient.describeIndex(newIndexName);
+            assertEquals(indexDescription.getName(), newIndexName);
+            assertEquals(indexDescription.getSpec().getPod().getSourceCollection(), collectionName);
+            assertEquals(indexDescription.getStatus().getReady(), true);
+        }, 3);
 
         // Set up new index data plane connection
         PineconeConfig config = new PineconeConfig(apiKey);

@@ -27,7 +27,7 @@ public class IndexManager {
         if (indexName.isEmpty()) indexName = createNewIndex(pinecone, dimension, indexType);
 
         // Do not proceed until the newly created index is ready
-        isIndexReady(indexName, pinecone);
+        waitUntilIndexIsReady(pinecone, indexName);
 
         // Adding to test PineconeConnection(pineconeConfig, host) constructor
         String host = pinecone.describeIndex(indexName).getHost();
@@ -51,7 +51,7 @@ public class IndexManager {
             return indexName;
         }
         while (i < indexModels.size()) {
-             IndexModel indexModel = isIndexReady(indexModels.get(i).getName(), pinecone);
+            IndexModel indexModel = waitUntilIndexIsReady(pinecone, indexModels.get(i).getName());
             if (indexModel.getDimension() == dimension
                     && ((indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_POD)
                         && indexModel.getSpec().getPod() != null
@@ -95,13 +95,12 @@ public class IndexManager {
 
         while (!index.getStatus().getReady()) {
             index = pinecone.describeIndex(indexName);
-            if (waitedTimeMs >= totalMsToWait) {
-                logger.info("Index " + indexName + " not ready after " + waitedTimeMs + "ms");
-                break;
-            }
             if (index.getStatus().getReady()) {
                 logger.info("Index " + indexName + " is ready after " + waitedTimeMs + "ms");
                 break;
+            }
+            if (waitedTimeMs >= totalMsToWait) {
+                throw new PineconeException("Index " + indexName + " not ready after " + waitedTimeMs + "ms");
             }
             Thread.sleep(intervalMs);
             waitedTimeMs += intervalMs;
@@ -151,16 +150,5 @@ public class IndexManager {
         }
 
         return collection;
-    }
-
-    public static IndexModel isIndexReady(String indexName, Pinecone pinecone)
-            throws InterruptedException {
-        final IndexModel[] indexModels = new IndexModel[1];
-        assertWithRetry(() -> {
-            indexModels[0] = pinecone.describeIndex(indexName);
-            assert (indexModels[0].getStatus().getReady());
-        }, 4);
-
-        return indexModels[0];
     }
 }

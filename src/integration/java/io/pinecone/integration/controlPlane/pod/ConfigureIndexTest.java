@@ -12,7 +12,7 @@ import java.io.IOException;
 
 import static io.pinecone.helpers.AssertRetry.assertWithRetry;
 import static io.pinecone.helpers.IndexManager.createIndexIfNotExistsControlPlane;
-import static io.pinecone.helpers.IndexManager.isIndexReady;
+import static io.pinecone.helpers.IndexManager.waitUntilIndexIsReady;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ConfigureIndexTest {
@@ -27,8 +27,9 @@ public class ConfigureIndexTest {
 
     @AfterAll
     public static void cleanUp() throws InterruptedException {
+        Thread.sleep(2500);
         controlPlaneClient.deleteIndex(indexName);
-        Thread.sleep(3500);
+        Thread.sleep(2500);
     }
 
     @Test
@@ -50,7 +51,7 @@ public class ConfigureIndexTest {
         ConfigureIndexRequestSpec spec = new ConfigureIndexRequestSpec().pod(pod);
         ConfigureIndexRequest configureIndexRequest = new ConfigureIndexRequest().spec(spec);
         try {
-            isIndexReady(indexName, controlPlaneClient);
+            waitUntilIndexIsReady(controlPlaneClient, indexName);
             controlPlaneClient.configureIndex(indexName, configureIndexRequest);
         } catch (PineconeForbiddenException forbiddenException) {
             assert (forbiddenException.getLocalizedMessage().contains("Increase your quota or upgrade to create more indexes."));
@@ -63,7 +64,7 @@ public class ConfigureIndexTest {
     public void scaleUpAndDown() {
         try {
             // Verify the starting state
-            IndexModel indexModel = isIndexReady(indexName, controlPlaneClient);
+            IndexModel indexModel = waitUntilIndexIsReady(controlPlaneClient, indexName);
             assert indexModel.getSpec().getPod() != null;
             assertEquals(1, indexModel.getSpec().getPod().getReplicas());
 
@@ -101,7 +102,7 @@ public class ConfigureIndexTest {
     public void changingBasePodType() {
         try {
             // Verify the starting state
-            IndexModel indexModel = isIndexReady(indexName, controlPlaneClient);
+            IndexModel indexModel = waitUntilIndexIsReady(controlPlaneClient, indexName);
             assert indexModel.getSpec().getPod() != null;
             assertEquals(1, indexModel.getSpec().getPod().getReplicas());
 
@@ -121,7 +122,7 @@ public class ConfigureIndexTest {
     public void sizeIncrease() {
         try {
             // Verify the starting state
-            IndexModel indexModel = isIndexReady(indexName, controlPlaneClient);
+            IndexModel indexModel = waitUntilIndexIsReady(controlPlaneClient, indexName);
             assert indexModel.getSpec().getPod() != null;
             assertEquals("p1.x1", indexModel.getSpec().getPod().getPodType());
 
