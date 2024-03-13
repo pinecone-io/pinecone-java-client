@@ -13,7 +13,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class Index implements PineconeDataPlaneInterface<UpsertResponse,
-        QueryResponseWithUnsignedIndices, FetchResponse, UpdateResponse, DeleteResponse, DescribeIndexStatsResponse>, AutoCloseable  {
+        QueryResponseWithUnsignedIndices, FetchResponse, UpdateResponse, DeleteResponse, DescribeIndexStatsResponse>,
+        AutoCloseable {
 
     private final PineconeConnection connection;
     private final VectorServiceGrpc.VectorServiceBlockingStub blockingStub;
@@ -28,13 +29,6 @@ public class Index implements PineconeDataPlaneInterface<UpsertResponse,
         this.connection = connection;
         this.blockingStub = connection.getBlockingStub();
     }
-//    public Index(VectorServiceGrpc.VectorServiceBlockingStub blockingStub) {
-//        if (blockingStub == null) {
-//            throw new PineconeValidationException("BlockingStub cannot be null.");
-//        }
-//
-//        this.blockingStub = blockingStub;
-//    }
 
     @Override
     public UpsertResponse upsert(String id,

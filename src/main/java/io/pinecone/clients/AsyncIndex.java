@@ -26,7 +26,7 @@ public class AsyncIndex implements PineconeDataPlaneInterface<ListenableFuture<U
     private static final Logger logger = LoggerFactory.getLogger(AsyncIndex.class);
 
     public AsyncIndex(PineconeConnection connection) {
-        if(connection == null) {
+        if (connection == null) {
             throw new PineconeValidationException("Pinecone connection object cannot be null.");
         }
         this.connection = connection;

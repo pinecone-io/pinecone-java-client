@@ -22,7 +22,7 @@ public class Pinecone {
     }
 
     public Pinecone(String apiKey, OkHttpClient okHttpClient) {
-        if(apiKey == null || apiKey.isEmpty()) {
+        if (apiKey == null || apiKey.isEmpty()) {
             throw new PineconeValidationException("The API key is required and must not be empty or null");
         }
         config = new PineconeConfig(apiKey);
@@ -52,7 +52,7 @@ public class Pinecone {
         return indexModel;
     }
 
-    public void configureIndex(String indexName, ConfigureIndexRequest configureIndexRequest) throws PineconeException  {
+    public void configureIndex(String indexName, ConfigureIndexRequest configureIndexRequest) throws PineconeException {
         try {
             manageIndexesApi.configureIndex(indexName, configureIndexRequest);
         } catch (ApiException apiException) {
@@ -60,7 +60,7 @@ public class Pinecone {
         }
     }
 
-    public IndexList listIndexes() throws PineconeException  {
+    public IndexList listIndexes() throws PineconeException {
         IndexList indexList = new IndexList();
         try {
             indexList = manageIndexesApi.listIndexes();
@@ -70,7 +70,7 @@ public class Pinecone {
         return indexList;
     }
 
-    public void deleteIndex(String indexName) throws PineconeException  {
+    public void deleteIndex(String indexName) throws PineconeException {
         try {
             manageIndexesApi.deleteIndex(indexName);
         } catch (ApiException apiException) {
@@ -88,7 +88,7 @@ public class Pinecone {
         return collection;
     }
 
-    public CollectionModel describeCollection(String collectionName) throws PineconeException  {
+    public CollectionModel describeCollection(String collectionName) throws PineconeException {
         CollectionModel collection = null;
         try {
             collection = manageIndexesApi.describeCollection(collectionName);

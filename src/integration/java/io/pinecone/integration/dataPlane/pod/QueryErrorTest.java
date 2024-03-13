@@ -39,15 +39,15 @@ public class QueryErrorTest {
     @Test
     public void queryWithIncorrectVectorDimensionSync() {
         String namespace = RandomStringBuilder.build("ns", 8);
-        Index dataPlaneClient = new Index(connection);
-        DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(null);
+        Index index = new Index(connection);
+        DescribeIndexStatsResponse describeIndexStatsResponse1 = index.describeIndexStats(null);
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
 
         StringBuilder exceptionMessage = new StringBuilder();
         // Query with incorrect dimensions
         try {
             List<Float> vector = Arrays.asList(100F);
-            dataPlaneClient.query(5, vector, null, null, null, namespace, null, true, true);
+            index.query(5, vector, null, null, null, namespace, null, true, true);
         } catch (StatusRuntimeException statusRuntimeException) {
             exceptionMessage.append(statusRuntimeException.getTrailers().toString());
         } finally {
@@ -58,11 +58,11 @@ public class QueryErrorTest {
 
     @Test
     public void QueryWithNullSparseIndicesNotNullSparseValuesSyncTest() {
-        Index dataPlaneClient = new Index(connection);
+        Index index = new Index(connection);
         String id = RandomStringBuilder.build(3);
 
         try {
-            dataPlaneClient.update(id,
+            index.update(id,
                     generateVectorValuesByDimension(dimension),
                     null,
                     null,
@@ -76,15 +76,15 @@ public class QueryErrorTest {
     @Test
     public void queryWithIncorrectVectorDimensionFuture() throws ExecutionException, InterruptedException {
         String namespace = RandomStringBuilder.build("ns", 8);
-        AsyncIndex dataPlaneClient = new AsyncIndex(connection);
-        DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(null).get();
+        AsyncIndex asyncIndex = new AsyncIndex(connection);
+        DescribeIndexStatsResponse describeIndexStatsResponse1 = asyncIndex.describeIndexStats(null).get();
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
 
         StringBuilder exceptionMessage = new StringBuilder();
         // Query with incorrect dimensions
         try {
             List<Float> vector = Arrays.asList(100F);
-            dataPlaneClient.query(5, vector, null, null, null, namespace, null, true, true).get();
+            asyncIndex.query(5, vector, null, null, null, namespace, null, true, true).get();
         } catch (ExecutionException executionException) {
             exceptionMessage.append(executionException.getLocalizedMessage());
         } finally {
@@ -95,11 +95,11 @@ public class QueryErrorTest {
 
     @Test
     public void QueryWithNullSparseIndicesNotNullSparseValuesFutureTest() throws ExecutionException, InterruptedException {
-        AsyncIndex dataPlaneClient = new AsyncIndex(connection);
+        AsyncIndex asyncIndex = new AsyncIndex(connection);
         String id = RandomStringBuilder.build(3);
 
         try {
-            dataPlaneClient.update(id,
+            asyncIndex.update(id,
                     generateVectorValuesByDimension(dimension),
                     null,
                     null,
