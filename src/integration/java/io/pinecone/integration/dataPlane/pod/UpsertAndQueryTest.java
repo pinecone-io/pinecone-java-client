@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-public class UpsertAndDescribeIndexStatsTest {
+public class UpsertAndQueryTest {
     private static PineconeConnection connection;
     private static final int dimension = 3;
     private static final Struct emptyFilterStruct = Struct.newBuilder().build();
@@ -81,6 +81,7 @@ public class UpsertAndDescribeIndexStatsTest {
             }
 
             // Verify the correct vector id was updated
+            assert scoredVectorV1 != null;
             assertEquals(scoredVectorV1.getId(), upsertIds.get(0));
 
             // Verify the updated values
@@ -101,6 +102,7 @@ public class UpsertAndDescribeIndexStatsTest {
     public void upsertNullSparseIndicesNotNullSparseValuesSyncTest() {
         Index dataPlaneClient = new Index(connection);
         String id = RandomStringBuilder.build(3);
+        StringBuilder exceptionMessage = new StringBuilder();
         try {
             dataPlaneClient.upsert(id,
                     generateVectorValuesByDimension(dimension),
@@ -109,7 +111,9 @@ public class UpsertAndDescribeIndexStatsTest {
                     null,
                     null);
         } catch (PineconeValidationException validationException) {
-            assertEquals(validationException.getLocalizedMessage(), "Invalid upsert request. Please ensure that both sparse indices and values are present.");
+            exceptionMessage.append(validationException.getLocalizedMessage());
+        } finally {
+            assertEquals(exceptionMessage.toString(), "Invalid upsert request. Please ensure that both sparse indices and values are present.");
         }
     }
 
@@ -162,6 +166,7 @@ public class UpsertAndDescribeIndexStatsTest {
             }
 
             // Verify the correct vector id was updated
+            assert scoredVectorV1 != null;
             assertEquals(scoredVectorV1.getId(), upsertIds.get(0));
 
             // Verify the updated values
@@ -181,6 +186,7 @@ public class UpsertAndDescribeIndexStatsTest {
     @Test
     public void upsertNullSparseIndicesNotNullSparseValuesFutureTest() {
         AsyncIndex dataPlaneClient = new AsyncIndex(connection);
+        StringBuilder exceptionMessage = new StringBuilder();
         String id = RandomStringBuilder.build(3);
         try {
             dataPlaneClient.upsert(id,
@@ -190,9 +196,11 @@ public class UpsertAndDescribeIndexStatsTest {
                     null,
                     null).get();
         } catch (PineconeValidationException validationException) {
-            assertEquals(validationException.getLocalizedMessage(), "Invalid upsert request. Please ensure that both sparse indices and values are present.");
+            exceptionMessage.append(validationException.getLocalizedMessage());
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
+        } finally {
+            assertEquals(exceptionMessage.toString(), "Invalid upsert request. Please ensure that both sparse indices and values are present.");
         }
     }
 }
