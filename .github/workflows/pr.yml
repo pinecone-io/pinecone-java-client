@@ -53,7 +53,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [macos-latest]
         versions: [
             { java: 8, gradle: 6.8 },
             { java: 17, gradle: 7.3.1 }
