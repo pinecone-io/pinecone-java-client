@@ -130,7 +130,7 @@ public class CollectionTest {
         indexes.add(newIndexName);
         logger.info("Index " + newIndexName + " created from collection " + collectionName + ". Waiting until index " +
                 "is ready...");
-        waitUntilIndexIsReady(controlPlaneClient, newIndexName, 250000);
+        waitUntilIndexIsReady(controlPlaneClient, newIndexName, 300000);
 
         assertWithRetry(() -> {
             IndexModel indexDescription = controlPlaneClient.describeIndex(newIndexName);
