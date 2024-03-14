@@ -49,9 +49,9 @@ public class CollectionTest {
         VectorServiceGrpc.VectorServiceBlockingStub blockingStub = dataPlaneConnection.getBlockingStub();
         indexes.add(indexName);
 
-        // Sometimes we see grpc failures when upserting so quickly after creating, so retry
+        // Sometimes we see grpc failures when upserting so quickly after creating, so retry if so
         assertWithRetry(() -> blockingStub.upsert(buildRequiredUpsertRequestByDimension(upsertIds, dimension,
-                namespace)), 1);
+                namespace)), 2);
         dataPlaneConnection.close();
 
         // Create collection from index
