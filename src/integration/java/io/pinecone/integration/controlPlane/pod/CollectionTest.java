@@ -7,6 +7,7 @@ import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.*;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.model.*;
 import org.slf4j.Logger;
