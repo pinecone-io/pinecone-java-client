@@ -6,7 +6,7 @@ import io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.NegotiationType;
 import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.MetadataUtils;
-import io.pinecone.clients.PineconeControlPlaneClient;
+import io.pinecone.clients.Pinecone;
 import io.pinecone.exceptions.PineconeException;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.proto.VectorServiceGrpc;
@@ -150,7 +150,7 @@ public class PineconeConnection implements AutoCloseable {
     }
 
     private static String getHost(String apiKey, String indexName) {
-        PineconeControlPlaneClient controlPlaneClient = new PineconeControlPlaneClient(apiKey);
+        Pinecone controlPlaneClient = new Pinecone(apiKey);
         return controlPlaneClient.describeIndex(indexName).getHost();
     }
 }

@@ -1,14 +1,12 @@
 package io.pinecone.integration.controlPlane.pod;
 
-import io.pinecone.clients.PineconeControlPlaneClient;
+import io.pinecone.clients.Pinecone;
 import io.pinecone.exceptions.PineconeException;
 import io.pinecone.exceptions.PineconeForbiddenException;
 import io.pinecone.exceptions.PineconeBadRequestException;
 import io.pinecone.exceptions.PineconeNotFoundException;
 import org.junit.jupiter.api.*;
 import org.openapitools.client.model.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -18,13 +16,12 @@ import static io.pinecone.helpers.IndexManager.isIndexReady;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ConfigureIndexTest {
-    private static PineconeControlPlaneClient controlPlaneClient;
+    private static Pinecone controlPlaneClient;
     private static String indexName;
-    private static final Logger logger = LoggerFactory.getLogger(ConfigureIndexTest.class);
 
     @BeforeAll
     public static void setUp() throws InterruptedException, IOException {
-        controlPlaneClient = new PineconeControlPlaneClient(System.getenv("PINECONE_API_KEY"));
+        controlPlaneClient = new Pinecone(System.getenv("PINECONE_API_KEY"));
         indexName = createIndexIfNotExistsControlPlane(controlPlaneClient, 5, IndexModelSpec.SERIALIZED_NAME_POD);
     }
 
@@ -49,7 +46,7 @@ public class ConfigureIndexTest {
 
     @Test
     public void configureIndexExceedingQuota() {
-        ConfigureIndexRequestSpecPod pod = new ConfigureIndexRequestSpecPod().replicas(20);
+        ConfigureIndexRequestSpecPod pod = new ConfigureIndexRequestSpecPod().replicas(40);
         ConfigureIndexRequestSpec spec = new ConfigureIndexRequestSpec().pod(pod);
         ConfigureIndexRequest configureIndexRequest = new ConfigureIndexRequest().spec(spec);
         try {
@@ -121,7 +118,7 @@ public class ConfigureIndexTest {
     }
 
     @Test
-    public void sizeIncrease() throws InterruptedException {
+    public void sizeIncrease() {
         try {
             // Verify the starting state
             IndexModel indexModel = isIndexReady(indexName, controlPlaneClient);

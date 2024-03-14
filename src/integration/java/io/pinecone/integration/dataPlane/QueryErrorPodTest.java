@@ -1,9 +1,9 @@
 package io.pinecone.integration.dataPlane;
 
 import io.grpc.StatusRuntimeException;
-import io.pinecone.clients.PineconeBlockingDataPlaneClient;
+import io.pinecone.clients.Index;
 import io.pinecone.configs.PineconeConnection;
-import io.pinecone.clients.PineconeFutureDataPlaneClient;
+import io.pinecone.clients.AsyncIndex;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.*;
@@ -21,18 +21,14 @@ import static io.pinecone.helpers.BuildUpsertRequest.*;
 import static io.pinecone.helpers.IndexManager.createIndexIfNotExistsDataPlane;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class QueryErrorTest {
+public class QueryErrorPodTest {
 
     private static PineconeConnection connection;
-    private static VectorServiceGrpc.VectorServiceBlockingStub blockingStub;
-    private static VectorServiceGrpc.VectorServiceFutureStub futureStub;
     private static final int dimension = 3;
 
     @BeforeAll
     public static void setUp() throws IOException, InterruptedException {
         connection = createIndexIfNotExistsDataPlane(dimension, IndexModelSpec.SERIALIZED_NAME_POD);
-        blockingStub = connection.getBlockingStub();
-        futureStub = connection.getFutureStub();
     }
 
     @AfterAll
@@ -42,30 +38,31 @@ public class QueryErrorTest {
 
     @Test
     public void queryWithIncorrectVectorDimensionSync() {
-        int numOfVectors = 3;
-
         String namespace = RandomStringBuilder.build("ns", 8);
-        PineconeBlockingDataPlaneClient dataPlaneClient = new PineconeBlockingDataPlaneClient(blockingStub);
-        DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(null);
+        Index index = new Index(connection);
+        DescribeIndexStatsResponse describeIndexStatsResponse1 = index.describeIndexStats(null);
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
 
+        StringBuilder exceptionMessage = new StringBuilder();
         // Query with incorrect dimensions
         try {
             List<Float> vector = Arrays.asList(100F);
-            dataPlaneClient.query(5, vector, null, null, null, namespace, null, true, true);
+            index.query(5, vector, null, null, null, namespace, null, true, true);
         } catch (StatusRuntimeException statusRuntimeException) {
-            assert (statusRuntimeException.getTrailers().toString().contains("grpc-status=3"));
-            assert (statusRuntimeException.getTrailers().toString().contains("grpc-message=Query vector dimension 1 does not match the dimension of the index 3"));
+            exceptionMessage.append(statusRuntimeException.getTrailers().toString());
+        } finally {
+            assert (exceptionMessage.toString().contains("grpc-status=3"));
+            assert (exceptionMessage.toString().contains("grpc-message=Query vector dimension 1 does not match the dimension of the index 3"));
         }
     }
 
     @Test
     public void QueryWithNullSparseIndicesNotNullSparseValuesSyncTest() {
-        PineconeBlockingDataPlaneClient dataPlaneClient = new PineconeBlockingDataPlaneClient(blockingStub);
+        Index index = new Index(connection);
         String id = RandomStringBuilder.build(3);
 
         try {
-            dataPlaneClient.update(id,
+            index.update(id,
                     generateVectorValuesByDimension(dimension),
                     null,
                     null,
@@ -79,32 +76,35 @@ public class QueryErrorTest {
     @Test
     public void queryWithIncorrectVectorDimensionFuture() throws ExecutionException, InterruptedException {
         String namespace = RandomStringBuilder.build("ns", 8);
-        PineconeFutureDataPlaneClient dataPlaneClient = new PineconeFutureDataPlaneClient(futureStub);
-        DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(null).get();
+        AsyncIndex asyncIndex = new AsyncIndex(connection);
+        DescribeIndexStatsResponse describeIndexStatsResponse1 = asyncIndex.describeIndexStats(null).get();
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
 
+        StringBuilder exceptionMessage = new StringBuilder();
         // Query with incorrect dimensions
         try {
             List<Float> vector = Arrays.asList(100F);
-            dataPlaneClient.query(5, vector, null, null, null, namespace, null, true, true);
-        } catch (StatusRuntimeException statusRuntimeException) {
-            assert (statusRuntimeException.getTrailers().toString().contains("grpc-status=3"));
-            assert (statusRuntimeException.getTrailers().toString().contains("grpc-message=Query vector dimension 1 does not match the dimension of the index 3"));
+            asyncIndex.query(5, vector, null, null, null, namespace, null, true, true).get();
+        } catch (ExecutionException executionException) {
+            exceptionMessage.append(executionException.getLocalizedMessage());
+        } finally {
+            assert (exceptionMessage.toString().contains("grpc-status=3"));
+            assert (exceptionMessage.toString().contains("grpc-message=Query vector dimension 1 does not match the dimension of the index 3"));
         }
     }
 
     @Test
-    public void QueryWithNullSparseIndicesNotNullSparseValuesFutureTest() {
-        PineconeFutureDataPlaneClient dataPlaneClient = new PineconeFutureDataPlaneClient(futureStub);
+    public void QueryWithNullSparseIndicesNotNullSparseValuesFutureTest() throws ExecutionException, InterruptedException {
+        AsyncIndex asyncIndex = new AsyncIndex(connection);
         String id = RandomStringBuilder.build(3);
 
         try {
-            dataPlaneClient.update(id,
+            asyncIndex.update(id,
                     generateVectorValuesByDimension(dimension),
                     null,
                     null,
                     null,
-                    generateVectorValuesByDimension(dimension));
+                    generateVectorValuesByDimension(dimension)).get();
         } catch (PineconeValidationException validationException) {
             assertEquals(validationException.getLocalizedMessage(), "Invalid upsert request. Please ensure that both sparse indices and values are present.");
         }

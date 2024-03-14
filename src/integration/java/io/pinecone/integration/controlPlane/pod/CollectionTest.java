@@ -1,12 +1,11 @@
 package io.pinecone.integration.controlPlane.pod;
 
-import io.pinecone.clients.PineconeControlPlaneClient;
+import io.pinecone.clients.Pinecone;
 import io.pinecone.configs.*;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.*;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.model.*;
 import org.slf4j.Logger;
@@ -34,12 +33,12 @@ public class CollectionTest {
     private static final String environment = System.getenv("PINECONE_ENVIRONMENT");
     private static final int dimension = 4;
     private static final Logger logger = LoggerFactory.getLogger(CollectionTest.class);
-    private static PineconeControlPlaneClient controlPlaneClient;
+    private static Pinecone controlPlaneClient;
     private static CollectionModel collection;
 
     @BeforeAll
     public static void setUp() throws InterruptedException {
-        controlPlaneClient = new PineconeControlPlaneClient(apiKey);
+        controlPlaneClient = new Pinecone(apiKey);
 
         // Create and upsert to index
         CreateIndexRequestSpecPod podSpec =

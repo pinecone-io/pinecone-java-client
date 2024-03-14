@@ -1,24 +1,43 @@
 package io.pinecone.clients;
 
 import com.google.protobuf.Struct;
-import io.pinecone.commons.PineconeDataPlaneInterface;
+import io.pinecone.commons.IndexInterface;
+import io.pinecone.configs.PineconeConnection;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.proto.*;
 import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
+import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
-public class PineconeBlockingDataPlaneClient implements PineconeDataPlaneInterface<UpsertResponse,
-        QueryResponseWithUnsignedIndices, FetchResponse, UpdateResponse, DeleteResponse, DescribeIndexStatsResponse> {
+public class Index implements IndexInterface<UpsertResponse,
+        QueryResponseWithUnsignedIndices,
+        FetchResponse,
+        UpdateResponse,
+        DeleteResponse,
+        DescribeIndexStatsResponse> {
 
+    private final PineconeConnection connection;
     private final VectorServiceGrpc.VectorServiceBlockingStub blockingStub;
 
-    public PineconeBlockingDataPlaneClient(VectorServiceGrpc.VectorServiceBlockingStub blockingStub) {
-        if (blockingStub == null) {
-            throw new PineconeValidationException("BlockingStub cannot be null.");
+    private static final Logger logger = LoggerFactory.getLogger(Index.class);
+
+    public Index(PineconeConnection connection) {
+        if (connection == null) {
+            throw new PineconeValidationException("Pinecone connection object cannot be null.");
         }
 
-        this.blockingStub = blockingStub;
+        this.connection = connection;
+        this.blockingStub = connection.getBlockingStub();
+    }
+
+    public UpsertResponse upsert(List<VectorWithUnsignedIndices> vectorList,
+                                 String namespace) {
+        UpsertRequest upsertRequest = validateUpsertRequest(vectorList, namespace);
+        return blockingStub.upsert(upsertRequest);
     }
 
     @Override
@@ -172,5 +191,15 @@ public class PineconeBlockingDataPlaneClient implements PineconeDataPlaneInterfa
         DescribeIndexStatsRequest describeIndexStatsRequest = validateDescribeIndexStatsRequest(filter);
 
         return blockingStub.describeIndexStats(describeIndexStatsRequest);
+    }
+
+    @Override
+    public void close() {
+        try {
+            logger.debug("closing channel");
+            connection.getChannel().shutdownNow().awaitTermination(5, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            logger.warn("Channel shutdown interrupted before termination confirmed");
+        }
     }
 }

@@ -1,7 +1,7 @@
 package io.pinecone.integration.controlPlane.pod;
 
 import io.pinecone.configs.PineconeConnection;
-import io.pinecone.clients.PineconeControlPlaneClient;
+import io.pinecone.clients.Pinecone;
 import io.pinecone.exceptions.PineconeException;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.VectorServiceGrpc;
@@ -35,12 +35,12 @@ public class CollectionErrorTest {
     private static final ArrayList<String> collections = new ArrayList<>();
     private static final List<String> upsertIds = Arrays.asList("v1", "v2", "v3");
     private static final int dimension = 4;
-    private static PineconeControlPlaneClient controlPlaneClient;
+    private static Pinecone controlPlaneClient;
     private static final Logger logger = LoggerFactory.getLogger(CollectionErrorTest.class);
 
     @BeforeAll
     public static void setUpIndexAndCollection() throws InterruptedException {
-        controlPlaneClient = new PineconeControlPlaneClient(apiKey);
+        controlPlaneClient = new Pinecone(apiKey);
         CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().pods(1).podType("p1.x1").replicas(1).environment(environment);
         CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(podSpec);
         PineconeConnection dataPlaneConnection = createNewIndexAndConnect(controlPlaneClient, indexName, dimension, IndexMetric.COSINE, spec);

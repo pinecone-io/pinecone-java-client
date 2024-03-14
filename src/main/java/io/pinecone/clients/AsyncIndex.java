@@ -4,26 +4,42 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.Struct;
-import io.pinecone.commons.PineconeDataPlaneInterface;
+import io.pinecone.commons.IndexInterface;
+import io.pinecone.configs.PineconeConnection;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.proto.*;
 import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
+import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
-public class PineconeFutureDataPlaneClient implements PineconeDataPlaneInterface<ListenableFuture<UpsertResponse>,
-        ListenableFuture<QueryResponseWithUnsignedIndices>, ListenableFuture<FetchResponse>,
-        ListenableFuture<UpdateResponse>, ListenableFuture<DeleteResponse>,
+public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertResponse>,
+        ListenableFuture<QueryResponseWithUnsignedIndices>,
+        ListenableFuture<FetchResponse>,
+        ListenableFuture<UpdateResponse>,
+        ListenableFuture<DeleteResponse>,
         ListenableFuture<DescribeIndexStatsResponse>> {
 
-    private final VectorServiceGrpc.VectorServiceFutureStub futureStub;
+    private final PineconeConnection connection;
+    private final VectorServiceGrpc.VectorServiceFutureStub asyncStub;
 
-    public PineconeFutureDataPlaneClient(VectorServiceGrpc.VectorServiceFutureStub futureStub) {
-        if (futureStub == null) {
-            throw new PineconeValidationException("FutureStub cannot be null.");
+    private static final Logger logger = LoggerFactory.getLogger(AsyncIndex.class);
+
+    public AsyncIndex(PineconeConnection connection) {
+        if (connection == null) {
+            throw new PineconeValidationException("Pinecone connection object cannot be null.");
         }
+        this.connection = connection;
+        this.asyncStub = connection.getFutureStub();
+    }
 
-        this.futureStub = futureStub;
+    public ListenableFuture<UpsertResponse> upsert(List<VectorWithUnsignedIndices> vectorList,
+                                                   String namespace) {
+        UpsertRequest upsertRequest = validateUpsertRequest(vectorList, namespace);
+        return asyncStub.upsert(upsertRequest);
     }
 
     @Override
@@ -49,7 +65,7 @@ public class PineconeFutureDataPlaneClient implements PineconeDataPlaneInterface
         UpsertRequest upsertRequest = validateUpsertRequest(id, values, sparseIndices, sparseValues, metadata,
                 namespace);
 
-        return futureStub.upsert(upsertRequest);
+        return asyncStub.upsert(upsertRequest);
     }
 
     @Override
@@ -65,7 +81,7 @@ public class PineconeFutureDataPlaneClient implements PineconeDataPlaneInterface
         QueryRequest queryRequest = validateQueryRequest(topK, vector, sparseIndices, sparseValues, id, namespace,
                 filter, includeValues, includeMetadata);
 
-        ListenableFuture<QueryResponse> queryResponseFuture = futureStub.query(queryRequest);
+        ListenableFuture<QueryResponse> queryResponseFuture = asyncStub.query(queryRequest);
 
         return Futures.transform(queryResponseFuture,
                 QueryResponseWithUnsignedIndices::new, MoreExecutors.directExecutor());
@@ -112,7 +128,7 @@ public class PineconeFutureDataPlaneClient implements PineconeDataPlaneInterface
                                                  String namespace) {
         FetchRequest fetchRequest = validateFetchRequest(ids, namespace);
 
-        return futureStub.fetch(fetchRequest);
+        return asyncStub.fetch(fetchRequest);
     }
 
     @Override
@@ -138,7 +154,7 @@ public class PineconeFutureDataPlaneClient implements PineconeDataPlaneInterface
         UpdateRequest updateRequest = validateUpdateRequest(id, values, metadata, namespace, sparseIndices,
                 sparseValues);
 
-        return futureStub.update(updateRequest);
+        return asyncStub.update(updateRequest);
     }
 
     @Override
@@ -173,13 +189,28 @@ public class PineconeFutureDataPlaneClient implements PineconeDataPlaneInterface
                                                    Struct filter) {
         DeleteRequest deleteRequest = validateDeleteRequest(ids, deleteAll, namespace, filter);
 
-        return futureStub.delete(deleteRequest);
+        return asyncStub.delete(deleteRequest);
     }
 
     @Override
     public ListenableFuture<DescribeIndexStatsResponse> describeIndexStats(Struct filter) {
         DescribeIndexStatsRequest describeIndexStatsRequest = validateDescribeIndexStatsRequest(filter);
 
-        return futureStub.describeIndexStats(describeIndexStatsRequest);
+        return asyncStub.describeIndexStats(describeIndexStatsRequest);
+    }
+
+    /**
+     * Close the connection and release all resources. A PineconeConnection's underlying gRPC components use resources
+     * like threads and TCP connections. To prevent leaking these resources the connection should be closed when it
+     * will no longer be used. If it may be used again leave it running.
+     */
+    @Override
+    public void close() {
+        try {
+            logger.debug("closing channel");
+            connection.getChannel().shutdownNow().awaitTermination(5, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            logger.warn("Channel shutdown interrupted before termination confirmed");
+        }
     }
 }

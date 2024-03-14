@@ -4,8 +4,8 @@ import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
 import io.grpc.StatusRuntimeException;
 import io.pinecone.configs.PineconeConnection;
-import io.pinecone.clients.PineconeBlockingDataPlaneClient;
-import io.pinecone.clients.PineconeFutureDataPlaneClient;
+import io.pinecone.clients.Index;
+import io.pinecone.clients.AsyncIndex;
 import io.pinecone.exceptions.PineconeException;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.helpers.RandomStringBuilder;
@@ -28,17 +28,13 @@ import static io.pinecone.helpers.BuildUpsertRequest.*;
 import static io.pinecone.helpers.IndexManager.createIndexIfNotExistsDataPlane;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class UpdateFetchAndQueryTest {
+public class UpdateFetchAndQueryPodTest {
     private static PineconeConnection connection;
-    private static VectorServiceGrpc.VectorServiceBlockingStub blockingStub;
-    private static VectorServiceGrpc.VectorServiceFutureStub futureStub;
     private static final int dimension = 3;
 
     @BeforeAll
     public static void setUp() throws IOException, InterruptedException {
         connection = createIndexIfNotExistsDataPlane(dimension, IndexModelSpec.SERIALIZED_NAME_POD);
-        blockingStub = connection.getBlockingStub();
-        futureStub = connection.getFutureStub();
     }
 
     @AfterAll
@@ -52,7 +48,7 @@ public class UpdateFetchAndQueryTest {
         int numOfVectors = 3;
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
-        PineconeBlockingDataPlaneClient dataPlaneClient = new PineconeBlockingDataPlaneClient(blockingStub);
+        Index dataPlaneClient = new Index(connection);
         for (String id : upsertIds) {
             dataPlaneClient.upsert(id, generateVectorValuesByDimension(dimension), namespace);
         }
@@ -94,7 +90,7 @@ public class UpdateFetchAndQueryTest {
         int numOfSparseVectors = 2;
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
-        PineconeBlockingDataPlaneClient dataPlaneClient = new PineconeBlockingDataPlaneClient(blockingStub);
+        Index dataPlaneClient = new Index(connection);
         DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(null);
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
         List<List<Long>> sparseIndicesList = getSparseIndicesList(numOfSparseVectors, dimension);
@@ -175,7 +171,7 @@ public class UpdateFetchAndQueryTest {
         int numOfVectors = 3;
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
-        PineconeBlockingDataPlaneClient dataPlaneClient = new PineconeBlockingDataPlaneClient(blockingStub);
+        Index dataPlaneClient = new Index(connection);
 
         for (String id : upsertIds) {
             dataPlaneClient.upsert(id,
@@ -214,7 +210,7 @@ public class UpdateFetchAndQueryTest {
         int numOfVectors = 3;
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
-        PineconeBlockingDataPlaneClient dataPlaneClient = new PineconeBlockingDataPlaneClient(blockingStub);
+        Index dataPlaneClient = new Index(connection);
         DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(null);
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
 
@@ -255,7 +251,7 @@ public class UpdateFetchAndQueryTest {
 
     @Test
     public void updateNullSparseIndicesNotNullSparseValuesSyncTest() {
-        PineconeBlockingDataPlaneClient dataPlaneClient = new PineconeBlockingDataPlaneClient(blockingStub);
+        Index dataPlaneClient = new Index(connection);
         String id = RandomStringBuilder.build(3);
 
         try {
@@ -276,7 +272,7 @@ public class UpdateFetchAndQueryTest {
         int numOfVectors = 3;
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
-        PineconeFutureDataPlaneClient dataPlaneClient = new PineconeFutureDataPlaneClient(futureStub);
+        AsyncIndex dataPlaneClient = new AsyncIndex(connection);
         for (String id : upsertIds) {
             dataPlaneClient.upsert(id, generateVectorValuesByDimension(dimension), namespace);
         }
@@ -318,7 +314,7 @@ public class UpdateFetchAndQueryTest {
         int numOfSparseVectors = 2;
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
-        PineconeFutureDataPlaneClient dataPlaneClient = new PineconeFutureDataPlaneClient(futureStub);
+        AsyncIndex dataPlaneClient = new AsyncIndex(connection);
         DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(null).get();
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
         List<List<Long>> sparseIndicesList = getSparseIndicesList(numOfSparseVectors, dimension);
@@ -399,7 +395,7 @@ public class UpdateFetchAndQueryTest {
         int numOfVectors = 3;
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
-        PineconeFutureDataPlaneClient dataPlaneClient = new PineconeFutureDataPlaneClient(futureStub);
+        AsyncIndex dataPlaneClient = new AsyncIndex(connection);
 
         for (String id : upsertIds) {
             dataPlaneClient.upsert(id,
@@ -438,7 +434,7 @@ public class UpdateFetchAndQueryTest {
         int numOfVectors = 3;
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
-        PineconeFutureDataPlaneClient dataPlaneClient = new PineconeFutureDataPlaneClient(futureStub);
+        AsyncIndex dataPlaneClient = new AsyncIndex(connection);
         DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(null).get();
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
 
@@ -479,7 +475,7 @@ public class UpdateFetchAndQueryTest {
 
     @Test
     public void updateNullSparseIndicesNotNullSparseValuesFutureTest() {
-        PineconeFutureDataPlaneClient dataPlaneClient = new PineconeFutureDataPlaneClient(futureStub);
+        AsyncIndex dataPlaneClient = new AsyncIndex(connection);
         String id = RandomStringBuilder.build(3);
 
         try {
