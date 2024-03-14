@@ -17,6 +17,11 @@ public class SparseValuesWithUnsignedIndices {
         this.values = Collections.emptyList();
     }
 
+    public SparseValuesWithUnsignedIndices(List<Long> indicesWithUnsigned32Int, List<Float> values) {
+        this.indicesWithUnsigned32Int = indicesWithUnsigned32Int;
+        this.values = values;
+    }
+
     public SparseValuesWithUnsignedIndices(SparseValues sparseValues) {
         if (sparseValues == null) {
             this.indicesWithUnsigned32Int = Collections.emptyList();

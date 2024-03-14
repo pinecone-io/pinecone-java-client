@@ -1,20 +1,24 @@
 package io.pinecone.clients;
 
 import com.google.protobuf.Struct;
-import io.pinecone.commons.PineconeDataPlaneInterface;
+import io.pinecone.commons.IndexInterface;
 import io.pinecone.configs.PineconeConnection;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.proto.*;
 import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
+import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class Index implements PineconeDataPlaneInterface<UpsertResponse,
-        QueryResponseWithUnsignedIndices, FetchResponse, UpdateResponse, DeleteResponse, DescribeIndexStatsResponse>,
-        AutoCloseable {
+public class Index implements IndexInterface<UpsertResponse,
+        QueryResponseWithUnsignedIndices,
+        FetchResponse,
+        UpdateResponse,
+        DeleteResponse,
+        DescribeIndexStatsResponse> {
 
     private final PineconeConnection connection;
     private final VectorServiceGrpc.VectorServiceBlockingStub blockingStub;
@@ -28,6 +32,12 @@ public class Index implements PineconeDataPlaneInterface<UpsertResponse,
 
         this.connection = connection;
         this.blockingStub = connection.getBlockingStub();
+    }
+
+    public UpsertResponse upsert(List<VectorWithUnsignedIndices> vectorList,
+                                 String namespace) {
+        UpsertRequest upsertRequest = validateUpsertRequest(vectorList, namespace);
+        return blockingStub.upsert(upsertRequest);
     }
 
     @Override

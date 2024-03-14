@@ -4,24 +4,27 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.Struct;
-import io.pinecone.commons.PineconeDataPlaneInterface;
+import io.pinecone.commons.IndexInterface;
 import io.pinecone.configs.PineconeConnection;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.proto.*;
 import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
+import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class AsyncIndex implements PineconeDataPlaneInterface<ListenableFuture<UpsertResponse>,
-        ListenableFuture<QueryResponseWithUnsignedIndices>, ListenableFuture<FetchResponse>,
-        ListenableFuture<UpdateResponse>, ListenableFuture<DeleteResponse>,
-        ListenableFuture<DescribeIndexStatsResponse>>, AutoCloseable {
+public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertResponse>,
+        ListenableFuture<QueryResponseWithUnsignedIndices>,
+        ListenableFuture<FetchResponse>,
+        ListenableFuture<UpdateResponse>,
+        ListenableFuture<DeleteResponse>,
+        ListenableFuture<DescribeIndexStatsResponse>> {
 
     private final PineconeConnection connection;
-    private final VectorServiceGrpc.VectorServiceFutureStub futureStub;
+    private final VectorServiceGrpc.VectorServiceFutureStub asyncStub;
 
     private static final Logger logger = LoggerFactory.getLogger(AsyncIndex.class);
 
@@ -30,7 +33,13 @@ public class AsyncIndex implements PineconeDataPlaneInterface<ListenableFuture<U
             throw new PineconeValidationException("Pinecone connection object cannot be null.");
         }
         this.connection = connection;
-        this.futureStub = connection.getFutureStub();
+        this.asyncStub = connection.getFutureStub();
+    }
+
+    public ListenableFuture<UpsertResponse> upsert(List<VectorWithUnsignedIndices> vectorList,
+                                                   String namespace) {
+        UpsertRequest upsertRequest = validateUpsertRequest(vectorList, namespace);
+        return asyncStub.upsert(upsertRequest);
     }
 
     @Override
@@ -56,7 +65,7 @@ public class AsyncIndex implements PineconeDataPlaneInterface<ListenableFuture<U
         UpsertRequest upsertRequest = validateUpsertRequest(id, values, sparseIndices, sparseValues, metadata,
                 namespace);
 
-        return futureStub.upsert(upsertRequest);
+        return asyncStub.upsert(upsertRequest);
     }
 
     @Override
@@ -72,7 +81,7 @@ public class AsyncIndex implements PineconeDataPlaneInterface<ListenableFuture<U
         QueryRequest queryRequest = validateQueryRequest(topK, vector, sparseIndices, sparseValues, id, namespace,
                 filter, includeValues, includeMetadata);
 
-        ListenableFuture<QueryResponse> queryResponseFuture = futureStub.query(queryRequest);
+        ListenableFuture<QueryResponse> queryResponseFuture = asyncStub.query(queryRequest);
 
         return Futures.transform(queryResponseFuture,
                 QueryResponseWithUnsignedIndices::new, MoreExecutors.directExecutor());
@@ -119,7 +128,7 @@ public class AsyncIndex implements PineconeDataPlaneInterface<ListenableFuture<U
                                                  String namespace) {
         FetchRequest fetchRequest = validateFetchRequest(ids, namespace);
 
-        return futureStub.fetch(fetchRequest);
+        return asyncStub.fetch(fetchRequest);
     }
 
     @Override
@@ -145,7 +154,7 @@ public class AsyncIndex implements PineconeDataPlaneInterface<ListenableFuture<U
         UpdateRequest updateRequest = validateUpdateRequest(id, values, metadata, namespace, sparseIndices,
                 sparseValues);
 
-        return futureStub.update(updateRequest);
+        return asyncStub.update(updateRequest);
     }
 
     @Override
@@ -180,14 +189,14 @@ public class AsyncIndex implements PineconeDataPlaneInterface<ListenableFuture<U
                                                    Struct filter) {
         DeleteRequest deleteRequest = validateDeleteRequest(ids, deleteAll, namespace, filter);
 
-        return futureStub.delete(deleteRequest);
+        return asyncStub.delete(deleteRequest);
     }
 
     @Override
     public ListenableFuture<DescribeIndexStatsResponse> describeIndexStats(Struct filter) {
         DescribeIndexStatsRequest describeIndexStatsRequest = validateDescribeIndexStatsRequest(filter);
 
-        return futureStub.describeIndexStats(describeIndexStatsRequest);
+        return asyncStub.describeIndexStats(describeIndexStatsRequest);
     }
 
     /**

@@ -9,17 +9,18 @@ import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.DescribeIndexStatsResponse;
 import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
 import io.pinecone.unsigned_indices_model.ScoredVectorWithUnsignedIndices;
+import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.model.IndexModelSpec;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import static io.pinecone.commons.IndexInterface.buildUpsertVectorWithUnsignedIndices;
 import static io.pinecone.helpers.AssertRetry.assertWithRetry;
 import static io.pinecone.helpers.BuildUpsertRequest.*;
 import static io.pinecone.helpers.IndexManager.*;
@@ -32,7 +33,7 @@ public class UpsertAndQueryServerlessTest {
     private static final Struct emptyFilterStruct = Struct.newBuilder().build();
 
     @BeforeAll
-    public static void setUp() throws IOException, InterruptedException {
+    public static void setUp() throws InterruptedException {
         String apiKey = System.getenv("PINECONE_API_KEY");
         String indexType = IndexModelSpec.SERIALIZED_NAME_SERVERLESS;
         Pinecone pinecone = new Pinecone(apiKey);
@@ -65,14 +66,12 @@ public class UpsertAndQueryServerlessTest {
         List<Float> sparseValues = generateVectorValuesByDimension(dimension);
         Struct metadataStruct = generateMetadataStruct();
 
+        List<VectorWithUnsignedIndices> vectors = new ArrayList<VectorWithUnsignedIndices>(numOfVectors);
+
         for (String id : upsertIds) {
-            index.upsert(id,
-                    values,
-                    sparseIndices,
-                    sparseValues,
-                    metadataStruct,
-                    namespace);
+            vectors.add(buildUpsertVectorWithUnsignedIndices(id, values, sparseIndices, sparseValues, metadataStruct));
         }
+        index.upsert(vectors, namespace);
 
         // wait sometime for the vectors to be upserted
         Thread.sleep(5000);
@@ -91,6 +90,7 @@ public class UpsertAndQueryServerlessTest {
                     true);
 
             ScoredVectorWithUnsignedIndices scoredVectorV1 = null;
+
             // if the sizes are not equal, let the following assertions fail and retry again
             if (queryResponse.getMatchesList().size() == upsertIds.size()) {
                 for (int i = 0; i < topK; i++) {
@@ -157,14 +157,12 @@ public class UpsertAndQueryServerlessTest {
         List<Long> sparseIndices = generateSparseIndicesByDimension(dimension);
         List<Float> sparseValues = generateVectorValuesByDimension(dimension);
         Struct metadataStruct = generateMetadataStruct();
+        List<VectorWithUnsignedIndices> vectors = new ArrayList<VectorWithUnsignedIndices>(numOfVectors);
+
         for (String id : upsertIds) {
-            asyncIndex.upsert(id,
-                    values,
-                    sparseIndices,
-                    sparseValues,
-                    metadataStruct,
-                    namespace).get();
+            vectors.add(buildUpsertVectorWithUnsignedIndices(id, values, sparseIndices, sparseValues, metadataStruct));
         }
+        asyncIndex.upsert(vectors, namespace).get();
 
         // wait sometime for the vectors to be upserted
         Thread.sleep(5000);

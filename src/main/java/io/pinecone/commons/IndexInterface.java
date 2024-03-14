@@ -3,13 +3,16 @@ package io.pinecone.commons;
 import com.google.protobuf.Struct;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.proto.*;
+import io.pinecone.unsigned_indices_model.SparseValuesWithUnsignedIndices;
+import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static io.pinecone.utils.SparseIndicesConverter.convertUnsigned32IntToSigned32Int;
 
-public interface PineconeDataPlaneInterface<T, U, V, W, X, Y> {
-    // default methods
+public interface IndexInterface<T, U, V, W, X, Y> extends AutoCloseable {
+
     default UpsertRequest validateUpsertRequest(String id,
                                                 List<Float> values,
                                                 List<Long> sparseIndices,
@@ -18,10 +21,45 @@ public interface PineconeDataPlaneInterface<T, U, V, W, X, Y> {
                                                 String namespace) {
         UpsertRequest.Builder upsertRequest = UpsertRequest.newBuilder();
 
+        Vector vector = buildUpsertVector(id, values, sparseIndices, sparseValues, metadata);
+
+        upsertRequest.addVectors(vector);
+
+        if (namespace != null) {
+            upsertRequest.setNamespace(namespace);
+        }
+        return upsertRequest.build();
+    }
+
+    default UpsertRequest validateUpsertRequest(List<VectorWithUnsignedIndices> vectorWithUnsignedIndicesList,
+                                                String namespace) {
+        List<Vector> vectors = new ArrayList<>(vectorWithUnsignedIndicesList.size());
+
+        for (VectorWithUnsignedIndices vectorWithUnsignedIndices : vectorWithUnsignedIndicesList) {
+            SparseValuesWithUnsignedIndices sparseValuesWithUnsignedIndices = vectorWithUnsignedIndices.getSparseValuesWithUnsignedIndices();
+
+            Vector vector = buildUpsertVector(vectorWithUnsignedIndices.getId(),
+                    vectorWithUnsignedIndices.getValuesList(),
+                    sparseValuesWithUnsignedIndices.getIndicesWithUnsigned32IntList(),
+                    sparseValuesWithUnsignedIndices.getValuesList(),
+                    vectorWithUnsignedIndices.getMetadata());
+
+            vectors.add(vector);
+        }
+
+        return UpsertRequest.newBuilder().addAllVectors(vectors).setNamespace(namespace).build();
+    }
+
+    default Vector buildUpsertVector(String id,
+                                     List<Float> values,
+                                     List<Long> sparseIndices,
+                                     List<Float> sparseValues,
+                                     Struct metadata) {
         if (id == null || id.isEmpty() || values == null || values.isEmpty()) {
             throw new PineconeValidationException("Invalid upsert request. Please ensure that both id and values are " +
                     "provided.");
         }
+
 
         Vector.Builder vectorBuilder = Vector.newBuilder()
                 .setId(id)
@@ -31,11 +69,13 @@ public interface PineconeDataPlaneInterface<T, U, V, W, X, Y> {
             throw new PineconeValidationException("Invalid upsert request. Please ensure that both sparse indices and" +
                     " values are present.");
         }
+
         if (sparseIndices != null) {
             if (sparseIndices.size() != sparseValues.size()) {
                 throw new PineconeValidationException("Invalid upsert request. Please ensure that both sparse indices" +
                         " and values are of the same length.");
             }
+
             vectorBuilder.setSparseValues(SparseValues.newBuilder()
                     .addAllIndices(convertUnsigned32IntToSigned32Int(sparseIndices))
                     .addAllValues(sparseValues)
@@ -46,12 +86,43 @@ public interface PineconeDataPlaneInterface<T, U, V, W, X, Y> {
             vectorBuilder.setMetadata(metadata);
         }
 
-        upsertRequest.addVectors(vectorBuilder.build());
+        return vectorBuilder.build();
+    }
 
-        if (namespace != null) {
-            upsertRequest.setNamespace(namespace);
+    static VectorWithUnsignedIndices buildUpsertVectorWithUnsignedIndices(String id,
+                                                                          List<Float> values,
+                                                                          List<Long> sparseIndices,
+                                                                          List<Float> sparseValues,
+                                                                          Struct metadata) {
+        if (id == null || id.isEmpty() || values == null || values.isEmpty()) {
+            throw new PineconeValidationException("Invalid upsert request. Please ensure that both id and values are " +
+                    "provided.");
         }
-        return upsertRequest.build();
+
+        VectorWithUnsignedIndices vectorWithUnsignedIndices = new VectorWithUnsignedIndices(id, values);
+
+        if ((sparseIndices != null && sparseValues == null) || (sparseIndices == null && sparseValues != null)) {
+            throw new PineconeValidationException("Invalid upsert request. Please ensure that both sparse indices and" +
+                    " values are present.");
+        }
+
+        if (sparseIndices != null) {
+            if (sparseIndices.size() != sparseValues.size()) {
+                throw new PineconeValidationException("Invalid upsert request. Please ensure that both sparse indices" +
+                        " and values are of the same length.");
+            }
+
+            SparseValuesWithUnsignedIndices sparseValuesWithUnsignedIndices = new SparseValuesWithUnsignedIndices();
+            sparseValuesWithUnsignedIndices.setIndicesWithUnsigned32Int(sparseIndices);
+            sparseValuesWithUnsignedIndices.setValues(sparseValues);
+            vectorWithUnsignedIndices.setSparseValuesWithUnsignedIndices(sparseValuesWithUnsignedIndices);
+        }
+
+        if (metadata != null) {
+            vectorWithUnsignedIndices.setMetadata(metadata);
+        }
+
+        return vectorWithUnsignedIndices;
     }
 
     default QueryRequest validateQueryRequest(int topK,
