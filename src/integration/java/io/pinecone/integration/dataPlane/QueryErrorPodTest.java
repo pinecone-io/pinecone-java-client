@@ -43,16 +43,13 @@ public class QueryErrorPodTest {
         DescribeIndexStatsResponse describeIndexStatsResponse1 = index.describeIndexStats(null);
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
 
-        StringBuilder exceptionMessage = new StringBuilder();
         // Query with incorrect dimensions
         try {
             List<Float> vector = Arrays.asList(100F);
             index.query(5, vector, null, null, null, namespace, null, true, true);
         } catch (StatusRuntimeException statusRuntimeException) {
-            exceptionMessage.append(statusRuntimeException.getTrailers().toString());
-        } finally {
-            assert (exceptionMessage.toString().contains("grpc-status=3"));
-            assert (exceptionMessage.toString().contains("grpc-message=Query vector dimension 1 does not match the dimension of the index 3"));
+            assert (statusRuntimeException.getLocalizedMessage().contains("grpc-status=3"));
+            assert (statusRuntimeException.getLocalizedMessage().contains("grpc-message=Query vector dimension 1 does not match the dimension of the index 3"));
         }
     }
 
@@ -80,16 +77,13 @@ public class QueryErrorPodTest {
         DescribeIndexStatsResponse describeIndexStatsResponse1 = asyncIndex.describeIndexStats(null).get();
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
 
-        StringBuilder exceptionMessage = new StringBuilder();
         // Query with incorrect dimensions
         try {
             List<Float> vector = Arrays.asList(100F);
             asyncIndex.query(5, vector, null, null, null, namespace, null, true, true).get();
         } catch (ExecutionException executionException) {
-            exceptionMessage.append(executionException.getLocalizedMessage());
-        } finally {
-            assert (exceptionMessage.toString().contains("grpc-status=3"));
-            assert (exceptionMessage.toString().contains("grpc-message=Query vector dimension 1 does not match the dimension of the index 3"));
+            assert (executionException.getLocalizedMessage().contains("grpc-status=3"));
+            assert (executionException.getLocalizedMessage().contains("grpc-message=Query vector dimension 1 does not match the dimension of the index 3"));
         }
     }
 

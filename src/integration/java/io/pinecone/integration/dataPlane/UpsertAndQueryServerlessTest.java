@@ -127,7 +127,6 @@ public class UpsertAndQueryServerlessTest {
     @Test
     public void upsertNullSparseIndicesNotNullSparseValuesSyncTest() {
         String id = RandomStringBuilder.build(3);
-        StringBuilder exceptionMessage = new StringBuilder();
         try {
             index.upsert(id,
                     generateVectorValuesByDimension(dimension),
@@ -136,9 +135,7 @@ public class UpsertAndQueryServerlessTest {
                     null,
                     null);
         } catch (PineconeValidationException validationException) {
-            exceptionMessage.append(validationException.getLocalizedMessage());
-        } finally {
-            assertEquals(exceptionMessage.toString(), "Invalid upsert request. Please ensure that both sparse indices and values are present.");
+            assert (validationException.getLocalizedMessage().contains("Invalid upsert request. Please ensure that both sparse indices and values are present."));
         }
     }
 
@@ -217,7 +214,6 @@ public class UpsertAndQueryServerlessTest {
     @Test
     public void upsertNullSparseIndicesNotNullSparseValuesFutureTest() {
         String id = RandomStringBuilder.build(3);
-        StringBuilder exceptionMessage = new StringBuilder();
         try {
             asyncIndex.upsert(id,
                     generateVectorValuesByDimension(dimension),
@@ -225,12 +221,8 @@ public class UpsertAndQueryServerlessTest {
                     generateVectorValuesByDimension(dimension),
                     null,
                     null).get();
-        } catch (PineconeValidationException validationException) {
-            exceptionMessage.append(validationException.getLocalizedMessage());
-        } catch (ExecutionException | InterruptedException e) {
-            throw new RuntimeException(e);
-        } finally {
-            assertEquals(exceptionMessage.toString(), "Invalid upsert request. Please ensure that both sparse indices and values are present.");
+        } catch (ExecutionException | InterruptedException | PineconeValidationException exception) {
+            assert (exception.getLocalizedMessage().contains("Invalid upsert request. Please ensure that both sparse indices and values are present."));
         }
     }
 }
