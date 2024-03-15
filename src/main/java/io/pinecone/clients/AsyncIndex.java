@@ -193,6 +193,13 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
     }
 
     @Override
+    public ListenableFuture<DescribeIndexStatsResponse> describeIndexStats() {
+        DescribeIndexStatsRequest describeIndexStatsRequest = validateDescribeIndexStatsRequest(null);
+
+        return asyncStub.describeIndexStats(describeIndexStatsRequest);
+    }
+
+    @Override
     public ListenableFuture<DescribeIndexStatsResponse> describeIndexStats(Struct filter) {
         DescribeIndexStatsRequest describeIndexStatsRequest = validateDescribeIndexStatsRequest(filter);
 

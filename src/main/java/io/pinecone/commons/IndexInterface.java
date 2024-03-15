@@ -308,5 +308,7 @@ public interface IndexInterface<T, U, V, W, X, Y> extends AutoCloseable {
 
     X delete(List<String> ids, boolean deleteAll, String namespace, Struct filter);
 
+    Y describeIndexStats();
+
     Y describeIndexStats(Struct filter);
 }

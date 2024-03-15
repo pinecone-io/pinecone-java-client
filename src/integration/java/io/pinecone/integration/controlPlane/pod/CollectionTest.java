@@ -16,11 +16,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static io.pinecone.helpers.IndexManager.createNewIndexAndConnect;
-import static io.pinecone.helpers.IndexManager.waitUntilIndexIsReady;
-import static io.pinecone.helpers.IndexManager.createCollection;
 import static io.pinecone.helpers.BuildUpsertRequest.*;
 import static io.pinecone.helpers.AssertRetry.assertWithRetry;
+import static io.pinecone.helpers.IndexManager.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CollectionTest {
@@ -129,9 +127,8 @@ public class CollectionTest {
         pineconeClient.createIndex(newCreateIndexRequest);
         indexesToCleanUp.add(newIndexName);
 
-        logger.info("Index " + newIndexName + " created from collection " + collectionName + ". Waiting until index " +
-                "is ready...");
-        waitUntilIndexIsReady(pineconeClient, newIndexName, 300000);
+        logger.info("Index " + newIndexName + " created from collection " + collectionName + ". Waiting until index is ready.");
+        waitUntilIndexIsReady(pineconeClient, newIndexName, 120000);
 
         assertWithRetry(() -> {
             IndexModel indexDescription = pineconeClient.describeIndex(newIndexName);
@@ -141,26 +138,20 @@ public class CollectionTest {
         }, 3);
 
         // Set up new index data plane connection
-        PineconeConfig config = new PineconeConfig(apiKey);
-        PineconeConnection connection = new PineconeConnection(config, indexName);
-        VectorServiceGrpc.VectorServiceBlockingStub newIndexBlockingStub = connection.getBlockingStub();
+        Index indexClient = pineconeClient.createIndexConnection(newIndexName);
 
         assertWithRetry(() -> {
-            DescribeIndexStatsResponse describeResponse = newIndexBlockingStub.describeIndexStats(DescribeIndexStatsRequest.newBuilder().build());
+            DescribeIndexStatsResponse describeResponse = indexClient.describeIndexStats();
 
             // Verify stats reflect the vectors in the collection
             assertEquals(describeResponse.getTotalVectorCount(), 3);
 
             // Verify the vectors from the collection -> new index can be fetched
-            FetchResponse fetchedVectors =
-                    newIndexBlockingStub.fetch(FetchRequest.newBuilder().addAllIds(upsertIds).setNamespace(namespace).build());
-
+            FetchResponse fetchedVectors = indexClient.fetch(upsertIds, namespace);
             for (String key : upsertIds) {
                 assert (fetchedVectors.containsVectors(key));
             }
         });
-
-        connection.close();
     }
 
     @Test
@@ -178,7 +169,7 @@ public class CollectionTest {
         CreateIndexRequestSpecPod podSpec =
                 new CreateIndexRequestSpecPod().environment(environment).sourceCollection(collectionName);
         CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(podSpec);
-        createNewIndexAndConnect(pineconeClient, newIndexName, dimension, targetMetric, spec);
+        createNewIndex(pineconeClient, newIndexName, dimension, targetMetric, spec, false);
         indexesToCleanUp.add(newIndexName);
 
         IndexModel newIndex = pineconeClient.describeIndex(newIndexName);

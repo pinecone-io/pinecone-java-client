@@ -187,6 +187,13 @@ public class Index implements IndexInterface<UpsertResponse,
     }
 
     @Override
+    public DescribeIndexStatsResponse describeIndexStats() {
+        DescribeIndexStatsRequest describeIndexStatsRequest = validateDescribeIndexStatsRequest(null);
+
+        return blockingStub.describeIndexStats(describeIndexStatsRequest);
+    }
+
+    @Override
     public DescribeIndexStatsResponse describeIndexStats(Struct filter) {
         DescribeIndexStatsRequest describeIndexStatsRequest = validateDescribeIndexStatsRequest(filter);
 

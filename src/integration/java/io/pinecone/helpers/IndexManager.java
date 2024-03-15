@@ -79,16 +79,17 @@ public class IndexManager {
     public static IndexModel waitUntilIndexIsReady(Pinecone pinecone, String indexName, Integer totalMsToWait) throws InterruptedException {
         IndexModel index = pinecone.describeIndex(indexName);
         int waitedTimeMs = 0;
-        int intervalMs = 1500;
+        int intervalMs = 2000;
 
         while (!index.getStatus().getReady()) {
             index = pinecone.describeIndex(indexName);
+            if (waitedTimeMs >= totalMsToWait) {
+                logger.info("WARNING: Index " + indexName + " not ready after " + waitedTimeMs + "ms");
+                break;
+            }
             if (index.getStatus().getReady()) {
                 logger.info("Index " + indexName + " is ready after " + waitedTimeMs + "ms");
                 break;
-            }
-            if (waitedTimeMs >= totalMsToWait) {
-                throw new PineconeException("Index " + indexName + " not ready after " + waitedTimeMs + "ms");
             }
             Thread.sleep(intervalMs);
             waitedTimeMs += intervalMs;
