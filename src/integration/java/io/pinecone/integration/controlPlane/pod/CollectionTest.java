@@ -52,10 +52,10 @@ public class CollectionTest {
         assertWithRetry(() -> indexClient.upsert(buildRequiredUpsertRequestByDimension(upsertIds, dimension), namespace), 3);
 
         // Create collection from index
-        collection = createCollection(pineconeClient, collectionName, indexName, true);
+        collection = createCollection(pineconeClient, collectionName, indexName, false);
         assertEquals(collection.getName(), collectionName);
         assertEquals(collection.getEnvironment(), environment);
-        assertEquals(collection.getStatus(), CollectionModel.StatusEnum.READY);
+        assertEquals(collection.getStatus(), CollectionModel.StatusEnum.INITIALIZING);
     }
 
     @AfterAll
@@ -255,7 +255,7 @@ public class CollectionTest {
             pineconeClient.createIndex(createIndexRequest);
             indexesToCleanUp.add(notReadyIndexName);
 
-            createCollection(pineconeClient, newCollectionName, notReadyIndexName, true);
+            createCollection(pineconeClient, newCollectionName, notReadyIndexName, false);
         } catch (PineconeException exception) {
             logger.info("Exception: " + exception.getMessage());
             assert (exception.getMessage().contains("Source index is not ready"));
