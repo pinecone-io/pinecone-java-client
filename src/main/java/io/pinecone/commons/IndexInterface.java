@@ -38,13 +38,13 @@ public interface IndexInterface<T, U, V, W, X, Y> extends AutoCloseable {
         for (VectorWithUnsignedIndices vectorWithUnsignedIndices : vectorWithUnsignedIndicesList) {
             SparseValuesWithUnsignedIndices sparseValuesWithUnsignedIndices = vectorWithUnsignedIndices.getSparseValuesWithUnsignedIndices();
 
-            Vector vector = buildUpsertVector(vectorWithUnsignedIndices.getId(),
-                    vectorWithUnsignedIndices.getValuesList(),
-                    sparseValuesWithUnsignedIndices.getIndicesWithUnsigned32IntList(),
-                    sparseValuesWithUnsignedIndices.getValuesList(),
-                    vectorWithUnsignedIndices.getMetadata());
+                Vector vector = buildUpsertVector(vectorWithUnsignedIndices.getId(),
+                        vectorWithUnsignedIndices.getValuesList(),
+                        (sparseValuesWithUnsignedIndices != null) ? sparseValuesWithUnsignedIndices.getIndicesWithUnsigned32IntList() : null,
+                        (sparseValuesWithUnsignedIndices != null) ? sparseValuesWithUnsignedIndices.getValuesList() : null,
+                        vectorWithUnsignedIndices.getMetadata());
+                vectors.add(vector);
 
-            vectors.add(vector);
         }
 
         return UpsertRequest.newBuilder().addAllVectors(vectors).setNamespace(namespace).build();

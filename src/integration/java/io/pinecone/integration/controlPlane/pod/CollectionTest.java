@@ -1,5 +1,6 @@
 package io.pinecone.integration.controlPlane.pod;
 
+import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.configs.*;
 import io.pinecone.exceptions.PineconeException;
@@ -33,29 +34,27 @@ public class CollectionTest {
     private static final String environment = System.getenv("PINECONE_ENVIRONMENT");
     private static final int dimension = 4;
     private static final Logger logger = LoggerFactory.getLogger(CollectionTest.class);
-    private static Pinecone controlPlaneClient;
+    private static Pinecone pineconeClient;
     private static CollectionModel collection;
 
     @BeforeAll
     public static void setUp() throws InterruptedException {
-        controlPlaneClient = new Pinecone(apiKey);
+        PineconeConfig config = new PineconeConfig(apiKey);
+        pineconeClient = new Pinecone(apiKey);
 
         // Create and upsert to index
         CreateIndexRequestSpecPod podSpec =
                 new CreateIndexRequestSpecPod().pods(1).podType("p1.x1").replicas(1).environment(environment);
         CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(podSpec);
-        PineconeConnection dataPlaneConnection = createNewIndexAndConnect(controlPlaneClient, indexName, dimension,
-                indexMetric, spec, true);
-        VectorServiceGrpc.VectorServiceBlockingStub blockingStub = dataPlaneConnection.getBlockingStub();
+        Index indexClient = createNewIndexAndConnect(pineconeClient, indexName, dimension,
+                indexMetric, spec);
         indexesToCleanUp.add(indexName);
 
         // Sometimes we see grpc failures when upserting so quickly after creating, so retry if so
-        assertWithRetry(() -> blockingStub.upsert(buildRequiredUpsertRequestByDimension(upsertIds, dimension,
-                namespace)), 2);
-        dataPlaneConnection.close();
+        assertWithRetry(() -> indexClient.upsert(buildRequiredUpsertRequestByDimension(upsertIds, dimension), namespace), 2);
 
         // Create collection from index
-        collection = createCollection(controlPlaneClient, collectionName, indexName, true);
+        collection = createCollection(pineconeClient, collectionName, indexName, true);
         assertEquals(collection.getName(), collectionName);
         assertEquals(collection.getEnvironment(), environment);
         assertEquals(collection.getStatus(), CollectionModel.StatusEnum.READY);
@@ -68,14 +67,14 @@ public class CollectionTest {
 
         // Clean up indexes
         for (String index : indexesToCleanUp) {
-            controlPlaneClient.deleteIndex(index);
+            pineconeClient.deleteIndex(index);
         }
 
         // Verify we can delete the collection
-        controlPlaneClient.deleteCollection(collectionName);
+        pineconeClient.deleteCollection(collectionName);
         Thread.sleep(2500);
 
-        List<CollectionModel> collectionList = controlPlaneClient.listCollections().getCollections();
+        List<CollectionModel> collectionList = pineconeClient.listCollections().getCollections();
         if (collectionList != null) {
             boolean isCollectionDeleted = true;
             for (CollectionModel col : collectionList) {
@@ -94,7 +93,7 @@ public class CollectionTest {
     @Test
     public void testIndexFromCollectionHappyPath() throws InterruptedException {
         // Verify collection is listed
-        List<CollectionModel> collectionList = controlPlaneClient.listCollections().getCollections();
+        List<CollectionModel> collectionList = pineconeClient.listCollections().getCollections();
         boolean collectionFound = false;
         if (collectionList != null && !collectionList.isEmpty()) {
             for (CollectionModel col : collectionList) {
@@ -110,7 +109,7 @@ public class CollectionTest {
         }
 
         // Verify collection can be described
-        collection = controlPlaneClient.describeCollection(collectionName);
+        collection = pineconeClient.describeCollection(collectionName);
 
         assertEquals(collection.getStatus(), CollectionModel.StatusEnum.READY);
         assertEquals(collection.getDimension(), dimension);
@@ -119,7 +118,7 @@ public class CollectionTest {
         assertTrue(collection.getSize() > 0);
 
         // Create index from collection
-        String newIndexName = RandomStringBuilder.build("from-col", 5);
+        String newIndexName = RandomStringBuilder.build("from-coll", 5);
         logger.info("Creating index " + newIndexName + " from collection " + collectionName);
 
         CreateIndexRequestSpecPod podSpec =
@@ -127,15 +126,15 @@ public class CollectionTest {
         CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(podSpec);
         CreateIndexRequest newCreateIndexRequest =
                 new CreateIndexRequest().name(newIndexName).dimension(dimension).metric(indexMetric).spec(spec);
-        controlPlaneClient.createIndex(newCreateIndexRequest);
+        pineconeClient.createIndex(newCreateIndexRequest);
         indexesToCleanUp.add(newIndexName);
 
         logger.info("Index " + newIndexName + " created from collection " + collectionName + ". Waiting until index " +
                 "is ready...");
-        waitUntilIndexIsReady(controlPlaneClient, newIndexName, 300000);
+        waitUntilIndexIsReady(pineconeClient, newIndexName, 300000);
 
         assertWithRetry(() -> {
-            IndexModel indexDescription = controlPlaneClient.describeIndex(newIndexName);
+            IndexModel indexDescription = pineconeClient.describeIndex(newIndexName);
             assertEquals(indexDescription.getName(), newIndexName);
             assertEquals(indexDescription.getSpec().getPod().getSourceCollection(), collectionName);
             assertEquals(indexDescription.getStatus().getReady(), true);
@@ -179,22 +178,19 @@ public class CollectionTest {
         CreateIndexRequestSpecPod podSpec =
                 new CreateIndexRequestSpecPod().environment(environment).sourceCollection(collectionName);
         CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(podSpec);
-        PineconeConnection dataPlaneConnection = createNewIndexAndConnect(controlPlaneClient, newIndexName, dimension
-                , targetMetric, spec, false);
+        createNewIndexAndConnect(pineconeClient, newIndexName, dimension, targetMetric, spec);
         indexesToCleanUp.add(newIndexName);
 
-        IndexModel newIndex = controlPlaneClient.describeIndex(newIndexName);
+        IndexModel newIndex = pineconeClient.describeIndex(newIndexName);
         assertEquals(newIndex.getName(), newIndexName);
         assertEquals(newIndex.getMetric(), targetMetric);
-
-        dataPlaneConnection.close();
     }
 
     @Test
     public void testCreateCollectionFromInvalidIndex() {
         try {
             CreateCollectionRequest createCollectionRequest = new CreateCollectionRequest().name(RandomStringBuilder.build("coll1", 8)).source("invalid-index");
-            controlPlaneClient.createCollection(createCollectionRequest);
+            pineconeClient.createCollection(createCollectionRequest);
         } catch (PineconeException exception) {
             logger.info("Exception: " + exception.getMessage());
             assertTrue(exception.getMessage().contains("Resource invalid-index not found"));
@@ -206,7 +202,7 @@ public class CollectionTest {
             CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().environment(environment).sourceCollection("non-existent-collection");
             CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(podSpec);
             CreateIndexRequest newCreateIndexRequest = new CreateIndexRequest().name(RandomStringBuilder.build("from-nonexistent-coll", 8)).dimension(dimension).metric(IndexMetric.COSINE).spec(spec);
-            controlPlaneClient.createIndex(newCreateIndexRequest);
+            pineconeClient.createIndex(newCreateIndexRequest);
         } catch (PineconeException exception) {
             logger.info("Exception: " + exception.getMessage());
             assertTrue(exception.getMessage().contains("Resource non-existent-collection not found"));
@@ -236,7 +232,7 @@ public class CollectionTest {
             CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().sourceCollection(collection.getName()).environment(mismatchedEnv);
             CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(podSpec);
             CreateIndexRequest createIndexRequest = new CreateIndexRequest().name(RandomStringBuilder.build("from-coll", 8)).dimension(dimension).metric(IndexMetric.COSINE).spec(spec);
-            controlPlaneClient.createIndex(createIndexRequest);
+            pineconeClient.createIndex(createIndexRequest);
         } catch (PineconeException exception) {
             logger.info("Exception: " + exception.getMessage());
             assertTrue(exception.getMessage().contains("Source collection must be in the same environment as the index"));
@@ -250,7 +246,7 @@ public class CollectionTest {
             CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().sourceCollection(collection.getName()).environment(collection.getEnvironment());
             CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(podSpec);
             CreateIndexRequest createIndexRequest = new CreateIndexRequest().name(RandomStringBuilder.build("from-coll", 8)).dimension(dimension + 1).metric(IndexMetric.COSINE).spec(spec);
-            controlPlaneClient.createIndex(createIndexRequest);
+            pineconeClient.createIndex(createIndexRequest);
         } catch (PineconeException exception) {
             logger.info("Exception: " + exception.getMessage());
             assertTrue(exception.getMessage().contains("Index and collection must have the same dimension"));
@@ -265,10 +261,10 @@ public class CollectionTest {
             CreateIndexRequestSpecPod specPod = new CreateIndexRequestSpecPod().pods(1).podType("p1.x1").replicas(1).environment(environment);
             CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(specPod);
             CreateIndexRequest createIndexRequest = new CreateIndexRequest().name(notReadyIndexName).dimension(dimension).metric(IndexMetric.COSINE).spec(spec);
-            controlPlaneClient.createIndex(createIndexRequest);
+            pineconeClient.createIndex(createIndexRequest);
             indexesToCleanUp.add(notReadyIndexName);
 
-            createCollection(controlPlaneClient, newCollectionName, notReadyIndexName, true);
+            createCollection(pineconeClient, newCollectionName, notReadyIndexName, true);
         } catch (PineconeException exception) {
             logger.info("Exception: " + exception.getMessage());
             assert (exception.getMessage().contains("Source index is not ready"));

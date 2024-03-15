@@ -3,6 +3,7 @@ package io.pinecone.integration.dataPlane;
 import com.google.protobuf.Struct;
 import io.pinecone.clients.Index;
 import io.pinecone.clients.AsyncIndex;
+import io.pinecone.clients.Pinecone;
 import io.pinecone.configs.PineconeConnection;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.helpers.RandomStringBuilder;
@@ -18,28 +19,31 @@ import static io.pinecone.helpers.AssertRetry.assertWithRetry;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
+import java.util.AbstractMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class UpsertAndQueryPodTest {
-    private static PineconeConnection connection;
+    private static Pinecone pineconeClient;
+    private static String indexName;
+    private static Index indexClient;
+    private static AsyncIndex asyncIndexClient;
     private static final int dimension = 3;
     private static final Struct emptyFilterStruct = Struct.newBuilder().build();
 
     @BeforeAll
     public static void setUp() throws IOException, InterruptedException {
-        connection = createIndexIfNotExistsDataPlane(dimension, IndexModelSpec.SERIALIZED_NAME_POD);}
-
-    @AfterAll
-    public static void cleanUp() {
-        connection.close();
+        AbstractMap.SimpleEntry<String, Pinecone> indexAndClient = createIndexIfNotExistsDataPlane(dimension, IndexModelSpec.SERIALIZED_NAME_POD);
+        indexName = indexAndClient.getKey();
+        pineconeClient = indexAndClient.getValue();
+        indexClient = pineconeClient.createIndexConnection(indexName);
+        asyncIndexClient = pineconeClient.createAsyncIndexConnection(indexName);
     }
 
     @Test
     public void upsertOptionalVectorsAndQueryIndexSyncTest() throws InterruptedException {
         int numOfVectors = 5;
-        Index dataPlaneClient = new Index(connection);
-        DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(emptyFilterStruct);
+        DescribeIndexStatsResponse describeIndexStatsResponse1 = indexClient.describeIndexStats(emptyFilterStruct);
         // Confirm the starting state by verifying the dimension of the index
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
 
@@ -52,7 +56,7 @@ public class UpsertAndQueryPodTest {
         List<Float> sparseValues = generateVectorValuesByDimension(dimension);
         Struct metadataStruct = generateMetadataStruct();
         for (String id : upsertIds) {
-            UpsertResponse upsertResponse = dataPlaneClient.upsert(id,
+            UpsertResponse upsertResponse = indexClient.upsert(id,
                     values,
                     sparseIndices,
                     sparseValues,
@@ -62,7 +66,7 @@ public class UpsertAndQueryPodTest {
 
         // Query by vector to verify
         assertWithRetry(() -> {
-            QueryResponseWithUnsignedIndices queryResponse = dataPlaneClient.query(
+            QueryResponseWithUnsignedIndices queryResponse = indexClient.query(
                     topK,
                     values,
                     sparseIndices,
@@ -100,11 +104,10 @@ public class UpsertAndQueryPodTest {
 
     @Test
     public void upsertNullSparseIndicesNotNullSparseValuesSyncTest() {
-        Index dataPlaneClient = new Index(connection);
         String id = RandomStringBuilder.build(3);
 
         try {
-            dataPlaneClient.upsert(id,
+            indexClient.upsert(id,
                     generateVectorValuesByDimension(dimension),
                     null,
                     generateVectorValuesByDimension(dimension),
@@ -118,8 +121,7 @@ public class UpsertAndQueryPodTest {
     @Test
     public void upsertOptionalVectorsAndQueryIndexFutureTest() throws InterruptedException, ExecutionException {
         int numOfVectors = 5;
-        AsyncIndex dataPlaneClient = new AsyncIndex(connection);
-        DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(emptyFilterStruct).get();
+        DescribeIndexStatsResponse describeIndexStatsResponse1 = asyncIndexClient.describeIndexStats(emptyFilterStruct).get();
         // Confirm the starting state by verifying the dimension of the index
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
 
@@ -132,7 +134,7 @@ public class UpsertAndQueryPodTest {
         List<Float> sparseValues = generateVectorValuesByDimension(dimension);
         Struct metadataStruct = generateMetadataStruct();
         for (String id : upsertIds) {
-            UpsertResponse upsertResponse = dataPlaneClient.upsert(id,
+            UpsertResponse upsertResponse = asyncIndexClient.upsert(id,
                     values,
                     sparseIndices,
                     sparseValues,
@@ -142,7 +144,7 @@ public class UpsertAndQueryPodTest {
 
         // Query by vector to verify
         assertWithRetry(() -> {
-            QueryResponseWithUnsignedIndices queryResponse = dataPlaneClient.query(
+            QueryResponseWithUnsignedIndices queryResponse = asyncIndexClient.query(
                     topK,
                     values,
                     sparseIndices,
@@ -183,10 +185,9 @@ public class UpsertAndQueryPodTest {
 
     @Test
     public void upsertNullSparseIndicesNotNullSparseValuesFutureTest() {
-        AsyncIndex dataPlaneClient = new AsyncIndex(connection);
         String id = RandomStringBuilder.build(3);
         try {
-            dataPlaneClient.upsert(id,
+            asyncIndexClient.upsert(id,
                     generateVectorValuesByDimension(dimension),
                     null,
                     generateVectorValuesByDimension(dimension),

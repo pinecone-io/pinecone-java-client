@@ -3,6 +3,7 @@ package io.pinecone.integration.dataPlane;
 import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
 import io.grpc.StatusRuntimeException;
+import io.pinecone.clients.Pinecone;
 import io.pinecone.configs.PineconeConnection;
 import io.pinecone.clients.Index;
 import io.pinecone.clients.AsyncIndex;
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.openapitools.client.model.IndexModelSpec;
 
 import java.io.IOException;
+import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -29,17 +31,19 @@ import static io.pinecone.helpers.IndexManager.createIndexIfNotExistsDataPlane;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class UpdateFetchAndQueryPodTest {
-    private static PineconeConnection connection;
+    private static Pinecone pineconeClient;
+    private static String indexName;
+    private static Index indexClient;
+    private static AsyncIndex asyncIndexClient;
     private static final int dimension = 3;
 
     @BeforeAll
     public static void setUp() throws IOException, InterruptedException {
-        connection = createIndexIfNotExistsDataPlane(dimension, IndexModelSpec.SERIALIZED_NAME_POD);
-    }
-
-    @AfterAll
-    public static void cleanUp() {
-        connection.close();
+        AbstractMap.SimpleEntry<String, Pinecone> indexAndClient  = createIndexIfNotExistsDataPlane(dimension, IndexModelSpec.SERIALIZED_NAME_POD);
+        indexName = indexAndClient.getKey();
+        pineconeClient = indexAndClient.getValue();
+        indexClient = pineconeClient.createIndexConnection(indexName);
+        asyncIndexClient = pineconeClient.createAsyncIndexConnection(indexName);
     }
 
     @Test
@@ -48,14 +52,13 @@ public class UpdateFetchAndQueryPodTest {
         int numOfVectors = 3;
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
-        Index dataPlaneClient = new Index(connection);
         for (String id : upsertIds) {
-            dataPlaneClient.upsert(id, generateVectorValuesByDimension(dimension), namespace);
+            indexClient.upsert(id, generateVectorValuesByDimension(dimension), namespace);
         }
 
         // Verify the upserted vector count with fetch
         assertWithRetry(() -> {
-            FetchResponse fetchResponse = dataPlaneClient.fetch(upsertIds, namespace);
+            FetchResponse fetchResponse = indexClient.fetch(upsertIds, namespace);
             assertEquals(fetchResponse.getVectorsCount(), upsertIds.size());
             for (String key : upsertIds) {
                 assert (fetchResponse.containsVectors(key));
@@ -65,11 +68,11 @@ public class UpdateFetchAndQueryPodTest {
         // Update required fields only
         String idToUpdate = upsertIds.get(0);
         List<Float> updatedValues = Arrays.asList(101F, 102F, 103F);
-        dataPlaneClient.update(idToUpdate, updatedValues, null, namespace, null, null);
+        indexClient.update(idToUpdate, updatedValues, null, namespace, null, null);
 
         // Query by ID to verify
         assertWithRetry(() -> {
-            QueryResponseWithUnsignedIndices queryResponse = dataPlaneClient.query(1,
+            QueryResponseWithUnsignedIndices queryResponse = indexClient.query(1,
                     null,
                     null,
                     null,
@@ -90,8 +93,7 @@ public class UpdateFetchAndQueryPodTest {
         int numOfSparseVectors = 2;
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
-        Index dataPlaneClient = new Index(connection);
-        DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(null);
+        DescribeIndexStatsResponse describeIndexStatsResponse1 = indexClient.describeIndexStats(null);
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
         List<List<Long>> sparseIndicesList = getSparseIndicesList(numOfSparseVectors, dimension);
         List<List<Float>> sparseValuesList = getValuesListLists(numOfSparseVectors, dimension);
@@ -99,7 +101,7 @@ public class UpdateFetchAndQueryPodTest {
         // upsert vectors with required + optional parameters
         int index = 0;
         for (int i = index; i < numOfSparseVectors; i++) {
-            dataPlaneClient.upsert(upsertIds.get(i),
+            indexClient.upsert(upsertIds.get(i),
                     generateVectorValuesByDimension(dimension),
                     sparseIndicesList.get(i),
                     sparseValuesList.get(i),
@@ -109,7 +111,7 @@ public class UpdateFetchAndQueryPodTest {
         }
 
         for (int j = index; j < numOfVectors; j++) {
-            dataPlaneClient.upsert(
+            indexClient.upsert(
                     upsertIds.get(j),
                     generateVectorValuesByDimension(dimension),
                     namespace);
@@ -117,7 +119,7 @@ public class UpdateFetchAndQueryPodTest {
 
         // Verify the upserted vector count with fetch
         assertWithRetry(() -> {
-            FetchResponse fetchResponse = dataPlaneClient.fetch(upsertIds, namespace);
+            FetchResponse fetchResponse = indexClient.fetch(upsertIds, namespace);
             assertEquals(fetchResponse.getVectorsCount(), upsertIds.size());
             for (String key : upsertIds) {
                 assert (fetchResponse.containsVectors(key));
@@ -135,11 +137,11 @@ public class UpdateFetchAndQueryPodTest {
                 .build();
 
         // Update required+optional fields
-        dataPlaneClient.update(idToUpdate, valuesToUpdate, metadataToUpdate, namespace, null, null);
+        indexClient.update(idToUpdate, valuesToUpdate, metadataToUpdate, namespace, null, null);
 
         // Query by vector to verify
         assertWithRetry(() -> {
-            QueryResponseWithUnsignedIndices queryResponse = dataPlaneClient.query(
+            QueryResponseWithUnsignedIndices queryResponse = indexClient.query(
                     5,
                     valuesToUpdate,
                     null,
@@ -171,17 +173,16 @@ public class UpdateFetchAndQueryPodTest {
         int numOfVectors = 3;
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
-        Index dataPlaneClient = new Index(connection);
 
         for (String id : upsertIds) {
-            dataPlaneClient.upsert(id,
+            indexClient.upsert(id,
                     generateVectorValuesByDimension(dimension),
                     namespace);
         }
 
         // Verify the upserted vector count with fetch
         assertWithRetry(() -> {
-            FetchResponse fetchResponse = dataPlaneClient.fetch(upsertIds, namespace);
+            FetchResponse fetchResponse = indexClient.fetch(upsertIds, namespace);
             assertEquals(fetchResponse.getVectorsCount(), upsertIds.size());
             for (String key : upsertIds) {
                 assert (fetchResponse.containsVectors(key));
@@ -194,7 +195,7 @@ public class UpdateFetchAndQueryPodTest {
 
         // Should fail since only 1 value is added for the vector of dimension 3
         try {
-            dataPlaneClient.update(idToUpdate, updatedValues, null, namespace, null, null);
+            indexClient.update(idToUpdate, updatedValues, null, namespace, null, null);
         } catch (StatusRuntimeException statusRuntimeException) {
             assert (statusRuntimeException.getTrailers().toString().contains("grpc-status=3"));
             assert (statusRuntimeException.getTrailers().toString().contains("Vector dimension 1 does not match the dimension of the index 3"));
@@ -210,12 +211,12 @@ public class UpdateFetchAndQueryPodTest {
         int numOfVectors = 3;
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
-        Index dataPlaneClient = new Index(connection);
-        DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(null);
+
+        DescribeIndexStatsResponse describeIndexStatsResponse1 = indexClient.describeIndexStats(null);
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
 
         for (int i = 0; i < upsertIds.size(); i++) {
-            dataPlaneClient.upsert(upsertIds.get(0),
+            indexClient.upsert(upsertIds.get(0),
                     generateVectorValuesByDimension(dimension),
                     generateSparseIndicesByDimension(dimension),
                     generateVectorValuesByDimension(dimension),
@@ -233,7 +234,7 @@ public class UpdateFetchAndQueryPodTest {
                 .build();
 
         assertWithRetry(() -> {
-            QueryResponseWithUnsignedIndices queryResponse = dataPlaneClient.queryByVectorId(3,
+            QueryResponseWithUnsignedIndices queryResponse = indexClient.queryByVectorId(3,
                     upsertIds.get(0),
                     namespace,
                     filter,
@@ -247,11 +248,10 @@ public class UpdateFetchAndQueryPodTest {
 
     @Test
     public void updateNullSparseIndicesNotNullSparseValuesSyncTest() {
-        Index dataPlaneClient = new Index(connection);
         String id = RandomStringBuilder.build(3);
 
         try {
-            dataPlaneClient.update(id,
+            indexClient.update(id,
                     generateVectorValuesByDimension(dimension),
                     null,
                     null,
@@ -268,14 +268,13 @@ public class UpdateFetchAndQueryPodTest {
         int numOfVectors = 3;
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
-        AsyncIndex dataPlaneClient = new AsyncIndex(connection);
         for (String id : upsertIds) {
-            dataPlaneClient.upsert(id, generateVectorValuesByDimension(dimension), namespace);
+            asyncIndexClient.upsert(id, generateVectorValuesByDimension(dimension), namespace);
         }
 
         // Verify the upserted vector count with fetch
         assertWithRetry(() -> {
-            FetchResponse fetchResponse = dataPlaneClient.fetch(upsertIds, namespace).get();
+            FetchResponse fetchResponse = asyncIndexClient.fetch(upsertIds, namespace).get();
             assertEquals(fetchResponse.getVectorsCount(), upsertIds.size());
             for (String key : upsertIds) {
                 assert (fetchResponse.containsVectors(key));
@@ -285,11 +284,11 @@ public class UpdateFetchAndQueryPodTest {
         // Update required fields only
         String idToUpdate = upsertIds.get(0);
         List<Float> updatedValues = Arrays.asList(101F, 102F, 103F);
-        dataPlaneClient.update(idToUpdate, updatedValues, null, namespace, null, null);
+        asyncIndexClient.update(idToUpdate, updatedValues, null, namespace, null, null);
 
         // Query by ID to verify
         assertWithRetry(() -> {
-            QueryResponseWithUnsignedIndices queryResponse = dataPlaneClient.query(1,
+            QueryResponseWithUnsignedIndices queryResponse = asyncIndexClient.query(1,
                     null,
                     null,
                     null,
@@ -310,8 +309,7 @@ public class UpdateFetchAndQueryPodTest {
         int numOfSparseVectors = 2;
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
-        AsyncIndex dataPlaneClient = new AsyncIndex(connection);
-        DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(null).get();
+        DescribeIndexStatsResponse describeIndexStatsResponse1 = asyncIndexClient.describeIndexStats(null).get();
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
         List<List<Long>> sparseIndicesList = getSparseIndicesList(numOfSparseVectors, dimension);
         List<List<Float>> sparseValuesList = getValuesListLists(numOfSparseVectors, dimension);
@@ -319,7 +317,7 @@ public class UpdateFetchAndQueryPodTest {
         // upsert vectors with required + optional parameters
         int index = 0;
         for (int i = index; i < numOfSparseVectors; i++) {
-            dataPlaneClient.upsert(upsertIds.get(i),
+            asyncIndexClient.upsert(upsertIds.get(i),
                     generateVectorValuesByDimension(dimension),
                     sparseIndicesList.get(i),
                     sparseValuesList.get(i),
@@ -329,7 +327,7 @@ public class UpdateFetchAndQueryPodTest {
         }
 
         for (int j = index; j < numOfVectors; j++) {
-            dataPlaneClient.upsert(
+            asyncIndexClient.upsert(
                     upsertIds.get(j),
                     generateVectorValuesByDimension(dimension),
                     namespace);
@@ -337,7 +335,7 @@ public class UpdateFetchAndQueryPodTest {
 
         // Verify the upserted vector count with fetch
         assertWithRetry(() -> {
-            FetchResponse fetchResponse = dataPlaneClient.fetch(upsertIds, namespace).get();
+            FetchResponse fetchResponse = asyncIndexClient.fetch(upsertIds, namespace).get();
             assertEquals(fetchResponse.getVectorsCount(), upsertIds.size());
             for (String key : upsertIds) {
                 assert (fetchResponse.containsVectors(key));
@@ -355,11 +353,11 @@ public class UpdateFetchAndQueryPodTest {
                 .build();
 
         // Update required+optional fields
-        dataPlaneClient.update(idToUpdate, valuesToUpdate, metadataToUpdate, namespace, null, null);
+        asyncIndexClient.update(idToUpdate, valuesToUpdate, metadataToUpdate, namespace, null, null);
 
         // Query by vector to verify
         assertWithRetry(() -> {
-            QueryResponseWithUnsignedIndices queryResponse = dataPlaneClient.query(
+            QueryResponseWithUnsignedIndices queryResponse = asyncIndexClient.query(
                     5,
                     valuesToUpdate,
                     null,
@@ -391,17 +389,16 @@ public class UpdateFetchAndQueryPodTest {
         int numOfVectors = 3;
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
-        AsyncIndex dataPlaneClient = new AsyncIndex(connection);
 
         for (String id : upsertIds) {
-            dataPlaneClient.upsert(id,
+            asyncIndexClient.upsert(id,
                     generateVectorValuesByDimension(dimension),
                     namespace);
         }
 
         // Verify the upserted vector count with fetch
         assertWithRetry(() -> {
-            FetchResponse fetchResponse = dataPlaneClient.fetch(upsertIds, namespace).get();
+            FetchResponse fetchResponse = asyncIndexClient.fetch(upsertIds, namespace).get();
             assertEquals(fetchResponse.getVectorsCount(), upsertIds.size());
             for (String key : upsertIds) {
                 assert (fetchResponse.containsVectors(key));
@@ -414,7 +411,7 @@ public class UpdateFetchAndQueryPodTest {
 
         // Should fail since only 1 value is added for the vector of dimension 3
         try {
-            dataPlaneClient.update(idToUpdate, updatedValues, null, namespace, null, null);
+            asyncIndexClient.update(idToUpdate, updatedValues, null, namespace, null, null);
         } catch (StatusRuntimeException statusRuntimeException) {
             assert (statusRuntimeException.getTrailers().toString().contains("grpc-status=3"));
             assert (statusRuntimeException.getTrailers().toString().contains("Vector dimension 1 does not match the dimension of the index 3"));
@@ -430,12 +427,12 @@ public class UpdateFetchAndQueryPodTest {
         int numOfVectors = 3;
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
-        AsyncIndex dataPlaneClient = new AsyncIndex(connection);
-        DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(null).get();
+
+        DescribeIndexStatsResponse describeIndexStatsResponse1 = asyncIndexClient.describeIndexStats(null).get();
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
 
         for (int i = 0; i < upsertIds.size(); i++) {
-            dataPlaneClient.upsert(upsertIds.get(0),
+            asyncIndexClient.upsert(upsertIds.get(0),
                     generateVectorValuesByDimension(dimension),
                     generateSparseIndicesByDimension(dimension),
                     generateVectorValuesByDimension(dimension),
@@ -453,7 +450,7 @@ public class UpdateFetchAndQueryPodTest {
                 .build();
 
         assertWithRetry(() -> {
-            QueryResponseWithUnsignedIndices queryResponse = dataPlaneClient.queryByVectorId(3,
+            QueryResponseWithUnsignedIndices queryResponse = asyncIndexClient.queryByVectorId(3,
                     upsertIds.get(0),
                     namespace,
                     filter,
@@ -467,11 +464,10 @@ public class UpdateFetchAndQueryPodTest {
 
     @Test
     public void updateNullSparseIndicesNotNullSparseValuesFutureTest() {
-        AsyncIndex dataPlaneClient = new AsyncIndex(connection);
         String id = RandomStringBuilder.build(3);
 
         try {
-            dataPlaneClient.update(id,
+            asyncIndexClient.update(id,
                     generateVectorValuesByDimension(dimension),
                     null,
                     null,

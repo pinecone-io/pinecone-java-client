@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.AbstractMap;
 import java.util.List;
 
 import static io.pinecone.helpers.AssertRetry.assertWithRetry;
@@ -19,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class IndexManager {
     private static final Logger logger = LoggerFactory.getLogger(IndexManager.class);
 
-    public static PineconeConnection createIndexIfNotExistsDataPlane(int dimension, String indexType) throws IOException, InterruptedException {
+    public static AbstractMap.SimpleEntry<String, Pinecone> createIndexIfNotExistsDataPlane(int dimension, String indexType) throws IOException, InterruptedException {
         String apiKey = System.getenv("PINECONE_API_KEY");
         Pinecone pinecone = new Pinecone(apiKey);
 
@@ -29,11 +30,7 @@ public class IndexManager {
         // Do not proceed until the newly created index is ready
         waitUntilIndexIsReady(pinecone, indexName);
 
-        // Adding to test PineconeConnection(pineconeConfig, host) constructor
-        String host = pinecone.describeIndex(indexName).getHost();
-        PineconeConfig config = new PineconeConfig(apiKey);
-        config.setHost(host);
-        return new PineconeConnection(config);
+        return new AbstractMap.SimpleEntry<>(indexName, pinecone);
     }
 
     public static String findIndexWithDimensionAndType(Pinecone pinecone, int dimension, String indexType) {
@@ -103,18 +100,26 @@ public class IndexManager {
         return waitUntilIndexIsReady(pinecone, indexName, 300000);
     }
 
-    public static PineconeConnection createNewIndexAndConnect(Pinecone pinecone, String indexName, int dimension, IndexMetric metric, CreateIndexRequestSpec spec, boolean waitUntilIndexIsReady) throws InterruptedException, PineconeException {
-        String apiKey = System.getenv("PINECONE_API_KEY");
+    public static Pinecone createNewIndex(Pinecone pinecone, String indexName, int dimension, IndexMetric metric, CreateIndexRequestSpec spec, boolean waitUntilIndexIsReady) throws InterruptedException, PineconeException {
+        CreateIndexRequest createIndexRequest = new CreateIndexRequest().name(indexName).dimension(dimension).metric(metric).spec(spec);
+        pinecone.createIndex(createIndexRequest);
+
+        if (waitUntilIndexIsReady) {
+            waitUntilIndexIsReady(pinecone, indexName);
+        }
+        return pinecone;
+    }
+
+    public static Index createNewIndexAndConnect(Pinecone pinecone, String indexName, int dimension, IndexMetric metric, CreateIndexRequestSpec spec) throws InterruptedException, PineconeException {
         CreateIndexRequest createIndexRequest = new CreateIndexRequest().name(indexName).dimension(dimension).metric(metric).spec(spec);
         pinecone.createIndex(createIndexRequest);
 
         // Wait until index is ready
         waitUntilIndexIsReady(pinecone, indexName);
         // wait a bit more before we connect...
-        Thread.sleep(15000);
+        Thread.sleep(5000);
 
-        PineconeConfig config = new PineconeConfig(apiKey);
-        return new PineconeConnection(config, indexName);
+        return pinecone.createIndexConnection(indexName);
     }
 
     public static CollectionModel createCollection(Pinecone pinecone, String collectionName, String indexName, boolean waitUntilReady) throws InterruptedException {
