@@ -52,10 +52,10 @@ public class CollectionTest {
         assertWithRetry(() -> indexClient.upsert(buildRequiredUpsertRequestByDimension(upsertIds, dimension), namespace), 3);
 
         // Create collection from index
-        collection = createCollection(pineconeClient, collectionName, indexName, false);
+        collection = createCollection(pineconeClient, collectionName, indexName, true);
         assertEquals(collection.getName(), collectionName);
         assertEquals(collection.getEnvironment(), environment);
-        assertEquals(collection.getStatus(), CollectionModel.StatusEnum.INITIALIZING);
+        assertEquals(collection.getStatus(), CollectionModel.StatusEnum.READY);
     }
 
     @AfterAll

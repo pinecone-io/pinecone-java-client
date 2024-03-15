@@ -162,7 +162,7 @@ public class UpsertAndQueryServerlessTest {
         asyncIndex.upsert(vectors, namespace).get();
 
         // wait sometime for the vectors to be upserted
-        Thread.sleep(5000);
+        Thread.sleep(7500);
 
         // Query by vector to verify
         assertWithRetry(() -> {
