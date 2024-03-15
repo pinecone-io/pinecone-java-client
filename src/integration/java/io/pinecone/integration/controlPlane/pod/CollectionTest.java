@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class CollectionTest {
     private static final String indexName = RandomStringBuilder.build("collection-test", 8);
     private static final String collectionName = RandomStringBuilder.build("collection-test", 8);
-    private static final ArrayList<String> indexes = new ArrayList<>();
+    private static final ArrayList<String> indexesToCleanUp = new ArrayList<>();
     private static final IndexMetric indexMetric = IndexMetric.COSINE;
     private static final List<String> upsertIds = Arrays.asList("v1", "v2", "v3");
     private static final String namespace = RandomStringBuilder.build("ns", 8);
@@ -47,7 +47,7 @@ public class CollectionTest {
         PineconeConnection dataPlaneConnection = createNewIndexAndConnect(controlPlaneClient, indexName, dimension,
                 indexMetric, spec, true);
         VectorServiceGrpc.VectorServiceBlockingStub blockingStub = dataPlaneConnection.getBlockingStub();
-        indexes.add(indexName);
+        indexesToCleanUp.add(indexName);
 
         // Sometimes we see grpc failures when upserting so quickly after creating, so retry if so
         assertWithRetry(() -> blockingStub.upsert(buildRequiredUpsertRequestByDimension(upsertIds, dimension,
@@ -67,7 +67,7 @@ public class CollectionTest {
         Thread.sleep(2500);
 
         // Clean up indexes
-        for (String index : indexes) {
+        for (String index : indexesToCleanUp) {
             controlPlaneClient.deleteIndex(index);
         }
 
@@ -128,7 +128,8 @@ public class CollectionTest {
         CreateIndexRequest newCreateIndexRequest =
                 new CreateIndexRequest().name(newIndexName).dimension(dimension).metric(indexMetric).spec(spec);
         controlPlaneClient.createIndex(newCreateIndexRequest);
-        indexes.add(newIndexName);
+        indexesToCleanUp.add(newIndexName);
+
         logger.info("Index " + newIndexName + " created from collection " + collectionName + ". Waiting until index " +
                 "is ready...");
         waitUntilIndexIsReady(controlPlaneClient, newIndexName, 300000);
@@ -158,7 +159,7 @@ public class CollectionTest {
             for (String key : upsertIds) {
                 assert (fetchedVectors.containsVectors(key));
             }
-        }, 1);
+        });
 
         connection.close();
     }
@@ -180,7 +181,7 @@ public class CollectionTest {
         CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(podSpec);
         PineconeConnection dataPlaneConnection = createNewIndexAndConnect(controlPlaneClient, newIndexName, dimension
                 , targetMetric, spec, false);
-        indexes.add(newIndexName);
+        indexesToCleanUp.add(newIndexName);
 
         IndexModel newIndex = controlPlaneClient.describeIndex(newIndexName);
         assertEquals(newIndex.getName(), newIndexName);
@@ -265,7 +266,7 @@ public class CollectionTest {
             CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(specPod);
             CreateIndexRequest createIndexRequest = new CreateIndexRequest().name(notReadyIndexName).dimension(dimension).metric(IndexMetric.COSINE).spec(spec);
             controlPlaneClient.createIndex(createIndexRequest);
-            indexes.add(notReadyIndexName);
+            indexesToCleanUp.add(notReadyIndexName);
 
             createCollection(controlPlaneClient, newCollectionName, notReadyIndexName, true);
         } catch (PineconeException exception) {
