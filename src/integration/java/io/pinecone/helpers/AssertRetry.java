@@ -10,7 +10,7 @@ public class AssertRetry {
     private static final int delay = 1500;
 
     public static void assertWithRetry(AssertionRunnable assertionRunnable) throws InterruptedException, PineconeException {
-        assertWithRetry(assertionRunnable, 2);
+        assertWithRetry(assertionRunnable, 3);
     }
 
     public static void assertWithRetry(AssertionRunnable assertionRunnable, int backOff) throws AssertionError, InterruptedException {
