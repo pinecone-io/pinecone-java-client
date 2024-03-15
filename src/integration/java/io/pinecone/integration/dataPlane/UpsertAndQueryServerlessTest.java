@@ -39,7 +39,7 @@ public class UpsertAndQueryServerlessTest {
         Pinecone pinecone = new Pinecone(apiKey);
 
         String indexName = findIndexWithDimensionAndType(pinecone, dimension, indexType);
-        if (indexName.isEmpty()) indexName = createNewIndex(pinecone, dimension, indexType);
+        if (indexName.isEmpty()) indexName = createNewIndex(pinecone, dimension, indexType, true);
         index = pinecone.createIndexConnection(indexName);
         asyncIndex = pinecone.createAsyncIndexConnection(indexName);
     }

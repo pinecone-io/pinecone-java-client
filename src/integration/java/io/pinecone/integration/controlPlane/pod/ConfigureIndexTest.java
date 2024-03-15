@@ -65,7 +65,7 @@ public class ConfigureIndexTest {
     @Test
     public void scaleUpAndDown() throws InterruptedException {
         // Verify the starting state
-        IndexModel indexModel = waitUntilIndexIsReady(controlPlaneClient, indexName);
+        IndexModel indexModel = controlPlaneClient.describeIndex(indexName);
         assert indexModel.getSpec().getPod() != null;
         assertEquals(1, indexModel.getSpec().getPod().getReplicas());
 
@@ -100,7 +100,7 @@ public class ConfigureIndexTest {
     public void changingBasePodType() throws InterruptedException {
         try {
             // Verify the starting state
-            IndexModel indexModel = waitUntilIndexIsReady(controlPlaneClient, indexName);
+            IndexModel indexModel = controlPlaneClient.describeIndex(indexName);
             assert indexModel.getSpec().getPod() != null;
             assertEquals(1, indexModel.getSpec().getPod().getReplicas());
 
@@ -117,7 +117,7 @@ public class ConfigureIndexTest {
     @Test
     public void sizeIncrease() throws InterruptedException {
         // Verify the starting state
-        IndexModel indexModel = waitUntilIndexIsReady(controlPlaneClient, indexName);
+        IndexModel indexModel = controlPlaneClient.describeIndex(indexName);
         assert indexModel.getSpec().getPod() != null;
         assertEquals("p1.x1", indexModel.getSpec().getPod().getPodType());
 

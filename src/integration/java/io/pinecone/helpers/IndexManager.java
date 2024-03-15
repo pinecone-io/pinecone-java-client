@@ -25,10 +25,7 @@ public class IndexManager {
         Pinecone pinecone = new Pinecone(apiKey);
 
         String indexName = findIndexWithDimensionAndType(pinecone, dimension, indexType);
-        if (indexName.isEmpty()) indexName = createNewIndex(pinecone, dimension, indexType);
-
-        // Do not proceed until the newly created index is ready
-        waitUntilIndexIsReady(pinecone, indexName);
+        if (indexName.isEmpty()) indexName = createNewIndex(pinecone, dimension, indexType, true);
 
         return new AbstractMap.SimpleEntry<>(indexName, pinecone);
     }
@@ -51,7 +48,7 @@ public class IndexManager {
         return indexName;
     }
 
-    public static String createNewIndex(Pinecone pinecone, int dimension, String indexType) {
+    public static String createNewIndex(Pinecone pinecone, int dimension, String indexType, boolean waitUntilIndexIsReady) throws InterruptedException {
         String indexName = RandomStringBuilder.build("index-name", 8);
         String environment = System.getenv("PINECONE_ENVIRONMENT");
         CreateIndexRequestSpec createIndexRequestSpec;
@@ -72,6 +69,10 @@ public class IndexManager {
                 .metric(IndexMetric.DOTPRODUCT)
                 .spec(createIndexRequestSpec);
         pinecone.createIndex(createIndexRequest);
+
+        if (waitUntilIndexIsReady) {
+            waitUntilIndexIsReady(pinecone, indexName);
+        }
 
         return indexName;
     }
@@ -98,7 +99,7 @@ public class IndexManager {
     }
 
     public static IndexModel waitUntilIndexIsReady(Pinecone pinecone, String indexName) throws InterruptedException {
-        return waitUntilIndexIsReady(pinecone, indexName, 300000);
+        return waitUntilIndexIsReady(pinecone, indexName, 200000);
     }
 
     public static Pinecone createNewIndex(Pinecone pinecone, String indexName, int dimension, IndexMetric metric, CreateIndexRequestSpec spec, boolean waitUntilIndexIsReady) throws InterruptedException, PineconeException {
