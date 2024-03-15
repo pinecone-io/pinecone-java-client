@@ -36,34 +36,20 @@ public class IndexManager {
         return new PineconeConnection(config);
     }
 
-    public static String createIndexIfNotExistsControlPlane(Pinecone pinecone, int dimension, String indexType) throws IOException, InterruptedException {
-        String indexName = findIndexWithDimensionAndType(pinecone, dimension, indexType);
-
-        return (indexName.isEmpty()) ? createNewIndex(pinecone, dimension, indexType) : indexName;
-    }
-
-    public static String findIndexWithDimensionAndType(Pinecone pinecone, int dimension, String indexType)
-            throws InterruptedException {
+    public static String findIndexWithDimensionAndType(Pinecone pinecone, int dimension, String indexType) {
         String indexName = "";
-        int i = 0;
         List<IndexModel> indexModels = pinecone.listIndexes().getIndexes();
         if(indexModels == null) {
             return indexName;
         }
-        while (i < indexModels.size()) {
-            IndexModel indexModel = waitUntilIndexIsReady(pinecone, indexModels.get(i).getName());
+
+        for (IndexModel indexModel : indexModels) {
             if (indexModel.getDimension() == dimension
-                    &&
-                    (
-                            indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_POD)
-                                    && indexModel.getSpec().getPod() != null
-                                    && indexModel.getSpec().getPod().getReplicas() == 1
-                                    && indexModel.getSpec().getPod().getPodType().equalsIgnoreCase("p1.x1")
-                    )
-                    || (indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_SERVERLESS))) {
+                && (indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_POD) && indexModel.getSpec().getPod() != null)
+                || (indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_SERVERLESS) && indexModel.getSpec().getServerless() != null)
+            ) {
                 return indexModel.getName();
             }
-            i++;
         }
         return indexName;
     }
@@ -117,7 +103,7 @@ public class IndexManager {
         return waitUntilIndexIsReady(pinecone, indexName, 300000);
     }
 
-    public static PineconeConnection createNewIndexAndConnect(Pinecone pinecone, String indexName, int dimension, IndexMetric metric, CreateIndexRequestSpec spec) throws InterruptedException, PineconeException {
+    public static PineconeConnection createNewIndexAndConnect(Pinecone pinecone, String indexName, int dimension, IndexMetric metric, CreateIndexRequestSpec spec, boolean waitUntilIndexIsReady) throws InterruptedException, PineconeException {
         String apiKey = System.getenv("PINECONE_API_KEY");
         CreateIndexRequest createIndexRequest = new CreateIndexRequest().name(indexName).dimension(dimension).metric(metric).spec(spec);
         pinecone.createIndex(createIndexRequest);

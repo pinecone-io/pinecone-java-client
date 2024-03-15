@@ -45,7 +45,7 @@ public class CollectionTest {
                 new CreateIndexRequestSpecPod().pods(1).podType("p1.x1").replicas(1).environment(environment);
         CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(podSpec);
         PineconeConnection dataPlaneConnection = createNewIndexAndConnect(controlPlaneClient, indexName, dimension,
-                indexMetric, spec);
+                indexMetric, spec, true);
         VectorServiceGrpc.VectorServiceBlockingStub blockingStub = dataPlaneConnection.getBlockingStub();
         indexes.add(indexName);
 
@@ -119,7 +119,7 @@ public class CollectionTest {
         assertTrue(collection.getSize() > 0);
 
         // Create index from collection
-        String newIndexName = RandomStringBuilder.build("index-from-col", 5);
+        String newIndexName = RandomStringBuilder.build("from-col", 5);
         logger.info("Creating index " + newIndexName + " from collection " + collectionName);
 
         CreateIndexRequestSpecPod podSpec =
@@ -179,7 +179,7 @@ public class CollectionTest {
                 new CreateIndexRequestSpecPod().environment(environment).sourceCollection(collectionName);
         CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(podSpec);
         PineconeConnection dataPlaneConnection = createNewIndexAndConnect(controlPlaneClient, newIndexName, dimension
-                , targetMetric, spec);
+                , targetMetric, spec, false);
         indexes.add(newIndexName);
 
         IndexModel newIndex = controlPlaneClient.describeIndex(newIndexName);
