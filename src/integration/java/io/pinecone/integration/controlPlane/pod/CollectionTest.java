@@ -49,7 +49,7 @@ public class CollectionTest {
         indexesToCleanUp.add(indexName);
 
         // Sometimes we see grpc failures when upserting so quickly after creating, so retry if so
-        assertWithRetry(() -> indexClient.upsert(buildRequiredUpsertRequestByDimension(upsertIds, dimension), namespace), 2);
+        assertWithRetry(() -> indexClient.upsert(buildRequiredUpsertRequestByDimension(upsertIds, dimension), namespace), 3);
 
         // Create collection from index
         collection = createCollection(pineconeClient, collectionName, indexName, true);
