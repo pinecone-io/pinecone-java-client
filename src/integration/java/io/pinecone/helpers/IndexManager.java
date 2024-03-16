@@ -2,8 +2,6 @@ package io.pinecone.helpers;
 
 import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
-import io.pinecone.configs.PineconeConfig;
-import io.pinecone.configs.PineconeConnection;
 import io.pinecone.exceptions.PineconeException;
 import org.openapitools.client.model.*;
 import org.slf4j.Logger;
@@ -13,7 +11,6 @@ import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.List;
 
-import static io.pinecone.helpers.AssertRetry.assertWithRetry;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -54,8 +51,7 @@ public class IndexManager {
         CreateIndexRequestSpec createIndexRequestSpec;
 
         if (indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_POD)) {
-            CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().environment(environment).podType("p1" +
-                    ".x1");
+            CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().environment(environment).podType("p1.x1");
             createIndexRequestSpec = new CreateIndexRequestSpec().pod(podSpec);
         } else {
             ServerlessSpec serverlessSpec =

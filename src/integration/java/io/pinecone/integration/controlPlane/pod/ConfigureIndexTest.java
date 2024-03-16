@@ -8,8 +8,6 @@ import io.pinecone.helpers.RandomStringBuilder;
 import org.junit.jupiter.api.*;
 import org.openapitools.client.model.*;
 
-import java.io.IOException;
-
 import static io.pinecone.helpers.AssertRetry.assertWithRetry;
 import static io.pinecone.helpers.IndexManager.waitUntilIndexIsReady;
 import static org.junit.jupiter.api.Assertions.assertEquals;
