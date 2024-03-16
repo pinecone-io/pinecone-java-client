@@ -63,11 +63,6 @@ public class CollectionTest {
         // wait for things to settle before cleanup...
         Thread.sleep(2500);
 
-        // Clean up indexes
-        for (String index : indexesToCleanUp) {
-            pineconeClient.deleteIndex(index);
-        }
-
         // Verify we can delete the collection
         pineconeClient.deleteCollection(collectionName);
         Thread.sleep(2500);
@@ -85,6 +80,11 @@ public class CollectionTest {
             if (!isCollectionDeleted) {
                 fail("Collection " + collectionName + " was not successfully deleted");
             }
+        }
+
+        // Clean up indexes
+        for (String index : indexesToCleanUp) {
+            pineconeClient.deleteIndex(index);
         }
     }
 
