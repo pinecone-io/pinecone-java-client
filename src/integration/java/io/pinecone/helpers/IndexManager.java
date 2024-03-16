@@ -95,6 +95,7 @@ public class IndexManager {
                 break;
             }
             Thread.sleep(intervalMs);
+            logger.info("Waited " + waitedTimeMs + "ms for " + indexName + " to get ready");
             waitedTimeMs += intervalMs;
         }
         return index;
