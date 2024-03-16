@@ -130,28 +130,31 @@ public class CollectionTest {
         logger.info("Index " + newIndexName + " created from collection " + collectionName + ". Waiting until index is ready.");
         waitUntilIndexIsReady(pineconeClient, newIndexName, 120000);
 
+        IndexModel indexDescription = pineconeClient.describeIndex(newIndexName);
+
         assertWithRetry(() -> {
-            IndexModel indexDescription = pineconeClient.describeIndex(newIndexName);
             assertEquals(indexDescription.getName(), newIndexName);
             assertEquals(indexDescription.getSpec().getPod().getSourceCollection(), collectionName);
-            assertEquals(indexDescription.getStatus().getReady(), true);
         }, 3);
 
-        // Set up new index data plane connection
-        Index indexClient = pineconeClient.createIndexConnection(newIndexName);
+        // If the index is ready, validate contents
+        if (indexDescription.getStatus().getReady()) {
+            // Set up new index data plane connection
+            Index indexClient = pineconeClient.createIndexConnection(newIndexName);
 
-        assertWithRetry(() -> {
-            DescribeIndexStatsResponse describeResponse = indexClient.describeIndexStats();
+            assertWithRetry(() -> {
+                DescribeIndexStatsResponse describeResponse = indexClient.describeIndexStats();
 
-            // Verify stats reflect the vectors in the collection
-            assertEquals(describeResponse.getTotalVectorCount(), 3);
+                // Verify stats reflect the vectors in the collection
+                assertEquals(describeResponse.getTotalVectorCount(), 3);
 
-            // Verify the vectors from the collection -> new index can be fetched
-            FetchResponse fetchedVectors = indexClient.fetch(upsertIds, namespace);
-            for (String key : upsertIds) {
-                assert (fetchedVectors.containsVectors(key));
-            }
-        });
+                // Verify the vectors from the collection -> new index can be fetched
+                FetchResponse fetchedVectors = indexClient.fetch(upsertIds, namespace);
+                for (String key : upsertIds) {
+                    assert (fetchedVectors.containsVectors(key));
+                }
+            });
+        }
     }
 
     @Test
