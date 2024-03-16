@@ -91,7 +91,7 @@ public class IndexManager {
             if (index.getStatus().getReady()) {
                 logger.info("Index " + indexName + " is ready after " + waitedTimeMs + "ms");
                 // Wait one final time before we start connecting and operating on the index
-                Thread.sleep(5000);
+                Thread.sleep(10000);
                 break;
             }
             Thread.sleep(intervalMs);

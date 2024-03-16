@@ -28,7 +28,6 @@ public class ConfigureIndexTest {
         CreateIndexRequest request = new CreateIndexRequest().name(indexName).dimension(5).metric(IndexMetric.COSINE).spec(spec);
         controlPlaneClient.createIndex(request);
         waitUntilIndexIsReady(controlPlaneClient, indexName);
-        Thread.sleep(3000);
     }
 
     @AfterAll
