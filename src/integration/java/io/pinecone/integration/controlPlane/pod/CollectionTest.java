@@ -151,7 +151,7 @@ public class CollectionTest {
                 // Verify the vectors from the collection -> new index can be fetched
                 FetchResponse fetchedVectors = indexClient.fetch(upsertIds, namespace);
                 for (String key : upsertIds) {
-                    assert (fetchedVectors.containsVectors(key));
+                    assertTrue(fetchedVectors.containsVectors(key));
                 }
             });
         }
@@ -185,9 +185,10 @@ public class CollectionTest {
         try {
             CreateCollectionRequest createCollectionRequest = new CreateCollectionRequest().name(RandomStringBuilder.build("coll1", 8)).source("invalid-index");
             pineconeClient.createCollection(createCollectionRequest);
-        } catch (PineconeException exception) {
-            logger.info("Exception: " + exception.getMessage());
-            assertTrue(exception.getMessage().contains("Resource invalid-index not found"));
+
+            fail("testCreateCollectionFromInvalidIndex should have thrown PineconeException");
+        } catch (PineconeException expected) {
+            assertTrue(expected.getMessage().contains("invalid-index not found"));
         }
     }
     @Test
@@ -197,9 +198,10 @@ public class CollectionTest {
             CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(podSpec);
             CreateIndexRequest newCreateIndexRequest = new CreateIndexRequest().name(RandomStringBuilder.build("from-nonexistent-coll", 8)).dimension(dimension).metric(IndexMetric.COSINE).spec(spec);
             pineconeClient.createIndex(newCreateIndexRequest);
-        } catch (PineconeException exception) {
-            logger.info("Exception: " + exception.getMessage());
-            assertTrue(exception.getMessage().contains("Resource non-existent-collection not found"));
+
+            fail("testIndexFromNonExistentCollection should have thrown PineconeException");
+        } catch (PineconeException expected) {
+            assertTrue(expected.getMessage().contains("non-existent-collection not found"));
         }
     }
 
@@ -227,9 +229,10 @@ public class CollectionTest {
             CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(podSpec);
             CreateIndexRequest createIndexRequest = new CreateIndexRequest().name(RandomStringBuilder.build("from-coll", 8)).dimension(dimension).metric(IndexMetric.COSINE).spec(spec);
             pineconeClient.createIndex(createIndexRequest);
-        } catch (PineconeException exception) {
-            logger.info("Exception: " + exception.getMessage());
-            assertTrue(exception.getMessage().contains("Source collection must be in the same environment as the index"));
+
+            fail("testCreateIndexInMismatchedEnvironment should have thrown PineconeException");
+        } catch (PineconeException expected) {
+            assertTrue(expected.getMessage().contains("collection must be in the same environment as the index"));
         }
     }
 
@@ -241,9 +244,10 @@ public class CollectionTest {
             CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(podSpec);
             CreateIndexRequest createIndexRequest = new CreateIndexRequest().name(RandomStringBuilder.build("from-coll", 8)).dimension(dimension + 1).metric(IndexMetric.COSINE).spec(spec);
             pineconeClient.createIndex(createIndexRequest);
-        } catch (PineconeException exception) {
-            logger.info("Exception: " + exception.getMessage());
-            assertTrue(exception.getMessage().contains("Index and collection must have the same dimension"));
+
+            fail("testCreateIndexWithMismatchedDimension should have thrown PineconeException");
+        } catch (PineconeException expected) {
+            assertTrue(expected.getMessage().contains("collection must have the same dimension"));
         }
     }
 
@@ -257,11 +261,11 @@ public class CollectionTest {
             CreateIndexRequest createIndexRequest = new CreateIndexRequest().name(notReadyIndexName).dimension(dimension).metric(IndexMetric.COSINE).spec(spec);
             pineconeClient.createIndex(createIndexRequest);
             indexesToCleanUp.add(notReadyIndexName);
-
             createCollection(pineconeClient, newCollectionName, notReadyIndexName, false);
-        } catch (PineconeException exception) {
-            logger.info("Exception: " + exception.getMessage());
-            assert (exception.getMessage().contains("Source index is not ready"));
+
+            fail("testCreateCollectionFromNotReadyIndex should have thrown PineconeException");
+        } catch (PineconeException expected) {
+            assertTrue(expected.getMessage().contains("index is not ready"));
         }
     }
 }

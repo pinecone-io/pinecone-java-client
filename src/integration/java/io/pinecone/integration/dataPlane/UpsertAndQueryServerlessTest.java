@@ -24,7 +24,7 @@ import static io.pinecone.commons.IndexInterface.buildUpsertVectorWithUnsignedIn
 import static io.pinecone.helpers.AssertRetry.assertWithRetry;
 import static io.pinecone.helpers.BuildUpsertRequest.*;
 import static io.pinecone.helpers.IndexManager.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class UpsertAndQueryServerlessTest {
     private static Index index;
@@ -101,7 +101,7 @@ public class UpsertAndQueryServerlessTest {
             }
 
             // Verify the correct vector id was updated
-            assert scoredVectorV1 != null;
+            assertNotNull(scoredVectorV1);
             assertEquals(scoredVectorV1.getId(), upsertIds.get(0));
 
             // Verify the updated values
@@ -134,8 +134,10 @@ public class UpsertAndQueryServerlessTest {
                     generateVectorValuesByDimension(dimension),
                     null,
                     null);
-        } catch (PineconeValidationException validationException) {
-            assert (validationException.getLocalizedMessage().contains("Invalid upsert request. Please ensure that both sparse indices and values are present."));
+
+            fail("upsertNullSparseIndicesNotNullSparseValuesSyncTest should have thrown PineconeValidationException");
+        } catch (PineconeValidationException expected) {
+            assertTrue(expected.getLocalizedMessage().contains("ensure that both sparse indices and values are present"));
         }
     }
 
@@ -188,7 +190,7 @@ public class UpsertAndQueryServerlessTest {
             }
 
             // Verify the correct vector id was updated
-            assert scoredVectorV1 != null;
+            assertNotNull(scoredVectorV1);
             assertEquals(scoredVectorV1.getId(), upsertIds.get(0));
 
             // Verify the updated values
@@ -212,7 +214,7 @@ public class UpsertAndQueryServerlessTest {
     }
 
     @Test
-    public void upsertNullSparseIndicesNotNullSparseValuesFutureTest() {
+    public void upsertNullSparseIndicesNotNullSparseValuesFutureTest() throws ExecutionException, InterruptedException {
         String id = RandomStringBuilder.build(3);
         try {
             asyncIndex.upsert(id,
@@ -221,8 +223,10 @@ public class UpsertAndQueryServerlessTest {
                     generateVectorValuesByDimension(dimension),
                     null,
                     null).get();
-        } catch (ExecutionException | InterruptedException | PineconeValidationException exception) {
-            assert (exception.getLocalizedMessage().contains("Invalid upsert request. Please ensure that both sparse indices and values are present."));
+
+            fail("upsertNullSparseIndicesNotNullSparseValuesFutureTest should have thrown PineconeValidationException");
+        } catch (PineconeValidationException expected) {
+            assertTrue(expected.getLocalizedMessage().contains("ensure that both sparse indices and values are present"));
         }
     }
 }

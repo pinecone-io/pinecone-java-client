@@ -4,16 +4,13 @@ import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
 import io.grpc.StatusRuntimeException;
 import io.pinecone.clients.Pinecone;
-import io.pinecone.configs.PineconeConnection;
 import io.pinecone.clients.Index;
 import io.pinecone.clients.AsyncIndex;
-import io.pinecone.exceptions.PineconeException;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.*;
 import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
 import io.pinecone.unsigned_indices_model.ScoredVectorWithUnsignedIndices;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.model.IndexModelSpec;
@@ -28,7 +25,7 @@ import java.util.concurrent.ExecutionException;
 import static io.pinecone.helpers.AssertRetry.assertWithRetry;
 import static io.pinecone.helpers.BuildUpsertRequest.*;
 import static io.pinecone.helpers.IndexManager.createIndexIfNotExistsDataPlane;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class UpdateFetchAndQueryPodTest {
     private static Pinecone pineconeClient;
@@ -61,7 +58,7 @@ public class UpdateFetchAndQueryPodTest {
             FetchResponse fetchResponse = indexClient.fetch(upsertIds, namespace);
             assertEquals(fetchResponse.getVectorsCount(), upsertIds.size());
             for (String key : upsertIds) {
-                assert (fetchResponse.containsVectors(key));
+                assertTrue(fetchResponse.containsVectors(key));
             }
         });
 
@@ -83,7 +80,7 @@ public class UpdateFetchAndQueryPodTest {
                     false);
 
             List<Float> queryResponseValues = queryResponse.getMatches(0).getValuesList();
-            assert (updatedValues.equals(queryResponseValues));
+            assertEquals(updatedValues, queryResponseValues);
         });
     }
 
@@ -122,7 +119,7 @@ public class UpdateFetchAndQueryPodTest {
             FetchResponse fetchResponse = indexClient.fetch(upsertIds, namespace);
             assertEquals(fetchResponse.getVectorsCount(), upsertIds.size());
             for (String key : upsertIds) {
-                assert (fetchResponse.containsVectors(key));
+                assertTrue(fetchResponse.containsVectors(key));
             }
         });
 
@@ -185,7 +182,7 @@ public class UpdateFetchAndQueryPodTest {
             FetchResponse fetchResponse = indexClient.fetch(upsertIds, namespace);
             assertEquals(fetchResponse.getVectorsCount(), upsertIds.size());
             for (String key : upsertIds) {
-                assert (fetchResponse.containsVectors(key));
+                assertTrue(fetchResponse.containsVectors(key));
             }
         });
 
@@ -196,9 +193,11 @@ public class UpdateFetchAndQueryPodTest {
         // Should fail since only 1 value is added for the vector of dimension 3
         try {
             indexClient.update(idToUpdate, updatedValues, null, namespace, null, null);
-        } catch (StatusRuntimeException statusRuntimeException) {
-            assert (statusRuntimeException.getTrailers().toString().contains("grpc-status=3"));
-            assert (statusRuntimeException.getTrailers().toString().contains("Vector dimension 1 does not match the dimension of the index 3"));
+
+            fail("addIncorrectDimensionalValuesSyncTest should have thrown StatusRuntimeException");
+        } catch (StatusRuntimeException expected) {
+            assertTrue(expected.getTrailers().toString().contains("grpc-status=3"));
+            assertTrue(expected.getTrailers().toString().contains("dimension 1 does not match the dimension of the index 3"));
         }
     }
 
@@ -242,7 +241,7 @@ public class UpdateFetchAndQueryPodTest {
                     true);
 
             // Verify the metadata field is correctly filtered in the query response
-            assert (queryResponse.getMatches(0).getMetadata().getFieldsMap().get(fieldToQuery).toString().contains(valueToQuery));
+            assertTrue(queryResponse.getMatches(0).getMetadata().getFieldsMap().get(fieldToQuery).toString().contains(valueToQuery));
         });
     }
 
@@ -257,8 +256,10 @@ public class UpdateFetchAndQueryPodTest {
                     null,
                     null,
                     generateVectorValuesByDimension(dimension));
-        } catch (PineconeValidationException validationException) {
-            assertEquals(validationException.getLocalizedMessage(), "Invalid upsert request. Please ensure that both sparse indices and values are present.");
+
+            fail("updateNullSparseIndicesNotNullSparseValuesSyncTest should have thrown PineconeValidationException");
+        } catch (PineconeValidationException expected) {
+            assertEquals(expected.getLocalizedMessage(), "ensure that both sparse indices and values are present");
         }
     }
 
@@ -277,7 +278,7 @@ public class UpdateFetchAndQueryPodTest {
             FetchResponse fetchResponse = asyncIndexClient.fetch(upsertIds, namespace).get();
             assertEquals(fetchResponse.getVectorsCount(), upsertIds.size());
             for (String key : upsertIds) {
-                assert (fetchResponse.containsVectors(key));
+                assertTrue(fetchResponse.containsVectors(key));
             }
         });
 
@@ -299,7 +300,7 @@ public class UpdateFetchAndQueryPodTest {
                     false).get();
 
             List<Float> queryResponseValues = queryResponse.getMatches(0).getValuesList();
-            assert (updatedValues.equals(queryResponseValues));
+            assertEquals(updatedValues, queryResponseValues);
         });
     }
 
@@ -338,7 +339,7 @@ public class UpdateFetchAndQueryPodTest {
             FetchResponse fetchResponse = asyncIndexClient.fetch(upsertIds, namespace).get();
             assertEquals(fetchResponse.getVectorsCount(), upsertIds.size());
             for (String key : upsertIds) {
-                assert (fetchResponse.containsVectors(key));
+                assertTrue(fetchResponse.containsVectors(key));
             }
         });
 
@@ -401,7 +402,7 @@ public class UpdateFetchAndQueryPodTest {
             FetchResponse fetchResponse = asyncIndexClient.fetch(upsertIds, namespace).get();
             assertEquals(fetchResponse.getVectorsCount(), upsertIds.size());
             for (String key : upsertIds) {
-                assert (fetchResponse.containsVectors(key));
+                assertTrue(fetchResponse.containsVectors(key));
             }
         });
 
@@ -412,9 +413,11 @@ public class UpdateFetchAndQueryPodTest {
         // Should fail since only 1 value is added for the vector of dimension 3
         try {
             asyncIndexClient.update(idToUpdate, updatedValues, null, namespace, null, null);
-        } catch (StatusRuntimeException statusRuntimeException) {
-            assert (statusRuntimeException.getTrailers().toString().contains("grpc-status=3"));
-            assert (statusRuntimeException.getTrailers().toString().contains("Vector dimension 1 does not match the dimension of the index 3"));
+
+            fail("addIncorrectDimensionalValuesFutureTest should have thrown StatusRuntimeException");
+        } catch (StatusRuntimeException expected) {
+            assertTrue(expected.getTrailers().toString().contains("grpc-status=3"));
+            assertTrue(expected.getTrailers().toString().contains("dimension 1 does not match the dimension of the index 3"));
         }
     }
 
@@ -458,7 +461,7 @@ public class UpdateFetchAndQueryPodTest {
                     true).get();
 
             // Verify the metadata field is correctly filtered in the query response
-            assert (queryResponse.getMatches(0).getMetadata().getFieldsMap().get(fieldToQuery).toString().contains(valueToQuery));
+            assertTrue(queryResponse.getMatches(0).getMetadata().getFieldsMap().get(fieldToQuery).toString().contains(valueToQuery));
         });
     }
 
@@ -473,8 +476,10 @@ public class UpdateFetchAndQueryPodTest {
                     null,
                     null,
                     generateVectorValuesByDimension(dimension));
-        } catch (PineconeValidationException validationException) {
-            assertEquals(validationException.getLocalizedMessage(), "Invalid upsert request. Please ensure that both sparse indices and values are present.");
+
+            fail("updateNullSparseIndicesNotNullSparseValuesFutureTest should have thrown PineconeValidationException");
+        } catch (PineconeValidationException expected) {
+            assertEquals(expected.getLocalizedMessage(), "ensure that both sparse indices and values are present");
         }
     }
 }

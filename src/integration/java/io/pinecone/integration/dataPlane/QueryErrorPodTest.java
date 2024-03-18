@@ -19,7 +19,7 @@ import java.util.concurrent.ExecutionException;
 
 import static io.pinecone.helpers.BuildUpsertRequest.*;
 import static io.pinecone.helpers.IndexManager.createIndexIfNotExistsDataPlane;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class QueryErrorPodTest {
 
@@ -49,9 +49,11 @@ public class QueryErrorPodTest {
         try {
             List<Float> vector = Arrays.asList(100F);
             indexClient.query(5, vector, null, null, null, namespace, null, true, true);
-        } catch (StatusRuntimeException statusRuntimeException) {
-            assert (statusRuntimeException.getLocalizedMessage().contains("grpc-status=3"));
-            assert (statusRuntimeException.getLocalizedMessage().contains("grpc-message=Query vector dimension 1 does not match the dimension of the index 3"));
+
+            fail("queryWithIncorrectVectorDimensionSync should have thrown StatusRuntimeException");
+        } catch (StatusRuntimeException expected) {
+            assertTrue(expected.getLocalizedMessage().contains("grpc-status=3"));
+            assertTrue(expected.getLocalizedMessage().contains("grpc-message=Query vector dimension 1 does not match the dimension of the index 3"));
         }
     }
 
@@ -66,8 +68,10 @@ public class QueryErrorPodTest {
                     null,
                     null,
                     generateVectorValuesByDimension(dimension));
-        } catch (PineconeValidationException validationException) {
-            assertEquals(validationException.getLocalizedMessage(), "Invalid upsert request. Please ensure that both sparse indices and values are present.");
+
+            fail("QueryWithNullSparseIndicesNotNullSparseValuesSyncTest should have thrown PineconeValidationException");
+        } catch (PineconeValidationException expected) {
+            assertTrue(expected.getLocalizedMessage().contains( "ensure that both sparse indices and values are present"));
         }
     }
 
@@ -81,9 +85,11 @@ public class QueryErrorPodTest {
         try {
             List<Float> vector = Arrays.asList(100F);
             asyncIndexClient.query(5, vector, null, null, null, namespace, null, true, true).get();
-        } catch (ExecutionException executionException) {
-            assert (executionException.getLocalizedMessage().contains("grpc-status=3"));
-            assert (executionException.getLocalizedMessage().contains("grpc-message=Query vector dimension 1 does not match the dimension of the index 3"));
+
+            fail("queryWithIncorrectVectorDimensionFuture should have thrown ExecutionException");
+        } catch (ExecutionException expected) {
+            assertTrue(expected.getLocalizedMessage().contains("grpc-status=3"));
+            assertTrue(expected.getLocalizedMessage().contains("grpc-message=Query vector dimension 1 does not match the dimension of the index 3"));
         }
     }
 
@@ -98,8 +104,10 @@ public class QueryErrorPodTest {
                     null,
                     null,
                     generateVectorValuesByDimension(dimension)).get();
-        } catch (PineconeValidationException validationException) {
-            assertEquals(validationException.getLocalizedMessage(), "Invalid upsert request. Please ensure that both sparse indices and values are present.");
+
+            fail("QueryWithNullSparseIndicesNotNullSparseValuesFutureTest should have thrown PineconeValidationException");
+        } catch (PineconeValidationException expected) {
+            assertEquals(expected.getLocalizedMessage(), "ensure that both sparse indices and values are present");
         }
     }
 }

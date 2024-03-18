@@ -6,8 +6,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.model.*;
 
-import java.util.Objects;
-
 import static io.pinecone.helpers.IndexManager.waitUntilIndexIsReady;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -45,7 +43,7 @@ public class CreateDescribeListAndDeleteIndexTest {
 
         // List the index
         IndexList indexList = controlPlaneClient.listIndexes();
-        assert !Objects.requireNonNull(indexList.getIndexes()).isEmpty();
+        assertNotNull(indexList.getIndexes());
 
         // Delete the index
         controlPlaneClient.deleteIndex(indexName);

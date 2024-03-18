@@ -10,7 +10,7 @@ import org.openapitools.client.model.*;
 
 import static io.pinecone.helpers.AssertRetry.assertWithRetry;
 import static io.pinecone.helpers.IndexManager.waitUntilIndexIsReady;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ConfigureIndexTest {
     private static Pinecone controlPlaneClient;
@@ -43,8 +43,10 @@ public class ConfigureIndexTest {
 
         try {
             controlPlaneClient.configureIndex("non-existent-index", configureIndexRequest);
-        } catch (PineconeNotFoundException notFoundException) {
-            assert (notFoundException.getLocalizedMessage().toLowerCase().contains("not found"));
+
+            fail("configureIndexWithInvalidIndexName should have thrown PineconeNotFoundException");
+        } catch (PineconeNotFoundException expected) {
+            assertTrue(expected.getLocalizedMessage().toLowerCase().contains("not found"));
         }
     }
 
@@ -55,8 +57,10 @@ public class ConfigureIndexTest {
         ConfigureIndexRequest configureIndexRequest = new ConfigureIndexRequest().spec(spec);
         try {
             controlPlaneClient.configureIndex(indexName, configureIndexRequest);
-        } catch (PineconeForbiddenException forbiddenException) {
-            assert (forbiddenException.getLocalizedMessage().contains("Increase your quota or upgrade to create more indexes."));
+
+            fail("configureIndexExceedingQuota should have thrown PineconeForbiddenException");
+        } catch (PineconeForbiddenException expected) {
+            assertTrue(expected.getLocalizedMessage().contains("quota"));
         }
     }
 
@@ -64,7 +68,7 @@ public class ConfigureIndexTest {
     public void scaleUpAndDown() throws InterruptedException {
         // Verify the starting state
         IndexModel indexModel = controlPlaneClient.describeIndex(indexName);
-        assert indexModel.getSpec().getPod() != null;
+        assertNotNull(indexModel.getSpec().getPod());
         assertEquals(1, indexModel.getSpec().getPod().getReplicas());
 
         // Scale up for the test
@@ -76,7 +80,7 @@ public class ConfigureIndexTest {
         assertWithRetry(() -> {
             controlPlaneClient.configureIndex(indexName, upConfigureIndexRequest);
             PodSpec podSpec = controlPlaneClient.describeIndex(indexName).getSpec().getPod();
-            assert (podSpec != null);
+            assertNotNull(podSpec);
             assertEquals(podSpec.getReplicas(), 3);
         });
 
@@ -89,7 +93,7 @@ public class ConfigureIndexTest {
         assertWithRetry(() -> {
             controlPlaneClient.configureIndex(indexName, downConfigureIndexRequest);
             PodSpec podSpec = controlPlaneClient.describeIndex(indexName).getSpec().getPod();
-            assert (podSpec != null);
+            assertNotNull(podSpec);
             assertEquals(podSpec.getReplicas(), 1);
         });
     }
@@ -99,7 +103,7 @@ public class ConfigureIndexTest {
         try {
             // Verify the starting state
             IndexModel indexModel = controlPlaneClient.describeIndex(indexName);
-            assert indexModel.getSpec().getPod() != null;
+            assertNotNull(indexModel.getSpec().getPod());
             assertEquals(1, indexModel.getSpec().getPod().getReplicas());
 
             // Try to change the base pod type
@@ -107,8 +111,10 @@ public class ConfigureIndexTest {
             ConfigureIndexRequestSpec spec = new ConfigureIndexRequestSpec().pod(pod);
             ConfigureIndexRequest configureIndexRequest = new ConfigureIndexRequest().spec(spec);
             controlPlaneClient.configureIndex(indexName, configureIndexRequest);
-        } catch (PineconeBadRequestException badRequestException) {
-            assert(badRequestException.getMessage().contains("Bad request: Cannot change pod type."));
+
+            fail("changingBasePodType should have thrown PineconeBadRequestException");
+        } catch (PineconeBadRequestException expected) {
+            assertTrue(expected.getMessage().contains("change pod"));
         }
     }
 
@@ -116,7 +122,7 @@ public class ConfigureIndexTest {
     public void sizeIncrease() throws InterruptedException {
         // Verify the starting state
         IndexModel indexModel = controlPlaneClient.describeIndex(indexName);
-        assert indexModel.getSpec().getPod() != null;
+        assertNotNull(indexModel.getSpec().getPod());
         assertEquals("p1.x1", indexModel.getSpec().getPod().getPodType());
 
         // Change the pod type to a larger one
@@ -128,7 +134,7 @@ public class ConfigureIndexTest {
         assertWithRetry(() -> {
             controlPlaneClient.configureIndex(indexName, configureIndexRequest);
             PodSpec podSpec = controlPlaneClient.describeIndex(indexName).getSpec().getPod();
-            assert (podSpec != null);
+            assertNotNull(podSpec);
             assertEquals(podSpec.getPodType(), "p1.x2");
         });
     }
