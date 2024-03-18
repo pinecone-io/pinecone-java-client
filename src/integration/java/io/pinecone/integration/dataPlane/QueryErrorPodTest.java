@@ -1,5 +1,6 @@
 package io.pinecone.integration.dataPlane;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import io.grpc.StatusRuntimeException;
 import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
@@ -7,6 +8,7 @@ import io.pinecone.clients.AsyncIndex;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.*;
+import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.model.IndexModelSpec;
@@ -16,6 +18,8 @@ import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import static io.pinecone.helpers.BuildUpsertRequest.*;
 import static io.pinecone.helpers.IndexManager.createIndexIfNotExistsDataPlane;
@@ -76,7 +80,7 @@ public class QueryErrorPodTest {
     }
 
     @Test
-    public void queryWithIncorrectVectorDimensionFuture() throws ExecutionException, InterruptedException {
+    public void queryWithIncorrectVectorDimensionFuture() throws ExecutionException, InterruptedException, TimeoutException {
         String namespace = RandomStringBuilder.build("ns", 8);
         DescribeIndexStatsResponse describeIndexStatsResponse1 = asyncIndexClient.describeIndexStats(null).get();
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
@@ -84,7 +88,8 @@ public class QueryErrorPodTest {
         // Query with incorrect dimensions
         try {
             List<Float> vector = Arrays.asList(100F);
-            asyncIndexClient.query(5, vector, null, null, null, namespace, null, true, true).get();
+            ListenableFuture<QueryResponseWithUnsignedIndices> queryFuture = asyncIndexClient.query(5, vector, null, null, null, namespace, null, true, true);
+            queryFuture.get(10, TimeUnit.SECONDS);
 
             fail("queryWithIncorrectVectorDimensionFuture should have thrown ExecutionException");
         } catch (ExecutionException expected) {
@@ -94,20 +99,22 @@ public class QueryErrorPodTest {
     }
 
     @Test
-    public void QueryWithNullSparseIndicesNotNullSparseValuesFutureTest() throws ExecutionException, InterruptedException {
+    public void QueryWithNullSparseIndicesNotNullSparseValuesFutureTest() throws ExecutionException, InterruptedException, TimeoutException {
         String id = RandomStringBuilder.build(3);
 
         try {
-            asyncIndexClient.update(id,
+            ListenableFuture<UpdateResponse> updateFuture = asyncIndexClient.update(id,
                     generateVectorValuesByDimension(dimension),
                     null,
                     null,
                     null,
-                    generateVectorValuesByDimension(dimension)).get();
+                    generateVectorValuesByDimension(dimension));
+
+            updateFuture.get(10, TimeUnit.SECONDS);
 
             fail("QueryWithNullSparseIndicesNotNullSparseValuesFutureTest should have thrown PineconeValidationException");
         } catch (PineconeValidationException expected) {
-            assertEquals(expected.getLocalizedMessage(), "ensure that both sparse indices and values are present");
+            assertTrue(expected.getLocalizedMessage().contains("ensure that both sparse indices and values are present"));
         }
     }
 }

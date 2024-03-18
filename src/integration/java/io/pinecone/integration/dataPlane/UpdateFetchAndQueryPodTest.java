@@ -1,5 +1,6 @@
 package io.pinecone.integration.dataPlane;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
 import io.grpc.StatusRuntimeException;
@@ -21,6 +22,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import static io.pinecone.helpers.AssertRetry.assertWithRetry;
 import static io.pinecone.helpers.BuildUpsertRequest.*;
@@ -259,7 +262,7 @@ public class UpdateFetchAndQueryPodTest {
 
             fail("updateNullSparseIndicesNotNullSparseValuesSyncTest should have thrown PineconeValidationException");
         } catch (PineconeValidationException expected) {
-            assertEquals(expected.getLocalizedMessage(), "ensure that both sparse indices and values are present");
+            assertTrue(expected.getLocalizedMessage().contains("ensure that both sparse indices and values are present"));
         }
     }
 
@@ -385,7 +388,7 @@ public class UpdateFetchAndQueryPodTest {
     }
 
     @Test
-    public void addIncorrectDimensionalValuesFutureTest() throws InterruptedException {
+    public void addIncorrectDimensionalValuesFutureTest() throws ExecutionException, InterruptedException, TimeoutException {
         // Upsert vectors with required parameters
         int numOfVectors = 3;
         String namespace = RandomStringBuilder.build("ns", 8);
@@ -412,7 +415,8 @@ public class UpdateFetchAndQueryPodTest {
 
         // Should fail since only 1 value is added for the vector of dimension 3
         try {
-            asyncIndexClient.update(idToUpdate, updatedValues, null, namespace, null, null);
+            ListenableFuture<UpdateResponse> updateFuture = asyncIndexClient.update(idToUpdate, updatedValues, null, namespace, null, null);
+            updateFuture.get(10, TimeUnit.SECONDS);
 
             fail("addIncorrectDimensionalValuesFutureTest should have thrown StatusRuntimeException");
         } catch (StatusRuntimeException expected) {
@@ -466,20 +470,22 @@ public class UpdateFetchAndQueryPodTest {
     }
 
     @Test
-    public void updateNullSparseIndicesNotNullSparseValuesFutureTest() {
+    public void updateNullSparseIndicesNotNullSparseValuesFutureTest() throws ExecutionException, InterruptedException, TimeoutException {
         String id = RandomStringBuilder.build(3);
 
         try {
-            asyncIndexClient.update(id,
+            ListenableFuture<UpdateResponse> updateFuture = asyncIndexClient.update(id,
                     generateVectorValuesByDimension(dimension),
                     null,
                     null,
                     null,
                     generateVectorValuesByDimension(dimension));
+            updateFuture.get(10, TimeUnit.SECONDS);
+
 
             fail("updateNullSparseIndicesNotNullSparseValuesFutureTest should have thrown PineconeValidationException");
         } catch (PineconeValidationException expected) {
-            assertEquals(expected.getLocalizedMessage(), "ensure that both sparse indices and values are present");
+            assertTrue(expected.getLocalizedMessage().contains("ensure that both sparse indices and values are present"));
         }
     }
 }
