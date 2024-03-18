@@ -6,6 +6,7 @@ import com.google.protobuf.Value;
 import io.pinecone.proto.SparseValues;
 import io.pinecone.proto.UpsertRequest;
 import io.pinecone.proto.Vector;
+import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
 
 import java.util.*;
 
@@ -135,21 +136,15 @@ public class BuildUpsertRequest {
                 .build();
     }
 
-    public static UpsertRequest buildRequiredUpsertRequestByDimension(List<String> upsertIds, int dimension, String namespace) {
+    public static List<VectorWithUnsignedIndices> buildRequiredUpsertRequestByDimension(List<String> upsertIds, int dimension) {
         if (upsertIds.isEmpty()) upsertIds = Arrays.asList("v1", "v2", "v3");
 
-        List<Vector> upsertVectors = new ArrayList<>();
+        List<VectorWithUnsignedIndices> upsertVectors = new ArrayList<>();
         for (String upsertId : upsertIds) {
-            upsertVectors.add(Vector.newBuilder()
-                    .addAllValues(generateVectorValuesByDimension(dimension))
-                    .setId(upsertId)
-                    .build());
+            upsertVectors.add(new VectorWithUnsignedIndices(upsertId, generateVectorValuesByDimension(dimension)));
         }
 
-        return UpsertRequest.newBuilder()
-                .addAllVectors(upsertVectors)
-                .setNamespace(namespace)
-                .build();
+        return upsertVectors;
     }
 
     public static UpsertRequest buildOptionalUpsertRequest() {
