@@ -54,7 +54,7 @@ public class QueryErrorPodTest {
             List<Float> vector = Arrays.asList(100F);
             indexClient.query(5, vector, null, null, null, namespace, null, true, true);
 
-            fail("queryWithIncorrectVectorDimensionSync should have thrown StatusRuntimeException");
+            fail("Expected to throw StatusRuntimeException");
         } catch (StatusRuntimeException expected) {
             assertTrue(expected.getLocalizedMessage().contains("grpc-status=3"));
             assertTrue(expected.getLocalizedMessage().contains("grpc-message=Query vector dimension 1 does not match the dimension of the index 3"));
@@ -73,7 +73,7 @@ public class QueryErrorPodTest {
                     null,
                     generateVectorValuesByDimension(dimension));
 
-            fail("QueryWithNullSparseIndicesNotNullSparseValuesSyncTest should have thrown PineconeValidationException");
+            fail("Expected to throw PineconeValidationException");
         } catch (PineconeValidationException expected) {
             assertTrue(expected.getLocalizedMessage().contains( "ensure that both sparse indices and values are present"));
         }
@@ -91,7 +91,7 @@ public class QueryErrorPodTest {
             ListenableFuture<QueryResponseWithUnsignedIndices> queryFuture = asyncIndexClient.query(5, vector, null, null, null, namespace, null, true, true);
             queryFuture.get(10, TimeUnit.SECONDS);
 
-            fail("queryWithIncorrectVectorDimensionFuture should have thrown ExecutionException");
+            fail("Expected to throw ExecutionException");
         } catch (ExecutionException expected) {
             assertTrue(expected.getLocalizedMessage().contains("grpc-status=3"));
             assertTrue(expected.getLocalizedMessage().contains("grpc-message=Query vector dimension 1 does not match the dimension of the index 3"));
@@ -112,7 +112,7 @@ public class QueryErrorPodTest {
 
             updateFuture.get(10, TimeUnit.SECONDS);
 
-            fail("QueryWithNullSparseIndicesNotNullSparseValuesFutureTest should have thrown PineconeValidationException");
+            fail("Expected to throw PineconeValidationException");
         } catch (PineconeValidationException expected) {
             assertTrue(expected.getLocalizedMessage().contains("ensure that both sparse indices and values are present"));
         }

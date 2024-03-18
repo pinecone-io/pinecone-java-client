@@ -197,7 +197,7 @@ public class UpdateFetchAndQueryPodTest {
         try {
             indexClient.update(idToUpdate, updatedValues, null, namespace, null, null);
 
-            fail("addIncorrectDimensionalValuesSyncTest should have thrown StatusRuntimeException");
+            fail("Expected to throw StatusRuntimeException");
         } catch (StatusRuntimeException expected) {
             assertTrue(expected.getTrailers().toString().contains("grpc-status=3"));
             assertTrue(expected.getTrailers().toString().contains("dimension 1 does not match the dimension of the index 3"));
@@ -260,7 +260,7 @@ public class UpdateFetchAndQueryPodTest {
                     null,
                     generateVectorValuesByDimension(dimension));
 
-            fail("updateNullSparseIndicesNotNullSparseValuesSyncTest should have thrown PineconeValidationException");
+            fail("Expected to throw PineconeValidationException");
         } catch (PineconeValidationException expected) {
             assertTrue(expected.getLocalizedMessage().contains("ensure that both sparse indices and values are present"));
         }
@@ -388,7 +388,7 @@ public class UpdateFetchAndQueryPodTest {
     }
 
     @Test
-    public void addIncorrectDimensionalValuesFutureTest() throws ExecutionException, InterruptedException, TimeoutException {
+    public void addIncorrectDimensionalValuesFutureTest() throws InterruptedException, TimeoutException {
         // Upsert vectors with required parameters
         int numOfVectors = 3;
         String namespace = RandomStringBuilder.build("ns", 8);
@@ -418,10 +418,17 @@ public class UpdateFetchAndQueryPodTest {
             ListenableFuture<UpdateResponse> updateFuture = asyncIndexClient.update(idToUpdate, updatedValues, null, namespace, null, null);
             updateFuture.get(10, TimeUnit.SECONDS);
 
-            fail("addIncorrectDimensionalValuesFutureTest should have thrown StatusRuntimeException");
-        } catch (StatusRuntimeException expected) {
-            assertTrue(expected.getTrailers().toString().contains("grpc-status=3"));
-            assertTrue(expected.getTrailers().toString().contains("dimension 1 does not match the dimension of the index 3"));
+            fail("Expected to throw StatusRuntimeException");
+        } catch (ExecutionException exception) {
+            Throwable cause = exception.getCause();
+
+            if (cause instanceof StatusRuntimeException) {
+                StatusRuntimeException expected = (StatusRuntimeException) cause;
+                assertTrue(expected.getTrailers().toString().contains("grpc-status=3"));
+                assertTrue(expected.getTrailers().toString().contains("dimension 1 does not match the dimension of the index 3"));
+            } else {
+                fail("Expected to throw StatusRuntimeException, instead threw: " + cause);
+            }
         }
     }
 
@@ -482,9 +489,9 @@ public class UpdateFetchAndQueryPodTest {
                     generateVectorValuesByDimension(dimension));
             updateFuture.get(10, TimeUnit.SECONDS);
 
-
-            fail("updateNullSparseIndicesNotNullSparseValuesFutureTest should have thrown PineconeValidationException");
-        } catch (PineconeValidationException expected) {
+            fail("Expected to throw PineconeValidationException");
+        }
+        catch (PineconeValidationException expected) {
             assertTrue(expected.getLocalizedMessage().contains("ensure that both sparse indices and values are present"));
         }
     }

@@ -113,7 +113,7 @@ public class UpsertAndQueryPodTest {
                     null,
                     null);
 
-            fail("upsertNullSparseIndicesNotNullSparseValuesSyncTest should have thrown PineconeValidationException");
+            fail("Expected to throw PineconeValidationException");
         } catch (PineconeValidationException expected) {
             assertTrue(expected.getLocalizedMessage().contains("ensure that both sparse indices and values are present"));
         }
@@ -195,7 +195,7 @@ public class UpsertAndQueryPodTest {
                     null,
                     null).get();
 
-            fail("upsertNullSparseIndicesNotNullSparseValuesFutureTest should have thrown PineconeValidationException");
+            fail("Expected to throw PineconeValidationException");
         } catch (PineconeValidationException expected) {
             assertTrue(expected.getLocalizedMessage().contains("ensure that both sparse indices and values are present"));
         }

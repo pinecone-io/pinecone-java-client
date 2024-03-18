@@ -44,7 +44,7 @@ public class ConfigureIndexTest {
         try {
             controlPlaneClient.configureIndex("non-existent-index", configureIndexRequest);
 
-            fail("configureIndexWithInvalidIndexName should have thrown PineconeNotFoundException");
+            fail("Expected to throw PineconeNotFoundException");
         } catch (PineconeNotFoundException expected) {
             assertTrue(expected.getLocalizedMessage().toLowerCase().contains("not found"));
         }
@@ -58,7 +58,7 @@ public class ConfigureIndexTest {
         try {
             controlPlaneClient.configureIndex(indexName, configureIndexRequest);
 
-            fail("configureIndexExceedingQuota should have thrown PineconeForbiddenException");
+            fail("Expected to throw PineconeForbiddenException");
         } catch (PineconeForbiddenException expected) {
             assertTrue(expected.getLocalizedMessage().contains("quota"));
         }
@@ -112,7 +112,7 @@ public class ConfigureIndexTest {
             ConfigureIndexRequest configureIndexRequest = new ConfigureIndexRequest().spec(spec);
             controlPlaneClient.configureIndex(indexName, configureIndexRequest);
 
-            fail("changingBasePodType should have thrown PineconeBadRequestException");
+            fail("Expected to throw PineconeBadRequestException");
         } catch (PineconeBadRequestException expected) {
             assertTrue(expected.getMessage().contains("change pod"));
         }
