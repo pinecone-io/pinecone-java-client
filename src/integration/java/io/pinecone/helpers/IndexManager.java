@@ -112,7 +112,7 @@ public class IndexManager {
         return pinecone;
     }
 
-    public static Index createNewIndexAndConnect(Pinecone pinecone, String indexName, int dimension, IndexMetric metric, CreateIndexRequestSpec spec) throws InterruptedException, PineconeException {
+    public static Index createNewIndexAndConnectSync(Pinecone pinecone, String indexName, int dimension, IndexMetric metric, CreateIndexRequestSpec spec) throws InterruptedException, PineconeException {
         CreateIndexRequest createIndexRequest = new CreateIndexRequest().name(indexName).dimension(dimension).metric(metric).spec(spec);
         pinecone.createIndex(createIndexRequest);
 
