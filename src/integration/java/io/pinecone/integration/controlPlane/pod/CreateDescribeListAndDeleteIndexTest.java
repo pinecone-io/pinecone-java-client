@@ -9,20 +9,19 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.model.*;
 
-import java.util.Random;
-
 import static io.pinecone.helpers.IndexManager.waitUntilIndexIsReady;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CreateDescribeListAndDeleteIndexTest {
-    private static final String environment = System.getenv("PINECONE_ENVIRONMENT");
     private static final String indexName = RandomStringBuilder.build("create-index", 8);
+    private static final String indexPodType = "p1.x1";
     private static Pinecone controlPlaneClient = new Pinecone(System.getenv("PINECONE_API_KEY"));
+    private static final String environment = System.getenv("PINECONE_ENVIRONMENT");
 
     @BeforeAll
     public static void setUp() throws InterruptedException {
         // Create the index
-        CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().environment(environment).podType("p1.x1");
+        CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().environment(environment).podType(indexPodType);
         CreateIndexRequestSpec createIndexRequestSpec = new CreateIndexRequestSpec().pod(podSpec);
         CreateIndexRequest createIndexRequest = new CreateIndexRequest()
                 .name(indexName)
@@ -48,7 +47,7 @@ public class CreateDescribeListAndDeleteIndexTest {
         assertEquals(indexName, indexModel.getName());
         assertEquals(IndexMetric.COSINE, indexModel.getMetric());
         assertNotNull(indexModel.getSpec().getPod());
-        assertEquals("p1.x1", indexModel.getSpec().getPod().getPodType());
+        assertEquals(indexPodType, indexModel.getSpec().getPod().getPodType());
 
         // List the index
         IndexList indexList = controlPlaneClient.listIndexes();
@@ -59,19 +58,20 @@ public class CreateDescribeListAndDeleteIndexTest {
     @Test
     public void createIndexWithPodsAndPodType() {
         String podIndexName = RandomStringBuilder.build("create-pod", 8);
-        CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().environment(environment).pods(2).podType(
-                "p1.x2");
+        String podType = "p1.x2";
+        CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().environment(environment).pods(2).podType(podType);
         CreateIndexRequestSpec createIndexRequestSpec = new CreateIndexRequestSpec().pod(podSpec);
         CreateIndexRequest createIndexRequest = new CreateIndexRequest()
                 .name(podIndexName)
-                .metric(IndexMetric.COSINE)
                 .dimension(10)
+                .metric(IndexMetric.EUCLIDEAN)
                 .spec(createIndexRequestSpec);
 
         IndexModel createdIndex = controlPlaneClient.createIndex(createIndexRequest);
         assertEquals(createdIndex.getName(), podIndexName);
+        assertEquals(createdIndex.getMetric(), IndexMetric.EUCLIDEAN);
         assertEquals(createdIndex.getSpec().getPod().getPods(), 2);
-        assertEquals(createdIndex.getSpec().getPod().getPodType(), "p1.x2");
+        assertEquals(createdIndex.getSpec().getPod().getPodType(), podType);
         assertEquals(createdIndex.getStatus().getReady(), false);
         assertEquals(createdIndex.getStatus().getState(), IndexModelStatus.StateEnum.INITIALIZING);
 
@@ -80,7 +80,7 @@ public class CreateDescribeListAndDeleteIndexTest {
 
     @Test
     public void createIndexWithInvalidName() {
-        CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().environment(environment).podType("p1.x1");
+        CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().environment(environment).podType(indexPodType);
         CreateIndexRequestSpec createIndexRequestSpec = new CreateIndexRequestSpec().pod(podSpec);
         CreateIndexRequest createIndexRequest = new CreateIndexRequest()
                 .name("Invalid-name")
@@ -93,14 +93,13 @@ public class CreateDescribeListAndDeleteIndexTest {
 
             fail("Expected to throw PineconeBadRequestException");
         } catch (PineconeBadRequestException expected) {
-            assertTrue(expected.getLocalizedMessage().contains("must consist of lower case alphanumeric characters or" +
-                    " '-'"));
+            assertTrue(expected.getLocalizedMessage().contains("Name must consist of lower case alphanumeric characters or '-'"));
         }
     }
 
     @Test
     public void createIndexWithInvalidDimension() {
-        CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().environment(environment).podType("p1.x1");
+        CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().environment(environment).podType(indexPodType);
         CreateIndexRequestSpec createIndexRequestSpec = new CreateIndexRequestSpec().pod(podSpec);
         CreateIndexRequest createIndexRequest = new CreateIndexRequest()
                 .name("invalid-dimension")
@@ -113,14 +112,14 @@ public class CreateDescribeListAndDeleteIndexTest {
 
             fail("Expected to throw PineconeUnmappedHttpException");
         } catch (PineconeUnmappedHttpException expected) {
-            assertTrue(expected.getLocalizedMessage().contains("dimension: invalid value"));
+            assertTrue(expected.getLocalizedMessage().contains("dimension: invalid value: integer `-1`, expected u32"));
         }
     }
 
     @Test
     public void createIndexWithInvalidPods() {
         CreateIndexRequestSpecPod podSpec =
-                new CreateIndexRequestSpecPod().environment(environment).pods(-1).podType("p1.x1");
+                new CreateIndexRequestSpecPod().environment(environment).pods(-1).podType(indexPodType);
         CreateIndexRequestSpec createIndexRequestSpec = new CreateIndexRequestSpec().pod(podSpec);
         CreateIndexRequest createIndexRequest = new CreateIndexRequest()
                 .name("invalid-pods")
@@ -133,15 +132,14 @@ public class CreateDescribeListAndDeleteIndexTest {
 
             fail("Expected to throw PineconeBadRequestException");
         } catch (PineconeBadRequestException expected) {
-            assertTrue(expected.getLocalizedMessage().contains("pods"));
-            assertTrue(expected.getLocalizedMessage().contains("must be greater than 0"));
+            assertTrue(expected.getLocalizedMessage().contains("Invalid value for pods: must be greater than 0"));
         }
     }
 
     @Test
     public void createIndexWithInvalidReplicas() {
         CreateIndexRequestSpecPod podSpec =
-                new CreateIndexRequestSpecPod().environment(environment).pods(1).replicas(-1).podType("p1.x1");
+                new CreateIndexRequestSpecPod().environment(environment).pods(1).replicas(-1).podType(indexPodType);
         CreateIndexRequestSpec createIndexRequestSpec = new CreateIndexRequestSpec().pod(podSpec);
         CreateIndexRequest createIndexRequest = new CreateIndexRequest()
                 .name("invalid-replicas")
@@ -154,15 +152,14 @@ public class CreateDescribeListAndDeleteIndexTest {
 
             fail("Expected to throw PineconeBadRequestException");
         } catch (PineconeBadRequestException expected) {
-            assertTrue(expected.getLocalizedMessage().contains("replicas"));
-            assertTrue(expected.getLocalizedMessage().contains("must be greater than 0"));
+            assertTrue(expected.getLocalizedMessage().contains("Invalid value for replicas: must be greater than 0"));
         }
     }
 
     @Test
     public void createIndexWithInvalidPodsToShards() {
         CreateIndexRequestSpecPod podSpec =
-                new CreateIndexRequestSpecPod().environment(environment).pods(5).replicas(2).shards(2).podType("p1.x1");
+                new CreateIndexRequestSpecPod().environment(environment).pods(5).replicas(2).shards(2).podType(indexPodType);
         CreateIndexRequestSpec createIndexRequestSpec = new CreateIndexRequestSpec().pod(podSpec);
         CreateIndexRequest createIndexRequest = new CreateIndexRequest()
                 .name("invalid-shards")
@@ -175,7 +172,7 @@ public class CreateDescribeListAndDeleteIndexTest {
 
             fail("Expected to throw PineconeBadRequestException");
         } catch (PineconeBadRequestException expected) {
-            assertTrue(expected.getLocalizedMessage().contains("total pods must be divisible by number of shards"));
+            assertTrue(expected.getLocalizedMessage().contains("Invalid value for pods: total pods must be divisible by number of shards"));
         }
     }
 }

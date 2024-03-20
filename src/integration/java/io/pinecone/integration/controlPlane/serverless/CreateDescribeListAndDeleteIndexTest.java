@@ -2,7 +2,6 @@ package io.pinecone.integration.controlPlane.serverless;
 
 import io.pinecone.clients.Pinecone;
 import io.pinecone.exceptions.PineconeBadRequestException;
-import io.pinecone.exceptions.PineconeException;
 import io.pinecone.exceptions.PineconeNotFoundException;
 import io.pinecone.exceptions.PineconeUnmappedHttpException;
 import io.pinecone.helpers.RandomStringBuilder;
@@ -15,16 +14,17 @@ import static io.pinecone.helpers.IndexManager.waitUntilIndexIsReady;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CreateDescribeListAndDeleteIndexTest {
-    private static Pinecone controlPlaneClient = new Pinecone(System.getenv("PINECONE_API_KEY"));
     private static final String indexName = RandomStringBuilder.build("create-index", 8);
+    // Serverless currently has limited availability in specific regions, hard-code us-west-2 for now
+    private static final String serverlessRegion = "us-west-2";
+    private static Pinecone controlPlaneClient = new Pinecone(System.getenv("PINECONE_API_KEY"));
     @BeforeAll
     public static void setUp() throws InterruptedException {
         // Create the index
-        ServerlessSpec serverlessSpec = new ServerlessSpec().cloud(ServerlessSpec.CloudEnum.AWS).region("us-west-2");
+        ServerlessSpec serverlessSpec = new ServerlessSpec().cloud(ServerlessSpec.CloudEnum.AWS).region(serverlessRegion);
         CreateIndexRequestSpec createIndexRequestSpec = new CreateIndexRequestSpec().serverless(serverlessSpec);
         CreateIndexRequest createIndexRequest = new CreateIndexRequest()
                 .name(indexName)
-                .metric(IndexMetric.COSINE)
                 .dimension(10)
                 .spec(createIndexRequestSpec);
         controlPlaneClient.createIndex(createIndexRequest);
@@ -55,7 +55,7 @@ public class CreateDescribeListAndDeleteIndexTest {
 
     @Test
     public void createIndexWithInvalidName() {
-        ServerlessSpec serverlessSpec = new ServerlessSpec().cloud(ServerlessSpec.CloudEnum.AWS).region("us-west-2");
+        ServerlessSpec serverlessSpec = new ServerlessSpec().cloud(ServerlessSpec.CloudEnum.AWS).region(serverlessRegion);
         CreateIndexRequestSpec createIndexRequestSpec = new CreateIndexRequestSpec().serverless(serverlessSpec);
         CreateIndexRequest createIndexRequest = new CreateIndexRequest()
                 .name("Invalid-name")
@@ -68,13 +68,13 @@ public class CreateDescribeListAndDeleteIndexTest {
 
             fail("Expected to throw PineconeBadRequestException");
         } catch (PineconeBadRequestException expected) {
-            assertTrue(expected.getLocalizedMessage().contains("must consist of lower case alphanumeric characters or '-'"));
+            assertTrue(expected.getLocalizedMessage().contains("Name must consist of lower case alphanumeric characters or '-'"));
         }
     }
 
     @Test
     public void createIndexWithInvalidDimension() {
-        ServerlessSpec serverlessSpec = new ServerlessSpec().cloud(ServerlessSpec.CloudEnum.AWS).region("us-west-2");
+        ServerlessSpec serverlessSpec = new ServerlessSpec().cloud(ServerlessSpec.CloudEnum.AWS).region(serverlessRegion);
         CreateIndexRequestSpec createIndexRequestSpec = new CreateIndexRequestSpec().serverless(serverlessSpec);
         CreateIndexRequest createIndexRequest = new CreateIndexRequest()
                 .name("invalid-dimension")
@@ -87,13 +87,13 @@ public class CreateDescribeListAndDeleteIndexTest {
 
             fail("Expected to throw PineconeUnmappedHttpException");
         } catch (PineconeUnmappedHttpException expected) {
-            assertTrue(expected.getLocalizedMessage().contains("dimension: invalid value"));
+            assertTrue(expected.getLocalizedMessage().contains("dimension: invalid value: integer `-1`, expected u32"));
         }
     }
 
     @Test
     public void createIndexInvalidCloud() {
-        ServerlessSpec serverlessSpec = new ServerlessSpec().cloud(ServerlessSpec.CloudEnum.AZURE).region("us-west-2");
+        ServerlessSpec serverlessSpec = new ServerlessSpec().cloud(ServerlessSpec.CloudEnum.AZURE).region(serverlessRegion);
         CreateIndexRequestSpec createIndexRequestSpec = new CreateIndexRequestSpec().serverless(serverlessSpec);
         CreateIndexRequest createIndexRequest = new CreateIndexRequest()
                 .name("invalid-cloud")
@@ -106,7 +106,7 @@ public class CreateDescribeListAndDeleteIndexTest {
 
             fail("Expected to throw PineconeNotFoundException");
         } catch (PineconeNotFoundException expected) {
-            assertTrue(expected.getLocalizedMessage().contains("not found"));
+            assertTrue(expected.getLocalizedMessage().contains("Resource cloud: azure region: us-west-2 not found"));
         }
     }
 
@@ -125,7 +125,7 @@ public class CreateDescribeListAndDeleteIndexTest {
 
             fail("Expected to throw PineconeNotFoundException");
         } catch (PineconeNotFoundException expected) {
-            assertTrue(expected.getLocalizedMessage().contains("not found"));
+            assertTrue(expected.getLocalizedMessage().contains("Resource cloud: aws region: invalid-region not found"));
         }
     }
 }
