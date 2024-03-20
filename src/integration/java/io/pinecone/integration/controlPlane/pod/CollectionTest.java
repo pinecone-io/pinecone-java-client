@@ -44,7 +44,7 @@ public class CollectionTest {
         CreateIndexRequestSpecPod podSpec =
                 new CreateIndexRequestSpecPod().pods(1).podType("p1.x1").replicas(1).environment(environment);
         CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(podSpec);
-        Index indexClient = createNewIndexAndConnect(pineconeClient, indexName, dimension,
+        Index indexClient = createNewIndexAndConnectSync(pineconeClient, indexName, dimension,
                 indexMetric, spec);
         indexesToCleanUp.add(indexName);
 

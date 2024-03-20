@@ -54,7 +54,7 @@ public class IndexManager {
             CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().environment(environment).podType("p1.x1");
             createIndexRequestSpec = new CreateIndexRequestSpec().pod(podSpec);
         } else {
-            // Serverless currently has limited availability in specific regions, hardcode us-west-2 for now
+            // Serverless currently has limited availability in specific regions, hard-code us-west-2 for now
             ServerlessSpec serverlessSpec =
                     new ServerlessSpec().cloud(ServerlessSpec.CloudEnum.AWS).region("us-west-2");
             createIndexRequestSpec = new CreateIndexRequestSpec().serverless(serverlessSpec);
@@ -112,7 +112,7 @@ public class IndexManager {
         return pinecone;
     }
 
-    public static Index createNewIndexAndConnect(Pinecone pinecone, String indexName, int dimension, IndexMetric metric, CreateIndexRequestSpec spec) throws InterruptedException, PineconeException {
+    public static Index createNewIndexAndConnectSync(Pinecone pinecone, String indexName, int dimension, IndexMetric metric, CreateIndexRequestSpec spec) throws InterruptedException, PineconeException {
         CreateIndexRequest createIndexRequest = new CreateIndexRequest().name(indexName).dimension(dimension).metric(metric).spec(spec);
         pinecone.createIndex(createIndexRequest);
 
