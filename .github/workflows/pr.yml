@@ -41,6 +41,9 @@ jobs:
     - name: Execute Gradle build
       run: gradle clean build
 
+    - name: Execute unit tests
+      run: gradle test
+
     - name: Build jar
       run: gradle jar
 

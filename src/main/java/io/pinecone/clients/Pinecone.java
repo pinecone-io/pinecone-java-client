@@ -21,19 +21,49 @@ public class Pinecone {
         this(apiKey, new OkHttpClient());
     }
 
+    public Pinecone(String apiKey, String sourceTag) {
+        this(new PineconeConfig(apiKey), sourceTag, new OkHttpClient());
+    }
+
     public Pinecone(String apiKey, OkHttpClient okHttpClient) {
-        if (apiKey == null || apiKey.isEmpty()) {
-            throw new PineconeValidationException("The API key is required and must not be empty or null");
-        }
-        config = new PineconeConfig(apiKey);
+        this(new PineconeConfig(apiKey), null, okHttpClient);
+    }
+
+    public Pinecone(String apiKey, String sourceTag, OkHttpClient okHttpClient) {
+        this(new PineconeConfig(apiKey), sourceTag, okHttpClient);
+    }
+    public Pinecone(PineconeConfig pineconeConfig) {
+        this(pineconeConfig, null, new OkHttpClient());
+    }
+
+    public Pinecone(PineconeConfig pineconeConfig, String sourceTag) {
+        this(pineconeConfig, sourceTag, new OkHttpClient());
+    }
+
+    public Pinecone(PineconeConfig pineconeConfig, OkHttpClient okHttpClient) {
+        this(pineconeConfig, null, okHttpClient);
+    }
+
+    public Pinecone(PineconeConfig pineconeConfig, String sourceTag, OkHttpClient okHttpClient) {
+        pineconeConfig.setSourceTag(sourceTag);
+        pineconeConfig.validate();
+        config = pineconeConfig;
+
         ApiClient apiClient = new ApiClient(okHttpClient);
-        apiClient.setApiKey(apiKey);
+        apiClient.setApiKey(config.getApiKey());
+        apiClient.setUserAgent(config.getUserAgent());
+
+        if (Boolean.parseBoolean(System.getenv("PINECONE_DEBUG"))) {
+            apiClient.setDebugging(true);
+        }
+
         manageIndexesApi = new ManageIndexesApi();
         manageIndexesApi.setApiClient(apiClient);
     }
 
     public IndexModel createIndex(CreateIndexRequest createIndexRequest) throws PineconeException {
         IndexModel indexModel = new IndexModel();
+
         try {
             indexModel = manageIndexesApi.createIndex(createIndexRequest);
         } catch (ApiException apiException) {
@@ -52,12 +82,14 @@ public class Pinecone {
         return indexModel;
     }
 
-    public void configureIndex(String indexName, ConfigureIndexRequest configureIndexRequest) throws PineconeException {
+    public IndexModel configureIndex(String indexName, ConfigureIndexRequest configureIndexRequest) throws PineconeException {
+        IndexModel indexModel = new IndexModel();
         try {
-            manageIndexesApi.configureIndex(indexName, configureIndexRequest);
+            indexModel = manageIndexesApi.configureIndex(indexName, configureIndexRequest);
         } catch (ApiException apiException) {
             handleApiException(apiException);
         }
+        return indexModel;
     }
 
     public IndexList listIndexes() throws PineconeException {
