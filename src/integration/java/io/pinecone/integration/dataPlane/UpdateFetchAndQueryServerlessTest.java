@@ -31,10 +31,10 @@ public class UpdateFetchAndQueryServerlessTest {
 
     private static Index index;
     private static AsyncIndex asyncIndex;
-    private static final int dimension = 3;
 
     @BeforeAll
     public static void setUp() throws IOException, InterruptedException {
+        final int dimension = 3;
         String apiKey = System.getenv("PINECONE_API_KEY");
         String indexType = IndexModelSpec.SERIALIZED_NAME_SERVERLESS;
         Pinecone pinecone = new Pinecone(apiKey);
@@ -58,7 +58,7 @@ public class UpdateFetchAndQueryServerlessTest {
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
         for (String id : upsertIds) {
-            index.upsert(id, generateVectorValuesByDimension(dimension), namespace);
+            index.upsert(id, generateVectorValuesByDimension(3), namespace);
         }
 
         // Verify the upserted vector count with fetch
@@ -94,6 +94,7 @@ public class UpdateFetchAndQueryServerlessTest {
 
     @Test
     public void updateAllParamsFetchAndQuerySyncTest() throws InterruptedException {
+        int dimension = 3;
         int numOfVectors = 3;
         int numOfSparseVectors = 2;
         String namespace = RandomStringBuilder.build("ns", 8);
@@ -183,6 +184,7 @@ public class UpdateFetchAndQueryServerlessTest {
     @Test
     public void addIncorrectDimensionalValuesSyncTest() throws InterruptedException {
         // Upsert vectors with required parameters
+        int dimension = 3;
         int numOfVectors = 3;
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
@@ -221,6 +223,7 @@ public class UpdateFetchAndQueryServerlessTest {
     @Test
     public void queryWithFilersSyncTest() {
         // Upsert vectors with all parameters
+        int dimension = 3;
         String fieldToQuery = metadataFields[0];
         String valueToQuery = createAndGetMetadataMap().get(fieldToQuery).get(0);
 
@@ -269,6 +272,7 @@ public class UpdateFetchAndQueryServerlessTest {
 
     @Test
     public void updateNullSparseIndicesNotNullSparseValuesSyncTest() {
+        int dimension = 3;
         String id = RandomStringBuilder.build(3);
 
         try {
@@ -288,6 +292,7 @@ public class UpdateFetchAndQueryServerlessTest {
     @Test
     public void updateRequiredParamsFetchAndQueryFutureTest() throws InterruptedException, ExecutionException {
         // Upsert vectors with required parameters
+        int dimension = 3;
         int numOfVectors = 3;
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
@@ -330,6 +335,7 @@ public class UpdateFetchAndQueryServerlessTest {
 
     @Test
     public void updateAllParamsFetchAndQueryFutureTest() throws InterruptedException, ExecutionException {
+        int dimension = 3;
         int numOfVectors = 3;
         int numOfSparseVectors = 2;
         String namespace = RandomStringBuilder.build("ns", 8);
@@ -420,6 +426,7 @@ public class UpdateFetchAndQueryServerlessTest {
     @Test
     public void addIncorrectDimensionalValuesFutureTest() throws InterruptedException, ExecutionException {
         // Upsert vectors with required parameters
+        int dimension = 3;
         int numOfVectors = 3;
         String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
@@ -458,6 +465,7 @@ public class UpdateFetchAndQueryServerlessTest {
     @Test
     public void queryWithFilersFutureTest() throws ExecutionException, InterruptedException {
         // Upsert vectors with all parameters
+        int dimension = 3;
         String fieldToQuery = metadataFields[0];
         String valueToQuery = createAndGetMetadataMap().get(fieldToQuery).get(0);
 
@@ -506,6 +514,7 @@ public class UpdateFetchAndQueryServerlessTest {
 
     @Test
     public void updateNullSparseIndicesNotNullSparseValuesFutureTest() throws InterruptedException, ExecutionException {
+        int dimension = 3;
         String id = RandomStringBuilder.build(3);
 
         try {

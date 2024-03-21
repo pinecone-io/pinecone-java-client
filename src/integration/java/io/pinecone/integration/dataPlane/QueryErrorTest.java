@@ -31,7 +31,6 @@ public class QueryErrorTest {
 
     private static Index index;
     private static AsyncIndex asyncIndex;
-    private static final int dimension = 3;
 
     @BeforeAll
     public static void setUp() throws IOException, InterruptedException {
@@ -56,25 +55,6 @@ public class QueryErrorTest {
             fail("Expected to throw PineconeValidationException");
         } catch (PineconeValidationException expected) {
             assertTrue(expected.getLocalizedMessage().contains("Cannot query with both vector id and vector values."));
-        }
-    }
-
-    @Disabled("disable server-side validations only")
-    @Test
-    public void queryWithIncorrectVectorDimensionSync() {
-        String namespace = RandomStringBuilder.build("ns", 8);
-        DescribeIndexStatsResponse describeIndexStatsResponse1 = index.describeIndexStats(null);
-        assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
-
-        // Query with incorrect dimensions
-        try {
-            List<Float> vector = Arrays.asList(100F);
-            index.query(5, vector, null, null, null, namespace, null, true, true);
-
-            fail("Expected to throw StatusRuntimeException");
-        } catch (StatusRuntimeException expected) {
-            assertTrue(expected.getLocalizedMessage().contains("grpc-status=3"));
-            assertTrue(expected.getLocalizedMessage().contains("grpc-message=Query vector dimension 1 does not match the dimension of the index 3"));
         }
     }
 
@@ -113,26 +93,6 @@ public class QueryErrorTest {
             fail("Expected to throw PineconeValidationException");
         } catch (PineconeValidationException expected) {
             assertTrue(expected.getLocalizedMessage().contains("Cannot query with both vector id and vector values."));
-        }
-    }
-
-    @Disabled("disable server-side validations")
-    @Test
-    public void queryWithIncorrectVectorDimensionFutureTest() throws ExecutionException, InterruptedException, TimeoutException {
-        String namespace = RandomStringBuilder.build("ns", 8);
-        DescribeIndexStatsResponse describeIndexStatsResponse1 = asyncIndex.describeIndexStats(null).get();
-        assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
-
-        // Query with incorrect dimensions
-        try {
-            List<Float> vector = Arrays.asList(100F);
-            ListenableFuture<QueryResponseWithUnsignedIndices> queryFuture = asyncIndex.query(5, vector, null, null, null, namespace, null, true, true);
-            queryFuture.get(10, TimeUnit.SECONDS);
-
-            fail("Expected to throw ExecutionException");
-        } catch (ExecutionException expected) {
-            assertTrue(expected.getLocalizedMessage().contains("grpc-status=3"));
-            assertTrue(expected.getLocalizedMessage().contains("grpc-message=Query vector dimension 1 does not match the dimension of the index 3"));
         }
     }
 
