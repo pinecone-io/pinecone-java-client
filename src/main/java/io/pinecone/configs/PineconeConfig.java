@@ -74,6 +74,14 @@ public class PineconeConfig {
             return null;
         }
 
+        /*
+         * Normalize the source tag
+         * 1. Lowercase
+         * 2. Trim left/right whitespace
+         * 3. Condense multiple spaces to one
+         * 4. Limit charset to [a-z0-9_]
+         */
+
         String normalizedTag = input.toLowerCase();
         normalizedTag = normalizedTag.trim();
         normalizedTag = normalizedTag.replaceAll("\\s+", " ");
