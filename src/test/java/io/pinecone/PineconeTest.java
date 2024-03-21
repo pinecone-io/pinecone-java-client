@@ -1,5 +1,6 @@
 package io.pinecone;
 
+import io.pinecone.exceptions.PineconeConfigurationException;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.configs.PineconeConfig;
@@ -39,19 +40,17 @@ public class PineconeTest {
 
     @Test
     public void PineconeWithEmptyApiKey() {
-        assertThrows(PineconeValidationException.class, () -> new Pinecone(""));
+        assertThrows(PineconeConfigurationException.class, () -> new Pinecone(""));
     }
 
     @Test
     public void PineconeConfigWithoutApiKey() {
         PineconeConfig clientConfig = new PineconeConfig(null);
-        assertThrows(PineconeValidationException.class, () -> new Pinecone(clientConfig));
+        assertThrows(PineconeConfigurationException.class, () -> new Pinecone(clientConfig));
     }
 
     @Test
     public void testDeleteIndex() throws IOException {
-        String indexName = "testIndex";
-
         Call mockCall = mock(Call.class);
         when(mockCall.execute()).thenReturn(new Response.Builder()
                 .request(new Request.Builder().url("http://localhost").build())
@@ -64,7 +63,7 @@ public class PineconeTest {
         when(mockClient.newCall(any(Request.class))).thenReturn(mockCall);
 
         Pinecone client = new Pinecone("testAPiKey", mockClient);
-        client.deleteIndex(indexName);
+        client.deleteIndex("testIndex");
 
         verify(mockClient, times(1)).newCall(any(Request.class));
         verify(mockCall, times(1)).execute();

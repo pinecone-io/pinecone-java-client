@@ -1,6 +1,7 @@
 package io.pinecone.configs;
 
 import io.grpc.ManagedChannel;
+import io.pinecone.exceptions.PineconeConfigurationException;
 import io.pinecone.exceptions.PineconeValidationException;
 
 public class PineconeConfig {
@@ -57,7 +58,7 @@ public class PineconeConfig {
 
     public void validate() {
         if (apiKey == null || apiKey.isEmpty())
-            throw new PineconeValidationException("The API key is required and must not be empty or null");
+            throw new PineconeConfigurationException("The API key is required and must not be empty or null");
     }
 
     public String getUserAgent() {
@@ -81,7 +82,6 @@ public class PineconeConfig {
          * 3. Condense multiple spaces to one
          * 4. Limit charset to [a-z0-9_]
          */
-
         String normalizedTag = input.toLowerCase();
         normalizedTag = normalizedTag.trim();
         normalizedTag = normalizedTag.replaceAll("\\s+", " ");
