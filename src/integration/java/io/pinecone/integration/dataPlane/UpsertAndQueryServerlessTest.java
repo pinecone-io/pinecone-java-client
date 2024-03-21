@@ -27,13 +27,13 @@ import static io.pinecone.helpers.IndexManager.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UpsertAndQueryServerlessTest {
+
     private static Index index;
     private static AsyncIndex asyncIndex;
-    private static final int dimension = 3;
-    private static final Struct emptyFilterStruct = Struct.newBuilder().build();
 
     @BeforeAll
     public static void setUp() throws InterruptedException {
+        int dimension = 3;
         String apiKey = System.getenv("PINECONE_API_KEY");
         String indexType = IndexModelSpec.SERIALIZED_NAME_SERVERLESS;
         Pinecone pinecone = new Pinecone(apiKey);
@@ -53,6 +53,8 @@ public class UpsertAndQueryServerlessTest {
     @Test
     public void upsertOptionalVectorsAndQueryIndexSyncTest() throws Exception {
         int numOfVectors = 5;
+        int dimension = 3;
+        Struct emptyFilterStruct = Struct.newBuilder().build();
         DescribeIndexStatsResponse describeIndexStatsResponse1 = index.describeIndexStats(emptyFilterStruct);
         // Confirm the starting state by verifying the dimension of the index
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
@@ -127,6 +129,8 @@ public class UpsertAndQueryServerlessTest {
     @Test
     public void upsertNullSparseIndicesNotNullSparseValuesSyncTest() {
         String id = RandomStringBuilder.build(3);
+        int dimension = 3;
+
         try {
             index.upsert(id,
                     generateVectorValuesByDimension(dimension),
@@ -144,6 +148,9 @@ public class UpsertAndQueryServerlessTest {
     @Test
     public void upsertOptionalVectorsAndQueryIndexFutureTest() throws InterruptedException, ExecutionException {
         int numOfVectors = 5;
+        int dimension = 3;
+        Struct emptyFilterStruct = Struct.newBuilder().build();
+
         DescribeIndexStatsResponse describeIndexStatsResponse1 = asyncIndex.describeIndexStats(emptyFilterStruct).get();
         // Confirm the starting state by verifying the dimension of the index
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
@@ -216,6 +223,8 @@ public class UpsertAndQueryServerlessTest {
     @Test
     public void upsertNullSparseIndicesNotNullSparseValuesFutureTest() throws ExecutionException, InterruptedException {
         String id = RandomStringBuilder.build(3);
+        int dimension = 3;
+
         try {
             asyncIndex.upsert(id,
                     generateVectorValuesByDimension(dimension),
