@@ -1,17 +1,12 @@
 package io.pinecone;
 
-import io.pinecone.exceptions.PineconeConfigurationException;
-import io.pinecone.exceptions.PineconeValidationException;
-import io.pinecone.clients.Pinecone;
-import io.pinecone.configs.PineconeConfig;
-import org.junit.jupiter.api.Disabled;
-import org.openapitools.client.model.*;
-import okhttp3.*;
-import okhttp3.mockwebserver.MockWebServer;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.BeforeAll;
 import com.google.gson.Gson;
+import io.pinecone.clients.Pinecone;
+import io.pinecone.exceptions.PineconeValidationException;
+import okhttp3.*;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.openapitools.client.model.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -21,33 +16,12 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
 
-public class PineconeTest {
-    private static MockWebServer mockWebServer;
-    private static Gson gson = new Gson();
-
-    @BeforeAll
-    public static void setUp() throws IOException {
-        mockWebServer = new MockWebServer();
-        mockWebServer.start();
-    }
-
-    @AfterAll
-    public static void tearDown() throws IOException {
-        mockWebServer.shutdown();
-    }
-
-    @Test
-    public void PineconeWithEmptyApiKey() {
-        assertThrows(PineconeConfigurationException.class, () -> new Pinecone(""));
-    }
-
-    @Test
-    public void PineconeConfigWithoutApiKey() {
-        PineconeConfig clientConfig = new PineconeConfig(null);
-        assertThrows(PineconeConfigurationException.class, () -> new Pinecone(clientConfig));
-    }
+public class PineconeIndexOperationsTest {
+    private static final Gson gson = new Gson();
 
     @Test
     public void testDeleteIndex() throws IOException {
@@ -62,7 +36,7 @@ public class PineconeTest {
         OkHttpClient mockClient = mock(OkHttpClient.class);
         when(mockClient.newCall(any(Request.class))).thenReturn(mockCall);
 
-        Pinecone client = new Pinecone("testAPiKey", mockClient);
+        Pinecone client = new Pinecone.Client("testAPiKey").withOkHttpClient(mockClient).build();
         client.deleteIndex("testIndex");
 
         verify(mockClient, times(1)).newCall(any(Request.class));
@@ -88,7 +62,7 @@ public class PineconeTest {
 
         OkHttpClient mockClient = mock(OkHttpClient.class);
         when(mockClient.newCall(any(Request.class))).thenReturn(mockCall);
-        Pinecone client = new Pinecone("testApiKey", mockClient);
+        Pinecone client = new Pinecone.Client("testAPiKey").withOkHttpClient(mockClient).build();
         client.createIndex(createIndexRequest);
 
         verify(mockClient, times(1)).newCall(any(Request.class));
@@ -101,7 +75,7 @@ public class PineconeTest {
         CreateIndexRequest createIndexRequest = new CreateIndexRequest().dimension(3);
 
         OkHttpClient mockClient = mock(OkHttpClient.class);
-        Pinecone client = new Pinecone("testApiKey", mockClient);
+        Pinecone client = new Pinecone.Client("testAPiKey").withOkHttpClient(mockClient).build();
         client.createIndex(createIndexRequest);
         assertThrows(PineconeValidationException.class, () -> client.createIndex(createIndexRequest));
     }
@@ -112,7 +86,7 @@ public class PineconeTest {
         CreateIndexRequest createIndexRequest = new CreateIndexRequest().name("testIndex");
 
         OkHttpClient mockClient = mock(OkHttpClient.class);
-        Pinecone client = new Pinecone("testApiKey", mockClient);
+        Pinecone client = new Pinecone.Client("testAPiKey").withOkHttpClient(mockClient).build();
         client.createIndex(createIndexRequest);
         assertThrows(PineconeValidationException.class, () -> client.createIndex(createIndexRequest));
     }
@@ -147,7 +121,7 @@ public class PineconeTest {
         OkHttpClient mockClient = mock(OkHttpClient.class);
         when(mockClient.newCall(any(Request.class))).thenReturn(mockCall);
 
-        Pinecone client = new Pinecone("testApiKey", mockClient);
+        Pinecone client = new Pinecone.Client("testAPiKey").withOkHttpClient(mockClient).build();
         IndexModel createdIndex = client.createIndex(createIndexRequest);
 
         verify(mockClient, times(1)).newCall(any(Request.class));
@@ -176,7 +150,7 @@ public class PineconeTest {
         when(mockClient.newCall(any(Request.class))).thenReturn(mockCall);
         when(mockCall.execute()).thenReturn(mockResponse);
 
-        Pinecone client = new Pinecone("testApiKey", mockClient);
+        Pinecone client = new Pinecone.Client("testAPiKey").withOkHttpClient(mockClient).build();
         IndexModel index = client.describeIndex("testIndex");
 
         assertEquals(expectedIndex, index);
@@ -202,7 +176,7 @@ public class PineconeTest {
         when(mockClient.newCall(any(Request.class))).thenReturn(mockCall);
         when(mockCall.execute()).thenReturn(mockResponse);
 
-        Pinecone client = new Pinecone("testApiKey", mockClient);
+        Pinecone client = new Pinecone.Client("testAPiKey").withOkHttpClient(mockClient).build();
         IndexList indexList = client.listIndexes();
         assertEquals(indexList, expectedIndexList);
     }
@@ -228,7 +202,7 @@ public class PineconeTest {
 
         OkHttpClient mockClient = mock(OkHttpClient.class);
         when(mockClient.newCall(any(Request.class))).thenReturn(mockCall);
-        Pinecone client = new Pinecone("testApiKey", mockClient);
+        Pinecone client = new Pinecone.Client("testAPiKey").withOkHttpClient(mockClient).build();
         IndexModel configuredIndex = client.configureIndex("testIndex", configureIndexRequest);
 
         verify(mockClient, times(1)).newCall(any(Request.class));

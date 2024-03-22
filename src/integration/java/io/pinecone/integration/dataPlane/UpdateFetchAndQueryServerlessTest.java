@@ -37,7 +37,7 @@ public class UpdateFetchAndQueryServerlessTest {
         final int dimension = 3;
         String apiKey = System.getenv("PINECONE_API_KEY");
         String indexType = IndexModelSpec.SERIALIZED_NAME_SERVERLESS;
-        Pinecone pinecone = new Pinecone(apiKey);
+        Pinecone pinecone = new Pinecone.Client(apiKey).build();
 
         String indexName = findIndexWithDimensionAndType(pinecone, dimension, indexType);
         if (indexName.isEmpty()) indexName = createNewIndex(pinecone, dimension, indexType, true);

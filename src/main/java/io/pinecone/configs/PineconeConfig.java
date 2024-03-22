@@ -62,12 +62,19 @@ public class PineconeConfig {
     }
 
     public String getUserAgent() {
-        String userAgentLanguage = "lang=java; pineconeClientVersion=v0.8.0";
-        if (this.getSourceTag() == null) {
-            return userAgentLanguage;
-        } else {
-            return userAgentLanguage + "; source_tag=" + this.getSourceTag();
+        return buildUserAgent("pineconeClientVersion");
+    }
+
+    public String getUserAgentGrpc() {
+        return buildUserAgent("pineconeClientVersion[grpc]");
+    }
+
+    private String buildUserAgent(String clientId) {
+        String userAgent = String.format("lang=java; %s=%s", clientId, "v0.8.0");
+        if (this.getSourceTag() != null && !this.getSourceTag().isEmpty()) {
+            userAgent += "; source_tag=" + this.getSourceTag();
         }
+        return userAgent;
     }
 
     private String normalizeSourceTag(String input) {
@@ -78,15 +85,13 @@ public class PineconeConfig {
         /*
          * Normalize the source tag
          * 1. Lowercase
-         * 2. Trim left/right whitespace
-         * 3. Condense multiple spaces to one
+         * 2. Trim left/right empty space
+         * 3. Condense multiple spaces to one and replace with underscore
          * 4. Limit charset to [a-z0-9_]
          */
-        String normalizedTag = input.toLowerCase();
-        normalizedTag = normalizedTag.trim();
-        normalizedTag = normalizedTag.replaceAll("\\s+", " ");
-        normalizedTag = normalizedTag.replaceAll(" ", "_");
-        normalizedTag = normalizedTag.replaceAll("[^a-z0-9_]", "");
-        return normalizedTag;
+        return input.toLowerCase()
+                .trim()
+                .replaceAll("\\s+", "_")
+                .replaceAll("[^a-z0-9_]", "");
     }
 }

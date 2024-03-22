@@ -37,8 +37,7 @@ public class CollectionTest {
 
     @BeforeAll
     public static void setUp() throws InterruptedException {
-        PineconeConfig config = new PineconeConfig(apiKey);
-        pineconeClient = new Pinecone(apiKey);
+        pineconeClient = new Pinecone.Client(apiKey).build();
 
         // Create and upsert to index
         CreateIndexRequestSpecPod podSpec =

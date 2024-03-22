@@ -135,9 +135,8 @@ public class PineconeConnection implements AutoCloseable {
 
     private static Metadata assembleMetadata(PineconeConfig config) {
         Metadata metadata = new Metadata();
-        metadata.put(Metadata.Key.of("api-key",
-                Metadata.ASCII_STRING_MARSHALLER), config.getApiKey());
-        metadata.put(Metadata.Key.of("User-Agent", Metadata.ASCII_STRING_MARSHALLER), config.getUserAgent());
+        metadata.put(Metadata.Key.of("api-key", Metadata.ASCII_STRING_MARSHALLER), config.getApiKey());
+        metadata.put(Metadata.Key.of("User-Agent", Metadata.ASCII_STRING_MARSHALLER), config.getUserAgentGrpc());
         return metadata;
     }
 
@@ -150,7 +149,7 @@ public class PineconeConnection implements AutoCloseable {
     }
 
     private static String getHost(String apiKey, String indexName) {
-        Pinecone controlPlaneClient = new Pinecone(apiKey);
+        Pinecone controlPlaneClient = new Pinecone.Client(apiKey).build();
         return controlPlaneClient.describeIndex(indexName).getHost();
     }
 }
