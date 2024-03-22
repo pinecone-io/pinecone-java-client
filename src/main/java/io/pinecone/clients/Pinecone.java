@@ -27,7 +27,7 @@ public class Pinecone {
 
         // Optional parameters
         private String sourceTag;
-        private OkHttpClient okHttpClient;
+        private OkHttpClient okHttpClient = new OkHttpClient();
 
         public Client(String apiKey) {
             this.apiKey = apiKey;
