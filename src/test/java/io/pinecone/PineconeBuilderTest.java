@@ -16,7 +16,7 @@ import java.util.AbstractMap;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class PineconeClientTest {
+public class PineconeBuilderTest {
     private static final Gson gson = new Gson();
 
     private static AbstractMap.SimpleEntry<Call, OkHttpClient> buildMockCallAndClient(ResponseBody response) throws IOException {
@@ -40,7 +40,7 @@ public class PineconeClientTest {
     @Test
     public void PineconeWithNullApiKey() {
         try {
-            new Pinecone.Client(null).build();
+            new Pinecone.Builder(null).build();
         }
         catch(PineconeConfigurationException expected) {
             assertTrue(expected.getLocalizedMessage().contains("The API key is required and must not be empty or null"));
@@ -50,7 +50,7 @@ public class PineconeClientTest {
     @Test
     public void PineconeWithEmptyApiKey() {
         try {
-            new Pinecone.Client("").build();
+            new Pinecone.Builder("").build();
         }
         catch(PineconeConfigurationException expected) {
             assertTrue(expected.getLocalizedMessage().contains("The API key is required and must not be empty or null"));
@@ -70,7 +70,7 @@ public class PineconeClientTest {
 
         OkHttpClient mockClient = mockCallAndClient.getValue();
 
-        Pinecone client = new Pinecone.Client("testAPiKey")
+        Pinecone client = new Pinecone.Builder("testAPiKey")
                 .withOkHttpClient(mockClient)
                 .build();
         IndexModel index = client.describeIndex("testIndex");
@@ -95,7 +95,7 @@ public class PineconeClientTest {
 
         OkHttpClient mockClient = mockCallAndClient.getValue();
 
-        Pinecone client = new Pinecone.Client("testAPiKey")
+        Pinecone client = new Pinecone.Builder("testAPiKey")
                 .withSourceTag("testSourceTag")
                 .withOkHttpClient(mockClient)
                 .build();

@@ -22,7 +22,7 @@ public class Pinecone {
         this.manageIndexesApi = manageIndexesApi;
     }
 
-    public static class Client {
+    public static class Builder {
         // Required parameters
         private final String apiKey;
 
@@ -30,16 +30,16 @@ public class Pinecone {
         private String sourceTag;
         private OkHttpClient okHttpClient = new OkHttpClient();
 
-        public Client(String apiKey) {
+        public Builder(String apiKey) {
             this.apiKey = apiKey;
         }
 
-        public Client withSourceTag(String sourceTag) {
+        public Builder withSourceTag(String sourceTag) {
             this.sourceTag = sourceTag;
             return this;
         }
 
-        public Client withOkHttpClient(OkHttpClient okHttpClient) {
+        public Builder withOkHttpClient(OkHttpClient okHttpClient) {
             this.okHttpClient = okHttpClient;
             return this;
         }

@@ -149,7 +149,7 @@ public class PineconeConnection implements AutoCloseable {
     }
 
     private static String getHost(String apiKey, String indexName) {
-        Pinecone controlPlaneClient = new Pinecone.Client(apiKey).build();
+        Pinecone controlPlaneClient = new Pinecone.Builder(apiKey).build();
         return controlPlaneClient.describeIndex(indexName).getHost();
     }
 }
