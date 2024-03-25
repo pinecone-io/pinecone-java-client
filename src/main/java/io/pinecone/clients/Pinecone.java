@@ -14,11 +14,12 @@ import org.openapitools.client.model.*;
 
 public class Pinecone {
 
-    private static ManageIndexesApi manageIndexesApi;
+    private ManageIndexesApi manageIndexesApi;
     private final PineconeConfig config;
 
-    private Pinecone(PineconeConfig config) {
+    private Pinecone(PineconeConfig config, ManageIndexesApi manageIndexesApi) {
         this.config = config;
+        this.manageIndexesApi = manageIndexesApi;
     }
 
     public static class Client {
@@ -56,10 +57,10 @@ public class Pinecone {
                 apiClient.setDebugging(true);
             }
 
-            manageIndexesApi = new ManageIndexesApi();
+            ManageIndexesApi manageIndexesApi = new ManageIndexesApi();
             manageIndexesApi.setApiClient(apiClient);
 
-            return new Pinecone(clientConfig);
+            return new Pinecone(clientConfig, manageIndexesApi);
         }
     }
 

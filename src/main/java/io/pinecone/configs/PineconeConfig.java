@@ -85,13 +85,13 @@ public class PineconeConfig {
         /*
          * Normalize the source tag
          * 1. Lowercase
-         * 2. Trim left/right empty space
-         * 3. Condense multiple spaces to one and replace with underscore
-         * 4. Limit charset to [a-z0-9_]
+         * 2. Limit charset to [a-z0-9_]
+         * 3. Trim left/right empty space
+         * 4. Condense multiple spaces to one, and replace with underscore
          */
         return input.toLowerCase()
+                .replaceAll("[^a-z0-9_ ]", "")
                 .trim()
-                .replaceAll("\\s+", "_")
-                .replaceAll("[^a-z0-9_]", "");
+                .replaceAll("\\s+", "_");
     }
 }

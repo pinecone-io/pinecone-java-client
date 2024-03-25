@@ -55,10 +55,10 @@ public class PineconeConfigTest {
     public void testSourceTagIsNormalized() {
         PineconeConfig config = new PineconeConfig("testApiKey");
         config.setSourceTag("test source tag !! @@ ##");
-        assertEquals(config.getSourceTag(), "test_source_tag___");
+        assertEquals(config.getSourceTag(), "test_source_tag");
 
         config.setSourceTag("TEST SOURCE Tag     ----");
-        assertEquals(config.getSourceTag(), "test_source_tag_");
+        assertEquals(config.getSourceTag(), "test_source_tag");
 
         config.setSourceTag("TEST      SOURCE TAG 2.4.5");
         assertEquals(config.getSourceTag(), "test_source_tag_245");
