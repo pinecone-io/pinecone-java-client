@@ -17,7 +17,7 @@ public class CreateDescribeListAndDeleteIndexTest {
     private static final String indexName = RandomStringBuilder.build("create-index", 8);
     // Serverless currently has limited availability in specific regions, hard-code us-west-2 for now
     private static final String serverlessRegion = "us-west-2";
-    private static Pinecone controlPlaneClient = new Pinecone(System.getenv("PINECONE_API_KEY"));
+    private static Pinecone controlPlaneClient = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
     @BeforeAll
     public static void setUp() throws InterruptedException {
         // Create the index

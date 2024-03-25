@@ -32,7 +32,7 @@ public class UpsertDescribeIndexStatsAndDeleteServerlessTest {
         String apiKey = System.getenv("PINECONE_API_KEY");
         String indexType = IndexModelSpec.SERIALIZED_NAME_SERVERLESS;
         int dimension = 3;
-        Pinecone pinecone = new Pinecone(apiKey);
+        Pinecone pinecone = new Pinecone.Builder(apiKey).build();
 
         String indexName = findIndexWithDimensionAndType(pinecone, dimension, indexType);
         if (indexName.isEmpty()) indexName = createNewIndex(pinecone, dimension, indexType, true);

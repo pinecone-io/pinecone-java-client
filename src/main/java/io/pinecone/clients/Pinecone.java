@@ -14,26 +14,58 @@ import org.openapitools.client.model.*;
 
 public class Pinecone {
 
-    private final ManageIndexesApi manageIndexesApi;
+    private ManageIndexesApi manageIndexesApi;
     private final PineconeConfig config;
 
-    public Pinecone(String apiKey) {
-        this(apiKey, new OkHttpClient());
+    private Pinecone(PineconeConfig config, ManageIndexesApi manageIndexesApi) {
+        this.config = config;
+        this.manageIndexesApi = manageIndexesApi;
     }
 
-    public Pinecone(String apiKey, OkHttpClient okHttpClient) {
-        if (apiKey == null || apiKey.isEmpty()) {
-            throw new PineconeValidationException("The API key is required and must not be empty or null");
+    public static class Builder {
+        // Required parameters
+        private final String apiKey;
+
+        // Optional parameters
+        private String sourceTag;
+        private OkHttpClient okHttpClient = new OkHttpClient();
+
+        public Builder(String apiKey) {
+            this.apiKey = apiKey;
         }
-        config = new PineconeConfig(apiKey);
-        ApiClient apiClient = new ApiClient(okHttpClient);
-        apiClient.setApiKey(apiKey);
-        manageIndexesApi = new ManageIndexesApi();
-        manageIndexesApi.setApiClient(apiClient);
+
+        public Builder withSourceTag(String sourceTag) {
+            this.sourceTag = sourceTag;
+            return this;
+        }
+
+        public Builder withOkHttpClient(OkHttpClient okHttpClient) {
+            this.okHttpClient = okHttpClient;
+            return this;
+        }
+
+        public Pinecone build() {
+            PineconeConfig clientConfig = new PineconeConfig(apiKey);
+            clientConfig.setSourceTag(sourceTag);
+            clientConfig.validate();
+
+            ApiClient apiClient = new ApiClient(okHttpClient);
+            apiClient.setApiKey(clientConfig.getApiKey());
+            apiClient.setUserAgent(clientConfig.getUserAgent());
+
+            if (Boolean.parseBoolean(System.getenv("PINECONE_DEBUG"))) {
+                apiClient.setDebugging(true);
+            }
+
+            ManageIndexesApi manageIndexesApi = new ManageIndexesApi();
+            manageIndexesApi.setApiClient(apiClient);
+
+            return new Pinecone(clientConfig, manageIndexesApi);
+        }
     }
 
     public IndexModel createIndex(CreateIndexRequest createIndexRequest) throws PineconeException {
-        IndexModel indexModel = new IndexModel();
+        IndexModel indexModel = null;
         try {
             indexModel = manageIndexesApi.createIndex(createIndexRequest);
         } catch (ApiException apiException) {
@@ -43,7 +75,7 @@ public class Pinecone {
     }
 
     public IndexModel describeIndex(String indexName) throws PineconeException {
-        IndexModel indexModel = new IndexModel();
+        IndexModel indexModel = null;
         try {
             indexModel = manageIndexesApi.describeIndex(indexName);
         } catch (ApiException apiException) {
@@ -52,16 +84,18 @@ public class Pinecone {
         return indexModel;
     }
 
-    public void configureIndex(String indexName, ConfigureIndexRequest configureIndexRequest) throws PineconeException {
+    public IndexModel configureIndex(String indexName, ConfigureIndexRequest configureIndexRequest) throws PineconeException {
+        IndexModel indexModel = null;
         try {
-            manageIndexesApi.configureIndex(indexName, configureIndexRequest);
+            indexModel = manageIndexesApi.configureIndex(indexName, configureIndexRequest);
         } catch (ApiException apiException) {
             handleApiException(apiException);
         }
+        return indexModel;
     }
 
     public IndexList listIndexes() throws PineconeException {
-        IndexList indexList = new IndexList();
+        IndexList indexList = null;
         try {
             indexList = manageIndexesApi.listIndexes();
         } catch (ApiException apiException) {
