@@ -19,7 +19,7 @@ public class IndexManager {
 
     public static AbstractMap.SimpleEntry<String, Pinecone> createIndexIfNotExistsDataPlane(int dimension, String indexType) throws IOException, InterruptedException {
         String apiKey = System.getenv("PINECONE_API_KEY");
-        Pinecone pinecone = new Pinecone.Client(apiKey).build();
+        Pinecone pinecone = new Pinecone.Builder(apiKey).build();
 
         String indexName = findIndexWithDimensionAndType(pinecone, dimension, indexType);
         if (indexName.isEmpty()) indexName = createNewIndex(pinecone, dimension, indexType, true);

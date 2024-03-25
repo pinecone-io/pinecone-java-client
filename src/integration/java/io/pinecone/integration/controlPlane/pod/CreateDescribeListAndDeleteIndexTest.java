@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class CreateDescribeListAndDeleteIndexTest {
     private static final String indexName = RandomStringBuilder.build("create-index", 8);
     private static final String indexPodType = "p1.x1";
-    private static Pinecone controlPlaneClient = new Pinecone.Client(System.getenv("PINECONE_API_KEY")).build();
+    private static Pinecone controlPlaneClient = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
     private static final String environment = System.getenv("PINECONE_ENVIRONMENT");
 
     @BeforeAll

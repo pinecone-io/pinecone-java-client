@@ -18,7 +18,7 @@ public class ConfigureIndexTest {
 
     @BeforeAll
     public static void setUp() throws InterruptedException {
-        controlPlaneClient = new Pinecone.Client(System.getenv("PINECONE_API_KEY")).build();
+        controlPlaneClient = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
 
         // Create index to work with
         CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().pods(1).podType("p1.x1").replicas(1).environment("us-east4-gcp");
