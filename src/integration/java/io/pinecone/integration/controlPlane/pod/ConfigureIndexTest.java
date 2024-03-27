@@ -30,9 +30,8 @@ public class ConfigureIndexTest {
 
     @AfterAll
     public static void cleanUp() throws InterruptedException {
-        Thread.sleep(2500);
+        waitUntilIndexUpgraded(indexName);
         controlPlaneClient.deleteIndex(indexName);
-        Thread.sleep(2500);
     }
 
     @Test
@@ -96,7 +95,6 @@ public class ConfigureIndexTest {
             assertNotNull(podSpec);
             assertEquals(podSpec.getReplicas(), 1);
         });
-        waitUntilIndexUpgraded(indexName);
     }
 
     @Test
@@ -138,12 +136,11 @@ public class ConfigureIndexTest {
             assertNotNull(podSpec);
             assertEquals(podSpec.getPodType(), "p1.x2");
         });
-        waitUntilIndexUpgraded(indexName);
     }
 
     // After calling configureIndex the index needs to be upgraded which
     // can take some time. Poll for a bit until we're ready to continue operating on the index.
-    private void waitUntilIndexUpgraded(String indexName) throws InterruptedException {
+    private static void waitUntilIndexUpgraded(String indexName) throws InterruptedException {
         int timeToWaitMs = 30000;
         IndexModel index = controlPlaneClient.describeIndex(indexName);
 
