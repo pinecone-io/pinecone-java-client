@@ -46,7 +46,7 @@ The `Pinecone` class is your main entry point into the Pinecone java SDK. You ca
 import io.pinecone.clients.Pinecone;
 import org.openapitools.client.model.*;
 
-public class ControlPlaneExample {
+public class IntializeClientExample {
     public static void main(String[] args) {
         Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
     }
@@ -57,7 +57,7 @@ public class ControlPlaneExample {
 ```java
 import io.pinecone.clients.Pinecone;
 
-public class ControlPlaneExample {
+public class IntializeClientExample {
     public static void main(String[] args) {
         OkHttpClient.Builder builder = new OkHttpClient.Builder()
                 .connectTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
@@ -150,7 +150,7 @@ package pineconeexamples.controlPlane.pod;
 import io.pinecone.clients.Pinecone;
 import org.openapitools.client.model.*;
 
-public class ControlPlaneExample {
+public class DescribeIndexExample {
     public static void main(String[] args) {
         Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
         IndexModel indexModel = pinecone.describeIndex("example-index");
@@ -165,7 +165,7 @@ The following example deletes the index named `example-index`.
 ```java
 import io.pinecone.clients.Pinecone;
 
-public class ControlPlaneExample {
+public class DeleteIndexExample {
     public static void main(String[] args) {
         Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
         pinecone.deleteIndex("example-index");
