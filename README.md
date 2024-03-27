@@ -15,7 +15,7 @@ Maven:
 <dependency>
   <groupId>io.pinecone</groupId>
   <artifactId>pinecone-client</artifactId>
-  <version>1.0.0-rc.1</version>
+  <version>1.0.0-rc.2</version>
 </dependency>
 ```
 
@@ -23,12 +23,12 @@ Maven:
 
 Gradle:
 ```
-implementation "io.pinecone:pinecone-client:1.0.0-rc.1"
+implementation "io.pinecone:pinecone-client:1.0.0-rc.2"
 ```
 
 [comment]: <> (^ [pc:VERSION_LATEST_RELEASE])
 
-Alternatively, you can use our standalone uberjar [pinecone-client-1.0.0-rc.1-all.jar](https://repo1.maven.org/maven2/io/pinecone/pinecone-client/1.0.0-rc.1/pinecone-client-1.0.0-rc.1-all.jar), which bundles the pinecone client and all dependencies together inside a single jar. You can include this on your classpath like any 3rd party JAR without having to obtain the *pinecone-client* dependencies separately.
+Alternatively, you can use our standalone uberjar [pinecone-client-1.0.0-rc.2-all.jar](https://repo1.maven.org/maven2/io/pinecone/pinecone-client/1.0.0-rc.2/pinecone-client-1.0.0-rc.2-all.jar), which bundles the pinecone client and all dependencies together inside a single jar. You can include this on your classpath like any 3rd party JAR without having to obtain the *pinecone-client* dependencies separately.
 
 [comment]: <> (^ [pc:VERSION_LATEST_RELEASE])
 
@@ -48,7 +48,7 @@ import org.openapitools.client.model.*;
 
 public class ControlPlaneExample {
     public static void main(String[] args) {
-        Pinecone pinecone = new Pinecone("PINECONE_API_KEY");
+        Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
     }
 }
 ```
@@ -66,7 +66,7 @@ public class ControlPlaneExample {
 
         OkHttpClient httpClient = builder.build();
 
-        Pinecone pinecone = new Pinecone("PINECONE_API_KEY", httpClient);
+        Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
     }
 }
 ```
@@ -85,9 +85,9 @@ public class ControlPlaneExample {
 import io.pinecone.clients.Pinecone;
 import org.openapitools.client.model.*;
 
-public class ControlPlaneExample {
+public class CreateServerlessIndexExample {
     public static void main(String[] args) {
-        Pinecone pinecone = new Pinecone("PINECONE_API_KEY");
+        Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
         ServerlessSpec serverlessSpec = new ServerlessSpec().cloud(ServerlessSpec.CloudEnum.AWS).region("us-west-2");
         CreateIndexRequestSpec createIndexRequestSpec = new CreateIndexRequestSpec().serverless(serverlessSpec);
         CreateIndexRequest createIndexRequest = new CreateIndexRequest()
@@ -109,9 +109,9 @@ configuration. By default, Pinecone indexes all metadata.
 import io.pinecone.clients.Pinecone;
 import org.openapitools.client.model.*;
 
-public class ControlPlaneExample {
+public class CreatePodIndexExample {
     public static void main(String[] args) {
-        Pinecone pinecone = new Pinecone("PINECONE_API_KEY");
+        Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
         CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().environment("PINECONE_ENVIRONMENT").podType("p1.x1");
         CreateIndexRequestSpec createIndexRequestSpec = new CreateIndexRequestSpec().pod(podSpec);
         CreateIndexRequest createIndexRequest = new CreateIndexRequest()
@@ -132,10 +132,9 @@ The following example returns all indexes in your project.
 import io.pinecone.clients.Pinecone;
 import org.openapitools.client.model.*;
 
-public class ControlPlaneExample {
+public class ListIndexExample {
     public static void main(String[] args) {
-        Pinecone pinecone = new Pinecone("PINECONE_API_KEY");
-
+        Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
         IndexList indexList = pinecone.listIndexes();
     }
 }
@@ -153,7 +152,7 @@ import org.openapitools.client.model.*;
 
 public class ControlPlaneExample {
     public static void main(String[] args) {
-        Pinecone pinecone = new Pinecone("PINECONE_API_KEY");
+        Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
         IndexModel indexModel = pinecone.describeIndex("example-index");
     }
 }
@@ -168,7 +167,7 @@ import io.pinecone.clients.Pinecone;
 
 public class ControlPlaneExample {
     public static void main(String[] args) {
-        Pinecone pinecone = new Pinecone("PINECONE_API_KEY");
+        Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
         pinecone.deleteIndex("example-index");
     }
 }
@@ -182,9 +181,9 @@ The following example changes the number of replicas for `example-index`.
 import io.pinecone.clients.Pinecone;
 import org.openapitools.client.model.*;
 
-public class ControlPlaneExample {
+public class ConfigureIndexExample {
     public static void main(String[] args) {
-        Pinecone pinecone = new Pinecone("PINECONE_API_KEY");
+        Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
         ConfigureIndexRequestSpecPod pod = new ConfigureIndexRequestSpecPod().replicas(4);
         ConfigureIndexRequestSpec spec = new ConfigureIndexRequestSpec().pod(pod);
         ConfigureIndexRequest configureIndexRequest = new ConfigureIndexRequest().spec(spec);
@@ -205,9 +204,9 @@ import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.proto.DescribeIndexStatsResponse;
 
-public class DataPlaneExample {
+public class DescribeIndexStatsExample {
     public static void main(String[] args) {
-        Pinecone pinecone = new Pinecone("PINECONE_API_KEY");
+        Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
 
         Index index = pinecone.createIndexConnection("indexName");
         DescribeIndexStatsResponse indexStatsResponse = index.describeIndexStats(null);
@@ -220,19 +219,33 @@ public class DataPlaneExample {
 The following example upserts vectors to `example-index`.
 
 ```java
+import com.google.protobuf.Struct;
 import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
-import io.pinecone.proto.UpsertResponse;
+import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class DataPlaneExample {
+import static io.pinecone.commons.IndexInterface.buildUpsertVectorWithUnsignedIndices;
+
+public class UpsertVectorsExample {
     public static void main(String[] args) {
-        Pinecone pinecone = new Pinecone("PINECONE_API_KEY");
+        Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
         Index index = pinecone.createIndexConnection("example-index");
+        List<String> upsertIds = Arrays.asList("v1", "v2", "v3");
         List<Float> values = Arrays.asList(1.0f, 2.0f, 3.0f);
-        UpsertResponse upsertResponse = index.upsert("v1", values, "namespace");
+        List<Long> sparseIndices = Arrays.asList(1L, 2L, 3L);
+        List<Float> sparseValues = Arrays.asList(1000f, 2000f, 3000f);
+
+        List<VectorWithUnsignedIndices> vectors = new ArrayList<>(3);
+        Struct emptyMetaDataStruct = null;
+
+        for (String id : upsertIds) {
+            vectors.add(buildUpsertVectorWithUnsignedIndices(id, values, sparseIndices, sparseValues, emptyMetaDataStruct));
+        }
+        index.upsert(vectors, "example-namespace");
     }
 }
 ```
@@ -247,9 +260,9 @@ import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
 
-public class DataPlaneExample {
+public class QueryVectorsExample {
     public static void main(String[] args) {
-        Pinecone pinecone = new Pinecone("PINECONE_API_KEY");
+        Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
         Index index = pinecone.createIndexConnection("example-index");
         QueryResponseWithUnsignedIndices queryRespone = index.queryByVectorId(3, "v1", "namespace");
     }
@@ -266,9 +279,9 @@ import io.pinecone.clients.Pinecone;
 import java.util.Arrays;
 import java.util.List;
 
-public class DataPlaneExample {
+public class DeleteVectorsExample {
     public static void main(String[] args) {
-        Pinecone pinecone = new Pinecone("PINECONE_API_KEY");
+        Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
         Index index = pinecone.createIndexConnection("example-index");
         List<String> ids = Arrays.asList("v1", "v2", "v3");
         DeleteResponse deleteResponse = index.deleteByIds(ids);
@@ -290,7 +303,7 @@ import java.util.List;
 
 public class DataPlaneExample {
     public static void main(String[] args) {
-        Pinecone pinecone = new Pinecone("PINECONE_API_KEY");
+        Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
         Index index = pinecone.createIndexConnection("example-index");
         List<String> ids = Arrays.asList("v1", "v2", "v3");
         FetchResponse fetchResponse = index.fetch(ids);
@@ -312,7 +325,7 @@ import java.util.List;
 
 public class DataPlaneExample {
     public static void main(String[] args) {
-        Pinecone pinecone = new Pinecone("PINECONE_API_KEY");
+        Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
         Index index = pinecone.createIndexConnection("example-index");
         List<Float> values = Arrays.asList(1F, 2F, 3F);
         UpdateResponse updateResponse = index.update("v1", values, "namespace");
@@ -334,7 +347,7 @@ import org.openapitools.client.model.CreateCollectionRequest;
 
 public class Collections {
     public static void main(String[] args) {
-        Pinecone pinecone = new Pinecone("PINECONE_API_KEY");
+        Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
         String indexName = "example-index";
         String collectionName = "example-collection";
         
@@ -352,9 +365,9 @@ The following example returns a list of the collections in the current project.
 import io.pinecone.clients.Pinecone;
 import org.openapitools.client.model.CollectionModel;
 
-public class Collections {
+public class ListCollectionsExample {
     public static void main(String[] args) {
-        Pinecone pinecone = new Pinecone("PINECONE_API_KEY");
+        Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
         List<CollectionModel> collectionList = pinecone.listCollections().getCollections();
     }
 }
@@ -368,9 +381,9 @@ The following example returns a description of the collection
 import io.pinecone.clients.Pinecone;
 import org.openapitools.client.model.CollectionModel;
 
-public class Collections {
+public class DescribeCollectionExample {
     public static void main(String[] args) {
-        Pinecone pinecone = new Pinecone("PINECONE_API_KEY");
+        Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
         CollectionModel collectionModel = pinecone.describeCollection("example-collection");
     }
 }
@@ -383,9 +396,9 @@ The following example deletes the collection `example-collection`.
 ```java
 import io.pinecone.clients.Pinecone;
 
-public class Collections {
+public class DeleteCollectionExample {
     public static void main(String[] args) {
-        Pinecone pinecone = new Pinecone("PINECONE_API_KEY");
+        Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
         pinecone.deleteCollection("example-collection");
     }
 }
