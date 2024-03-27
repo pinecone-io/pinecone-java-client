@@ -147,7 +147,7 @@ public class ConfigureIndexTest {
         int timeToWaitMs = 30000;
         IndexModel index = controlPlaneClient.describeIndex(indexName);
 
-        while (index.getStatus().getState() != IndexModelStatus.StateEnum.READY || timeToWaitMs > 0) {
+        while (!index.getStatus().getReady() || timeToWaitMs > 0) {
             Thread.sleep(2000);
             timeToWaitMs -= 2000;
             index = controlPlaneClient.describeIndex(indexName);
