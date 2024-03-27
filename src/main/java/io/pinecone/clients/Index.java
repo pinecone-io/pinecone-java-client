@@ -34,6 +34,7 @@ public class Index implements IndexInterface<UpsertResponse,
         this.blockingStub = connection.getBlockingStub();
     }
 
+    @Override
     public UpsertResponse upsert(List<VectorWithUnsignedIndices> vectorList,
                                  String namespace) {
         UpsertRequest upsertRequest = validateUpsertRequest(vectorList, namespace);

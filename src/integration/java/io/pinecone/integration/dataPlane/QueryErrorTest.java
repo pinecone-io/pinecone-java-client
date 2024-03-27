@@ -1,25 +1,15 @@
 package io.pinecone.integration.dataPlane;
 
-import com.google.common.util.concurrent.ListenableFuture;
-import io.grpc.StatusRuntimeException;
 import io.pinecone.clients.AsyncIndex;
 import io.pinecone.clients.Index;
 import io.pinecone.configs.PineconeConnection;
 import io.pinecone.exceptions.PineconeValidationException;
-import io.pinecone.helpers.RandomStringBuilder;
-import io.pinecone.proto.DescribeIndexStatsResponse;
 import io.pinecone.proto.VectorServiceGrpc;
-import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import static io.pinecone.helpers.BuildUpsertRequest.generateSparseIndicesByDimension;
 import static io.pinecone.helpers.BuildUpsertRequest.generateVectorValuesByDimension;
@@ -40,7 +30,7 @@ public class QueryErrorTest {
         VectorServiceGrpc.VectorServiceFutureStub asyncStubMock = mock(VectorServiceGrpc.VectorServiceFutureStub.class);
 
         when(connectionMock.getBlockingStub()).thenReturn(stubMock);
-        when(connectionMock.getFutureStub()).thenReturn(asyncStubMock);
+        when(connectionMock.getAsyncStub()).thenReturn(asyncStubMock);
 
         index = new Index(connectionMock);
         asyncIndex = new AsyncIndex(connectionMock);
