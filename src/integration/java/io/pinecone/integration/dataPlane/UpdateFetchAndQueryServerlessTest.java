@@ -240,7 +240,7 @@ public class UpdateFetchAndQueryServerlessTest {
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
 
         // wait for the vectors to be upserted
-        Thread.sleep(90);
+        Thread.sleep(90000);
 
         try {
             for (int i = 0; i < upsertIds.size(); i++) {
