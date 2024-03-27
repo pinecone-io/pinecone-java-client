@@ -65,7 +65,7 @@ public class UpsertDescribeIndexStatsAndDeleteServerlessTest {
 
         int actualVectorCount = vectorCount;
 
-        Thread.sleep(7500);
+        Thread.sleep(10000);
 
         assertWithRetry(() -> {
             // call describeIndexStats to get updated vector count
@@ -127,6 +127,8 @@ public class UpsertDescribeIndexStatsAndDeleteServerlessTest {
         }
 
         int actualVectorCount = vectorCount;
+
+        Thread.sleep(10000);
 
         assertWithRetry(() -> {
             // call describeIndexStats to get updated vector count
