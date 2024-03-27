@@ -316,6 +316,8 @@ public class UpdateFetchAndQueryServerlessTest {
         List<Float> updatedValues = Arrays.asList(101F, 102F, 103F);
         asyncIndex.update(idToUpdate, updatedValues, null, namespace, null, null).get();
 
+        Thread.sleep(7500);
+
         // Query by ID to verify
         assertWithRetry(() -> {
             QueryResponseWithUnsignedIndices queryResponse = asyncIndex.query(1,

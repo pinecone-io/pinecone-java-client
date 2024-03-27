@@ -65,9 +65,11 @@ public class UpsertDescribeIndexStatsAndDeleteServerlessTest {
 
         int actualVectorCount = vectorCount;
 
+        Thread.sleep(7500);
+
         assertWithRetry(() -> {
             // call describeIndexStats to get updated vector count
-            DescribeIndexStatsResponse describeIndexStatsResponse = index.describeIndexStats(null);
+            DescribeIndexStatsResponse describeIndexStatsResponse = index.describeIndexStats();
 
             // verify the updated vector count
             assertEquals(describeIndexStatsResponse.getNamespacesMap().get(namespace).getVectorCount(), actualVectorCount);
@@ -128,7 +130,7 @@ public class UpsertDescribeIndexStatsAndDeleteServerlessTest {
 
         assertWithRetry(() -> {
             // call describeIndexStats to get updated vector count
-            DescribeIndexStatsResponse describeIndexStatsResponse = asyncIndex.describeIndexStats(null).get();
+            DescribeIndexStatsResponse describeIndexStatsResponse = asyncIndex.describeIndexStats().get();
 
             // verify the updated vector count
             assertEquals(describeIndexStatsResponse.getNamespacesMap().get(namespace).getVectorCount(), actualVectorCount);
@@ -143,7 +145,7 @@ public class UpsertDescribeIndexStatsAndDeleteServerlessTest {
 
         assertWithRetry(() -> {
             // Call describeIndexStats to get updated vector count
-            DescribeIndexStatsResponse describeIndexStatsResponse = asyncIndex.describeIndexStats(emptyFilterStruct).get();
+            DescribeIndexStatsResponse describeIndexStatsResponse = asyncIndex.describeIndexStats().get();
             // Verify the updated vector count should be 1 less than previous vector count since number of vectors deleted = 1
             assertEquals(describeIndexStatsResponse.getNamespacesMap().get(namespace).getVectorCount(), testSingleDeletedVectorCount);
         });
@@ -163,7 +165,7 @@ public class UpsertDescribeIndexStatsAndDeleteServerlessTest {
 
         assertWithRetry(() -> {
             // Call describeIndexStats to get updated vector count
-            DescribeIndexStatsResponse describeIndexStatsResponse = asyncIndex.describeIndexStats(emptyFilterStruct).get();
+            DescribeIndexStatsResponse describeIndexStatsResponse = asyncIndex.describeIndexStats().get();
             // Verify the updated vector count
             assertEquals(describeIndexStatsResponse.getNamespacesMap().get(namespace).getVectorCount(), testMultipleDeletedVectorCount);
         });
