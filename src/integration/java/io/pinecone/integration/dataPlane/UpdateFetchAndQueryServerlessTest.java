@@ -227,7 +227,7 @@ public class UpdateFetchAndQueryServerlessTest {
     }
 
     @Test
-    public void queryWithFilersSyncTest() {
+    public void queryWithFilersSyncTest() throws InterruptedException {
         // Upsert vectors with all parameters
         int dimension = 3;
         String fieldToQuery = metadataFields[0];
@@ -238,6 +238,9 @@ public class UpdateFetchAndQueryServerlessTest {
         List<String> upsertIds = getIdsList(numOfVectors);
         DescribeIndexStatsResponse describeIndexStatsResponse1 = index.describeIndexStats();
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
+
+        // wait for the vectors to be upserted
+        Thread.sleep(90);
 
         try {
             for (int i = 0; i < upsertIds.size(); i++) {
@@ -475,6 +478,9 @@ public class UpdateFetchAndQueryServerlessTest {
         List<String> upsertIds = getIdsList(numOfVectors);
         DescribeIndexStatsResponse describeIndexStatsResponse1 = asyncIndex.describeIndexStats(null).get();
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
+
+        // wait for the vectors to be upserted
+        Thread.sleep(90000);
 
         try {
             for (int i = 0; i < upsertIds.size(); i++) {
