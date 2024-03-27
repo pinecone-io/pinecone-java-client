@@ -61,7 +61,7 @@ public class UpdateFetchAndQueryServerlessTest {
             index.upsert(id, generateVectorValuesByDimension(3), namespace);
         }
 
-        Thread.sleep(10000);
+        Thread.sleep(90000);
 
         // Verify the upserted vector count with fetch
         assertWithRetry(() -> {
@@ -124,6 +124,9 @@ public class UpdateFetchAndQueryServerlessTest {
                     generateVectorValuesByDimension(dimension),
                     namespace);
         }
+
+        // Wait for vectors to be upserted
+        Thread.sleep(90000);
 
         // Verify the upserted vector count with fetch
         assertWithRetry(() -> {
@@ -196,6 +199,9 @@ public class UpdateFetchAndQueryServerlessTest {
                     generateVectorValuesByDimension(dimension),
                     namespace);
         }
+
+        // Wait for vectors to be upserted
+        Thread.sleep(90000);
 
         // Verify the upserted vector count with fetch
         assertWithRetry(() -> {
@@ -297,6 +303,9 @@ public class UpdateFetchAndQueryServerlessTest {
         for (String id : upsertIds) {
             asyncIndex.upsert(id, generateVectorValuesByDimension(dimension), namespace).get();
         }
+
+        // Wait for vectors to be upserted
+        Thread.sleep(90000);
 
         // Verify the upserted vector count with fetch
         assertWithRetry(() -> {
