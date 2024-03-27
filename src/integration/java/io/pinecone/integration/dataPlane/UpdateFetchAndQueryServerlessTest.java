@@ -61,6 +61,8 @@ public class UpdateFetchAndQueryServerlessTest {
             index.upsert(id, generateVectorValuesByDimension(3), namespace);
         }
 
+        Thread.sleep(10000);
+
         // Verify the upserted vector count with fetch
         assertWithRetry(() -> {
             FetchResponse fetchResponse = index.fetch(upsertIds, namespace);
@@ -132,6 +134,8 @@ public class UpdateFetchAndQueryServerlessTest {
             }
         });
 
+        Thread.sleep(10000);
+
         String idToUpdate = upsertIds.get(0);
         List<Float> valuesToUpdate = Arrays.asList(101F, 102F, 103F);
         HashMap<String, List<String>> metadataMap = createAndGetMetadataMap();
@@ -195,7 +199,7 @@ public class UpdateFetchAndQueryServerlessTest {
                     namespace);
         }
 
-        Thread.sleep(5000);
+        Thread.sleep(10000);
 
         // Verify the upserted vector count with fetch
         assertWithRetry(() -> {
@@ -243,7 +247,7 @@ public class UpdateFetchAndQueryServerlessTest {
                         namespace);
             }
 
-            Thread.sleep(5000);
+            Thread.sleep(10000);
 
             Struct filter = Struct.newBuilder()
                     .putFields(metadataFields[0], Value.newBuilder()
@@ -300,7 +304,7 @@ public class UpdateFetchAndQueryServerlessTest {
             asyncIndex.upsert(id, generateVectorValuesByDimension(dimension), namespace).get();
         }
 
-        Thread.sleep(5000);
+        Thread.sleep(10000);
 
         // Verify the upserted vector count with fetch
         assertWithRetry(() -> {
@@ -316,7 +320,7 @@ public class UpdateFetchAndQueryServerlessTest {
         List<Float> updatedValues = Arrays.asList(101F, 102F, 103F);
         asyncIndex.update(idToUpdate, updatedValues, null, namespace, null, null).get();
 
-        Thread.sleep(7500);
+        Thread.sleep(10000);
 
         // Query by ID to verify
         assertWithRetry(() -> {
@@ -366,7 +370,7 @@ public class UpdateFetchAndQueryServerlessTest {
                     namespace).get();
         }
 
-        Thread.sleep(5000);
+        Thread.sleep(10000);
 
         // Verify the upserted vector count with fetch
         assertWithRetry(() -> {
@@ -389,6 +393,8 @@ public class UpdateFetchAndQueryServerlessTest {
 
         // Update required+optional fields
         asyncIndex.update(idToUpdate, valuesToUpdate, metadataToUpdate, namespace, null, null).get();
+
+        Thread.sleep(10000);
 
         // Query by vector to verify
         assertWithRetry(() -> {
@@ -439,7 +445,7 @@ public class UpdateFetchAndQueryServerlessTest {
                     namespace).get();
         }
 
-        Thread.sleep(5000);
+        Thread.sleep(10000);
 
         // Verify the upserted vector count with fetch
         assertWithRetry(() -> {
@@ -496,7 +502,7 @@ public class UpdateFetchAndQueryServerlessTest {
                             .build())
                     .build();
 
-            Thread.sleep(5000);
+            Thread.sleep(10000);
 
             assertWithRetry(() -> {
                 QueryResponseWithUnsignedIndices queryResponse = asyncIndex.queryByVectorId(3,
