@@ -5,7 +5,6 @@ import io.pinecone.configs.PineconeConnection;
 import io.pinecone.exceptions.FailedRequestInfo;
 import io.pinecone.exceptions.HttpErrorMapper;
 import io.pinecone.exceptions.PineconeException;
-import io.pinecone.exceptions.PineconeValidationException;
 import okhttp3.*;
 import org.openapitools.client.ApiClient;
 import org.openapitools.client.ApiException;
@@ -14,7 +13,7 @@ import org.openapitools.client.model.*;
 
 public class Pinecone {
 
-    private ManageIndexesApi manageIndexesApi;
+    private final ManageIndexesApi manageIndexesApi;
     private final PineconeConfig config;
 
     private Pinecone(PineconeConfig config, ManageIndexesApi manageIndexesApi) {

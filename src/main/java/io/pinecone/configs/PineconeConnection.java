@@ -34,7 +34,7 @@ public class PineconeConnection implements AutoCloseable {
      */
     private VectorServiceGrpc.VectorServiceBlockingStub blockingStub;
 
-    private VectorServiceGrpc.VectorServiceFutureStub futureStub;
+    private VectorServiceGrpc.VectorServiceFutureStub asyncStub;
 
     public PineconeConnection(PineconeConfig config) {
         this.config = config;
@@ -66,7 +66,7 @@ public class PineconeConnection implements AutoCloseable {
         channel.notifyWhenStateChanged(channel.getState(false), this::onConnectivityStateChanged);
         Metadata metadata = assembleMetadata(config);
         blockingStub = generateBlockingStub(metadata);
-        futureStub = generateFutureStub(metadata);
+        asyncStub = generateAsyncStub(metadata);
         logger.debug("created new PineconeConnection for channel: {}", channel);
     }
 
@@ -78,7 +78,7 @@ public class PineconeConnection implements AutoCloseable {
                 .withMaxOutboundMessageSize(DEFAULT_MAX_MESSAGE_SIZE);
     }
 
-    private VectorServiceGrpc.VectorServiceFutureStub generateFutureStub(Metadata metadata) {
+    private VectorServiceGrpc.VectorServiceFutureStub generateAsyncStub(Metadata metadata) {
         return VectorServiceGrpc
                 .newFutureStub(channel)
                 .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(metadata))
@@ -109,8 +109,8 @@ public class PineconeConnection implements AutoCloseable {
         return blockingStub;
     }
 
-    public VectorServiceGrpc.VectorServiceFutureStub getFutureStub() {
-        return futureStub;
+    public VectorServiceGrpc.VectorServiceFutureStub getAsyncStub() {
+        return asyncStub;
     }
 
     private void onConnectivityStateChanged() {

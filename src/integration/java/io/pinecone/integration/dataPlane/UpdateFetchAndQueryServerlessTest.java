@@ -61,6 +61,8 @@ public class UpdateFetchAndQueryServerlessTest {
             index.upsert(id, generateVectorValuesByDimension(3), namespace);
         }
 
+        Thread.sleep(90000);
+
         // Verify the upserted vector count with fetch
         assertWithRetry(() -> {
             FetchResponse fetchResponse = index.fetch(upsertIds, namespace);
@@ -68,7 +70,7 @@ public class UpdateFetchAndQueryServerlessTest {
             for (String key : upsertIds) {
                 assert (fetchResponse.containsVectors(key));
             }
-        });
+        }, 4);
 
         // Update required fields only
         String idToUpdate = upsertIds.get(0);
@@ -89,7 +91,7 @@ public class UpdateFetchAndQueryServerlessTest {
 
             List<Float> queryResponseValues = queryResponse.getMatches(0).getValuesList();
             assertEquals(updatedValues, queryResponseValues);
-        });
+        }, 4);
     }
 
     @Test
@@ -122,6 +124,9 @@ public class UpdateFetchAndQueryServerlessTest {
                     generateVectorValuesByDimension(dimension),
                     namespace);
         }
+
+        // Wait for vectors to be upserted
+        Thread.sleep(90000);
 
         // Verify the upserted vector count with fetch
         assertWithRetry(() -> {
@@ -178,7 +183,7 @@ public class UpdateFetchAndQueryServerlessTest {
             Collections.sort(expectedSparseValues);
 
             assertEquals(expectedSparseValues, actualSparseValues);
-        });
+        }, 4);
     }
 
     @Test
@@ -195,7 +200,8 @@ public class UpdateFetchAndQueryServerlessTest {
                     namespace);
         }
 
-        Thread.sleep(5000);
+        // Wait for vectors to be upserted
+        Thread.sleep(90000);
 
         // Verify the upserted vector count with fetch
         assertWithRetry(() -> {
@@ -204,7 +210,7 @@ public class UpdateFetchAndQueryServerlessTest {
             for (String key : upsertIds) {
                 assert (fetchResponse.containsVectors(key));
             }
-        });
+        }, 4);
 
         // Update required fields only but with incorrect values dimension
         String idToUpdate = upsertIds.get(0);
@@ -221,7 +227,7 @@ public class UpdateFetchAndQueryServerlessTest {
     }
 
     @Test
-    public void queryWithFilersSyncTest() {
+    public void queryWithFilersSyncTest() throws InterruptedException {
         // Upsert vectors with all parameters
         int dimension = 3;
         String fieldToQuery = metadataFields[0];
@@ -233,6 +239,9 @@ public class UpdateFetchAndQueryServerlessTest {
         DescribeIndexStatsResponse describeIndexStatsResponse1 = index.describeIndexStats();
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
 
+        // wait for the vectors to be upserted
+        Thread.sleep(90000);
+
         try {
             for (int i = 0; i < upsertIds.size(); i++) {
                 index.upsert(upsertIds.get(0),
@@ -242,8 +251,6 @@ public class UpdateFetchAndQueryServerlessTest {
                         generateMetadataStruct(0, 0),
                         namespace);
             }
-
-            Thread.sleep(5000);
 
             Struct filter = Struct.newBuilder()
                     .putFields(metadataFields[0], Value.newBuilder()
@@ -264,7 +271,7 @@ public class UpdateFetchAndQueryServerlessTest {
 
                 // Verify the metadata field is correctly filtered in the query response
                 assert (queryResponse.getMatches(0).getMetadata().getFieldsMap().get(fieldToQuery).toString().contains(valueToQuery));
-            });
+            }, 4);
         } catch (Exception e) {
             throw new PineconeException(e.getLocalizedMessage());
         }
@@ -300,7 +307,8 @@ public class UpdateFetchAndQueryServerlessTest {
             asyncIndex.upsert(id, generateVectorValuesByDimension(dimension), namespace).get();
         }
 
-        Thread.sleep(5000);
+        // Wait for vectors to be upserted
+        Thread.sleep(90000);
 
         // Verify the upserted vector count with fetch
         assertWithRetry(() -> {
@@ -309,7 +317,7 @@ public class UpdateFetchAndQueryServerlessTest {
             for (String key : upsertIds) {
                 assert (fetchResponse.containsVectors(key));
             }
-        });
+        }, 4);
 
         // Update required fields only
         String idToUpdate = upsertIds.get(0);
@@ -330,7 +338,7 @@ public class UpdateFetchAndQueryServerlessTest {
 
             List<Float> queryResponseValues = queryResponse.getMatches(0).getValuesList();
             assertEquals(updatedValues, queryResponseValues);
-        });
+        }, 4);
     }
 
     @Test
@@ -364,8 +372,6 @@ public class UpdateFetchAndQueryServerlessTest {
                     namespace).get();
         }
 
-        Thread.sleep(5000);
-
         // Verify the upserted vector count with fetch
         assertWithRetry(() -> {
             FetchResponse fetchResponse = asyncIndex.fetch(upsertIds, namespace).get();
@@ -373,7 +379,7 @@ public class UpdateFetchAndQueryServerlessTest {
             for (String key : upsertIds) {
                 assert (fetchResponse.containsVectors(key));
             }
-        });
+        }, 4);
 
         String idToUpdate = upsertIds.get(0);
         List<Float> valuesToUpdate = Arrays.asList(101F, 102F, 103F);
@@ -420,7 +426,7 @@ public class UpdateFetchAndQueryServerlessTest {
             Collections.sort(actualSparseValues);
             Collections.sort(expectedSparseValues);
             assertEquals(expectedSparseValues, actualSparseValues);
-        });
+        }, 4);
     }
 
     @Test
@@ -437,8 +443,6 @@ public class UpdateFetchAndQueryServerlessTest {
                     namespace).get();
         }
 
-        Thread.sleep(5000);
-
         // Verify the upserted vector count with fetch
         assertWithRetry(() -> {
             FetchResponse fetchResponse = asyncIndex.fetch(upsertIds, namespace).get();
@@ -446,7 +450,7 @@ public class UpdateFetchAndQueryServerlessTest {
             for (String key : upsertIds) {
                 assert (fetchResponse.containsVectors(key));
             }
-        });
+        }, 4);
 
         // Update required fields only but with incorrect values dimension
         String idToUpdate = upsertIds.get(0);
@@ -475,6 +479,9 @@ public class UpdateFetchAndQueryServerlessTest {
         DescribeIndexStatsResponse describeIndexStatsResponse1 = asyncIndex.describeIndexStats(null).get();
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
 
+        // wait for the vectors to be upserted
+        Thread.sleep(90000);
+
         try {
             for (int i = 0; i < upsertIds.size(); i++) {
                 asyncIndex.upsert(upsertIds.get(0),
@@ -494,8 +501,6 @@ public class UpdateFetchAndQueryServerlessTest {
                             .build())
                     .build();
 
-            Thread.sleep(5000);
-
             assertWithRetry(() -> {
                 QueryResponseWithUnsignedIndices queryResponse = asyncIndex.queryByVectorId(3,
                         upsertIds.get(0),
@@ -506,7 +511,7 @@ public class UpdateFetchAndQueryServerlessTest {
 
                 // Verify the metadata field is correctly filtered in the query response
                 assert (queryResponse.getMatches(0).getMetadata().getFieldsMap().get(fieldToQuery).toString().contains(valueToQuery));
-            });
+            }, 4);
         } catch (Exception exception) {
             throw exception;
         }

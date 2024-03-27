@@ -266,6 +266,8 @@ public interface IndexInterface<T, U, V, W, X, Y> extends AutoCloseable {
         return describeIndexStatsRequest.build();
     }
 
+    T upsert(List<VectorWithUnsignedIndices> vectorList, String namespace);
+
     T upsert(String id, List<Float> values);
 
     T upsert(String id, List<Float> values, String namespace);

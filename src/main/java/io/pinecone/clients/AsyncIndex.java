@@ -33,9 +33,10 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
             throw new PineconeValidationException("Pinecone connection object cannot be null.");
         }
         this.connection = connection;
-        this.asyncStub = connection.getFutureStub();
+        this.asyncStub = connection.getAsyncStub();
     }
 
+    @Override
     public ListenableFuture<UpsertResponse> upsert(List<VectorWithUnsignedIndices> vectorList,
                                                    String namespace) {
         UpsertRequest upsertRequest = validateUpsertRequest(vectorList, namespace);
