@@ -33,7 +33,7 @@ public class UpsertErrorTest {
         VectorServiceGrpc.VectorServiceFutureStub asyncStubMock = mock(VectorServiceGrpc.VectorServiceFutureStub.class);
 
         when(connectionMock.getBlockingStub()).thenReturn(stubMock);
-        when(connectionMock.getFutureStub()).thenReturn(asyncStubMock);
+        when(connectionMock.getAsyncStub()).thenReturn(asyncStubMock);
 
         index = new Index(connectionMock);
         asyncIndex = new AsyncIndex(connectionMock);
