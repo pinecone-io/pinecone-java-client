@@ -239,9 +239,6 @@ public class UpdateFetchAndQueryServerlessTest {
         DescribeIndexStatsResponse describeIndexStatsResponse1 = index.describeIndexStats();
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
 
-        // wait for the vectors to be upserted
-        Thread.sleep(90000);
-
         try {
             for (int i = 0; i < upsertIds.size(); i++) {
                 index.upsert(upsertIds.get(0),
@@ -260,6 +257,9 @@ public class UpdateFetchAndQueryServerlessTest {
                                             .build()))
                             .build())
                     .build();
+
+            // wait for the vectors to be upserted
+            Thread.sleep(90000);
 
             assertWithRetry(() -> {
                 QueryResponseWithUnsignedIndices queryResponse = index.queryByVectorId(3,
@@ -479,9 +479,6 @@ public class UpdateFetchAndQueryServerlessTest {
         DescribeIndexStatsResponse describeIndexStatsResponse1 = asyncIndex.describeIndexStats(null).get();
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
 
-        // wait for the vectors to be upserted
-        Thread.sleep(90000);
-
         try {
             for (int i = 0; i < upsertIds.size(); i++) {
                 asyncIndex.upsert(upsertIds.get(0),
@@ -500,6 +497,9 @@ public class UpdateFetchAndQueryServerlessTest {
                                             .build()))
                             .build())
                     .build();
+
+            // wait for the vectors to be upserted
+            Thread.sleep(90000);
 
             assertWithRetry(() -> {
                 QueryResponseWithUnsignedIndices queryResponse = asyncIndex.queryByVectorId(3,
