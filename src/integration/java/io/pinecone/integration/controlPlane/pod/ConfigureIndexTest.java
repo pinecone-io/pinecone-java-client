@@ -147,17 +147,18 @@ public class ConfigureIndexTest {
 
     private static void waitUntilIndexStateIsReady(String indexName) throws InterruptedException {
         int timeToWaitMs = 30000;
+        int timeWaited = 0;
         IndexModel index = controlPlaneClient.describeIndex(indexName);
 
-        while (index.getStatus().getState() != IndexModelStatus.StateEnum.READY && timeToWaitMs > 0) {
+        while (index.getStatus().getState() != IndexModelStatus.StateEnum.READY && timeWaited <= timeToWaitMs) {
             Thread.sleep(2000);
-            timeToWaitMs -= 2000;
+            timeWaited += 2000;
             System.out.println("waited 2000ms for index to upgrade, time left: " + timeToWaitMs);
             System.out.println("System model state: " + index.getStatus());
             index = controlPlaneClient.describeIndex(indexName);
         }
         if (!index.getStatus().getReady()) {
-            fail("Index " + indexName + " did not finish upgrading after " + timeToWaitMs + "ms");
+            fail("Index " + indexName + " did not finish upgrading after " + timeWaited + "ms");
         }
     }
 }
