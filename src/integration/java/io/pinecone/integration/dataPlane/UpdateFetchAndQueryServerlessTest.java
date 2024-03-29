@@ -73,7 +73,7 @@ public class UpdateFetchAndQueryServerlessTest {
                     generateVectorValuesByDimension(dimension),
                     namespace);
         }
-
+        
         // wait sometime for the vectors to be updated
          Thread.sleep(90000);
     }

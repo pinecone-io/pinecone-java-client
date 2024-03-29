@@ -62,6 +62,7 @@ dependencies {
     testImplementation 'org.slf4j:slf4j-simple:2.0.5'
     testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.14.2'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.0'
+    testImplementation 'org.junit.platform:junit-platform-launcher:1.8.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.0'
 }
 
@@ -93,6 +94,8 @@ tasks.named('build') {
 
 test {
     useJUnitPlatform()
+
+    // systemProperty 'junit.platform.listeners', 'io.pinecone.AfterAllTestsListener'
 }
 
 task integrationTest(type: Test) {
@@ -100,6 +103,8 @@ task integrationTest(type: Test) {
     testClassesDirs = sourceSets.integrationTest.output.classesDirs
     classpath = sourceSets.integrationTest.runtimeClasspath
     outputs.upToDateWhen { false }
+
+    // systemProperty 'junit.platform.listeners', 'io.pinecone.AfterAllTestsListener'
 }
 
 // Configure Auto Relocation
@@ -109,6 +114,13 @@ task relocateShadowJar(type: ConfigureShadowRelocation) {
     target = tasks.shadowJar
     prefix = "io.pinecone.shadow" // Default value is "shadow"
 
+}
+
+// Javadoc task
+task generateJavadoc(type: Javadoc) {
+    source = sourceSets.main.allJava
+    options.memberLevel = JavadocMemberLevel.PUBLIC
+    destinationDir = file("${projectDir}/docs")
 }
 
 tasks.shadowJar.dependsOn tasks.relocateShadowJar

@@ -4,8 +4,7 @@ import io.pinecone.clients.Pinecone;
 import io.pinecone.exceptions.PineconeBadRequestException;
 import io.pinecone.exceptions.PineconeNotFoundException;
 import io.pinecone.exceptions.PineconeUnmappedHttpException;
-import io.pinecone.helpers.RandomStringBuilder;
-import org.junit.jupiter.api.AfterAll;
+import io.pinecone.helpers.IndexManagerSingleton;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.model.*;
@@ -14,27 +13,17 @@ import static io.pinecone.helpers.IndexManager.waitUntilIndexIsReady;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CreateDescribeListAndDeleteIndexTest {
-    private static final String indexName = RandomStringBuilder.build("create-index", 8);
+
+    private static final IndexManagerSingleton indexManager = IndexManagerSingleton.getInstance();
+    private static Pinecone controlPlaneClient = indexManager.getPineconeClient();
+    private static String indexName;
+    private static int dimension;
     // Serverless currently has limited availability in specific regions, hard-code us-west-2 for now
     private static final String serverlessRegion = "us-west-2";
-    private static Pinecone controlPlaneClient = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
     @BeforeAll
     public static void setUp() throws InterruptedException {
-        // Create the index
-        ServerlessSpec serverlessSpec = new ServerlessSpec().cloud(ServerlessSpec.CloudEnum.AWS).region(serverlessRegion);
-        CreateIndexRequestSpec createIndexRequestSpec = new CreateIndexRequestSpec().serverless(serverlessSpec);
-        CreateIndexRequest createIndexRequest = new CreateIndexRequest()
-                .name(indexName)
-                .dimension(10)
-                .spec(createIndexRequestSpec);
-        controlPlaneClient.createIndex(createIndexRequest);
-        waitUntilIndexIsReady(controlPlaneClient, indexName);
-    }
-
-    @AfterAll
-    public static void cleanUp() {
-        // Delete the index
-        controlPlaneClient.deleteIndex(indexName);
+        indexName = indexManager.getServerlessIndexName();
+        dimension = indexManager.getDimension();
     }
 
     @Test
@@ -42,7 +31,7 @@ public class CreateDescribeListAndDeleteIndexTest {
         // Describe the index
         IndexModel indexModel = controlPlaneClient.describeIndex(indexName);
         assertNotNull(indexModel);
-        assertEquals(10, indexModel.getDimension());
+        assertEquals(dimension, indexModel.getDimension());
         assertEquals(indexName, indexModel.getName());
         assertEquals(IndexMetric.COSINE, indexModel.getMetric());
         assertNotNull(indexModel.getSpec().getServerless());
