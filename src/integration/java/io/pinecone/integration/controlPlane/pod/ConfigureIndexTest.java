@@ -28,8 +28,14 @@ public class ConfigureIndexTest {
         waitUntilIndexIsReady(controlPlaneClient, indexName);
     }
 
+    @BeforeEach
+    public void beforeEach() throws InterruptedException {
+        waitUntilIndexUpgraded(indexName);
+    }
+
     @AfterAll
-    public static void cleanUp() {
+    public static void cleanUp() throws InterruptedException  {
+        waitUntilIndexUpgraded(indexName);
         controlPlaneClient.deleteIndex(indexName);
     }
 
@@ -96,8 +102,6 @@ public class ConfigureIndexTest {
             assertNotNull(podSpec);
             assertEquals(podSpec.getReplicas(), 1);
         });
-
-        waitUntilIndexIsReady(controlPlaneClient, indexName);
     }
 
     @Test
@@ -139,7 +143,21 @@ public class ConfigureIndexTest {
             assertNotNull(podSpec);
             assertEquals(podSpec.getPodType(), "p1.x2");
         });
+    }
 
-        waitUntilIndexIsReady(controlPlaneClient, indexName);
+    private static void waitUntilIndexUpgraded(String indexName) throws InterruptedException {
+        int timeToWaitMs = 30000;
+        IndexModel index = controlPlaneClient.describeIndex(indexName);
+
+        while (index.getStatus().getState() != IndexModelStatus.StateEnum.READY && timeToWaitMs > 0) {
+            Thread.sleep(2000);
+            timeToWaitMs -= 2000;
+            System.out.println("waited 2000ms for index to upgrade, time left: " + timeToWaitMs);
+            System.out.println("System model state: " + index.getStatus());
+            index = controlPlaneClient.describeIndex(indexName);
+        }
+        if (!index.getStatus().getReady()) {
+            fail("Index " + indexName + " did not finish upgrading after " + timeToWaitMs + "ms");
+        }
     }
 }
