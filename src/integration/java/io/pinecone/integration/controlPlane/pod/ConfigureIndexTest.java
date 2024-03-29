@@ -7,12 +7,15 @@ import io.pinecone.exceptions.PineconeNotFoundException;
 import io.pinecone.helpers.RandomStringBuilder;
 import org.junit.jupiter.api.*;
 import org.openapitools.client.model.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static io.pinecone.helpers.AssertRetry.assertWithRetry;
 import static io.pinecone.helpers.IndexManager.waitUntilIndexIsReady;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ConfigureIndexTest {
+    private static final Logger logger = LoggerFactory.getLogger(CollectionTest.class);
     private static Pinecone controlPlaneClient;
     private static final String indexName = RandomStringBuilder.build("configure-index", 8);;
 
@@ -28,11 +31,15 @@ public class ConfigureIndexTest {
         waitUntilIndexIsReady(controlPlaneClient, indexName);
     }
 
+    @BeforeEach
+    public void beforeEach() throws InterruptedException {
+        waitUntilIndexStateIsReady(indexName);
+    }
+
     @AfterAll
-    public static void cleanUp() throws InterruptedException {
-        Thread.sleep(2500);
-        controlPlaneClient.deleteIndex(indexName);
-        Thread.sleep(2500);
+    public static void cleanUp() throws InterruptedException  {
+        waitUntilIndexStateIsReady(indexName);
+        assertWithRetry(() -> controlPlaneClient.deleteIndex(indexName));
     }
 
     @Test
@@ -83,6 +90,8 @@ public class ConfigureIndexTest {
             assertNotNull(podSpec);
             assertEquals(podSpec.getReplicas(), 3);
         });
+
+        waitUntilIndexStateIsReady(indexName);
 
         // Scaling down
         ConfigureIndexRequestSpecPod downPod = new ConfigureIndexRequestSpecPod().replicas(1);
@@ -137,5 +146,22 @@ public class ConfigureIndexTest {
             assertNotNull(podSpec);
             assertEquals(podSpec.getPodType(), "p1.x2");
         });
+    }
+
+    private static void waitUntilIndexStateIsReady(String indexName) throws InterruptedException {
+        int timeToWaitMs = 30000;
+        int timeWaited = 0;
+        IndexModel index = controlPlaneClient.describeIndex(indexName);
+
+        while (index.getStatus().getState() != IndexModelStatus.StateEnum.READY && timeWaited <= timeToWaitMs) {
+            Thread.sleep(2000);
+            timeWaited += 2000;
+            logger.info("waited 2000ms for index to upgrade, time left: " + timeToWaitMs);
+            logger.info("System model state: " + index.getStatus());
+            index = controlPlaneClient.describeIndex(indexName);
+        }
+        if (!index.getStatus().getReady()) {
+            fail("Index " + indexName + " did not finish upgrading after " + timeWaited + "ms");
+        }
     }
 }
