@@ -36,7 +36,7 @@ public class ConfigureIndexTest {
     @AfterAll
     public static void cleanUp() throws InterruptedException  {
         waitUntilIndexUpgraded(indexName);
-        controlPlaneClient.deleteIndex(indexName);
+        assertWithRetry(() -> controlPlaneClient.deleteIndex(indexName));
     }
 
     @Test
