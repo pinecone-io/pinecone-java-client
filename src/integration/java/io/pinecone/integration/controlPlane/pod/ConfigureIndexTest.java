@@ -7,12 +7,15 @@ import io.pinecone.exceptions.PineconeNotFoundException;
 import io.pinecone.helpers.RandomStringBuilder;
 import org.junit.jupiter.api.*;
 import org.openapitools.client.model.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static io.pinecone.helpers.AssertRetry.assertWithRetry;
 import static io.pinecone.helpers.IndexManager.waitUntilIndexIsReady;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ConfigureIndexTest {
+    private static final Logger logger = LoggerFactory.getLogger(CollectionTest.class);
     private static Pinecone controlPlaneClient;
     private static final String indexName = RandomStringBuilder.build("configure-index", 8);;
 
@@ -153,8 +156,8 @@ public class ConfigureIndexTest {
         while (index.getStatus().getState() != IndexModelStatus.StateEnum.READY && timeWaited <= timeToWaitMs) {
             Thread.sleep(2000);
             timeWaited += 2000;
-            System.out.println("waited 2000ms for index to upgrade, time left: " + timeToWaitMs);
-            System.out.println("System model state: " + index.getStatus());
+            logger.info("waited 2000ms for index to upgrade, time left: " + timeToWaitMs);
+            logger.info("System model state: " + index.getStatus());
             index = controlPlaneClient.describeIndex(indexName);
         }
         if (!index.getStatus().getReady()) {
