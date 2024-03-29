@@ -30,12 +30,12 @@ public class ConfigureIndexTest {
 
     @BeforeEach
     public void beforeEach() throws InterruptedException {
-        waitUntilIndexUpgraded(indexName);
+        waitUntilIndexStateIsReady(indexName);
     }
 
     @AfterAll
     public static void cleanUp() throws InterruptedException  {
-        waitUntilIndexUpgraded(indexName);
+        waitUntilIndexStateIsReady(indexName);
         assertWithRetry(() -> controlPlaneClient.deleteIndex(indexName));
     }
 
@@ -88,7 +88,7 @@ public class ConfigureIndexTest {
             assertEquals(podSpec.getReplicas(), 3);
         });
 
-        waitUntilIndexIsReady(controlPlaneClient, indexName);
+        waitUntilIndexStateIsReady(indexName);
 
         // Scaling down
         ConfigureIndexRequestSpecPod downPod = new ConfigureIndexRequestSpecPod().replicas(1);
@@ -145,7 +145,7 @@ public class ConfigureIndexTest {
         });
     }
 
-    private static void waitUntilIndexUpgraded(String indexName) throws InterruptedException {
+    private static void waitUntilIndexStateIsReady(String indexName) throws InterruptedException {
         int timeToWaitMs = 30000;
         IndexModel index = controlPlaneClient.describeIndex(indexName);
 
