@@ -74,8 +74,8 @@ public class UpdateFetchAndQueryServerlessTest {
                     namespace);
         }
 
-        // wait sometime for the vectors to be upserted
-         Thread.sleep(120000);
+        // wait sometime for the vectors to be updated
+         Thread.sleep(90000);
     }
 
     @AfterAll
