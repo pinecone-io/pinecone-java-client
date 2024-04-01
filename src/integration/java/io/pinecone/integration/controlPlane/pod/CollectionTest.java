@@ -41,47 +41,12 @@ public class CollectionTest {
         indexName = indexManager.getPodIndexName();
         collectionName = indexManager.getCollectionName();
         collection = indexManager.getCollectionModel();
-
-//        CreateIndexRequestSpecPod podSpec =
-//                new CreateIndexRequestSpecPod().pods(1).podType("p1.x1").replicas(1).environment(environment);
-//        CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(podSpec);
-//        Index indexClient = createNewIndexAndConnectSync(pineconeClient, indexName, dimension,
-//                indexMetric, spec);
-//        indexesToCleanUp.add(indexName);
-//
-//        // Sometimes we see grpc failures when upserting so quickly after creating, so retry if so
-//        assertWithRetry(() -> indexClient.upsert(buildRequiredUpsertRequestByDimension(upsertIds, dimension), namespace), 3);
-//
-//        // Create collection from index
-//        collection = createCollection(pineconeClient, collectionName, indexName, true);
-//        assertEquals(collection.getName(), collectionName);
-//        assertEquals(collection.getEnvironment(), environment);
-//        assertEquals(collection.getStatus(), CollectionModel.StatusEnum.READY);
     }
 
     @AfterAll
     public static void cleanUp() throws InterruptedException {
         // wait for things to settle before cleanup...
         Thread.sleep(2500);
-
-//        // Verify we can delete the collection
-//        pineconeClient.deleteCollection(collectionName);
-//        Thread.sleep(2500);
-//
-//        List<CollectionModel> collectionList = pineconeClient.listCollections().getCollections();
-//        if (collectionList != null) {
-//            boolean isCollectionDeleted = true;
-//            for (CollectionModel col : collectionList) {
-//                if (col.getName().equals(collectionName)) {
-//                    isCollectionDeleted = false;
-//                    break;
-//                }
-//            }
-//
-//            if (!isCollectionDeleted) {
-//                fail("Collection " + collectionName + " was not successfully deleted");
-//            }
-//        }
 
         // Clean up indexes
         for (String index : indexesToCleanUp) {
