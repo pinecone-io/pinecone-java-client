@@ -23,15 +23,12 @@ public class IndexManagerSingleton {
     private final int dimension = System.getenv("DIMENSION") == null
             ? 4
             : Integer.parseInt(System.getenv("DIMENSION"));
-
     private final String environment = System.getenv("PINECONE_ENVIRONMENT") == null
             ? "us-east4-gcp"
             : System.getenv("PINECONE_ENVIRONMENT");
-
     private static final IndexMetric metric = System.getenv("METRIC") == null
             ? IndexMetric.COSINE
             : IndexMetric.valueOf(System.getenv("METRIC"));
-
     private static final PineconeConfig pineconeConfig = new PineconeConfig(apiKey);
     private static Pinecone pineconeClient;
     private String podIndexName;
@@ -59,18 +56,21 @@ public class IndexManagerSingleton {
         }
         return podIndexName;
     }
+
     public String getServerlessIndexName() throws InterruptedException, PineconeException {
         if (serverlessIndexName == null) {
             serverlessIndexName = createServerlessIndex();
         }
         return serverlessIndexName;
     }
+
     public String getCollectionName() throws InterruptedException {
         if (collectionName == null) {
             collectionName = createCollection();
         }
         return collectionName;
     }
+    
     public Pinecone getPineconeClient() {
         return pineconeClient;
     }
