@@ -70,7 +70,7 @@ public class IndexManagerSingleton {
         }
         return collectionName;
     }
-    
+
     public Pinecone getPineconeClient() {
         return pineconeClient;
     }
@@ -140,6 +140,9 @@ public class IndexManagerSingleton {
         CreateIndexRequest createIndexRequest = new CreateIndexRequest().name(indexName).dimension(dimension).metric(metric).spec(spec);
         podIndexModel = pineconeClient.createIndex(createIndexRequest);
         waitUntilIndexIsReady(pineconeClient, indexName);
+
+        // Explicitly wait after ready to avoid the "no healthy upstream" issue
+        Thread.sleep(10000);
 
         // Seed data
         seedIndex(podIndexVectorIds, indexName);
