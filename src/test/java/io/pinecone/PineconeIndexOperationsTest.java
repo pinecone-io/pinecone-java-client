@@ -2,6 +2,7 @@ package io.pinecone;
 
 import com.google.gson.Gson;
 import io.pinecone.clients.Pinecone;
+import io.pinecone.exceptions.PineconeException;
 import io.pinecone.exceptions.PineconeValidationException;
 import okhttp3.*;
 import org.junit.jupiter.api.Disabled;
@@ -140,6 +141,10 @@ public class PineconeIndexOperationsTest {
         assertEquals(createdIndex, expectedIndex);
         assertEquals(requestCaptor.getValue().method(), "POST");
         assertEquals(requestCaptor.getValue().url().toString(), "https://api.pinecone.io/indexes");
+
+        // Test for null CreateIndexRequest object
+        PineconeException thrown = assertThrows(PineconeException.class, () -> client.createIndex(null));
+        assertEquals("CreateIndexRequest object cannot be null", thrown.getMessage());
     }
 
     @Test

@@ -23,6 +23,7 @@ public class Pinecone {
 
     public static class Builder {
         // Required parameters
+        /// lalal test
         private final String apiKey;
 
         // Optional parameters
@@ -64,6 +65,9 @@ public class Pinecone {
     }
 
     public IndexModel createIndex(CreateIndexRequest createIndexRequest) throws PineconeException {
+        if (createIndexRequest == null) {
+            throw new PineconeException("CreateIndexRequest object cannot be null");
+        }
         IndexModel indexModel = null;
         try {
             indexModel = manageIndexesApi.createIndex(createIndexRequest);
