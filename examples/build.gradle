@@ -11,7 +11,7 @@ repositories {
 }
 
 dependencies {
-    implementation project(':pinecone-client')
+    implementation project(':')
 
     implementation "org.slf4j:slf4j-simple:1.7.30"
     implementation 'org.codehaus.groovy:groovy-all:2.4.15'
