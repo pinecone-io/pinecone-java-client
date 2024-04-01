@@ -15,7 +15,7 @@ Maven:
 <dependency>
   <groupId>io.pinecone</groupId>
   <artifactId>pinecone-client</artifactId>
-  <version>1.0.0-rc.2</version>
+  <version>1.0.0-rc.3</version>
 </dependency>
 ```
 
@@ -23,12 +23,12 @@ Maven:
 
 Gradle:
 ```
-implementation "io.pinecone:pinecone-client:1.0.0-rc.2"
+implementation "io.pinecone:pinecone-client:1.0.0-rc.3"
 ```
 
 [comment]: <> (^ [pc:VERSION_LATEST_RELEASE])
 
-Alternatively, you can use our standalone uberjar [pinecone-client-1.0.0-rc.2-all.jar](https://repo1.maven.org/maven2/io/pinecone/pinecone-client/1.0.0-rc.2/pinecone-client-1.0.0-rc.2-all.jar), which bundles the pinecone client and all dependencies together inside a single jar. You can include this on your classpath like any 3rd party JAR without having to obtain the *pinecone-client* dependencies separately.
+Alternatively, you can use our standalone uberjar [pinecone-client-1.0.0-rc.3-all.jar](https://repo1.maven.org/maven2/io/pinecone/pinecone-client/1.0.0-rc.3/pinecone-client-1.0.0-rc.3-all.jar), which bundles the pinecone client and all dependencies together inside a single jar. You can include this on your classpath like any 3rd party JAR without having to obtain the *pinecone-client* dependencies separately.
 
 [comment]: <> (^ [pc:VERSION_LATEST_RELEASE])
 
@@ -136,6 +136,7 @@ public class ListIndexExample {
     public static void main(String[] args) {
         Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
         IndexList indexList = pinecone.listIndexes();
+        System.out.println(indexList);
     }
 }
 ```
@@ -145,8 +146,6 @@ public class ListIndexExample {
 The following example returns information about the index `example-index`.
 
 ```java
-package pineconeexamples.controlPlane.pod;
-
 import io.pinecone.clients.Pinecone;
 import org.openapitools.client.model.*;
 
@@ -154,6 +153,7 @@ public class DescribeIndexExample {
     public static void main(String[] args) {
         Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
         IndexModel indexModel = pinecone.describeIndex("example-index");
+        System.out.println(indexModel);
     }
 }
 ```
@@ -198,8 +198,6 @@ public class ConfigureIndexExample {
 The following example returns statistics about the index `example-index`.
 
 ```java
-package pineconeexamples.controlPlane.pod;
-
 import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.proto.DescribeIndexStatsResponse;
@@ -209,7 +207,8 @@ public class DescribeIndexStatsExample {
         Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
 
         Index index = pinecone.createIndexConnection("indexName");
-        DescribeIndexStatsResponse indexStatsResponse = index.describeIndexStats(null);
+        DescribeIndexStatsResponse indexStatsResponse = index.describeIndexStats();
+        System.out.println(indexStatsResponse);
     }
 }
 ```
@@ -245,7 +244,9 @@ public class UpsertVectorsExample {
         for (String id : upsertIds) {
             vectors.add(buildUpsertVectorWithUnsignedIndices(id, values, sparseIndices, sparseValues, emptyMetaDataStruct));
         }
-        index.upsert(vectors, "example-namespace");
+        
+        UpsertResponse upsertResponse = index.upsert(vectors, "example-namespace");
+        System.out.println(upsertResponse);
     }
 }
 ```
@@ -264,7 +265,8 @@ public class QueryVectorsExample {
     public static void main(String[] args) {
         Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
         Index index = pinecone.createIndexConnection("example-index");
-        QueryResponseWithUnsignedIndices queryRespone = index.queryByVectorId(3, "v1", "namespace");
+        QueryResponseWithUnsignedIndices queryRespone = index.queryByVectorId(3, "v1", "example-namespace");
+        System.out.println(queryRespone);
     }
 }
 ```
@@ -284,7 +286,7 @@ public class DeleteVectorsExample {
         Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
         Index index = pinecone.createIndexConnection("example-index");
         List<String> ids = Arrays.asList("v1", "v2", "v3");
-        DeleteResponse deleteResponse = index.deleteByIds(ids);
+        DeleteResponse deleteResponse = index.deleteByIds(ids, "example-namespace");
     }
 }
 ```
@@ -306,7 +308,8 @@ public class DataPlaneExample {
         Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
         Index index = pinecone.createIndexConnection("example-index");
         List<String> ids = Arrays.asList("v1", "v2", "v3");
-        FetchResponse fetchResponse = index.fetch(ids);
+        FetchResponse fetchResponse = index.fetch(ids, "example-namespace");
+        System.out.println(fetchResponse);
     }
 }
 ```
@@ -328,7 +331,8 @@ public class DataPlaneExample {
         Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
         Index index = pinecone.createIndexConnection("example-index");
         List<Float> values = Arrays.asList(1F, 2F, 3F);
-        UpdateResponse updateResponse = index.update("v1", values, "namespace");
+        UpdateResponse updateResponse = index.update("v1", values, "example-namespace");
+        System.out.println(updateResponse);
     }
 }
 ```
