@@ -35,10 +35,10 @@ public class IndexManager {
         }
 
         for (IndexModel indexModel : indexModels) {
-            // Sparse-dense is only supported with DOTPRODUCT
-            if (indexModel.getDimension() == dimension && indexModel.getMetric() == IndexMetric.DOTPRODUCT
-                && ((indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_POD) && indexModel.getSpec().getPod() != null)
-                || (indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_SERVERLESS) && indexModel.getSpec().getServerless() != null))
+            if (indexModel.getDimension() == dimension
+                &&
+                (indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_POD) && indexModel.getSpec().getPod() != null
+                  || indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_SERVERLESS) && indexModel.getSpec().getServerless() != null)
             ) {
                 return indexModel.getName();
             }

@@ -139,6 +139,7 @@ public class IndexManagerSingleton {
         CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(podSpec);
         CreateIndexRequest createIndexRequest = new CreateIndexRequest().name(indexName).dimension(dimension).metric(metric).spec(spec);
         podIndexModel = pineconeClient.createIndex(createIndexRequest);
+        waitUntilIndexIsReady(pineconeClient, indexName);
 
         // Seed data
         seedIndex(podIndexVectorIds, indexName);
