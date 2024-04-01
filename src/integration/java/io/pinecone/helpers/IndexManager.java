@@ -80,7 +80,7 @@ public class IndexManager {
         int waitedTimeMs = 0;
         int intervalMs = 2000;
 
-        while (!index.getStatus().getReady()) {
+        while (index.getStatus().getState() != IndexModelStatus.StateEnum.READY) {
             index = pinecone.describeIndex(indexName);
             if (waitedTimeMs >= totalMsToWait) {
                 logger.info("WARNING: Index " + indexName + " not ready after " + waitedTimeMs + "ms");
