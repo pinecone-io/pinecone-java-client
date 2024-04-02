@@ -159,11 +159,12 @@ public class Pinecone {
     }
 
     public AsyncIndex getAsyncIndexConnection(String indexName) {
+        config.setHost(getIndexHost(indexName));
         PineconeConnection connection = getConnection(indexName);
         return new AsyncIndex(this, connection, indexName);
     }
 
-    private PineconeConnection getConnection(String indexName) {
+    PineconeConnection getConnection(String indexName) {
         return connectionsMap.computeIfAbsent(indexName, key -> new PineconeConnection(config));
     }
 
