@@ -25,13 +25,18 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     private final PineconeConnection connection;
     private final VectorServiceGrpc.VectorServiceFutureStub asyncStub;
+    private final Pinecone pinecone;
+    private final String indexName;
 
     private static final Logger logger = LoggerFactory.getLogger(AsyncIndex.class);
 
-    public AsyncIndex(PineconeConnection connection) {
+    public AsyncIndex(Pinecone pinecone, PineconeConnection connection, String indexName) {
         if (connection == null) {
             throw new PineconeValidationException("Pinecone connection object cannot be null.");
         }
+
+        this.pinecone = pinecone;
+        this.indexName = indexName;
         this.connection = connection;
         this.asyncStub = connection.getAsyncStub();
     }
@@ -216,6 +221,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
     public void close() {
         try {
             logger.debug("closing channel");
+            pinecone.getConnectionsMap().remove(indexName);
             connection.getChannel().shutdownNow().awaitTermination(5, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             logger.warn("Channel shutdown interrupted before termination confirmed");

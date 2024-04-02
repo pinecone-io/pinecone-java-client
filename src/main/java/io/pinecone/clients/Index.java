@@ -21,16 +21,20 @@ public class Index implements IndexInterface<UpsertResponse,
         DescribeIndexStatsResponse> {
 
     private final PineconeConnection connection;
+    private final Pinecone pinecone;
+    private final String indexName;
     private final VectorServiceGrpc.VectorServiceBlockingStub blockingStub;
 
     private static final Logger logger = LoggerFactory.getLogger(Index.class);
 
-    public Index(PineconeConnection connection) {
+    public Index(Pinecone pinecone, PineconeConnection connection, String indexName) {
         if (connection == null) {
             throw new PineconeValidationException("Pinecone connection object cannot be null.");
         }
 
         this.connection = connection;
+        this.pinecone = pinecone;
+        this.indexName = indexName;
         this.blockingStub = connection.getBlockingStub();
     }
 
@@ -205,9 +209,18 @@ public class Index implements IndexInterface<UpsertResponse,
     public void close() {
         try {
             logger.debug("closing channel");
+            pinecone.getConnectionsMap().remove(indexName);
             connection.getChannel().shutdownNow().awaitTermination(5, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             logger.warn("Channel shutdown interrupted before termination confirmed");
         }
+    }
+
+    PineconeConnection getConnection() {
+        return this.connection;
+    }
+
+    String getIndexName() {
+        return this.indexName;
     }
 }

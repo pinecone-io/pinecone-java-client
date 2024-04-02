@@ -11,10 +11,13 @@ import org.openapitools.client.ApiException;
 import org.openapitools.client.api.ManageIndexesApi;
 import org.openapitools.client.model.*;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 public class Pinecone {
 
     private final ManageIndexesApi manageIndexesApi;
     private final PineconeConfig config;
+    private static final ConcurrentHashMap<String, PineconeConnection> connectionsMap = new ConcurrentHashMap<>();
 
     private Pinecone(PineconeConfig config, ManageIndexesApi manageIndexesApi) {
         this.config = config;
@@ -150,13 +153,26 @@ public class Pinecone {
     }
 
     public Index createIndexConnection(String indexName) {
-        PineconeConnection connection = new PineconeConnection(config, indexName);
-        return new Index(connection);
+        config.setHost(getIndexHost(indexName));
+        PineconeConnection connection = getConnection(indexName);
+        return new Index(this, connection, indexName);
     }
 
     public AsyncIndex createAsyncIndexConnection(String indexName) {
-        PineconeConnection connection = new PineconeConnection(config, indexName);
-        return new AsyncIndex(connection);
+        PineconeConnection connection = getConnection(indexName);
+        return new AsyncIndex(this, connection, indexName);
+    }
+
+    private PineconeConnection getConnection(String indexName) {
+        return connectionsMap.computeIfAbsent(indexName, key -> new PineconeConnection(config));
+    }
+
+    ConcurrentHashMap<String, PineconeConnection> getConnectionsMap() {
+        return connectionsMap;
+    }
+
+    String getIndexHost(String indexName) {
+        return this.describeIndex(indexName).getHost();
     }
 
     private void handleApiException(ApiException apiException) throws PineconeException {
