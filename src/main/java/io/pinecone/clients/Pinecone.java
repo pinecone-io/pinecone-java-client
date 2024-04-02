@@ -24,7 +24,6 @@ public class Pinecone {
 
     public static class Builder {
         // Required parameters
-        /// lalal test
         private final String apiKey;
 
         // Optional parameters
