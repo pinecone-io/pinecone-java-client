@@ -243,5 +243,20 @@ public class PineconeIndexOperationsTest {
         assertEquals(expectedConfiguredIndex, configuredIndex);
         assertEquals(requestCaptor.getValue().method(), "PATCH");
         assertEquals(requestCaptor.getValue().url().toString(), "https://api.pinecone.io/indexes/testIndex");
+
+        // Test for empty string for index name
+        PineconeException thrownEmptyIndexName = assertThrows(PineconeException.class, () -> client.configureIndex("",
+                configureIndexRequest));
+        assertEquals("Index name cannot be null or empty", thrownEmptyIndexName.getMessage());
+
+        // Test for null as index name
+        PineconeException thrownNullIndexName = assertThrows(PineconeException.class, () -> client.configureIndex(null,
+                configureIndexRequest));
+        assertEquals("Index name cannot be null or empty", thrownNullIndexName.getMessage());
+
+        // Test for null as configureIndexRequest
+        PineconeException thrownNullRequestObj = assertThrows(PineconeException.class,
+                () -> client.configureIndex("testIndex", null));
+        assertEquals("ConfigureIndexRequest object cannot be null", thrownNullRequestObj.getMessage());
     }
 }

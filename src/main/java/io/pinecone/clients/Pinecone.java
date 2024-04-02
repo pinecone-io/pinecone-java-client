@@ -88,6 +88,13 @@ public class Pinecone {
     }
 
     public IndexModel configureIndex(String indexName, ConfigureIndexRequest configureIndexRequest) throws PineconeException {
+        if (configureIndexRequest == null) {
+            throw new PineconeException("ConfigureIndexRequest object cannot be null");
+        }
+        if (indexName == null || indexName.isEmpty()) {
+            throw new PineconeException("Index name cannot be null or empty");
+        }
+
         IndexModel indexModel = null;
         try {
             indexModel = manageIndexesApi.configureIndex(indexName, configureIndexRequest);
