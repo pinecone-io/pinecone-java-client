@@ -215,12 +215,4 @@ public class Index implements IndexInterface<UpsertResponse,
             logger.warn("Channel shutdown interrupted before termination confirmed");
         }
     }
-
-    PineconeConnection getConnection() {
-        return this.connection;
-    }
-
-    String getIndexName() {
-        return this.indexName;
-    }
 }

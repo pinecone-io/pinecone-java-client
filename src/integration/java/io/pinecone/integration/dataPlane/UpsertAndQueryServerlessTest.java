@@ -40,8 +40,8 @@ public class UpsertAndQueryServerlessTest {
 
         String indexName = findIndexWithDimensionAndType(pinecone, dimension, indexType);
         if (indexName.isEmpty()) indexName = createNewIndex(pinecone, dimension, indexType, true);
-        index = pinecone.createIndexConnection(indexName);
-        asyncIndex = pinecone.createAsyncIndexConnection(indexName);
+        index = pinecone.getIndexConnection(indexName);
+        asyncIndex = pinecone.getAsyncIndexConnection(indexName);
     }
 
     @AfterAll

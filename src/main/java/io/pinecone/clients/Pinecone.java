@@ -19,7 +19,7 @@ public class Pinecone {
     private final PineconeConfig config;
     private static final ConcurrentHashMap<String, PineconeConnection> connectionsMap = new ConcurrentHashMap<>();
 
-    private Pinecone(PineconeConfig config, ManageIndexesApi manageIndexesApi) {
+    Pinecone(PineconeConfig config, ManageIndexesApi manageIndexesApi) {
         this.config = config;
         this.manageIndexesApi = manageIndexesApi;
     }
@@ -152,13 +152,13 @@ public class Pinecone {
         }
     }
 
-    public Index createIndexConnection(String indexName) {
+    public Index getIndexConnection(String indexName) {
         config.setHost(getIndexHost(indexName));
         PineconeConnection connection = getConnection(indexName);
         return new Index(this, connection, indexName);
     }
 
-    public AsyncIndex createAsyncIndexConnection(String indexName) {
+    public AsyncIndex getAsyncIndexConnection(String indexName) {
         PineconeConnection connection = getConnection(indexName);
         return new AsyncIndex(this, connection, indexName);
     }

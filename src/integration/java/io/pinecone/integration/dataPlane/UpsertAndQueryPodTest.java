@@ -35,8 +35,8 @@ public class UpsertAndQueryPodTest {
         AbstractMap.SimpleEntry<String, Pinecone> indexAndClient = createIndexIfNotExistsDataPlane(dimension, IndexModelSpec.SERIALIZED_NAME_POD);
         indexName = indexAndClient.getKey();
         pineconeClient = indexAndClient.getValue();
-        indexClient = pineconeClient.createIndexConnection(indexName);
-        asyncIndexClient = pineconeClient.createAsyncIndexConnection(indexName);
+        indexClient = pineconeClient.getIndexConnection(indexName);
+        asyncIndexClient = pineconeClient.getAsyncIndexConnection(indexName);
     }
 
     @Test
