@@ -123,6 +123,9 @@ public class Pinecone {
     }
 
     public CollectionModel createCollection(CreateCollectionRequest createCollectionRequest) throws PineconeException {
+        if (createCollectionRequest == null) {
+            throw new PineconeException("CreateCollectionRequest object cannot be null");
+        }
         CollectionModel collection = null;
         try {
             collection = manageIndexesApi.createCollection(createCollectionRequest);
