@@ -5,7 +5,8 @@ import io.pinecone.clients.Pinecone;
 import io.pinecone.exceptions.PineconeException;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.helpers.RandomStringBuilder;
-import io.pinecone.proto.*;
+import io.pinecone.proto.DescribeIndexStatsResponse;
+import io.pinecone.proto.FetchResponse;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
@@ -16,8 +17,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static io.pinecone.helpers.BuildUpsertRequest.*;
 import static io.pinecone.helpers.AssertRetry.assertWithRetry;
+import static io.pinecone.helpers.BuildUpsertRequest.buildRequiredUpsertRequestByDimension;
 import static io.pinecone.helpers.IndexManager.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -179,6 +180,16 @@ public class CollectionTest {
         IndexModel newIndex = pineconeClient.describeIndex(newIndexName);
         assertEquals(newIndex.getName(), newIndexName);
         assertEquals(newIndex.getMetric(), targetMetric);
+    }
+
+    @Test
+    public void testCreateCollectionFromNonExistentIndex() {
+        try {
+            pineconeClient.createCollection(RandomStringBuilder.build("coll1", 8), "nonexistentIndex");
+            fail("Expected to throw PineconeException");
+        } catch (PineconeException expected) {
+            assertTrue(expected.getMessage().contains("nonexistentIndex not found"));
+        }
     }
 
     @Test
