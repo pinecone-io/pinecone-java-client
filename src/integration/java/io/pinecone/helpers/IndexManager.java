@@ -38,7 +38,7 @@ public class IndexManager {
             boolean typePod = indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_POD) && indexModel.getSpec().getPod() != null;
             boolean typeServerless = indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_SERVERLESS) && indexModel.getSpec().getServerless() != null;
 
-            if (indexModel.getDimension() == dimension) {
+            if (indexModel.getDimension() == dimension && indexModel.getMetric() == IndexMetric.DOTPRODUCT) {
                 if (typePod || typeServerless) {
                     return indexModel.getName();
                 }
