@@ -4,10 +4,11 @@ import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.exceptions.PineconeException;
 import io.pinecone.exceptions.PineconeValidationException;
-import io.pinecone.helpers.IndexManagerSingleton;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.DescribeIndexStatsResponse;
 import io.pinecone.proto.FetchResponse;
+import io.pinecone.helpers.TestIndexResourcesManager;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
@@ -19,13 +20,12 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 import static io.pinecone.helpers.AssertRetry.assertWithRetry;
-import static io.pinecone.helpers.BuildUpsertRequest.buildRequiredUpsertRequestByDimension;
 import static io.pinecone.helpers.IndexManager.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CollectionTest {
-    private static final IndexManagerSingleton indexManager = IndexManagerSingleton.getInstance();
-    private static Pinecone pineconeClient = indexManager.getPineconeClient();
+    private static final TestIndexResourcesManager indexManager = TestIndexResourcesManager.getInstance();
+    private static Pinecone pineconeClient = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
     private static final Logger logger = LoggerFactory.getLogger(CollectionTest.class);
     private static final ArrayList<String> indexesToCleanUp = new ArrayList<>();
     private static final IndexMetric indexMetric = indexManager.getMetric();

@@ -2,7 +2,6 @@ package io.pinecone.helpers;
 
 import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
-import io.pinecone.configs.PineconeConfig;
 import io.pinecone.exceptions.PineconeException;
 import io.pinecone.proto.DescribeIndexStatsResponse;
 import org.openapitools.client.model.*;
@@ -16,9 +15,9 @@ import static io.pinecone.helpers.BuildUpsertRequest.buildRequiredUpsertRequestB
 import static io.pinecone.helpers.IndexManager.*;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class IndexManagerSingleton {
+public class TestIndexResourcesManager {
     private static final Logger logger = LoggerFactory.getLogger(IndexManager.class);
-    private static IndexManagerSingleton instance;
+    private static TestIndexResourcesManager instance;
     private static final String apiKey = System.getenv("PINECONE_API_KEY");
     private final int dimension = System.getenv("DIMENSION") == null
             ? 4
@@ -29,8 +28,7 @@ public class IndexManagerSingleton {
     private static final IndexMetric metric = System.getenv("METRIC") == null
             ? IndexMetric.COSINE
             : IndexMetric.valueOf(System.getenv("METRIC"));
-    private static final PineconeConfig pineconeConfig = new PineconeConfig(apiKey);
-    private static Pinecone pineconeClient;
+    private Pinecone pineconeClient;
     private String podIndexName;
     private IndexModel podIndexModel;
     private String serverlessIndexName;
@@ -39,40 +37,27 @@ public class IndexManagerSingleton {
     private CollectionModel collectionModel;
     private final List<String> podIndexVectorIds = Arrays.asList("v1", "v2", "v3");
 
-    private IndexManagerSingleton() {
+    private TestIndexResourcesManager() {
         pineconeClient = new Pinecone.Builder(apiKey).build();
     }
 
-    public static IndexManagerSingleton getInstance() {
+    public static TestIndexResourcesManager getInstance() {
         if (instance == null) {
-            instance = new IndexManagerSingleton();
+            instance = new TestIndexResourcesManager();
         }
         return instance;
     }
 
     public String getPodIndexName() throws InterruptedException, PineconeException {
-        if (podIndexName == null) {
-            podIndexName = createPodIndex();
-        }
-        return podIndexName;
+        return createOrGetPodIndex();
     }
 
     public String getServerlessIndexName() throws InterruptedException, PineconeException {
-        if (serverlessIndexName == null) {
-            serverlessIndexName = createServerlessIndex();
-        }
-        return serverlessIndexName;
+        return createOrGetServerlessIndex();
     }
 
     public String getCollectionName() throws InterruptedException {
-        if (collectionName == null) {
-            collectionName = createCollection();
-        }
-        return collectionName;
-    }
-
-    public Pinecone getPineconeClient() {
-        return pineconeClient;
+        return createOrGetCollection();
     }
 
     public int getDimension() {
@@ -92,26 +77,17 @@ public class IndexManagerSingleton {
     }
 
     public IndexModel getPodIndexModel() throws InterruptedException {
-        if (podIndexName == null) {
-            podIndexName = createPodIndex();
-        }
-        podIndexModel = pineconeClient.describeIndex(podIndexName);
+        podIndexModel = pineconeClient.describeIndex(createOrGetPodIndex());
         return podIndexModel;
     }
 
     public IndexModel getServerlessIndexModel() throws InterruptedException {
-        if (serverlessIndexName == null) {
-            serverlessIndexName = createServerlessIndex();
-        }
-        serverlessIndexModel = pineconeClient.describeIndex(serverlessIndexName);
+        serverlessIndexModel = pineconeClient.describeIndex(createOrGetServerlessIndex());
         return serverlessIndexModel;
     }
 
     public CollectionModel getCollectionModel() throws InterruptedException {
-        if (collectionName == null) {
-            collectionName = createCollection();
-        }
-        collectionModel = pineconeClient.describeCollection(collectionName);
+        collectionModel = pineconeClient.describeCollection(createOrGetCollection());
         return collectionModel;
     }
 
@@ -129,7 +105,11 @@ public class IndexManagerSingleton {
         }
     }
 
-    private String createPodIndex() throws InterruptedException, PineconeException {
+    private String createOrGetPodIndex() throws InterruptedException, PineconeException {
+        if (podIndexName != null) {
+            return podIndexName;
+        }
+
         String indexName = RandomStringBuilder.build("pod-index", 8);
 
         // Create index
@@ -147,10 +127,15 @@ public class IndexManagerSingleton {
         // Seed data
         seedIndex(podIndexVectorIds, indexName);
 
+        this.podIndexName = indexName;
         return indexName;
     }
 
-    private String createServerlessIndex() throws InterruptedException, PineconeException {
+    private String createOrGetServerlessIndex() throws InterruptedException, PineconeException {
+        if (this.serverlessIndexName != null) {
+            return this.serverlessIndexName;
+        }
+
         String indexName = RandomStringBuilder.build("serverless-index", 8);
 
         // Create index
@@ -159,16 +144,20 @@ public class IndexManagerSingleton {
         CreateIndexRequest createIndexRequest = new CreateIndexRequest().name(indexName).dimension(dimension).metric(metric).spec(spec);
         serverlessIndexModel = pineconeClient.createIndex(createIndexRequest);
 
+        serverlessIndexName = indexName;
         return indexName;
     }
 
-    private String createCollection() throws InterruptedException {
-        // Create index if not exists
-        if (podIndexName == null || podIndexName.isEmpty()) {
-            podIndexName = createPodIndex();
+    private String createOrGetCollection() throws InterruptedException {
+        if (collectionName != null) {
+            return collectionName;
         }
+
+        // Create index if not exists
+        String sourceIndexName = createOrGetPodIndex();
+
         collectionName = RandomStringBuilder.build("collection", 8);
-        CreateCollectionRequest createCollectionRequest = new CreateCollectionRequest().name(collectionName).source(podIndexName);
+        CreateCollectionRequest createCollectionRequest = new CreateCollectionRequest().name(collectionName).source(sourceIndexName);
         collectionModel = pineconeClient.createCollection(createCollectionRequest);
 
         // Wait until collection is ready

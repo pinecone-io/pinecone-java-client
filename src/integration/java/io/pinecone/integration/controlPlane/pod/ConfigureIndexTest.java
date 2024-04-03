@@ -4,25 +4,23 @@ import io.pinecone.clients.Pinecone;
 import io.pinecone.exceptions.PineconeForbiddenException;
 import io.pinecone.exceptions.PineconeBadRequestException;
 import io.pinecone.exceptions.PineconeNotFoundException;
-import io.pinecone.helpers.IndexManagerSingleton;
+import io.pinecone.helpers.TestIndexResourcesManager;
 import org.junit.jupiter.api.*;
 import org.openapitools.client.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static io.pinecone.helpers.AssertRetry.assertWithRetry;
-import static io.pinecone.helpers.IndexManager.waitUntilIndexIsReady;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ConfigureIndexTest {
     private static final Logger logger = LoggerFactory.getLogger(ConfigureIndexTest.class);
-    private static final IndexManagerSingleton indexManager = IndexManagerSingleton.getInstance();
-    private static Pinecone controlPlaneClient = indexManager.getPineconeClient();
+    private static final TestIndexResourcesManager indexManager = TestIndexResourcesManager.getInstance();
+    private static Pinecone controlPlaneClient = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
     private static String indexName;
 
     @BeforeAll
-    public static void setUp() throws InterruptedException {
-        controlPlaneClient = indexManager.getPineconeClient();
+    public static void setUp() throws InterruptedException {;
         indexName = indexManager.getPodIndexName();
     }
 

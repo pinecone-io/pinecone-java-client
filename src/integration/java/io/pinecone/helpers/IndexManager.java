@@ -35,12 +35,13 @@ public class IndexManager {
         }
 
         for (IndexModel indexModel : indexModels) {
-            if (indexModel.getDimension() == dimension
-                &&
-                (indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_POD) && indexModel.getSpec().getPod() != null
-                  || indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_SERVERLESS) && indexModel.getSpec().getServerless() != null)
-            ) {
-                return indexModel.getName();
+            boolean typePod = indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_POD) && indexModel.getSpec().getPod() != null;
+            boolean typeServerless = indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_SERVERLESS) && indexModel.getSpec().getServerless() != null;
+
+            if (indexModel.getDimension() == dimension) {
+                if (typePod || typeServerless) {
+                    return indexModel.getName();
+                }
             }
         }
         return indexName;
