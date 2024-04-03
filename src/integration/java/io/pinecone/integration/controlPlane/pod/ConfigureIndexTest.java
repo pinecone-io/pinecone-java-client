@@ -138,7 +138,7 @@ public class ConfigureIndexTest {
     }
 
     private static void waitUntilIndexStateIsReady(String indexName) throws InterruptedException {
-        int timeToWaitMs = 30000;
+        int timeToWaitMs = 60000;
         int timeWaited = 0;
         IndexModel index = controlPlaneClient.describeIndex(indexName);
 
