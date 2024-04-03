@@ -64,7 +64,7 @@ public class Pinecone {
         }
     }
 
-    public IndexModel createIndex(CreateIndexRequest createIndexRequest) throws PineconeException {
+    public IndexModel createIndex(CreateIndexRequest createIndexRequest) throws PineconeValidationException {
         if (createIndexRequest == null) {
             throw new PineconeValidationException("CreateIndexRequest object cannot be null");
         }
@@ -87,7 +87,7 @@ public class Pinecone {
         return indexModel;
     }
 
-    public IndexModel configureIndex(String indexName, ConfigureIndexRequest configureIndexRequest) throws PineconeException {
+    public IndexModel configureIndex(String indexName, ConfigureIndexRequest configureIndexRequest) throws PineconeValidationException {
         if (configureIndexRequest == null) {
             throw new PineconeValidationException("ConfigureIndexRequest object cannot be null");
         }

@@ -143,7 +143,8 @@ public class PineconeIndexOperationsTest {
         assertEquals(requestCaptor.getValue().url().toString(), "https://api.pinecone.io/indexes");
 
         // Test for null CreateIndexRequest object
-        PineconeException thrown = assertThrows(PineconeValidationException.class, () -> client.createIndex(null));
+        PineconeValidationException thrown = assertThrows(PineconeValidationException.class,
+                () -> client.createIndex(null));
         assertEquals("CreateIndexRequest object cannot be null", thrown.getMessage());
     }
 
@@ -245,17 +246,18 @@ public class PineconeIndexOperationsTest {
         assertEquals(requestCaptor.getValue().url().toString(), "https://api.pinecone.io/indexes/testIndex");
 
         // Test for empty string for index name
-        PineconeException thrownEmptyIndexName = assertThrows(PineconeValidationException.class, () -> client.configureIndex("",
+        PineconeValidationException thrownEmptyIndexName = assertThrows(PineconeValidationException.class,
+                () -> client.configureIndex("",
                 configureIndexRequest));
         assertEquals("Index name cannot be null or empty", thrownEmptyIndexName.getMessage());
 
         // Test for null as index name
-        PineconeException thrownNullIndexName = assertThrows(PineconeValidationException.class, () -> client.configureIndex(null,
+        PineconeValidationException thrownNullIndexName = assertThrows(PineconeValidationException.class, () -> client.configureIndex(null,
                 configureIndexRequest));
         assertEquals("Index name cannot be null or empty", thrownNullIndexName.getMessage());
 
         // Test for null as configureIndexRequest
-        PineconeException thrownNullRequestObj = assertThrows(PineconeValidationException.class,
+        PineconeValidationException thrownNullRequestObj = assertThrows(PineconeValidationException.class,
                 () -> client.configureIndex("testIndex", null));
         assertEquals("ConfigureIndexRequest object cannot be null", thrownNullRequestObj.getMessage());
     }
