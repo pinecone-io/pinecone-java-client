@@ -85,7 +85,7 @@ public class CollectionTest {
 
         // Clean up indexes
         for (String index : indexesToCleanUp) {
-            pineconeClient.deleteIndex(index); // errors out here
+            pineconeClient.deleteIndex(index);
         }
     }
 
