@@ -2,7 +2,6 @@ package io.pinecone.integration.controlPlane.pod;
 
 import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
-import io.pinecone.configs.*;
 import io.pinecone.exceptions.PineconeException;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.helpers.RandomStringBuilder;
@@ -15,7 +14,6 @@ import org.openapitools.client.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.sound.midi.SysexMessage;
 import java.util.*;
 
 import static io.pinecone.helpers.BuildUpsertRequest.*;
