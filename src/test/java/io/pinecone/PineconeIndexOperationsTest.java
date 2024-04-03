@@ -261,45 +261,7 @@ public class PineconeIndexOperationsTest {
     }
 
     @Test
-    public void testCreateCollectionWithCollectionRequestObject() throws IOException {
-        String filePath = "src/test/resources/collectionCreation.json";
-        String JsonStringCollection = new String(Files.readAllBytes(Paths.get(filePath)));
-        CollectionModel expectedCollection = gson.fromJson(JsonStringCollection, CollectionModel.class);
-
-        CreateCollectionRequest createCollectionRequest = new CreateCollectionRequest();
-
-        Call mockCall = mock(Call.class);
-        Response mockResponse = new Response.Builder()
-                .request(new Request.Builder().url("http://localhost").build())
-                .protocol(Protocol.HTTP_1_1)
-                .code(200)
-                .message("OK")
-                .body(ResponseBody.create(JsonStringCollection, MediaType.parse("application/json")))
-                .build();
-
-        when(mockCall.execute()).thenReturn(mockResponse);
-
-        OkHttpClient mockClient = mock(OkHttpClient.class);
-        when(mockClient.newCall(any(Request.class))).thenReturn(mockCall);
-        when(mockCall.execute()).thenReturn(mockResponse);
-
-        Pinecone client = new Pinecone.Builder("testAPiKey").withOkHttpClient(mockClient).build();
-        CollectionModel collection = client.createCollection(createCollectionRequest);
-
-        ArgumentCaptor<Request> requestCaptor = ArgumentCaptor.forClass(Request.class);
-
-        verify(mockClient, times(1)).newCall(requestCaptor.capture());
-        verify(mockCall, times(1)).execute();
-        assertEquals(expectedCollection, collection);
-
-        // Test for null CreateCollectionRequest object
-        PineconeException thrownNullCollection = assertThrows(PineconeValidationException.class,
-                () -> client.createCollection(null));
-        assertEquals("CreateCollectionRequest object cannot be null", thrownNullCollection.getMessage());
-    }
-
-    @Test
-    public void testCreateCollectionWithStringsForNameAndSource() throws IOException {
+    public void testCreateCollection() throws IOException {
         String filePath = "src/test/resources/collectionCreation.json";
         String JsonStringCollection = new String(Files.readAllBytes(Paths.get(filePath)));
         CollectionModel expectedCollection = gson.fromJson(JsonStringCollection, CollectionModel.class);
@@ -322,9 +284,7 @@ public class PineconeIndexOperationsTest {
         Pinecone client = new Pinecone.Builder("testAPiKey").withOkHttpClient(mockClient).build();
         CollectionModel collection = client.createCollection(expectedCollection.getName(), "someSourceIndex");
 
-        ArgumentCaptor<Request> requestCaptor = ArgumentCaptor.forClass(Request.class);
-
-        verify(mockClient, times(1)).newCall(requestCaptor.capture());
+        // Test for successful creation of Collection
         verify(mockCall, times(1)).execute();
         assertEquals(expectedCollection, collection);
 

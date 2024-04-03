@@ -126,8 +126,7 @@ public class IndexManager {
     }
 
     public static CollectionModel createCollection(Pinecone pinecone, String collectionName, String indexName, boolean waitUntilReady) throws InterruptedException {
-        CreateCollectionRequest createCollectionRequest = new CreateCollectionRequest().name(collectionName).source(indexName);
-        CollectionModel collection = pinecone.createCollection(createCollectionRequest);
+        CollectionModel collection = pinecone.createCollection(collectionName, indexName);
 
         assertEquals(collection.getStatus(), CollectionModel.StatusEnum.INITIALIZING);
 

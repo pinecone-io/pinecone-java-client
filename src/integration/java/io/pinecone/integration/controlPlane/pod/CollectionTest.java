@@ -4,6 +4,7 @@ import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.configs.*;
 import io.pinecone.exceptions.PineconeException;
+import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.*;
 import org.junit.jupiter.api.AfterAll;
@@ -179,17 +180,47 @@ public class CollectionTest {
         assertEquals(newIndex.getMetric(), targetMetric);
     }
 
-    @Test
-    public void testCreateCollectionFromInvalidIndex() {
-        try {
-            CreateCollectionRequest createCollectionRequest = new CreateCollectionRequest().name(RandomStringBuilder.build("coll1", 8)).source("invalid-index");
-            pineconeClient.createCollection(createCollectionRequest);
+    // TODO:
+    // add positive test case for create collection from real indexName?
 
-            fail("Expected to throw PineconeException");
-        } catch (PineconeException expected) {
-            assertTrue(expected.getMessage().contains("invalid-index not found"));
+
+    @Test
+    public void testCreateCollectionFromFromNullOrEmptyStringSourceIndex() {
+        String collectionName = RandomStringBuilder.build("coll1", 8);
+        // Empty string as sourceIndex
+        try {
+            pineconeClient.createCollection(collectionName, "");
+            fail("Expected to throw PineconeValidationException");
+        } catch (PineconeValidationException expected) {
+            assertTrue(expected.getMessage().contains("sourceIndex cannot be null or empty"));
+        }
+        // Null as sourceIndex
+        try {
+            pineconeClient.createCollection(collectionName, null);
+            fail("Expected to throw PineconeValidationException");
+        } catch (PineconeValidationException expected) {
+            assertTrue(expected.getMessage().contains("sourceIndex cannot be null or empty"));
         }
     }
+
+    @Test
+    public void testCreateCollectionFromNullOrEmptyStringCollectionName() {
+        // Empty string as collectionName
+        try {
+            pineconeClient.createCollection("", indexName);
+            fail("Expected to throw PineconeValidationException");
+        } catch (PineconeValidationException expected) {
+            assertTrue(expected.getMessage().contains("collectionName cannot be null or empty"));
+        }
+        // Null as collectionName
+        try {
+            pineconeClient.createCollection(null, indexName);
+            fail("Expected to throw PineconeValidationException");
+        } catch (PineconeValidationException expected) {
+            assertTrue(expected.getMessage().contains("collectionName cannot be null or empty"));
+        }
+    }
+
     @Test
     public void testIndexFromNonExistentCollection() {
         try {

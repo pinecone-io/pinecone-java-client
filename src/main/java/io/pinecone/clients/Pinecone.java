@@ -122,19 +122,6 @@ public class Pinecone {
         }
     }
 
-    public CollectionModel createCollection(CreateCollectionRequest createCollectionRequest) throws PineconeException {
-        if (createCollectionRequest == null) {
-            throw new PineconeValidationException("CreateCollectionRequest object cannot be null");
-        }
-        CollectionModel collection = null;
-        try {
-            collection = manageIndexesApi.createCollection(createCollectionRequest);
-        } catch (ApiException apiException) {
-            handleApiException(apiException);
-        }
-        return collection;
-    }
-
     public CollectionModel createCollection(String collectionName, String sourceIndex) throws PineconeValidationException {
         if (collectionName == null || collectionName.isEmpty()) {
             throw new PineconeValidationException("collectionName cannot be null or empty");
