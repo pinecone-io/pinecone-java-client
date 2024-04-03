@@ -289,18 +289,18 @@ public class PineconeIndexOperationsTest {
         assertEquals(expectedCollection, collection);
 
         // Test for null and empty as collectionName
-        PineconeException thrownNullCollectionName = assertThrows(PineconeValidationException.class,
+        PineconeValidationException thrownNullCollectionName = assertThrows(PineconeValidationException.class,
                 () -> client.createCollection(null, "someSourceIndex"));
         assertEquals("collectionName cannot be null or empty", thrownNullCollectionName.getMessage());
-        PineconeException thrownEmptyCollectionName = assertThrows(PineconeValidationException.class,
+        PineconeValidationException thrownEmptyCollectionName = assertThrows(PineconeValidationException.class,
                 () -> client.createCollection("", "someSourceIndex"));
         assertEquals("collectionName cannot be null or empty", thrownEmptyCollectionName.getMessage());
 
         // Test for null and empty as sourceIndex
-        PineconeException thrownNullSourceIndex = assertThrows(PineconeValidationException.class,
+        PineconeValidationException thrownNullSourceIndex = assertThrows(PineconeValidationException.class,
                 () -> client.createCollection(expectedCollection.getName(), null));
         assertEquals("sourceIndex cannot be null or empty", thrownNullSourceIndex.getMessage());
-        PineconeException thrownEmptySourceIndex = assertThrows(PineconeValidationException.class,
+        PineconeValidationException thrownEmptySourceIndex = assertThrows(PineconeValidationException.class,
                 () -> client.createCollection(expectedCollection.getName(), ""));
         assertEquals("sourceIndex cannot be null or empty", thrownEmptySourceIndex.getMessage());
     }
