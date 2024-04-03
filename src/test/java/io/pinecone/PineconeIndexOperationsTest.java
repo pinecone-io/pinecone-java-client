@@ -2,7 +2,6 @@ package io.pinecone;
 
 import com.google.gson.Gson;
 import io.pinecone.clients.Pinecone;
-import io.pinecone.exceptions.PineconeException;
 import io.pinecone.exceptions.PineconeValidationException;
 import okhttp3.*;
 import org.junit.jupiter.api.Disabled;
