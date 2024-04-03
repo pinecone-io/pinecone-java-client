@@ -39,32 +39,22 @@ public class CollectionTest {
 
     @BeforeAll
     public static void setUp() throws InterruptedException {
-        System.out.println("In setUp method");
         pineconeClient = new Pinecone.Builder(apiKey).build();
 
         // Create and upsert to index
         CreateIndexRequestSpecPod podSpec =
                 new CreateIndexRequestSpecPod().pods(1).podType("p1.x1").replicas(1).environment(environment);
         CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(podSpec);
-        System.out.println("Starting to create index " + indexName);
         Index indexClient = createNewIndexAndConnectSync(pineconeClient, indexName, dimension,
                 indexMetric, spec);
-        System.out.println("Successfully created index " + indexName);
 
-        System.out.println("Adding " + indexName + " to indexesToCleanUp list");
         indexesToCleanUp.add(indexName);
-        System.out.println("Added " + indexName + " to indexesToCleanUp list");
 
         // Sometimes we see grpc failures when upserting so quickly after creating, so retry if so
-        System.out.println("Starting to upsert vectors into " + indexName + " index");
         assertWithRetry(() -> indexClient.upsert(buildRequiredUpsertRequestByDimension(upsertIds, dimension), namespace), 3);
-        System.out.println("Successfully upserted vectors into " + indexName + " index");
-
 
         // Create collection from index
-        System.out.println("Starting to create collection " + collectionName + " from index " + indexName);
         collection = createCollection(pineconeClient, collectionName, indexName, true);
-        System.out.println("Successfully created collection " + collectionName + " from index " + indexName);
 
         assertEquals(collection.getName(), collectionName);
         assertEquals(collection.getEnvironment(), environment);
@@ -73,16 +63,11 @@ public class CollectionTest {
 
     @AfterAll
     public static void cleanUp() throws InterruptedException {
-        System.out.println("In cleanUp method");
-
         // wait for things to settle before cleanup...
         Thread.sleep(2500);
 
         // Verify we can delete the collection
-        System.out.println("Starting to delete collection " + collectionName);
         pineconeClient.deleteCollection(collectionName);
-        System.out.println("Successfully deleted collection " + collectionName);
-
         Thread.sleep(2500);
 
         List<CollectionModel> collectionList = pineconeClient.listCollections().getCollections();
@@ -102,9 +87,7 @@ public class CollectionTest {
 
         // Clean up indexes
         for (String index : indexesToCleanUp) {
-            System.out.println("Starting to delete index " + index + " in indexesToCleanUp list");
             pineconeClient.deleteIndex(index); // errors out here
-            System.out.println("Successfully deleted index " + index + " in indexesToCleanUp list"); // never gets here
         }
     }
 
