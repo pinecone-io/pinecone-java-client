@@ -143,7 +143,7 @@ public class PineconeIndexOperationsTest {
         assertEquals(requestCaptor.getValue().url().toString(), "https://api.pinecone.io/indexes");
 
         // Test for null CreateIndexRequest object
-        PineconeException thrown = assertThrows(PineconeException.class, () -> client.createIndex(null));
+        PineconeException thrown = assertThrows(PineconeValidationException.class, () -> client.createIndex(null));
         assertEquals("CreateIndexRequest object cannot be null", thrown.getMessage());
     }
 
