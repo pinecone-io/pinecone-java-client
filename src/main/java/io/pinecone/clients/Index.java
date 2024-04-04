@@ -28,6 +28,10 @@ public class Index implements IndexInterface<UpsertResponse,
     private static final Logger logger = LoggerFactory.getLogger(Index.class);
 
     public Index(Pinecone pinecone, PineconeConnection connection, String indexName) {
+        if (pinecone == null) {
+            throw new PineconeValidationException("Pinecone object cannot be null.");
+        }
+
         if (connection == null) {
             throw new PineconeValidationException("Pinecone connection object cannot be null.");
         }
@@ -209,7 +213,7 @@ public class Index implements IndexInterface<UpsertResponse,
     public void close() {
         try {
             logger.debug("closing channel");
-            pinecone.getConnectionsMap().remove(indexName);
+            pinecone.closeConnection(indexName);
             connection.getChannel().shutdownNow().awaitTermination(5, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             logger.warn("Channel shutdown interrupted before termination confirmed");

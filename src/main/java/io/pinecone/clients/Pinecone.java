@@ -176,6 +176,10 @@ public class Pinecone {
         return this.describeIndex(indexName).getHost();
     }
 
+    void closeConnection(String indexName) {
+        connectionsMap.remove(indexName);
+    }
+
     private void handleApiException(ApiException apiException) throws PineconeException {
         int statusCode = apiException.getCode();
         String responseBody = apiException.getResponseBody();

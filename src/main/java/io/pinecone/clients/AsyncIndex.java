@@ -31,6 +31,10 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
     private static final Logger logger = LoggerFactory.getLogger(AsyncIndex.class);
 
     public AsyncIndex(Pinecone pinecone, PineconeConnection connection, String indexName) {
+        if (pinecone == null) {
+            throw new PineconeValidationException("Pinecone object cannot be null.");
+        }
+
         if (connection == null) {
             throw new PineconeValidationException("Pinecone connection object cannot be null.");
         }
@@ -221,7 +225,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
     public void close() {
         try {
             logger.debug("closing channel");
-            pinecone.getConnectionsMap().remove(indexName);
+            pinecone.closeConnection(indexName);
             connection.getChannel().shutdownNow().awaitTermination(5, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             logger.warn("Channel shutdown interrupted before termination confirmed");
