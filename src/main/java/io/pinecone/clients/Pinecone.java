@@ -22,48 +22,6 @@ public class Pinecone {
         this.manageIndexesApi = manageIndexesApi;
     }
 
-    public static class Builder {
-        // Required parameters
-        private final String apiKey;
-
-        // Optional parameters
-        private String sourceTag;
-        private OkHttpClient okHttpClient = new OkHttpClient();
-
-        public Builder(String apiKey) {
-            this.apiKey = apiKey;
-        }
-
-        public Builder withSourceTag(String sourceTag) {
-            this.sourceTag = sourceTag;
-            return this;
-        }
-
-        public Builder withOkHttpClient(OkHttpClient okHttpClient) {
-            this.okHttpClient = okHttpClient;
-            return this;
-        }
-
-        public Pinecone build() {
-            PineconeConfig clientConfig = new PineconeConfig(apiKey);
-            clientConfig.setSourceTag(sourceTag);
-            clientConfig.validate();
-
-            ApiClient apiClient = new ApiClient(okHttpClient);
-            apiClient.setApiKey(clientConfig.getApiKey());
-            apiClient.setUserAgent(clientConfig.getUserAgent());
-
-            if (Boolean.parseBoolean(System.getenv("PINECONE_DEBUG"))) {
-                apiClient.setDebugging(true);
-            }
-
-            ManageIndexesApi manageIndexesApi = new ManageIndexesApi();
-            manageIndexesApi.setApiClient(apiClient);
-
-            return new Pinecone(clientConfig, manageIndexesApi);
-        }
-    }
-
     public IndexModel createIndex(CreateIndexRequest createIndexRequest) throws PineconeValidationException {
         if (createIndexRequest == null) {
             throw new PineconeValidationException("CreateIndexRequest object cannot be null");
