@@ -7,6 +7,8 @@ import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.DescribeIndexStatsResponse;
 import io.pinecone.proto.FetchResponse;
+import io.pinecone.helpers.TestIndexResourcesManager;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
@@ -18,71 +20,33 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 import static io.pinecone.helpers.AssertRetry.assertWithRetry;
-import static io.pinecone.helpers.BuildUpsertRequest.buildRequiredUpsertRequestByDimension;
 import static io.pinecone.helpers.IndexManager.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CollectionTest {
-    private static final String indexName = RandomStringBuilder.build("collection-test", 8);
-    private static final String collectionName = RandomStringBuilder.build("collection-test", 8);
-    private static final ArrayList<String> indexesToCleanUp = new ArrayList<>();
-    private static final IndexMetric indexMetric = IndexMetric.COSINE;
-    private static final List<String> upsertIds = Arrays.asList("v1", "v2", "v3");
-    private static final String namespace = RandomStringBuilder.build("ns", 8);
-    private static final String apiKey = System.getenv("PINECONE_API_KEY");
-    private static final String environment = System.getenv("PINECONE_ENVIRONMENT");
-    private static final int dimension = 4;
+    private static final TestIndexResourcesManager indexManager = TestIndexResourcesManager.getInstance();
+    private static final Pinecone pineconeClient = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
     private static final Logger logger = LoggerFactory.getLogger(CollectionTest.class);
-    private static Pinecone pineconeClient;
+    private static final ArrayList<String> indexesToCleanUp = new ArrayList<>();
+    private static final IndexMetric indexMetric = indexManager.getMetric();
+    private static final List<String> upsertIds = indexManager.getPodIndexVectorIds();
+    private static final String environment = indexManager.getEnvironment();
+    private static final int dimension = indexManager.getDimension();
     private static CollectionModel collection;
+    private static String indexName;
+    private static String collectionName;
 
     @BeforeAll
     public static void setUp() throws InterruptedException {
-        pineconeClient = new Pinecone.Builder(apiKey).build();
-
-        // Create and upsert to index
-        CreateIndexRequestSpecPod podSpec =
-                new CreateIndexRequestSpecPod().pods(1).podType("p1.x1").replicas(1).environment(environment);
-        CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(podSpec);
-        Index indexClient = createNewIndexAndConnectSync(pineconeClient, indexName, dimension,
-                indexMetric, spec);
-
-        indexesToCleanUp.add(indexName);
-
-        // Sometimes we see grpc failures when upserting so quickly after creating, so retry if so
-        assertWithRetry(() -> indexClient.upsert(buildRequiredUpsertRequestByDimension(upsertIds, dimension), namespace), 3);
-
-        // Create collection from index
-        collection = createCollection(pineconeClient, collectionName, indexName, true);
-
-        assertEquals(collection.getName(), collectionName);
-        assertEquals(collection.getEnvironment(), environment);
-        assertEquals(collection.getStatus(), CollectionModel.StatusEnum.READY);
+        indexName = indexManager.getPodIndexName();
+        collectionName = indexManager.getCollectionName();
+        collection = indexManager.getCollectionModel();
     }
 
     @AfterAll
     public static void cleanUp() throws InterruptedException {
         // wait for things to settle before cleanup...
         Thread.sleep(2500);
-
-        // Verify we can delete the collection
-        pineconeClient.deleteCollection(collectionName);
-        Thread.sleep(2500);
-
-        List<CollectionModel> collectionList = pineconeClient.listCollections().getCollections();
-        if (collectionList != null) {
-            boolean isCollectionDeleted = true;
-            for (CollectionModel col : collectionList) {
-                if (col.getName().equals(collectionName)) {
-                    isCollectionDeleted = false;
-                    break;
-                }
-            }
-
-            if (!isCollectionDeleted) {
-                fail("Collection " + collectionName + " was not successfully deleted");
-            }
-        }
 
         // Clean up indexes
         for (String index : indexesToCleanUp) {
@@ -151,7 +115,7 @@ public class CollectionTest {
                 assertEquals(describeResponse.getTotalVectorCount(), 3);
 
                 // Verify the vectors from the collection -> new index can be fetched
-                FetchResponse fetchedVectors = indexClient.fetch(upsertIds, namespace);
+                FetchResponse fetchedVectors = indexClient.fetch(upsertIds, "");
                 for (String key : upsertIds) {
                     assertTrue(fetchedVectors.containsVectors(key));
                 }

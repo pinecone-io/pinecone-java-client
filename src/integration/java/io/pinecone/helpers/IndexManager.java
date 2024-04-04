@@ -35,12 +35,13 @@ public class IndexManager {
         }
 
         for (IndexModel indexModel : indexModels) {
-            // Sparse-dense is only supported with DOTPRODUCT
-            if (indexModel.getDimension() == dimension && indexModel.getMetric() == IndexMetric.DOTPRODUCT
-                && ((indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_POD) && indexModel.getSpec().getPod() != null)
-                || (indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_SERVERLESS) && indexModel.getSpec().getServerless() != null))
-            ) {
-                return indexModel.getName();
+            boolean typePod = indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_POD) && indexModel.getSpec().getPod() != null;
+            boolean typeServerless = indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_SERVERLESS) && indexModel.getSpec().getServerless() != null;
+
+            if (indexModel.getDimension() == dimension && indexModel.getMetric() == IndexMetric.DOTPRODUCT) {
+                if (typePod || typeServerless) {
+                    return indexModel.getName();
+                }
             }
         }
         return indexName;
@@ -80,7 +81,7 @@ public class IndexManager {
         int waitedTimeMs = 0;
         int intervalMs = 2000;
 
-        while (!index.getStatus().getReady()) {
+        while (index.getStatus().getState() != IndexModelStatus.StateEnum.READY) {
             index = pinecone.describeIndex(indexName);
             if (waitedTimeMs >= totalMsToWait) {
                 logger.info("WARNING: Index " + indexName + " not ready after " + waitedTimeMs + "ms");

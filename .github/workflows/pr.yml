@@ -79,7 +79,7 @@ jobs:
       run: gradle clean build
 
     - name: Run integration tests
-      run: gradle integrationTest --info
+      run: gradle integrationTest
       env:
         PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
         PINECONE_ENVIRONMENT: ${{ secrets.PINECONE_ENVIRONMENT }}

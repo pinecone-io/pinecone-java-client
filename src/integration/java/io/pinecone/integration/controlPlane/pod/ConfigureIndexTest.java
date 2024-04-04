@@ -4,42 +4,29 @@ import io.pinecone.clients.Pinecone;
 import io.pinecone.exceptions.PineconeForbiddenException;
 import io.pinecone.exceptions.PineconeBadRequestException;
 import io.pinecone.exceptions.PineconeNotFoundException;
-import io.pinecone.helpers.RandomStringBuilder;
+import io.pinecone.helpers.TestIndexResourcesManager;
 import org.junit.jupiter.api.*;
 import org.openapitools.client.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static io.pinecone.helpers.AssertRetry.assertWithRetry;
-import static io.pinecone.helpers.IndexManager.waitUntilIndexIsReady;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ConfigureIndexTest {
-    private static final Logger logger = LoggerFactory.getLogger(CollectionTest.class);
-    private static Pinecone controlPlaneClient;
-    private static final String indexName = RandomStringBuilder.build("configure-index", 8);;
+    private static final Logger logger = LoggerFactory.getLogger(ConfigureIndexTest.class);
+    private static final TestIndexResourcesManager indexManager = TestIndexResourcesManager.getInstance();
+    private static Pinecone controlPlaneClient = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+    private static String indexName;
 
     @BeforeAll
-    public static void setUp() throws InterruptedException {
-        controlPlaneClient = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-
-        // Create index to work with
-        CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().pods(1).podType("p1.x1").replicas(1).environment("us-east4-gcp");
-        CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(podSpec);
-        CreateIndexRequest request = new CreateIndexRequest().name(indexName).dimension(5).metric(IndexMetric.COSINE).spec(spec);
-        controlPlaneClient.createIndex(request);
-        waitUntilIndexIsReady(controlPlaneClient, indexName);
+    public static void setUp() throws InterruptedException {;
+        indexName = indexManager.getPodIndexName();
     }
 
-    @BeforeEach
-    public void beforeEach() throws InterruptedException {
+    @AfterEach
+    public void afterEach() throws InterruptedException {
         waitUntilIndexStateIsReady(indexName);
-    }
-
-    @AfterAll
-    public static void cleanUp() throws InterruptedException  {
-        waitUntilIndexStateIsReady(indexName);
-        assertWithRetry(() -> controlPlaneClient.deleteIndex(indexName));
     }
 
     @Test
@@ -146,10 +133,12 @@ public class ConfigureIndexTest {
             assertNotNull(podSpec);
             assertEquals(podSpec.getPodType(), "p1.x2");
         });
+
+        waitUntilIndexStateIsReady(indexName);
     }
 
     private static void waitUntilIndexStateIsReady(String indexName) throws InterruptedException {
-        int timeToWaitMs = 30000;
+        int timeToWaitMs = 100000;
         int timeWaited = 0;
         IndexModel index = controlPlaneClient.describeIndex(indexName);
 
@@ -157,7 +146,6 @@ public class ConfigureIndexTest {
             Thread.sleep(2000);
             timeWaited += 2000;
             logger.info("waited 2000ms for index to upgrade, time left: " + timeToWaitMs);
-            logger.info("System model state: " + index.getStatus());
             index = controlPlaneClient.describeIndex(indexName);
         }
         if (!index.getStatus().getReady()) {
