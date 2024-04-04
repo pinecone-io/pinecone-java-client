@@ -156,9 +156,9 @@ public class TestIndexResourcesManager {
         // Create index if not exists
         String sourceIndexName = createOrGetPodIndex();
 
+        // Create collection
         collectionName = RandomStringBuilder.build("collection", 8);
-        CreateCollectionRequest createCollectionRequest = new CreateCollectionRequest().name(collectionName).source(sourceIndexName);
-        collectionModel = pineconeClient.createCollection(createCollectionRequest);
+        collectionModel = pineconeClient.createCollection(collectionName, sourceIndexName);
 
         // Wait until collection is ready
         int timeWaited = 0;
