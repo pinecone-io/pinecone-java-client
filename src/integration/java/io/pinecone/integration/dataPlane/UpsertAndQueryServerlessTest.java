@@ -95,9 +95,9 @@ public class UpsertAndQueryServerlessTest {
 
             // if the sizes are not equal, let the following assertions fail and retry again
             if (queryResponse.getMatchesList().size() == upsertIds.size()) {
-                for (int i = 0; i < topK; i++) {
-                    if (upsertIds.get(0).equals(queryResponse.getMatches(i).getId())) {
-                        scoredVectorV1 = queryResponse.getMatches(i);
+                for (ScoredVectorWithUnsignedIndices indexModel : queryResponse.getMatchesList()) {
+                    if (upsertIds.get(0).equals(indexModel.getId())) {
+                        scoredVectorV1 = indexModel;
                     }
                 }
             }
@@ -189,9 +189,9 @@ public class UpsertAndQueryServerlessTest {
             ScoredVectorWithUnsignedIndices scoredVectorV1 = null;
             // if the sizes are not equal, let the following assertions fail and retry again
             if (queryResponse.getMatchesList().size() == upsertIds.size()) {
-                for (int i = 0; i < topK; i++) {
-                    if (upsertIds.get(0).equals(queryResponse.getMatches(i).getId())) {
-                        scoredVectorV1 = queryResponse.getMatches(i);
+                for (ScoredVectorWithUnsignedIndices indexModel : queryResponse.getMatchesList()) {
+                    if (upsertIds.get(0).equals(indexModel.getId())) {
+                        scoredVectorV1 = indexModel;
                     }
                 }
             }
