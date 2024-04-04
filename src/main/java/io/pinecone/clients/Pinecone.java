@@ -89,23 +89,6 @@ public class Pinecone {
         return indexModel;
     }
 
-//    public IndexModel configureIndexOld(String indexName, ConfigureIndexRequest configureIndexRequest) throws PineconeValidationException {
-//        if (configureIndexRequest == null) {
-//            throw new PineconeValidationException("ConfigureIndexRequest object cannot be null");
-//        }
-//        if (indexName == null || indexName.isEmpty()) {
-//            throw new PineconeValidationException("Index name cannot be null or empty");
-//        }
-//
-//        IndexModel indexModel = null;
-//        try {
-//            indexModel = manageIndexesApi.configureIndex(indexName, configureIndexRequest);
-//        } catch (ApiException apiException) {
-//            handleApiException(apiException);
-//        }
-//        return indexModel;
-//    }
-
     // Overloaded method with indexName and replicas
     public IndexModel configureIndex(String indexName, Integer replicas) throws PineconeValidationException {
         return configureIndex(indexName, null, replicas);
