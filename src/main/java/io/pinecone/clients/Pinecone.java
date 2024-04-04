@@ -5,6 +5,7 @@ import io.pinecone.configs.PineconeConnection;
 import io.pinecone.exceptions.FailedRequestInfo;
 import io.pinecone.exceptions.HttpErrorMapper;
 import io.pinecone.exceptions.PineconeException;
+import io.pinecone.exceptions.PineconeValidationException;
 import okhttp3.*;
 import org.openapitools.client.ApiClient;
 import org.openapitools.client.ApiException;
@@ -63,7 +64,10 @@ public class Pinecone {
         }
     }
 
-    public IndexModel createIndex(CreateIndexRequest createIndexRequest) throws PineconeException {
+    public IndexModel createIndex(CreateIndexRequest createIndexRequest) throws PineconeValidationException {
+        if (createIndexRequest == null) {
+            throw new PineconeValidationException("CreateIndexRequest object cannot be null");
+        }
         IndexModel indexModel = null;
         try {
             indexModel = manageIndexesApi.createIndex(createIndexRequest);
@@ -83,7 +87,14 @@ public class Pinecone {
         return indexModel;
     }
 
-    public IndexModel configureIndex(String indexName, ConfigureIndexRequest configureIndexRequest) throws PineconeException {
+    public IndexModel configureIndex(String indexName, ConfigureIndexRequest configureIndexRequest) throws PineconeValidationException {
+        if (configureIndexRequest == null) {
+            throw new PineconeValidationException("ConfigureIndexRequest object cannot be null");
+        }
+        if (indexName == null || indexName.isEmpty()) {
+            throw new PineconeValidationException("Index name cannot be null or empty");
+        }
+
         IndexModel indexModel = null;
         try {
             indexModel = manageIndexesApi.configureIndex(indexName, configureIndexRequest);
@@ -111,7 +122,18 @@ public class Pinecone {
         }
     }
 
-    public CollectionModel createCollection(CreateCollectionRequest createCollectionRequest) throws PineconeException {
+    public CollectionModel createCollection(String collectionName, String sourceIndex) throws PineconeValidationException {
+        if (collectionName == null || collectionName.isEmpty()) {
+            throw new PineconeValidationException("collectionName cannot be null or empty");
+        }
+        if (sourceIndex == null || sourceIndex.isEmpty()) {
+            throw new PineconeValidationException("sourceIndex cannot be null or empty");
+        }
+
+        CreateCollectionRequest createCollectionRequest = new CreateCollectionRequest()
+                .name(collectionName)
+                .source(sourceIndex);
+
         CollectionModel collection = null;
         try {
             collection = manageIndexesApi.createCollection(createCollectionRequest);

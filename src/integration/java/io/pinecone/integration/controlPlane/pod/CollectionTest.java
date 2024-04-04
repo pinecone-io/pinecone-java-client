@@ -2,10 +2,11 @@ package io.pinecone.integration.controlPlane.pod;
 
 import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
-import io.pinecone.configs.*;
 import io.pinecone.exceptions.PineconeException;
+import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.helpers.RandomStringBuilder;
-import io.pinecone.proto.*;
+import io.pinecone.proto.DescribeIndexStatsResponse;
+import io.pinecone.proto.FetchResponse;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
@@ -16,8 +17,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static io.pinecone.helpers.BuildUpsertRequest.*;
 import static io.pinecone.helpers.AssertRetry.assertWithRetry;
+import static io.pinecone.helpers.BuildUpsertRequest.buildRequiredUpsertRequestByDimension;
 import static io.pinecone.helpers.IndexManager.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -45,6 +46,7 @@ public class CollectionTest {
         CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(podSpec);
         Index indexClient = createNewIndexAndConnectSync(pineconeClient, indexName, dimension,
                 indexMetric, spec);
+
         indexesToCleanUp.add(indexName);
 
         // Sometimes we see grpc failures when upserting so quickly after creating, so retry if so
@@ -52,6 +54,7 @@ public class CollectionTest {
 
         // Create collection from index
         collection = createCollection(pineconeClient, collectionName, indexName, true);
+
         assertEquals(collection.getName(), collectionName);
         assertEquals(collection.getEnvironment(), environment);
         assertEquals(collection.getStatus(), CollectionModel.StatusEnum.READY);
@@ -180,16 +183,52 @@ public class CollectionTest {
     }
 
     @Test
-    public void testCreateCollectionFromInvalidIndex() {
+    public void testCreateCollectionFromNonExistentIndex() {
         try {
-            CreateCollectionRequest createCollectionRequest = new CreateCollectionRequest().name(RandomStringBuilder.build("coll1", 8)).source("invalid-index");
-            pineconeClient.createCollection(createCollectionRequest);
-
+            pineconeClient.createCollection(RandomStringBuilder.build("coll1", 8), "nonexistentIndex");
             fail("Expected to throw PineconeException");
         } catch (PineconeException expected) {
-            assertTrue(expected.getMessage().contains("invalid-index not found"));
+            assertTrue(expected.getMessage().contains("nonexistentIndex not found"));
         }
     }
+
+    @Test
+    public void testCreateCollectionFromFromNullOrEmptyStringSourceIndex() {
+        String collectionName = RandomStringBuilder.build("coll1", 8);
+        // Empty string as sourceIndex
+        try {
+            pineconeClient.createCollection(collectionName, "");
+            fail("Expected to throw PineconeValidationException");
+        } catch (PineconeValidationException expected) {
+            assertTrue(expected.getMessage().contains("sourceIndex cannot be null or empty"));
+        }
+        // Null as sourceIndex
+        try {
+            pineconeClient.createCollection(collectionName, null);
+            fail("Expected to throw PineconeValidationException");
+        } catch (PineconeValidationException expected) {
+            assertTrue(expected.getMessage().contains("sourceIndex cannot be null or empty"));
+        }
+    }
+
+    @Test
+    public void testCreateCollectionFromNullOrEmptyStringCollectionName() {
+        // Empty string as collectionName
+        try {
+            pineconeClient.createCollection("", indexName);
+            fail("Expected to throw PineconeValidationException");
+        } catch (PineconeValidationException expected) {
+            assertTrue(expected.getMessage().contains("collectionName cannot be null or empty"));
+        }
+        // Null as collectionName
+        try {
+            pineconeClient.createCollection(null, indexName);
+            fail("Expected to throw PineconeValidationException");
+        } catch (PineconeValidationException expected) {
+            assertTrue(expected.getMessage().contains("collectionName cannot be null or empty"));
+        }
+    }
+
     @Test
     public void testIndexFromNonExistentCollection() {
         try {

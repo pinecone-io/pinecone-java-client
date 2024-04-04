@@ -59,7 +59,7 @@ public class ConfigureIndexTest {
 
     @Test
     public void configureIndexExceedingQuota() {
-        ConfigureIndexRequestSpecPod pod = new ConfigureIndexRequestSpecPod().replicas(40);
+        ConfigureIndexRequestSpecPod pod = new ConfigureIndexRequestSpecPod().replicas(400);
         ConfigureIndexRequestSpec spec = new ConfigureIndexRequestSpec().pod(pod);
         ConfigureIndexRequest configureIndexRequest = new ConfigureIndexRequest().spec(spec);
         try {

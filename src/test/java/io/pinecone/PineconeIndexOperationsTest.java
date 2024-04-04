@@ -140,6 +140,11 @@ public class PineconeIndexOperationsTest {
         assertEquals(createdIndex, expectedIndex);
         assertEquals(requestCaptor.getValue().method(), "POST");
         assertEquals(requestCaptor.getValue().url().toString(), "https://api.pinecone.io/indexes");
+
+        // Test for null CreateIndexRequest object
+        PineconeValidationException thrown = assertThrows(PineconeValidationException.class,
+                () -> client.createIndex(null));
+        assertEquals("CreateIndexRequest object cannot be null", thrown.getMessage());
     }
 
     @Test
@@ -238,5 +243,66 @@ public class PineconeIndexOperationsTest {
         assertEquals(expectedConfiguredIndex, configuredIndex);
         assertEquals(requestCaptor.getValue().method(), "PATCH");
         assertEquals(requestCaptor.getValue().url().toString(), "https://api.pinecone.io/indexes/testIndex");
+
+        // Test for empty string for index name
+        PineconeValidationException thrownEmptyIndexName = assertThrows(PineconeValidationException.class,
+                () -> client.configureIndex("",
+                configureIndexRequest));
+        assertEquals("Index name cannot be null or empty", thrownEmptyIndexName.getMessage());
+
+        // Test for null as index name
+        PineconeValidationException thrownNullIndexName = assertThrows(PineconeValidationException.class, () -> client.configureIndex(null,
+                configureIndexRequest));
+        assertEquals("Index name cannot be null or empty", thrownNullIndexName.getMessage());
+
+        // Test for null as configureIndexRequest
+        PineconeValidationException thrownNullRequestObj = assertThrows(PineconeValidationException.class,
+                () -> client.configureIndex("testIndex", null));
+        assertEquals("ConfigureIndexRequest object cannot be null", thrownNullRequestObj.getMessage());
+    }
+
+    @Test
+    public void testCreateCollection() throws IOException {
+        String filePath = "src/test/resources/collectionCreation.json";
+        String JsonStringCollection = new String(Files.readAllBytes(Paths.get(filePath)));
+        CollectionModel expectedCollection = gson.fromJson(JsonStringCollection, CollectionModel.class);
+
+        Call mockCall = mock(Call.class);
+        Response mockResponse = new Response.Builder()
+                .request(new Request.Builder().url("http://localhost").build())
+                .protocol(Protocol.HTTP_1_1)
+                .code(200)
+                .message("OK")
+                .body(ResponseBody.create(JsonStringCollection, MediaType.parse("application/json")))
+                .build();
+
+        when(mockCall.execute()).thenReturn(mockResponse);
+
+        OkHttpClient mockClient = mock(OkHttpClient.class);
+        when(mockClient.newCall(any(Request.class))).thenReturn(mockCall);
+        when(mockCall.execute()).thenReturn(mockResponse);
+
+        Pinecone client = new Pinecone.Builder("testAPiKey").withOkHttpClient(mockClient).build();
+        CollectionModel collection = client.createCollection(expectedCollection.getName(), "someSourceIndex");
+
+        // Test for successful creation of Collection
+        verify(mockCall, times(1)).execute();
+        assertEquals(expectedCollection, collection);
+
+        // Test for null and empty as collectionName
+        PineconeValidationException thrownNullCollectionName = assertThrows(PineconeValidationException.class,
+                () -> client.createCollection(null, "someSourceIndex"));
+        assertEquals("collectionName cannot be null or empty", thrownNullCollectionName.getMessage());
+        PineconeValidationException thrownEmptyCollectionName = assertThrows(PineconeValidationException.class,
+                () -> client.createCollection("", "someSourceIndex"));
+        assertEquals("collectionName cannot be null or empty", thrownEmptyCollectionName.getMessage());
+
+        // Test for null and empty as sourceIndex
+        PineconeValidationException thrownNullSourceIndex = assertThrows(PineconeValidationException.class,
+                () -> client.createCollection(expectedCollection.getName(), null));
+        assertEquals("sourceIndex cannot be null or empty", thrownNullSourceIndex.getMessage());
+        PineconeValidationException thrownEmptySourceIndex = assertThrows(PineconeValidationException.class,
+                () -> client.createCollection(expectedCollection.getName(), ""));
+        assertEquals("sourceIndex cannot be null or empty", thrownEmptySourceIndex.getMessage());
     }
 }
