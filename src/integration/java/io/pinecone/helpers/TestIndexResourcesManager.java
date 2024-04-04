@@ -35,7 +35,7 @@ public class TestIndexResourcesManager {
     private IndexModel serverlessIndexModel;
     private String collectionName;
     private CollectionModel collectionModel;
-    private final List<String> podIndexVectorIds = Arrays.asList("v1", "v2", "v3");
+    private final List<String> podIndexVectorIds = Arrays.asList("id1", "id2", "id3");
 
     private TestIndexResourcesManager() {
         pineconeClient = new Pinecone.Builder(apiKey).build();

@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class CollectionTest {
     private static final TestIndexResourcesManager indexManager = TestIndexResourcesManager.getInstance();
-    private static Pinecone pineconeClient = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+    private static final Pinecone pineconeClient = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
     private static final Logger logger = LoggerFactory.getLogger(CollectionTest.class);
     private static final ArrayList<String> indexesToCleanUp = new ArrayList<>();
     private static final IndexMetric indexMetric = indexManager.getMetric();
