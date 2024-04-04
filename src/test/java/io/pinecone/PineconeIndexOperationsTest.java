@@ -231,11 +231,8 @@ public class PineconeIndexOperationsTest {
         Pinecone client = new Pinecone.Builder("testAPiKey").withOkHttpClient(mockClient).build();
         IndexModel configuredIndex = client.configureIndex("testPodIndex", 3);
 
-//        verify(mockClient, times(1)).newCall(requestCaptor.capture());
         verify(mockCall, times(1)).execute();
         assertEquals(expectedConfiguredIndex, configuredIndex);
-//        assertEquals(requestCaptor.getValue().method(), "PATCH");
-//        assertEquals(requestCaptor.getValue().url().toString(), "https://api.pinecone.io/indexes/testIndex");
 
         // Test for empty string for index name
         PineconeValidationException thrownEmptyIndexName = assertThrows(PineconeValidationException.class,
