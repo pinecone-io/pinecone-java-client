@@ -50,24 +50,14 @@ public class Pinecone {
             throw new PineconeValidationException("indexName cannot be null or empty");
         }
 
-        // Set default values if parameters are not provided
-        String defaultPodType = "p1.x1";
-        int defaultReplicas = 1;
+        if (podType == null && replicas == null) {
+            throw new PineconeValidationException("Must provide either podType or replicas");
+        }
 
         // If you pass a # replicas, but they're < 1, throw an exception
         if (replicas != null) {
             if (replicas < 1) {
                 throw new PineconeValidationException("Number of replicas must be >= 1");
-            }
-        }
-
-        // If you pass some random string that's not an actual podType, throw an exception
-        if (podType != null && !podType.isEmpty()) {
-            if (!podType.startsWith("s") && !podType.startsWith("p")) {
-                throw new PineconeValidationException("podType must start with 's' or 'p'");
-            }
-            if (!podType.endsWith("1") && !podType.endsWith("2") && !podType.endsWith("4") && !podType.endsWith("8")) {
-                throw new PineconeValidationException("podType must end with either 1, 2, 3, or 4");
             }
         }
 

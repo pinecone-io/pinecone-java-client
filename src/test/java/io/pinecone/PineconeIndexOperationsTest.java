@@ -249,21 +249,6 @@ public class PineconeIndexOperationsTest {
         PineconeValidationException thrownZeroReplicas = assertThrows(PineconeValidationException.class,
                 () -> client.configureIndex("testPodIndex", 0));
         assertEquals("Number of replicas must be >= 1", thrownZeroReplicas.getMessage());
-
-        // Test for String podType
-        assertThrows(PineconeValidationException.class,
-                () -> client.configureIndex("testPodIndex", "2"));
-
-        // Test for invalid podType prefix
-        PineconeValidationException thrownInvalidPodTypePrefix = assertThrows(PineconeValidationException.class,
-                () -> client.configureIndex("testPodIndex", "z8", 1));
-        assertEquals("podType must start with 's' or 'p'", thrownInvalidPodTypePrefix.getMessage());
-
-        // Test for invalid podType suffix
-        PineconeValidationException thrownInvalidPodTypeSuffix = assertThrows(PineconeValidationException.class,
-                () -> client.configureIndex("testPodIndex", "p9", 1));
-        assertEquals("podType must end with either 1, 2, 3, or 4", thrownInvalidPodTypeSuffix.getMessage());
-
     }
 
     @Test
