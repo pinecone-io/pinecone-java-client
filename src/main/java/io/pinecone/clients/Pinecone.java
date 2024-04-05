@@ -9,7 +9,10 @@ import org.openapitools.client.ApiException;
 import org.openapitools.client.api.ManageIndexesApi;
 import org.openapitools.client.model.*;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
+
 
 public class Pinecone {
 
@@ -21,6 +24,7 @@ public class Pinecone {
         this.manageIndexesApi = manageIndexesApi;
     }
 
+    // TODO: remove
     public IndexModel createIndex(CreateIndexRequest createIndexRequest) throws PineconeValidationException {
         if (createIndexRequest == null) {
             throw new PineconeValidationException("CreateIndexRequest object cannot be null");
@@ -34,20 +38,38 @@ public class Pinecone {
         return indexModel;
     }
 
+    public <E extends Enum<E>> boolean validateEnums(String stringToValidate, List<E> validEnums) {
+        return validEnums.stream()
+                .anyMatch(validEnum -> Objects.equals(stringToValidate, validEnum.toString()));
+    }
+
     public IndexModel createServerlessIndex(String indexName, String metric, int dimension, String cloud,
                                             String region) {
         if (indexName == null || indexName.isEmpty()) {
             throw new PineconeValidationException("Index name cannot be null or empty");
         }
+
         if (metric == null || metric.isEmpty()) {
             throw new PineconeValidationException("Metric cannot be null or empty. Must be 'euclidean', 'cosine' or 'dot-product'");
         }
+        List<IndexMetric> indexMetricEnums = Arrays.asList(IndexMetric.values());
+        if (!validateEnums(metric, indexMetricEnums)) {
+            throw new PineconeValidationException(String.format("Metric must be one of %s", IndexMetric.values()));
+        }
+
         if (dimension <1) {
             throw new PineconeValidationException("Dimension must be greater than 0");
         }
+
         if (cloud == null || cloud.isEmpty()) {
             throw new PineconeValidationException("Cloud cannot be null or empty.");
         }
+        List<ServerlessSpec.CloudEnum> cloudEnums = Arrays.asList(ServerlessSpec.CloudEnum.values());
+        if (!validateEnums(cloud, cloudEnums)) {
+            throw new PineconeValidationException(String.format("Cloud must be one of %s",
+                    ServerlessSpec.CloudEnum.values()));
+        }
+
         if (region == null || region.isEmpty()) {
             throw new PineconeValidationException("Region cannot be null or empty.");
         }
@@ -59,36 +81,6 @@ public class Pinecone {
         ServerlessSpec.CloudEnum cloudProvider = ServerlessSpec.CloudEnum.fromValue(cloud.toLowerCase());
 
         ServerlessSpec serverlessSpec = new ServerlessSpec().cloud(cloudProvider).region(region);
-        CreateIndexRequestSpec createServerlessIndexRequestSpec = new CreateIndexRequestSpec().serverless(serverlessSpec);
-
-        IndexModel indexModel = null;
-        try {
-            indexModel = manageIndexesApi.createIndex(new CreateIndexRequest()
-                    .name(indexName)
-                    .metric(userMetric)
-                    .dimension(dimension)
-                    .spec(createServerlessIndexRequestSpec));
-        } catch (ApiException apiException) {
-            handleApiException(apiException);
-        }
-        return indexModel;
-    }
-
-    public IndexModel createServerlessIndex(String indexName, String metric, int dimension) {
-        if (indexName == null || indexName.isEmpty()) {
-            throw new PineconeValidationException("Index name cannot be null or empty");
-        }
-        if (metric == null || metric.isEmpty()) {
-            throw new PineconeValidationException("Metric cannot be null or empty. Must be 'euclidean', 'cosine' or 'dot-product'");
-        }
-        if (dimension <1) {
-            throw new PineconeValidationException("Dimension must be greater than 0");
-        }
-
-        // Convert user string for "metric" arg into IndexMetric
-        IndexMetric userMetric = IndexMetric.fromValue(metric.toLowerCase());
-
-        ServerlessSpec serverlessSpec = new ServerlessSpec().cloud(ServerlessSpec.CloudEnum.AWS).region("us-west-2");
         CreateIndexRequestSpec createServerlessIndexRequestSpec = new CreateIndexRequestSpec().serverless(serverlessSpec);
 
         IndexModel indexModel = null;
