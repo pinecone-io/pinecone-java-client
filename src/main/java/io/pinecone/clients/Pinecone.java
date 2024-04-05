@@ -52,11 +52,11 @@ public class Pinecone {
         }
 
         if (metric == null || metric.isEmpty()) {
-            throw new PineconeValidationException("Metric cannot be null or empty. Must be 'euclidean', 'cosine' or 'dot-product'");
+            throw new PineconeValidationException("Metric cannot be null or empty. Must be one of " + Arrays.toString(IndexMetric.values()));
         }
         List<IndexMetric> indexMetricEnums = Arrays.asList(IndexMetric.values());
         if (!validateEnums(metric, indexMetricEnums)) {
-            throw new PineconeValidationException(String.format("Metric must be one of %s", IndexMetric.values()));
+            throw new PineconeValidationException("Metric cannot be null or empty. Must be one of " + Arrays.toString(IndexMetric.values()));
         }
 
         if (dimension < 1) {
@@ -64,12 +64,11 @@ public class Pinecone {
         }
 
         if (cloud == null || cloud.isEmpty()) {
-            throw new PineconeValidationException("Cloud cannot be null or empty.");
+            throw new PineconeValidationException("Cloud cannot be null or empty. Must be one of " + Arrays.toString(ServerlessSpec.CloudEnum.values()));
         }
         List<ServerlessSpec.CloudEnum> cloudEnums = Arrays.asList(ServerlessSpec.CloudEnum.values());
         if (!validateEnums(cloud, cloudEnums)) {
-            throw new PineconeValidationException(String.format("Cloud must be one of %s",
-                    ServerlessSpec.CloudEnum.values()));
+            throw new PineconeValidationException("Cloud cannot be null or empty. Must be one of " + Arrays.toString(ServerlessSpec.CloudEnum.values()));
         }
 
         if (region == null || region.isEmpty()) {

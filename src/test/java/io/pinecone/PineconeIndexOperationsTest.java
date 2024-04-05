@@ -78,32 +78,35 @@ public class PineconeIndexOperationsTest {
 
         PineconeValidationException thrownEmptyMetric = assertThrows(PineconeValidationException.class,
                 () -> client.createServerlessIndex("testServerlessIndex", "", 3, "aws", "us-west-2"));
-        assertEquals("Metric cannot be null or empty. Must be 'euclidean', 'cosine' or 'dot-product'", thrownEmptyMetric.getMessage());
+        assertEquals("Metric cannot be null or empty. Must be one of " + Arrays.toString(IndexMetric.values()), thrownEmptyMetric.getMessage());
 
         PineconeValidationException thrownInvalidMetric = assertThrows(PineconeValidationException.class,
                 () -> client.createServerlessIndex("testServerlessIndex", "blah", 3, "aws", "us-west-2"));
-        assertEquals(String.format("Metric must be one of %s", IndexMetric.values()), thrownInvalidMetric.getMessage());
+        assertEquals(String.format("Metric cannot be null or empty. Must be one of " + Arrays.toString(IndexMetric.values())), thrownInvalidMetric.getMessage());
 
         PineconeValidationException thrownNullMetric = assertThrows(PineconeValidationException.class,
                 () -> client.createServerlessIndex("testServerlessIndex", null, 3, "aws", "us-west-2"));
-        assertEquals("Metric cannot be null or empty. Must be 'euclidean', 'cosine' or 'dot-product'", thrownNullMetric.getMessage());
+        assertEquals("Metric cannot be null or empty. Must be one of " + Arrays.toString(IndexMetric.values()),
+            thrownNullMetric.getMessage());
 
         PineconeValidationException thrownNegativeDimension = assertThrows(PineconeValidationException.class,
                 () -> client.createServerlessIndex("testServerlessIndex", "cosine", -3, "aws", "us-west-2"));
-        assertEquals("Dimension must be greater than 0", thrownNegativeDimension.getMessage());
+        assertEquals("Dimension must be greater than 0. See limits for more info: https://docs.pinecone.io/reference/limits", thrownNegativeDimension.getMessage());
 
         PineconeValidationException thrownEmptyCloud = assertThrows(PineconeValidationException.class,
                 () -> client.createServerlessIndex("testServerlessIndex", "cosine", 3, "", "us-west-2"));
-        assertEquals("Cloud cannot be null or empty.", thrownEmptyCloud.getMessage());
+        assertEquals("Cloud cannot be null or empty. Must be one of " + Arrays.toString(ServerlessSpec.CloudEnum.values()),
+                thrownEmptyCloud.getMessage());
 
         PineconeValidationException thrownNullCloud = assertThrows(PineconeValidationException.class,
                 () -> client.createServerlessIndex("testServerlessIndex", "cosine", 3, null, "us-west-2"));
-        assertEquals("Cloud cannot be null or empty.", thrownNullCloud.getMessage());
+        assertEquals("Cloud cannot be null or empty. Must be one of " + Arrays.toString(ServerlessSpec.CloudEnum.values()),
+                thrownNullCloud.getMessage());
 
         PineconeValidationException thrownInvalidCloud = assertThrows(PineconeValidationException.class,
                 () -> client.createServerlessIndex("testServerlessIndex", "cosine", 3, "wooooo", "us-west-2"));
-        assertEquals(String.format("Cloud must be one of %s", ServerlessSpec.CloudEnum.values()), thrownInvalidCloud.getMessage());
-
+        assertEquals("Cloud cannot be null or empty. Must be one of " + Arrays.toString(ServerlessSpec.CloudEnum.values()),
+                thrownInvalidCloud.getMessage());
 
         PineconeValidationException thrownEmptyRegion = assertThrows(PineconeValidationException.class,
                 () -> client.createServerlessIndex("testServerlessIndex", "cosine", 3, "aws", ""));
