@@ -24,7 +24,6 @@ public class Pinecone {
         this.manageIndexesApi = manageIndexesApi;
     }
 
-    // TODO: remove
     public IndexModel createIndex(CreateIndexRequest createIndexRequest) throws PineconeValidationException {
         if (createIndexRequest == null) {
             throw new PineconeValidationException("CreateIndexRequest object cannot be null");
