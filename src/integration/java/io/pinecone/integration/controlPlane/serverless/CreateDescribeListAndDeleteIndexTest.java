@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.model.*;
 
+import java.util.Arrays;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CreateDescribeListAndDeleteIndexTest {
@@ -128,8 +130,7 @@ public class CreateDescribeListAndDeleteIndexTest {
             controlPlaneClient.createServerlessIndex("serverless-test-index", "cosine", 3, "blah", "us-west-2");
             fail("Expected to throw PineconeValidationException");
         } catch (PineconeValidationException expected) {
-            assertTrue(expected.getLocalizedMessage().contains(String.format("Cloud must be one of %s",
-                    ServerlessSpec.CloudEnum.values())));
+            assertTrue(expected.getLocalizedMessage().contains("Cloud cannot be null or empty. Must be one of " + Arrays.toString(ServerlessSpec.CloudEnum.values())));
         }
     }
 
