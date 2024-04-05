@@ -2,8 +2,11 @@ package io.pinecone.clients;
 
 import io.pinecone.configs.PineconeConfig;
 import io.pinecone.configs.PineconeConnection;
-import io.pinecone.exceptions.*;
-import okhttp3.*;
+import io.pinecone.exceptions.FailedRequestInfo;
+import io.pinecone.exceptions.HttpErrorMapper;
+import io.pinecone.exceptions.PineconeException;
+import io.pinecone.exceptions.PineconeValidationException;
+import okhttp3.OkHttpClient;
 import org.openapitools.client.ApiClient;
 import org.openapitools.client.ApiException;
 import org.openapitools.client.api.ManageIndexesApi;
@@ -56,7 +59,7 @@ public class Pinecone {
             throw new PineconeValidationException(String.format("Metric must be one of %s", IndexMetric.values()));
         }
 
-        if (dimension <1) {
+        if (dimension < 1) {
             throw new PineconeValidationException("Dimension must be greater than 0");
         }
 
