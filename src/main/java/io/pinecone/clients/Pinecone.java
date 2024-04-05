@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.Arrays;
 
 public class Pinecone {
 
@@ -93,10 +94,42 @@ public class Pinecone {
                     .metric(userMetric)
                     .dimension(dimension)
                     .spec(createServerlessIndexRequestSpec));
+
+    // minimal
+    public IndexModel createPodsIndex(String indexName, Integer dimension, String metric, String podType,
+                                      String environment) {
+        if (indexName == null || indexName.isEmpty()) {
+            throw new PineconeValidationException("indexName cannot be null or empty");
+        }
+
+        // TODO: copy validations from audrey/createServerlessIndex
+        // TODO: would be nice to have an Enum for podType
+        // TODO: what args are actually required here?
+
+        try {
+            IndexMetric.fromValue(metric);
+        } catch (IllegalArgumentException e) {
+            throw new PineconeValidationException("Invalid metric. Must be one of " + Arrays.asList(IndexMetric.values()));
+        }
+
+        IndexMetric userMetric = IndexMetric.fromValue(metric);
+
+        CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().environment(environment).podType(podType);
+        CreateIndexRequestSpec createIndexRequestSpec = new CreateIndexRequestSpec().pod(podSpec);
+        CreateIndexRequest createIndexRequest = new CreateIndexRequest()
+                .name(indexName)
+                .metric(userMetric)
+                .dimension(dimension)
+                .spec(createIndexRequestSpec);
+
+        IndexModel indexModel = null;
+        try {
+            indexModel = manageIndexesApi.createIndex(createIndexRequest);
         } catch (ApiException apiException) {
             handleApiException(apiException);
         }
         return indexModel;
+
     }
 
     public IndexModel describeIndex(String indexName) throws PineconeException {
