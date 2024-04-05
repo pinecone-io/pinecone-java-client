@@ -29,7 +29,6 @@ public class CreateDescribeListAndDeleteIndexTest {
     }
 
     @Test
-    @Disabled
     public void describeAndListIndex() {
         // Describe the index
         IndexModel indexModel = controlPlaneClient.describeIndex(indexName);
@@ -46,7 +45,6 @@ public class CreateDescribeListAndDeleteIndexTest {
     }
 
     @Test
-    @Disabled
     public void createIndexWithInvalidName() {
         ServerlessSpec serverlessSpec = new ServerlessSpec().cloud(ServerlessSpec.CloudEnum.AWS).region(serverlessRegion);
         CreateIndexRequestSpec createIndexRequestSpec = new CreateIndexRequestSpec().serverless(serverlessSpec);
@@ -77,7 +75,6 @@ public class CreateDescribeListAndDeleteIndexTest {
     }
 
     @Test
-    @Disabled
     public void createIndexWithInvalidDimension() {
         ServerlessSpec serverlessSpec = new ServerlessSpec().cloud(ServerlessSpec.CloudEnum.AWS).region(serverlessRegion);
         CreateIndexRequestSpec createIndexRequestSpec = new CreateIndexRequestSpec().serverless(serverlessSpec);
@@ -107,7 +104,6 @@ public class CreateDescribeListAndDeleteIndexTest {
     }
 
     @Test
-    @Disabled
     public void createIndexInvalidCloud() {
         ServerlessSpec serverlessSpec = new ServerlessSpec().cloud(ServerlessSpec.CloudEnum.AZURE).region(serverlessRegion);
         CreateIndexRequestSpec createIndexRequestSpec = new CreateIndexRequestSpec().serverless(serverlessSpec);
@@ -138,7 +134,6 @@ public class CreateDescribeListAndDeleteIndexTest {
     }
 
     @Test
-    @Disabled
     public void createIndexInvalidRegion() {
         ServerlessSpec serverlessSpec = new ServerlessSpec().cloud(ServerlessSpec.CloudEnum.AWS).region("invalid-region");
         CreateIndexRequestSpec createIndexRequestSpec = new CreateIndexRequestSpec().serverless(serverlessSpec);
