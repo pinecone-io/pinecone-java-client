@@ -117,49 +117,6 @@ public class PineconeIndexOperationsTest {
         assertEquals("Region cannot be null or empty.", thrownNullRegion.getMessage());
     }
 
-    @Test
-    public void testValidateEnumsWithValidValue() throws IOException {
-        String testString = "cosine";
-        List<IndexMetric> indexMetricEnums = Arrays.asList(IndexMetric.values());
-
-        Call mockCall = mock(Call.class);
-        when(mockCall.execute()).thenReturn(new Response.Builder()
-                .request(new Request.Builder().url("http://localhost").build())
-                .protocol(Protocol.HTTP_1_1)
-                .code(200)
-                .message("OK")
-                .body(ResponseBody.create("Response body", MediaType.parse("text/plain")))
-                .build());
-        OkHttpClient mockClient = mock(OkHttpClient.class);
-        when(mockClient.newCall(any(Request.class))).thenReturn(mockCall);
-
-        Pinecone client = new Pinecone.Builder("testAPiKey").withOkHttpClient(mockClient).build();
-
-        boolean validationResult = client.validateEnums(testString, indexMetricEnums);
-        assertTrue(validationResult);
-    }
-
-    @Test
-    public void testValidateEnumsWithInvalidValue() throws IOException {
-        String testString = "ecosine";
-        List<IndexMetric> indexMetricEnums = Arrays.asList(IndexMetric.values());
-
-        Call mockCall = mock(Call.class);
-        when(mockCall.execute()).thenReturn(new Response.Builder()
-                .request(new Request.Builder().url("http://localhost").build())
-                .protocol(Protocol.HTTP_1_1)
-                .code(200)
-                .message("OK")
-                .body(ResponseBody.create("Response body", MediaType.parse("text/plain")))
-                .build());
-        OkHttpClient mockClient = mock(OkHttpClient.class);
-        when(mockClient.newCall(any(Request.class))).thenReturn(mockCall);
-
-        Pinecone client = new Pinecone.Builder("testAPiKey").withOkHttpClient(mockClient).build();
-
-        boolean validationResult = client.validateEnums(testString, indexMetricEnums);
-        assertFalse(validationResult);
-    }
 
     @Test
     public void testCreatePodIndex() throws IOException {

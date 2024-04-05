@@ -40,11 +40,6 @@ public class Pinecone {
         return indexModel;
     }
 
-    public <E extends Enum<E>> boolean validateEnums(String stringToValidate, List<E> validEnums) {
-        return validEnums.stream()
-                .anyMatch(validEnum -> Objects.equals(stringToValidate, validEnum.toString()));
-    }
-
     public IndexModel createServerlessIndex(String indexName, String metric, int dimension, String cloud,
                                             String region) {
         if (indexName == null || indexName.isEmpty()) {
@@ -54,9 +49,12 @@ public class Pinecone {
         if (metric == null || metric.isEmpty()) {
             throw new PineconeValidationException("Metric cannot be null or empty. Must be one of " + Arrays.toString(IndexMetric.values()));
         }
-        List<IndexMetric> indexMetricEnums = Arrays.asList(IndexMetric.values());
-        if (!validateEnums(metric, indexMetricEnums)) {
-            throw new PineconeValidationException("Metric cannot be null or empty. Must be one of " + Arrays.toString(IndexMetric.values()));
+        if (!(metric == null)) {
+            try {
+                IndexMetric.fromValue(metric.toLowerCase());
+            } catch (IllegalArgumentException e) {
+                throw new PineconeValidationException("Metric cannot be null or empty. Must be one of " + Arrays.toString(IndexMetric.values()));
+            }
         }
 
         if (dimension < 1) {
@@ -66,9 +64,12 @@ public class Pinecone {
         if (cloud == null || cloud.isEmpty()) {
             throw new PineconeValidationException("Cloud cannot be null or empty. Must be one of " + Arrays.toString(ServerlessSpec.CloudEnum.values()));
         }
-        List<ServerlessSpec.CloudEnum> cloudEnums = Arrays.asList(ServerlessSpec.CloudEnum.values());
-        if (!validateEnums(cloud, cloudEnums)) {
-            throw new PineconeValidationException("Cloud cannot be null or empty. Must be one of " + Arrays.toString(ServerlessSpec.CloudEnum.values()));
+        if (!(cloud == null)) {
+            try {
+                ServerlessSpec.CloudEnum.fromValue(cloud.toLowerCase());
+            } catch (IllegalArgumentException e) {
+                throw new PineconeValidationException("Cloud cannot be null or empty. Must be one of " + Arrays.toString(ServerlessSpec.CloudEnum.values()));
+            }
         }
 
         if (region == null || region.isEmpty()) {
