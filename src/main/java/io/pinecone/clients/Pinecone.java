@@ -60,7 +60,7 @@ public class Pinecone {
         }
 
         if (dimension < 1) {
-            throw new PineconeValidationException("Dimension must be greater than 0");
+            throw new PineconeValidationException("Dimension must be greater than 0. See limits for more info: https://docs.pinecone.io/reference/limits");
         }
 
         if (cloud == null || cloud.isEmpty()) {
