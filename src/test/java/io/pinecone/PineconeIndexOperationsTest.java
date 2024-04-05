@@ -19,7 +19,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.times;
 
 public class PineconeIndexOperationsTest {
     private static final Gson gson = new Gson();
@@ -218,10 +217,6 @@ public class PineconeIndexOperationsTest {
         String podIndexJsonString = new String(Files.readAllBytes(Paths.get(filePath)));
         IndexModel expectedConfiguredIndex = gson.fromJson(podIndexJsonString, IndexModel.class);
 
-        ConfigureIndexRequestSpecPod pod = new ConfigureIndexRequestSpecPod().podType("s1.x2").replicas(3);
-        ConfigureIndexRequestSpec spec = new ConfigureIndexRequestSpec().pod(pod);
-        ConfigureIndexRequest configureIndexRequest = new ConfigureIndexRequest().spec(spec);
-
         Call mockCall = mock(Call.class);
         when(mockCall.execute()).thenReturn(new Response.Builder()
                 .request(new Request.Builder().url("http://localhost").build())
@@ -234,31 +229,26 @@ public class PineconeIndexOperationsTest {
         OkHttpClient mockClient = mock(OkHttpClient.class);
         when(mockClient.newCall(any(Request.class))).thenReturn(mockCall);
         Pinecone client = new Pinecone.Builder("testAPiKey").withOkHttpClient(mockClient).build();
-        IndexModel configuredIndex = client.configureIndex("testIndex", configureIndexRequest);
+        IndexModel configuredIndex = client.configureIndex("testPodIndex", 3);
 
-        ArgumentCaptor<Request> requestCaptor = ArgumentCaptor.forClass(Request.class);
-
-        verify(mockClient, times(1)).newCall(requestCaptor.capture());
         verify(mockCall, times(1)).execute();
         assertEquals(expectedConfiguredIndex, configuredIndex);
-        assertEquals(requestCaptor.getValue().method(), "PATCH");
-        assertEquals(requestCaptor.getValue().url().toString(), "https://api.pinecone.io/indexes/testIndex");
 
         // Test for empty string for index name
         PineconeValidationException thrownEmptyIndexName = assertThrows(PineconeValidationException.class,
                 () -> client.configureIndex("",
-                configureIndexRequest));
-        assertEquals("Index name cannot be null or empty", thrownEmptyIndexName.getMessage());
+                        3));
+        assertEquals("indexName cannot be null or empty", thrownEmptyIndexName.getMessage());
 
         // Test for null as index name
         PineconeValidationException thrownNullIndexName = assertThrows(PineconeValidationException.class, () -> client.configureIndex(null,
-                configureIndexRequest));
-        assertEquals("Index name cannot be null or empty", thrownNullIndexName.getMessage());
+                3));
+        assertEquals("indexName cannot be null or empty", thrownNullIndexName.getMessage());
 
-        // Test for null as configureIndexRequest
-        PineconeValidationException thrownNullRequestObj = assertThrows(PineconeValidationException.class,
-                () -> client.configureIndex("testIndex", null));
-        assertEquals("ConfigureIndexRequest object cannot be null", thrownNullRequestObj.getMessage());
+        // Test for invalid number of replicas
+        PineconeValidationException thrownZeroReplicas = assertThrows(PineconeValidationException.class,
+                () -> client.configureIndex("testPodIndex", 0));
+        assertEquals("Number of replicas must be >= 1", thrownZeroReplicas.getMessage());
     }
 
     @Test
