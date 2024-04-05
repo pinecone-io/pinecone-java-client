@@ -48,6 +48,70 @@ public class PineconeIndexOperationsTest {
     }
 
     @Test
+    public void testCreateServerlessIndex() throws IOException {
+        String filePath = "src/test/resources/serverlessIndexJsonString.json";
+        String indexJsonStringServerless = new String(Files.readAllBytes(Paths.get(filePath)));
+
+        Call mockCall = mock(Call.class);
+        when(mockCall.execute()).thenReturn(new Response.Builder()
+                .request(new Request.Builder().url("http://localhost").build())
+                .protocol(Protocol.HTTP_1_1)
+                .code(201)
+                .message("OK")
+                .body(ResponseBody.create(indexJsonStringServerless, MediaType.parse("application/json")))
+                .build());
+
+        OkHttpClient mockClient = mock(OkHttpClient.class);
+        when(mockClient.newCall(any(Request.class))).thenReturn(mockCall);
+
+        Pinecone client = new Pinecone.Builder("testAPiKey").withOkHttpClient(mockClient).build();
+
+        client.createServerlessIndex("testServerlessIndex", "cosine", 3, "aws", "us-west-2");
+        verify(mockCall, times(1)).execute();
+
+        client.createServerlessIndex("testServerlessIndex2", "cosine", 3);
+        verify(mockCall, times(2)).execute();
+
+        // Breaking tests for 3 arg createServerlessIndex
+        PineconeValidationException thrownEmptyIndexName = assertThrows(PineconeValidationException.class,
+                () -> client.createServerlessIndex("", "cosine", 3));
+        assertEquals("Index name cannot be null or empty", thrownEmptyIndexName.getMessage());
+
+        PineconeValidationException thrownNullIndexName = assertThrows(PineconeValidationException.class,
+                () -> client.createServerlessIndex(null, "cosine", 3));
+        assertEquals("Index name cannot be null or empty", thrownNullIndexName.getMessage());
+
+        PineconeValidationException thrownEmptyMetric = assertThrows(PineconeValidationException.class,
+                () -> client.createServerlessIndex("testServerlessIndex", "", 3));
+        assertEquals("Metric cannot be null or empty. Must be 'euclidean', 'cosine' or 'dot-product'", thrownEmptyMetric.getMessage());
+
+        PineconeValidationException thrownNullMetric = assertThrows(PineconeValidationException.class,
+                () -> client.createServerlessIndex("testServerlessIndex", null, 3));
+        assertEquals("Metric cannot be null or empty. Must be 'euclidean', 'cosine' or 'dot-product'", thrownNullMetric.getMessage());
+
+        PineconeValidationException thrownNegativeDimension = assertThrows(PineconeValidationException.class,
+                () -> client.createServerlessIndex("testServerlessIndex", "cosine", -3));
+        assertEquals("Dimension must be greater than 0", thrownNegativeDimension.getMessage());
+
+        // Breaking tests for 5 arg createServerlessIndex
+        PineconeValidationException thrownEmptyCloud = assertThrows(PineconeValidationException.class,
+                () -> client.createServerlessIndex("testServerlessIndex", "cosine", 3, "", "us-west-2"));
+        assertEquals("Cloud cannot be null or empty.", thrownEmptyCloud.getMessage());
+
+        PineconeValidationException thrownNullCloud = assertThrows(PineconeValidationException.class,
+                () -> client.createServerlessIndex("testServerlessIndex", "cosine", 3, null, "us-west-2"));
+        assertEquals("Cloud cannot be null or empty.", thrownNullCloud.getMessage());
+
+        PineconeValidationException thrownEmptyRegion = assertThrows(PineconeValidationException.class,
+                () -> client.createServerlessIndex("testServerlessIndex", "cosine", 3, "aws", ""));
+        assertEquals("Region cannot be null or empty.", thrownEmptyRegion.getMessage());
+
+        PineconeValidationException thrownNullRegion = assertThrows(PineconeValidationException.class,
+                () -> client.createServerlessIndex("testServerlessIndex", "cosine", 3, "aws", null));
+        assertEquals("Region cannot be null or empty.", thrownNullRegion.getMessage());
+    }
+
+    @Test
     public void testCreatePodIndex() throws IOException {
         String filePath = "src/test/resources/podIndexJsonString.json";
         String indexJsonStringPod = new String(Files.readAllBytes(Paths.get(filePath)));

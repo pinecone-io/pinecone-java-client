@@ -2,15 +2,14 @@ package io.pinecone.clients;
 
 import io.pinecone.configs.PineconeConfig;
 import io.pinecone.configs.PineconeConnection;
-import io.pinecone.exceptions.FailedRequestInfo;
-import io.pinecone.exceptions.HttpErrorMapper;
-import io.pinecone.exceptions.PineconeException;
-import io.pinecone.exceptions.PineconeValidationException;
-import okhttp3.OkHttpClient;
+import io.pinecone.exceptions.*;
+import okhttp3.*;
 import org.openapitools.client.ApiClient;
 import org.openapitools.client.ApiException;
 import org.openapitools.client.api.ManageIndexesApi;
 import org.openapitools.client.model.*;
+
+import java.util.Objects;
 
 public class Pinecone {
 
@@ -29,6 +28,76 @@ public class Pinecone {
         IndexModel indexModel = null;
         try {
             indexModel = manageIndexesApi.createIndex(createIndexRequest);
+        } catch (ApiException apiException) {
+            handleApiException(apiException);
+        }
+        return indexModel;
+    }
+
+    public IndexModel createServerlessIndex(String indexName, String metric, int dimension, String cloud,
+                                            String region) {
+        if (indexName == null || indexName.isEmpty()) {
+            throw new PineconeValidationException("Index name cannot be null or empty");
+        }
+        if (metric == null || metric.isEmpty()) {
+            throw new PineconeValidationException("Metric cannot be null or empty. Must be 'euclidean', 'cosine' or 'dot-product'");
+        }
+        if (dimension <1) {
+            throw new PineconeValidationException("Dimension must be greater than 0");
+        }
+        if (cloud == null || cloud.isEmpty()) {
+            throw new PineconeValidationException("Cloud cannot be null or empty.");
+        }
+        if (region == null || region.isEmpty()) {
+            throw new PineconeValidationException("Region cannot be null or empty.");
+        }
+
+        // Convert user string for "metric" arg into IndexMetric
+        IndexMetric userMetric = IndexMetric.fromValue(metric.toLowerCase());
+
+        // Convert user string for "cloud" arg into ServerlessSpec.CloudEnum
+        ServerlessSpec.CloudEnum cloudProvider = ServerlessSpec.CloudEnum.fromValue(cloud.toLowerCase());
+
+        ServerlessSpec serverlessSpec = new ServerlessSpec().cloud(cloudProvider).region(region);
+        CreateIndexRequestSpec createServerlessIndexRequestSpec = new CreateIndexRequestSpec().serverless(serverlessSpec);
+
+        IndexModel indexModel = null;
+        try {
+            indexModel = manageIndexesApi.createIndex(new CreateIndexRequest()
+                    .name(indexName)
+                    .metric(userMetric)
+                    .dimension(dimension)
+                    .spec(createServerlessIndexRequestSpec));
+        } catch (ApiException apiException) {
+            handleApiException(apiException);
+        }
+        return indexModel;
+    }
+
+    public IndexModel createServerlessIndex(String indexName, String metric, int dimension) {
+        if (indexName == null || indexName.isEmpty()) {
+            throw new PineconeValidationException("Index name cannot be null or empty");
+        }
+        if (metric == null || metric.isEmpty()) {
+            throw new PineconeValidationException("Metric cannot be null or empty. Must be 'euclidean', 'cosine' or 'dot-product'");
+        }
+        if (dimension <1) {
+            throw new PineconeValidationException("Dimension must be greater than 0");
+        }
+
+        // Convert user string for "metric" arg into IndexMetric
+        IndexMetric userMetric = IndexMetric.fromValue(metric.toLowerCase());
+
+        ServerlessSpec serverlessSpec = new ServerlessSpec().cloud(ServerlessSpec.CloudEnum.AWS).region("us-west-2");
+        CreateIndexRequestSpec createServerlessIndexRequestSpec = new CreateIndexRequestSpec().serverless(serverlessSpec);
+
+        IndexModel indexModel = null;
+        try {
+            indexModel = manageIndexesApi.createIndex(new CreateIndexRequest()
+                    .name(indexName)
+                    .metric(userMetric)
+                    .dimension(dimension)
+                    .spec(createServerlessIndexRequestSpec));
         } catch (ApiException apiException) {
             handleApiException(apiException);
         }
