@@ -105,11 +105,11 @@ public class PineconeIndexOperationsTest {
         String indexJsonStringPod = new String(Files.readAllBytes(Paths.get(filePath)));
         IndexModel expectedIndex = gson.fromJson(indexJsonStringPod, IndexModel.class);
 
-        PodSpecMetadataConfig podSpecMetadataConfig = new PodSpecMetadataConfig();
+        CreateIndexRequestSpecPodMetadataConfig createIndexRequestSpecPodMetadataConfig = new CreateIndexRequestSpecPodMetadataConfig();
         List<String> indexedItems = Arrays.asList("A", "B", "C", "D");
-        podSpecMetadataConfig.setIndexed(indexedItems);
+        createIndexRequestSpecPodMetadataConfig.setIndexed(indexedItems);
 
-        CreateIndexRequestSpecPod requestSpecPod = new CreateIndexRequestSpecPod().pods(2).podType("p1.x2").replicas(2).metadataConfig(podSpecMetadataConfig).sourceCollection("step");
+        CreateIndexRequestSpecPod requestSpecPod = new CreateIndexRequestSpecPod().pods(2).podType("p1.x2").replicas(2).metadataConfig(createIndexRequestSpecPodMetadataConfig).sourceCollection("step");
         CreateIndexRequestSpec requestSpec = new CreateIndexRequestSpec().pod(requestSpecPod);
         CreateIndexRequest createIndexRequest = new CreateIndexRequest()
                 .name("test_name")
