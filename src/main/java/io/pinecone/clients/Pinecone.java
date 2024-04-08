@@ -73,7 +73,7 @@ public class Pinecone {
         }
 
         if (region == null || region.isEmpty()) {
-            throw new PineconeValidationException("Region cannot be null or empty.");
+            throw new PineconeValidationException("Region cannot be null or empty");
         }
 
         // Convert user string for "metric" arg into IndexMetric
