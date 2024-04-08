@@ -7,11 +7,8 @@ import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.proto.*;
 import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
 import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class Index implements IndexInterface<UpsertResponse,
         QueryResponseWithUnsignedIndices,
@@ -21,23 +18,15 @@ public class Index implements IndexInterface<UpsertResponse,
         DescribeIndexStatsResponse> {
 
     private final PineconeConnection connection;
-    private final Pinecone pinecone;
     private final String indexName;
     private final VectorServiceGrpc.VectorServiceBlockingStub blockingStub;
 
-    private static final Logger logger = LoggerFactory.getLogger(Index.class);
-
-    public Index(Pinecone pinecone, PineconeConnection connection, String indexName) {
-        if (pinecone == null) {
-            throw new PineconeValidationException("Pinecone object cannot be null.");
-        }
-
+    public Index(PineconeConnection connection, String indexName) {
         if (connection == null) {
             throw new PineconeValidationException("Pinecone connection object cannot be null.");
         }
 
         this.connection = connection;
-        this.pinecone = pinecone;
         this.indexName = indexName;
         this.blockingStub = connection.getBlockingStub();
     }
@@ -211,12 +200,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     @Override
     public void close() {
-        try {
-            logger.debug("closing channel");
-            pinecone.closeConnection(indexName);
-            connection.getChannel().shutdownNow().awaitTermination(5, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            logger.warn("Channel shutdown interrupted before termination confirmed");
-        }
+        Pinecone.closeConnection(indexName);
+        connection.close();
     }
 }

@@ -5,6 +5,7 @@ import io.pinecone.configs.PineconeConnection;
 import io.pinecone.exceptions.FailedRequestInfo;
 import io.pinecone.exceptions.HttpErrorMapper;
 import io.pinecone.exceptions.PineconeException;
+import io.pinecone.exceptions.PineconeValidationException;
 import okhttp3.*;
 import org.openapitools.client.ApiClient;
 import org.openapitools.client.ApiException;
@@ -153,15 +154,23 @@ public class Pinecone {
     }
 
     public Index getIndexConnection(String indexName) {
+        if(indexName == null || indexName.isEmpty()) {
+            throw new PineconeValidationException("Index name cannot be null or empty");
+        }
+
         config.setHost(getIndexHost(indexName));
         PineconeConnection connection = getConnection(indexName);
-        return new Index(this, connection, indexName);
+        return new Index(connection, indexName);
     }
 
     public AsyncIndex getAsyncIndexConnection(String indexName) {
+        if(indexName == null || indexName.isEmpty()) {
+            throw new PineconeValidationException("Index name cannot be null or empty");
+        }
+
         config.setHost(getIndexHost(indexName));
         PineconeConnection connection = getConnection(indexName);
-        return new AsyncIndex(this, connection, indexName);
+        return new AsyncIndex(connection, indexName);
     }
 
     PineconeConnection getConnection(String indexName) {
@@ -176,7 +185,7 @@ public class Pinecone {
         return this.describeIndex(indexName).getHost();
     }
 
-    void closeConnection(String indexName) {
+    static void closeConnection(String indexName) {
         connectionsMap.remove(indexName);
     }
 

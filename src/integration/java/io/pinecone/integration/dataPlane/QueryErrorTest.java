@@ -2,7 +2,6 @@ package io.pinecone.integration.dataPlane;
 
 import io.pinecone.clients.AsyncIndex;
 import io.pinecone.clients.Index;
-import io.pinecone.clients.Pinecone;
 import io.pinecone.configs.PineconeConnection;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.proto.VectorServiceGrpc;
@@ -26,7 +25,6 @@ public class QueryErrorTest {
     @BeforeAll
     public static void setUp() throws IOException, InterruptedException {
         PineconeConnection connectionMock = mock(PineconeConnection.class);
-        Pinecone pineconeMock = mock(Pinecone.class);
 
         VectorServiceGrpc.VectorServiceBlockingStub stubMock = mock(VectorServiceGrpc.VectorServiceBlockingStub.class);
         VectorServiceGrpc.VectorServiceFutureStub asyncStubMock = mock(VectorServiceGrpc.VectorServiceFutureStub.class);
@@ -34,8 +32,8 @@ public class QueryErrorTest {
         when(connectionMock.getBlockingStub()).thenReturn(stubMock);
         when(connectionMock.getAsyncStub()).thenReturn(asyncStubMock);
 
-        index = new Index(pineconeMock, connectionMock, "some-index-name");
-        asyncIndex = new AsyncIndex(pineconeMock, connectionMock, "some-index-name");
+        index = new Index(connectionMock, "some-index-name");
+        asyncIndex = new AsyncIndex(connectionMock, "some-index-name");
     }
 
     @Test
