@@ -12,6 +12,9 @@ import org.openapitools.client.ApiException;
 import org.openapitools.client.api.ManageIndexesApi;
 import org.openapitools.client.model.*;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Pinecone {
@@ -32,6 +35,64 @@ public class Pinecone {
         IndexModel indexModel = null;
         try {
             indexModel = manageIndexesApi.createIndex(createIndexRequest);
+        } catch (ApiException apiException) {
+            handleApiException(apiException);
+        }
+        return indexModel;
+    }
+
+    public IndexModel createServerlessIndex(String indexName, String metric, int dimension, String cloud,
+                                            String region) {
+        if (indexName == null || indexName.isEmpty()) {
+            throw new PineconeValidationException("Index name cannot be null or empty");
+        }
+
+        if (metric == null || metric.isEmpty()) {
+            throw new PineconeValidationException("Metric cannot be null or empty. Must be one of " + Arrays.toString(IndexMetric.values()));
+        }
+        if (!(metric == null)) {
+            try {
+                IndexMetric.fromValue(metric.toLowerCase());
+            } catch (IllegalArgumentException e) {
+                throw new PineconeValidationException("Metric cannot be null or empty. Must be one of " + Arrays.toString(IndexMetric.values()));
+            }
+        }
+
+        if (dimension < 1) {
+            throw new PineconeValidationException("Dimension must be greater than 0. See limits for more info: https://docs.pinecone.io/reference/limits");
+        }
+
+        if (cloud == null || cloud.isEmpty()) {
+            throw new PineconeValidationException("Cloud cannot be null or empty. Must be one of " + Arrays.toString(ServerlessSpec.CloudEnum.values()));
+        }
+        if (!(cloud == null)) {
+            try {
+                ServerlessSpec.CloudEnum.fromValue(cloud.toLowerCase());
+            } catch (IllegalArgumentException e) {
+                throw new PineconeValidationException("Cloud cannot be null or empty. Must be one of " + Arrays.toString(ServerlessSpec.CloudEnum.values()));
+            }
+        }
+
+        if (region == null || region.isEmpty()) {
+            throw new PineconeValidationException("Region cannot be null or empty");
+        }
+
+        // Convert user string for "metric" arg into IndexMetric
+        IndexMetric userMetric = IndexMetric.fromValue(metric.toLowerCase());
+
+        // Convert user string for "cloud" arg into ServerlessSpec.CloudEnum
+        ServerlessSpec.CloudEnum cloudProvider = ServerlessSpec.CloudEnum.fromValue(cloud.toLowerCase());
+
+        ServerlessSpec serverlessSpec = new ServerlessSpec().cloud(cloudProvider).region(region);
+        CreateIndexRequestSpec createServerlessIndexRequestSpec = new CreateIndexRequestSpec().serverless(serverlessSpec);
+
+        IndexModel indexModel = null;
+        try {
+            indexModel = manageIndexesApi.createIndex(new CreateIndexRequest()
+                    .name(indexName)
+                    .metric(userMetric)
+                    .dimension(dimension)
+                    .spec(createServerlessIndexRequestSpec));
         } catch (ApiException apiException) {
             handleApiException(apiException);
         }
