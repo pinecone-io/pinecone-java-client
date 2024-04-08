@@ -15,6 +15,8 @@ import org.openapitools.client.model.*;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class Pinecone {
 
     private static final ConcurrentHashMap<String, PineconeConnection> connectionsMap = new ConcurrentHashMap<>();
@@ -102,31 +104,157 @@ public class Pinecone {
         return indexModel;
     }
 
-    // Min params needed
+    // Minimal
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment) {
         if (indexName == null || indexName.isEmpty()) {
             throw new PineconeValidationException("indexName cannot be null or empty");
         }
 
-        // TODO: copy validations from audrey/createServerlessIndex
-
-        CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().environment(environment);
-        CreateIndexRequestSpec createIndexRequestSpec = new CreateIndexRequestSpec().pod(podSpec);
-        CreateIndexRequest createIndexRequest = new CreateIndexRequest()
-                .name(indexName)
-                .dimension(dimension)
-                .spec(createIndexRequestSpec);
-
-        IndexModel indexModel = null;
-        try {
-            indexModel = manageIndexesApi.createIndex(createIndexRequest);
-        } catch (ApiException apiException) {
-            handleApiException(apiException);
+        if (dimension == null) {
+            throw new PineconeValidationException("Dimension cannot be null");
         }
-        return indexModel;
+
+        if (dimension < 1) {
+            throw new PineconeValidationException("Dimension must be greater than 0. See limits for more info: https://docs.pinecone.io/reference/limits");
+        }
+
+        if (environment == null || environment.isEmpty()) {
+            throw new PineconeValidationException("Environment cannot be null or empty");
+        }
+
+        return createPodsIndex(indexName, dimension, environment, null, null, null, null, null, null, null);
     }
 
-    // Max params
+    // Minimal + metadata
+    public IndexModel createPodsIndex(String indexName, Integer dimension, String environment, PodSpecMetadataConfig metadataConfig) {
+        if (indexName == null || indexName.isEmpty()) {
+            throw new PineconeValidationException("indexName cannot be null or empty");
+        }
+
+        if (dimension == null) {
+            throw new PineconeValidationException("Dimension cannot be null");
+        }
+
+        if (dimension < 1) {
+            throw new PineconeValidationException("Dimension must be greater than 0. See limits for more info: https://docs.pinecone.io/reference/limits");
+        }
+
+        if (environment == null || environment.isEmpty()) {
+            throw new PineconeValidationException("Environment cannot be null or empty");
+        }
+
+        return createPodsIndex(indexName, dimension, environment, null, null, null, null, null, metadataConfig, null);
+    }
+
+    // Minimal + source collection
+    public IndexModel createPodsIndex(String indexName, Integer dimension, String environment, String sourceCollection) {
+        if (indexName == null || indexName.isEmpty()) {
+            throw new PineconeValidationException("indexName cannot be null or empty");
+        }
+
+        if (dimension == null) {
+            throw new PineconeValidationException("Dimension cannot be null");
+        }
+
+        if (dimension < 1) {
+            throw new PineconeValidationException("Dimension must be greater than 0. See limits for more info: https://docs.pinecone.io/reference/limits");
+        }
+
+        if (environment == null || environment.isEmpty()) {
+            throw new PineconeValidationException("Environment cannot be null or empty");
+        }
+
+        return createPodsIndex(indexName, dimension, environment, null, null, null, null, null, null, sourceCollection);
+    }
+
+    // Minimal + pods
+    public IndexModel createPodsIndex(String indexName, Integer dimension, String environment, Integer pods) {
+        if (indexName == null || indexName.isEmpty()) {
+            throw new PineconeValidationException("indexName cannot be null or empty");
+        }
+
+        if (dimension == null) {
+            throw new PineconeValidationException("Dimension cannot be null");
+        }
+
+        if (dimension < 1) {
+            throw new PineconeValidationException("Dimension must be greater than 0. See limits for more info: https://docs.pinecone.io/reference/limits");
+        }
+
+        if (environment == null || environment.isEmpty()) {
+            throw new PineconeValidationException("Environment cannot be null or empty");
+        }
+
+        return createPodsIndex(indexName, dimension, environment, null, null, null, null, pods, null, null);
+    }
+
+    // Minimal + pods + metadata
+    public IndexModel createPodsIndex(String indexName, Integer dimension, String environment, Integer pods,
+                                      PodSpecMetadataConfig metadataConfig) {
+        if (indexName == null || indexName.isEmpty()) {
+            throw new PineconeValidationException("indexName cannot be null or empty");
+        }
+
+        if (dimension == null) {
+            throw new PineconeValidationException("Dimension cannot be null");
+        }
+
+        if (dimension < 1) {
+            throw new PineconeValidationException("Dimension must be greater than 0. See limits for more info: https://docs.pinecone.io/reference/limits");
+        }
+
+        if (environment == null || environment.isEmpty()) {
+            throw new PineconeValidationException("Environment cannot be null or empty");
+        }
+
+        return createPodsIndex(indexName, dimension, environment, null, null, null, null, pods, metadataConfig, null);
+    }
+
+    // Minimal + replicas, shards
+    public IndexModel createPodsIndex(String indexName, Integer dimension, String environment, Integer replicas,
+                                      Integer shards) {
+        if (indexName == null || indexName.isEmpty()) {
+            throw new PineconeValidationException("indexName cannot be null or empty");
+        }
+
+        if (dimension == null) {
+            throw new PineconeValidationException("Dimension cannot be null");
+        }
+
+        if (dimension < 1) {
+            throw new PineconeValidationException("Dimension must be greater than 0. See limits for more info: https://docs.pinecone.io/reference/limits");
+        }
+
+        if (environment == null || environment.isEmpty()) {
+            throw new PineconeValidationException("Environment cannot be null or empty");
+        }
+
+        return createPodsIndex(indexName, dimension, environment, null, null, replicas, shards, null, null, null);
+    }
+
+    // Minimal + replicas, shards + metadata
+    public IndexModel createPodsIndex(String indexName, Integer dimension, String environment, Integer replicas,
+                                      Integer shards, PodSpecMetadataConfig metadataConfig) {
+        if (indexName == null || indexName.isEmpty()) {
+            throw new PineconeValidationException("indexName cannot be null or empty");
+        }
+
+        if (dimension == null) {
+            throw new PineconeValidationException("Dimension cannot be null");
+        }
+
+        if (dimension < 1) {
+            throw new PineconeValidationException("Dimension must be greater than 0. See limits for more info: https://docs.pinecone.io/reference/limits");
+        }
+
+        if (environment == null || environment.isEmpty()) {
+            throw new PineconeValidationException("Environment cannot be null or empty");
+        }
+
+        return createPodsIndex(indexName, dimension, environment, null, null, replicas, shards, null, metadataConfig, null);
+    }
+
+    // Max
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String metric, String podType,
                                       Integer replicas, Integer shards, Integer pods,
@@ -134,23 +262,30 @@ public class Pinecone {
         if (indexName == null || indexName.isEmpty()) {
             throw new PineconeValidationException("indexName cannot be null or empty");
         }
-        // TODO: copy validations from audrey/createServerlessIndex
 
-        IndexMetric userMetric = IndexMetric.fromValue(metric);
+        if (dimension == null) {
+            throw new PineconeValidationException("Dimension cannot be null");
+        }
 
-        CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod()
-                .environment(environment)
-                .podType(podType)
-                .replicas(replicas)
-                .shards(shards)
-                .pods(pods)
-                .metadataConfig(metadataConfig)
-                .sourceCollection(sourceCollection);
+        if (dimension < 1) {
+            throw new PineconeValidationException("Dimension must be greater than 0. See limits for more info: https://docs.pinecone.io/reference/limits");
+        }
+
+        if (environment == null || environment.isEmpty()) {
+            throw new PineconeValidationException("Environment cannot be null or empty");
+        }
+
+        if (replicas != null && shards != null && pods != null) {
+            assertEquals(replicas * shards, pods, "Number of pods does not equal number of shards times number of " +
+                    "replicas");
+        }
+
+        CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().environment(environment).podType(podType).replicas(replicas).shards(shards).pods(pods).metadataConfig(metadataConfig).sourceCollection(sourceCollection);
         CreateIndexRequestSpec createIndexRequestSpec = new CreateIndexRequestSpec().pod(podSpec);
         CreateIndexRequest createIndexRequest = new CreateIndexRequest()
                 .name(indexName)
                 .dimension(dimension)
-                .metric(userMetric)
+                .metric(IndexMetric.fromValue(metric))
                 .spec(createIndexRequestSpec);
 
         IndexModel indexModel = null;
@@ -160,7 +295,6 @@ public class Pinecone {
             handleApiException(apiException);
         }
         return indexModel;
-
     }
 
     public IndexModel describeIndex(String indexName) throws PineconeException {

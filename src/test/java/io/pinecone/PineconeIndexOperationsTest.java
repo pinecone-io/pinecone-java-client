@@ -18,7 +18,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -49,7 +50,6 @@ public class PineconeIndexOperationsTest {
         assertEquals(requestCaptor.getValue().url().toString(), "https://api.pinecone.io/indexes/testIndex");
     }
 
-    // OLD
     @Test
     public void testCreateServerlessIndex() throws IOException {
         String filePath = "src/test/resources/serverlessIndexJsonString.json";
@@ -91,7 +91,7 @@ public class PineconeIndexOperationsTest {
         PineconeValidationException thrownNullMetric = assertThrows(PineconeValidationException.class,
                 () -> client.createServerlessIndex("testServerlessIndex", null, 3, "aws", "us-west-2"));
         assertEquals("Metric cannot be null or empty. Must be one of " + Arrays.toString(IndexMetric.values()),
-            thrownNullMetric.getMessage());
+                thrownNullMetric.getMessage());
 
         PineconeValidationException thrownNegativeDimension = assertThrows(PineconeValidationException.class,
                 () -> client.createServerlessIndex("testServerlessIndex", "cosine", -3, "aws", "us-west-2"));
@@ -188,47 +188,60 @@ public class PineconeIndexOperationsTest {
         verify(mockCall, times(1)).execute();
 
 
-
     }
 
-        @Test
-        public void testCreatePodsIndexWithMaxParams() throws IOException {
-            String filePath = "src/test/resources/podIndexJsonString.json";
-            String indexJsonStringPod = new String(Files.readAllBytes(Paths.get(filePath)));
+    @Test
+    public void testCreatePodsIndexWithMaxParams() throws IOException {
+        String filePath = "src/test/resources/podIndexJsonString.json";
+        String indexJsonStringPod = new String(Files.readAllBytes(Paths.get(filePath)));
 
-            Call mockCall = mock(Call.class);
-            when(mockCall.execute()).thenReturn(new Response.Builder()
-                    .request(new Request.Builder().url("http://localhost").build())
-                    .protocol(Protocol.HTTP_1_1)
-                    .code(201)
-                    .message("OK")
-                    .body(ResponseBody.create(indexJsonStringPod, MediaType.parse("application/json")))
-                    .build());
+        Call mockCall = mock(Call.class);
+        when(mockCall.execute()).thenReturn(new Response.Builder()
+                .request(new Request.Builder().url("http://localhost").build())
+                .protocol(Protocol.HTTP_1_1)
+                .code(201)
+                .message("OK")
+                .body(ResponseBody.create(indexJsonStringPod, MediaType.parse("application/json")))
+                .build());
 
-            OkHttpClient mockClient = mock(OkHttpClient.class);
-            when(mockClient.newCall(any(Request.class))).thenReturn(mockCall);
-            Pinecone client = new Pinecone.Builder("testAPiKey").withOkHttpClient(mockClient).build();
+        OkHttpClient mockClient = mock(OkHttpClient.class);
+        when(mockClient.newCall(any(Request.class))).thenReturn(mockCall);
+        Pinecone client = new Pinecone.Builder("testAPiKey").withOkHttpClient(mockClient).build();
 
-//            PodSpecMetadataConfig podSpecMetadataConfig = new PodSpecMetadataConfig();
+        String indexName = "testPodIndex";
+        IndexModel createdIndex = client.createPodsIndex(indexName,
+                3,
+                "us-east-1-aws",
+                "cosine",
+                "p1.x2",
+                2,
+                1,
+                2,
+                new PodSpecMetadataConfig(),
+                "some-source-collection");
 
-            IndexModel createdIndex = client.createPodsIndex("testPodIndex",
-                    3,
-                    "us-east-1-aws",
-                    "cosine",
-                    "p1.x2",
-                    2,
-                    1,
-                    2,
-                    new PodSpecMetadataConfig(),
-                    "some-source-collection");
+        verify(mockCall, times(1)).execute();
 
-            verify(mockCall, times(1)).execute();
+        PineconeValidationException thrownNegativeDimension = assertThrows(PineconeValidationException.class,
+                () -> client.createPodsIndex(indexName, -3, "some-environment"));
+        assertEquals("Dimension must be greater than 0. See limits for more info: https://docs.pinecone.io/reference/limits", thrownNegativeDimension.getMessage());
 
-            // Confirm default podType set by backend is "p1.x1" when not provided by user
-            assertEquals(createdIndex.getSpec().getPod().getPodType(), "p1.x2");
+        PineconeValidationException thrownNullDimension = assertThrows(PineconeValidationException.class,
+                () -> client.createPodsIndex(indexName, null, "some-environment"));
+        assertEquals("Dimension cannot be null", thrownNullDimension.getMessage());
 
-            // Confirm default metric set by backend is COSINE when not provided by user
-            assertEquals(createdIndex.getMetric(), IndexMetric.COSINE);
+        PineconeValidationException thrownEmptyEnvironment = assertThrows(PineconeValidationException.class,
+                () -> client.createPodsIndex(indexName, 3, ""));
+        assertEquals("Environment cannot be null or empty", thrownEmptyEnvironment.getMessage());
+
+        PineconeValidationException thrownNullEnvironment = assertThrows(PineconeValidationException.class,
+                () -> client.createPodsIndex(indexName, 3, null));
+        assertEquals("Environment cannot be null or empty", thrownNullEnvironment.getMessage());
+
+        AssertionError incorrectNumReplicasAndShards = assertThrows(AssertionError.class,
+                () -> client.createPodsIndex(indexName, 3, "some-environment", "cosine", "p1.x2", 3, 2, 9, new PodSpecMetadataConfig(), "some-source-collection"));
+        assertEquals("Number of pods does not equal number of shards times number of " +
+                "replicas ==> expected: <6> but was: <9>", incorrectNumReplicasAndShards.getMessage());
     }
 
     @Test
