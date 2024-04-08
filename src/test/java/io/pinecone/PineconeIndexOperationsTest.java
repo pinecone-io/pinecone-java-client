@@ -175,7 +175,7 @@ public class PineconeIndexOperationsTest {
                 3,
                 "us-east-1-aws",
                 "cosine",
-                "p1.x2",
+                "p1.x1",
                 2,
                 1,
                 2,
@@ -190,23 +190,71 @@ public class PineconeIndexOperationsTest {
         assertEquals(requestCaptor.getValue().url().toString(), "https://api.pinecone.io/indexes");
 
         PineconeValidationException thrownNegativeDimension = assertThrows(PineconeValidationException.class,
-                () -> client.createPodsIndex(indexName, -3, "some-environment"));
+                () -> client.createPodsIndex(indexName, -3, "some-environment", "p1.x1"));
         assertEquals("Dimension must be greater than 0. See limits for more info: https://docs.pinecone.io/reference/limits", thrownNegativeDimension.getMessage());
 
         PineconeValidationException thrownNullDimension = assertThrows(PineconeValidationException.class,
-                () -> client.createPodsIndex(indexName, null, "some-environment"));
+                () -> client.createPodsIndex(indexName, null, "some-environment", "p1.x1"));
         assertEquals("Dimension cannot be null", thrownNullDimension.getMessage());
 
         PineconeValidationException thrownEmptyEnvironment = assertThrows(PineconeValidationException.class,
-                () -> client.createPodsIndex(indexName, 3, ""));
+                () -> client.createPodsIndex(indexName, 3, "", "p1.x1"));
         assertEquals("Environment cannot be null or empty", thrownEmptyEnvironment.getMessage());
 
         PineconeValidationException thrownNullEnvironment = assertThrows(PineconeValidationException.class,
-                () -> client.createPodsIndex(indexName, 3, null));
+                () -> client.createPodsIndex(indexName, 3, null, "p1.x1"));
         assertEquals("Environment cannot be null or empty", thrownNullEnvironment.getMessage());
 
+        PineconeValidationException thrownNullPodType = assertThrows(PineconeValidationException.class,
+                () -> client.createPodsIndex(indexName, 3, "some-environment", null));
+        assertEquals("Pod type cannot be null or empty", thrownNullPodType.getMessage());
+
+        PineconeValidationException thrownEmptyPodType = assertThrows(PineconeValidationException.class,
+                () -> client.createPodsIndex(indexName, 3, "some-environment", ""));
+        assertEquals("Pod type cannot be null or empty", thrownEmptyPodType.getMessage());
+
+        PineconeValidationException thrownEmptyMetric = assertThrows(PineconeValidationException.class,
+                () -> client.createPodsIndex(indexName, 3, "some-environment", "", "p1.x1" ));
+        assertEquals("Metric cannot be null or empty. Must be one of " + Arrays.toString(IndexMetric.values()), thrownEmptyMetric.getMessage());
+
+        PineconeValidationException thrownNullMetric = assertThrows(PineconeValidationException.class,
+                () -> client.createPodsIndex(indexName, 3, "some-environment", null, "p1.x1" ));
+        assertEquals("Metric cannot be null or empty. Must be one of " + Arrays.toString(IndexMetric.values()), thrownNullMetric.getMessage());
+
+        PineconeValidationException thrownNegativeReplicas = assertThrows(PineconeValidationException.class,
+                () -> client.createPodsIndex(indexName,
+                        3,
+                        "some-environment",
+                        "cosine",
+                        "p1.x1",
+                        -1,
+                        2,
+                        -2,
+                        null,
+                        null));
+        assertEquals("Number of replicas must be >= 1", thrownNegativeReplicas.getMessage());
+
+        PineconeValidationException thrownNegativeShards = assertThrows(PineconeValidationException.class,
+                () -> client.createPodsIndex(indexName,
+                        3,
+                        "some-environment",
+                        "cosine",
+                        "p1.x1",
+                        1,
+                        -1,
+                        -1,
+                        null,
+                        null));
+        assertEquals("Number of shards must be >= 1", thrownNegativeShards.getMessage());
+
+
+
+
+
+
         AssertionError incorrectNumReplicasAndShards = assertThrows(AssertionError.class,
-                () -> client.createPodsIndex(indexName, 3, "some-environment", "cosine", "p1.x2", 3, 2, 9, new PodSpecMetadataConfig(), "some-source-collection"));
+                () -> client.createPodsIndex(indexName, 3, "some-environment", "cosine", "p1.x1", 3, 2, 9,
+                        new PodSpecMetadataConfig(), "some-source-collection"));
         assertEquals("Number of pods does not equal number of shards times number of " +
                 "replicas ==> expected: <6> but was: <9>", incorrectNumReplicasAndShards.getMessage());
     }
