@@ -15,14 +15,15 @@ import org.openapitools.client.model.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Pinecone {
 
     private final ManageIndexesApi manageIndexesApi;
     private final PineconeConfig config;
+    private static final ConcurrentHashMap<String, PineconeConnection> connectionsMap = new ConcurrentHashMap<>();
 
-    private Pinecone(PineconeConfig config, ManageIndexesApi manageIndexesApi) {
+    Pinecone(PineconeConfig config, ManageIndexesApi manageIndexesApi) {
         this.config = config;
         this.manageIndexesApi = manageIndexesApi;
     }
@@ -219,14 +220,40 @@ public class Pinecone {
         }
     }
 
-    public Index createIndexConnection(String indexName) {
-        PineconeConnection connection = new PineconeConnection(config, indexName);
-        return new Index(connection);
+    public Index getIndexConnection(String indexName) {
+        if(indexName == null || indexName.isEmpty()) {
+            throw new PineconeValidationException("Index name cannot be null or empty");
+        }
+
+        config.setHost(getIndexHost(indexName));
+        PineconeConnection connection = getConnection(indexName);
+        return new Index(connection, indexName);
     }
 
-    public AsyncIndex createAsyncIndexConnection(String indexName) {
-        PineconeConnection connection = new PineconeConnection(config, indexName);
-        return new AsyncIndex(connection);
+    public AsyncIndex getAsyncIndexConnection(String indexName) {
+        if(indexName == null || indexName.isEmpty()) {
+            throw new PineconeValidationException("Index name cannot be null or empty");
+        }
+
+        config.setHost(getIndexHost(indexName));
+        PineconeConnection connection = getConnection(indexName);
+        return new AsyncIndex(connection, indexName);
+    }
+
+    PineconeConnection getConnection(String indexName) {
+        return connectionsMap.computeIfAbsent(indexName, key -> new PineconeConnection(config));
+    }
+
+    ConcurrentHashMap<String, PineconeConnection> getConnectionsMap() {
+        return connectionsMap;
+    }
+
+    String getIndexHost(String indexName) {
+        return this.describeIndex(indexName).getHost();
+    }
+
+    static void closeConnection(String indexName) {
+        connectionsMap.remove(indexName);
     }
 
     private void handleApiException(ApiException apiException) throws PineconeException {

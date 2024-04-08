@@ -106,7 +106,7 @@ public class CollectionTest {
         // If the index is ready, validate contents
         if (indexDescription.getStatus().getReady()) {
             // Set up new index data plane connection
-            Index indexClient = pineconeClient.createIndexConnection(newIndexName);
+            Index indexClient = pineconeClient.getIndexConnection(newIndexName);
 
             assertWithRetry(() -> {
                 DescribeIndexStatsResponse describeResponse = indexClient.describeIndexStats();

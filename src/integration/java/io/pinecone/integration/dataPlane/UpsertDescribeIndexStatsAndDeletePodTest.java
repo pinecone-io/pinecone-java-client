@@ -33,8 +33,8 @@ public class UpsertDescribeIndexStatsAndDeletePodTest {
         AbstractMap.SimpleEntry<String, Pinecone> indexAndClient = createIndexIfNotExistsDataPlane(dimension, IndexModelSpec.SERIALIZED_NAME_POD);
         String indexName = indexAndClient.getKey();
         Pinecone pineconeClient = indexAndClient.getValue();
-        index = pineconeClient.createIndexConnection(indexName);
-        asyncIndex = pineconeClient.createAsyncIndexConnection(indexName);
+        index = pineconeClient.getIndexConnection(indexName);
+        asyncIndex = pineconeClient.getAsyncIndexConnection(indexName);
     }
 
     @Test

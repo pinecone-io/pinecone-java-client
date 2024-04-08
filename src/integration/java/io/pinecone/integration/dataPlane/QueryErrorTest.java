@@ -32,8 +32,8 @@ public class QueryErrorTest {
         when(connectionMock.getBlockingStub()).thenReturn(stubMock);
         when(connectionMock.getAsyncStub()).thenReturn(asyncStubMock);
 
-        index = new Index(connectionMock);
-        asyncIndex = new AsyncIndex(connectionMock);
+        index = new Index(connectionMock, "some-index-name");
+        asyncIndex = new AsyncIndex(connectionMock, "some-index-name");
     }
 
     @Test

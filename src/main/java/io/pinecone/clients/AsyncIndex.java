@@ -10,11 +10,8 @@ import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.proto.*;
 import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
 import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertResponse>,
         ListenableFuture<QueryResponseWithUnsignedIndices>,
@@ -25,13 +22,14 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     private final PineconeConnection connection;
     private final VectorServiceGrpc.VectorServiceFutureStub asyncStub;
+    private final String indexName;
 
-    private static final Logger logger = LoggerFactory.getLogger(AsyncIndex.class);
-
-    public AsyncIndex(PineconeConnection connection) {
+    public AsyncIndex(PineconeConnection connection, String indexName) {
         if (connection == null) {
             throw new PineconeValidationException("Pinecone connection object cannot be null.");
         }
+
+        this.indexName = indexName;
         this.connection = connection;
         this.asyncStub = connection.getAsyncStub();
     }
@@ -214,11 +212,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      */
     @Override
     public void close() {
-        try {
-            logger.debug("closing channel");
-            connection.getChannel().shutdownNow().awaitTermination(5, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            logger.warn("Channel shutdown interrupted before termination confirmed");
-        }
+        Pinecone.closeConnection(indexName);
+        connection.close();
     }
 }

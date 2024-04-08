@@ -6,7 +6,6 @@ import io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.NegotiationType;
 import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.MetadataUtils;
-import io.pinecone.clients.Pinecone;
 import io.pinecone.exceptions.PineconeException;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.proto.VectorServiceGrpc;
@@ -43,19 +42,6 @@ public class PineconeConnection implements AutoCloseable {
         } else {
             if (config.getHost() == null || config.getHost().isEmpty()) {
                 throw new PineconeValidationException("Index-name or host is required for data plane operations");
-            }
-            channel = buildChannel(config.getHost());
-        }
-        initialize();
-    }
-
-    public PineconeConnection(PineconeConfig config, String indexName) {
-        this.config = config;
-        if (config.getCustomManagedChannel() != null) {
-            channel = config.getCustomManagedChannel();
-        } else {
-            if (config.getHost() == null || config.getHost().isEmpty()) {
-                config.setHost(getHost(config.getApiKey(), indexName));
             }
             channel = buildChannel(config.getHost());
         }
@@ -146,10 +132,5 @@ public class PineconeConnection implements AutoCloseable {
         } else {
             throw new PineconeValidationException("Index host cannot be null or empty");
         }
-    }
-
-    private static String getHost(String apiKey, String indexName) {
-        Pinecone controlPlaneClient = new Pinecone.Builder(apiKey).build();
-        return controlPlaneClient.describeIndex(indexName).getHost();
     }
 }

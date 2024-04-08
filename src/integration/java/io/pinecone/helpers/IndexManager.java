@@ -123,7 +123,7 @@ public class IndexManager {
         // wait a bit more before we connect...
         Thread.sleep(5000);
 
-        return pinecone.createIndexConnection(indexName);
+        return pinecone.getIndexConnection(indexName);
     }
 
     public static CollectionModel createCollection(Pinecone pinecone, String collectionName, String indexName, boolean waitUntilReady) throws InterruptedException {
