@@ -110,11 +110,11 @@ public class PineconeIndexOperationsTest {
 
         PineconeValidationException thrownEmptyRegion = assertThrows(PineconeValidationException.class,
                 () -> client.createServerlessIndex("testServerlessIndex", "cosine", 3, "aws", ""));
-        assertEquals("Region cannot be null or empty.", thrownEmptyRegion.getMessage());
+        assertEquals("Region cannot be null or empty", thrownEmptyRegion.getMessage());
 
         PineconeValidationException thrownNullRegion = assertThrows(PineconeValidationException.class,
                 () -> client.createServerlessIndex("testServerlessIndex", "cosine", 3, "aws", null));
-        assertEquals("Region cannot be null or empty.", thrownNullRegion.getMessage());
+        assertEquals("Region cannot be null or empty", thrownNullRegion.getMessage());
     }
 
 
