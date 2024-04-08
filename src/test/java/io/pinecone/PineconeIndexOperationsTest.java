@@ -153,45 +153,7 @@ public class PineconeIndexOperationsTest {
     }
 
     @Test
-    public void testCreatePodsIndexWithMinimalParams() throws IOException {
-        String filePath = "src/test/resources/podIndexJsonString.json";
-        String indexJsonStringPod = new String(Files.readAllBytes(Paths.get(filePath)));
-
-        Call mockCall = mock(Call.class);
-        when(mockCall.execute()).thenReturn(new Response.Builder()
-                .request(new Request.Builder().url("http://localhost").build())
-                .protocol(Protocol.HTTP_1_1)
-                .code(201)
-                .message("OK")
-                .body(ResponseBody.create(indexJsonStringPod, MediaType.parse("application/json")))
-                .build());
-
-        OkHttpClient mockClient = mock(OkHttpClient.class);
-        when(mockClient.newCall(any(Request.class))).thenReturn(mockCall);
-        Pinecone client = new Pinecone.Builder("testAPiKey").withOkHttpClient(mockClient).build();
-
-        // Grab data from json expected response in order to build mock call
-        ObjectMapper objectMapper = new ObjectMapper();
-        HashMap<String, Object> podsIndexMetadata = objectMapper.readValue(indexJsonStringPod, HashMap.class);
-
-        Integer expectedDimension = (Integer) podsIndexMetadata.get("dimension");
-        LinkedHashMap<String, Object> specMetadata = (LinkedHashMap<String, Object>) podsIndexMetadata.get("spec");
-        LinkedHashMap<String, Object> podMetadata = (LinkedHashMap<String, Object>) specMetadata.get("pod");
-        String expectedEnviron = (String) podMetadata.get("environment");
-
-        String indexName = "testPodIndex";
-
-        // Call mock client  (minimal params)
-        IndexModel mockIndex = client.createPodsIndex(indexName, expectedDimension, expectedEnviron);
-
-        // Verify that the call was made 1x
-        verify(mockCall, times(1)).execute();
-
-
-    }
-
-    @Test
-    public void testCreatePodsIndexWithMaxParams() throws IOException {
+    public void testCreatePodsIndex() throws IOException {
         String filePath = "src/test/resources/podIndexJsonString.json";
         String indexJsonStringPod = new String(Files.readAllBytes(Paths.get(filePath)));
 
@@ -220,7 +182,12 @@ public class PineconeIndexOperationsTest {
                 new PodSpecMetadataConfig(),
                 "some-source-collection");
 
+        ArgumentCaptor<Request> requestCaptor = ArgumentCaptor.forClass(Request.class);
+
+        verify(mockClient, times(1)).newCall(requestCaptor.capture());
         verify(mockCall, times(1)).execute();
+        assertEquals(requestCaptor.getValue().method(), "POST");
+        assertEquals(requestCaptor.getValue().url().toString(), "https://api.pinecone.io/indexes");
 
         PineconeValidationException thrownNegativeDimension = assertThrows(PineconeValidationException.class,
                 () -> client.createPodsIndex(indexName, -3, "some-environment"));
