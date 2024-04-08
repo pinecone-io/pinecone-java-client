@@ -181,7 +181,7 @@ public class TestIndexResourcesManager {
 
     private void seedIndex(List<String> vectorIds, String indexName) throws InterruptedException {
         // Build upsert request
-        Index indexClient = pineconeClient.createIndexConnection(indexName);
+        Index indexClient = pineconeClient.getIndexConnection(indexName);
         indexClient.upsert(buildRequiredUpsertRequestByDimension(vectorIds, dimension), "");
 
         // Wait for record freshness
