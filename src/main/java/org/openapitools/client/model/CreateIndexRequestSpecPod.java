@@ -56,7 +56,7 @@ public class CreateIndexRequestSpecPod {
   @SerializedName(SERIALIZED_NAME_ENVIRONMENT)
   private String environment;
 
-  public static final String SERIALIZED_NAME_REPLICAS = "replicas"; // group 1
+  public static final String SERIALIZED_NAME_REPLICAS = "replicas";
   @SerializedName(SERIALIZED_NAME_REPLICAS)
   private Integer replicas = 1;
 
@@ -64,11 +64,11 @@ public class CreateIndexRequestSpecPod {
   @SerializedName(SERIALIZED_NAME_POD_TYPE)
   private String podType = "p1.x1";
 
-  public static final String SERIALIZED_NAME_PODS = "pods"; // group 2
+  public static final String SERIALIZED_NAME_PODS = "pods";
   @SerializedName(SERIALIZED_NAME_PODS)
   private Integer pods;
 
-  public static final String SERIALIZED_NAME_SHARDS = "shards";  // group 1
+  public static final String SERIALIZED_NAME_SHARDS = "shards";
   @SerializedName(SERIALIZED_NAME_SHARDS)
   private Integer shards = 1;
 
@@ -79,22 +79,6 @@ public class CreateIndexRequestSpecPod {
   public static final String SERIALIZED_NAME_SOURCE_COLLECTION = "source_collection";
   @SerializedName(SERIALIZED_NAME_SOURCE_COLLECTION)
   private String sourceCollection;
-
-    // minimal
-    // all args
-
-    // minimal + pods
-    // minimal + replicas-and-shards
-    // minimal + metadata-config
-
-    // all args + metadata-config
-
-    // minimal + pods  + metadata-config
-    // minimal + replicas-and-shards + metadata-config
-
-    // minimal + source-collection
-    // all args + source-collection
-
 
   public CreateIndexRequestSpecPod() {
   }

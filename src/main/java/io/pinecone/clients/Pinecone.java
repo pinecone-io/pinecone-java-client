@@ -13,21 +13,20 @@ import org.openapitools.client.api.ManageIndexesApi;
 import org.openapitools.client.model.*;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.Arrays;
 
 public class Pinecone {
 
-    private static final ConcurrentHashMap<String, PineconeConnection> connectionsMap = new ConcurrentHashMap<>();
     private final ManageIndexesApi manageIndexesApi;
     private final PineconeConfig config;
+    private static final ConcurrentHashMap<String, PineconeConnection> connectionsMap = new ConcurrentHashMap<>();
 
     Pinecone(PineconeConfig config, ManageIndexesApi manageIndexesApi) {
         this.config = config;
         this.manageIndexesApi = manageIndexesApi;
-    }
-
-    static void closeConnection(String indexName) {
-        connectionsMap.remove(indexName);
     }
 
     public IndexModel createIndex(CreateIndexRequest createIndexRequest) throws PineconeValidationException {
@@ -89,68 +88,38 @@ public class Pinecone {
         CreateIndexRequestSpec createServerlessIndexRequestSpec = new CreateIndexRequestSpec().serverless(serverlessSpec);
 
         IndexModel indexModel = null;
-
         try {
             indexModel = manageIndexesApi.createIndex(new CreateIndexRequest()
                     .name(indexName)
                     .metric(userMetric)
                     .dimension(dimension)
                     .spec(createServerlessIndexRequestSpec));
-        } catch (ApiException apiException) {
-            handleApiException(apiException);
-        }
-        return indexModel;
-    }
 
-    // Min params needed
-    public IndexModel createPodsIndex(String indexName, Integer dimension, String environment) {
+    // minimal
+    public IndexModel createPodsIndex(String indexName, Integer dimension, String metric, String podType,
+                                      String environment) {
         if (indexName == null || indexName.isEmpty()) {
             throw new PineconeValidationException("indexName cannot be null or empty");
         }
 
         // TODO: copy validations from audrey/createServerlessIndex
+        // TODO: would be nice to have an Enum for podType
+        // TODO: what args are actually required here?
 
-        CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().environment(environment);
-        CreateIndexRequestSpec createIndexRequestSpec = new CreateIndexRequestSpec().pod(podSpec);
-        CreateIndexRequest createIndexRequest = new CreateIndexRequest()
-                .name(indexName)
-                .dimension(dimension)
-                .spec(createIndexRequestSpec);
-
-        IndexModel indexModel = null;
         try {
-            indexModel = manageIndexesApi.createIndex(createIndexRequest);
-        } catch (ApiException apiException) {
-            handleApiException(apiException);
+            IndexMetric.fromValue(metric);
+        } catch (IllegalArgumentException e) {
+            throw new PineconeValidationException("Invalid metric. Must be one of " + Arrays.asList(IndexMetric.values()));
         }
-        return indexModel;
-    }
-
-    // Max params
-    public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
-                                      String metric, String podType,
-                                      Integer replicas, Integer shards, Integer pods,
-                                      PodSpecMetadataConfig metadataConfig, String sourceCollection) {
-        if (indexName == null || indexName.isEmpty()) {
-            throw new PineconeValidationException("indexName cannot be null or empty");
-        }
-        // TODO: copy validations from audrey/createServerlessIndex
 
         IndexMetric userMetric = IndexMetric.fromValue(metric);
 
-        CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod()
-                .environment(environment)
-                .podType(podType)
-                .replicas(replicas)
-                .shards(shards)
-                .pods(pods)
-                .metadataConfig(metadataConfig)
-                .sourceCollection(sourceCollection);
+        CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().environment(environment).podType(podType);
         CreateIndexRequestSpec createIndexRequestSpec = new CreateIndexRequestSpec().pod(podSpec);
         CreateIndexRequest createIndexRequest = new CreateIndexRequest()
                 .name(indexName)
-                .dimension(dimension)
                 .metric(userMetric)
+                .dimension(dimension)
                 .spec(createIndexRequestSpec);
 
         IndexModel indexModel = null;
@@ -173,8 +142,7 @@ public class Pinecone {
         return indexModel;
     }
 
-    public IndexModel configureIndex(String indexName, String podType, Integer replicas) throws
-            PineconeValidationException {
+    public IndexModel configureIndex(String indexName, String podType, Integer replicas) throws PineconeValidationException {
         if (indexName == null || indexName.isEmpty()) {
             throw new PineconeValidationException("indexName cannot be null or empty");
         }
@@ -236,8 +204,7 @@ public class Pinecone {
         }
     }
 
-    public CollectionModel createCollection(String collectionName, String sourceIndex) throws
-            PineconeValidationException {
+    public CollectionModel createCollection(String collectionName, String sourceIndex) throws PineconeValidationException {
         if (collectionName == null || collectionName.isEmpty()) {
             throw new PineconeValidationException("collectionName cannot be null or empty");
         }
@@ -287,7 +254,7 @@ public class Pinecone {
     }
 
     public Index getIndexConnection(String indexName) {
-        if (indexName == null || indexName.isEmpty()) {
+        if(indexName == null || indexName.isEmpty()) {
             throw new PineconeValidationException("Index name cannot be null or empty");
         }
 
@@ -297,7 +264,7 @@ public class Pinecone {
     }
 
     public AsyncIndex getAsyncIndexConnection(String indexName) {
-        if (indexName == null || indexName.isEmpty()) {
+        if(indexName == null || indexName.isEmpty()) {
             throw new PineconeValidationException("Index name cannot be null or empty");
         }
 
@@ -316,6 +283,10 @@ public class Pinecone {
 
     String getIndexHost(String indexName) {
         return this.describeIndex(indexName).getHost();
+    }
+
+    static void closeConnection(String indexName) {
+        connectionsMap.remove(indexName);
     }
 
     private void handleApiException(ApiException apiException) throws PineconeException {

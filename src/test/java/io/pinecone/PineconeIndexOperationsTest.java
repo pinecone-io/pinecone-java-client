@@ -1,6 +1,5 @@
 package io.pinecone;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.exceptions.PineconeValidationException;
@@ -14,8 +13,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -49,7 +46,6 @@ public class PineconeIndexOperationsTest {
         assertEquals(requestCaptor.getValue().url().toString(), "https://api.pinecone.io/indexes/testIndex");
     }
 
-    // OLD
     @Test
     public void testCreateServerlessIndex() throws IOException {
         String filePath = "src/test/resources/serverlessIndexJsonString.json";
@@ -150,85 +146,6 @@ public class PineconeIndexOperationsTest {
         verify(mockCall, times(1)).execute();
         assertEquals(requestCaptor.getValue().method(), "POST");
         assertEquals(requestCaptor.getValue().url().toString(), "https://api.pinecone.io/indexes");
-    }
-
-    @Test
-    public void testCreatePodsIndexWithMinimalParams() throws IOException {
-        String filePath = "src/test/resources/podIndexJsonString.json";
-        String indexJsonStringPod = new String(Files.readAllBytes(Paths.get(filePath)));
-
-        Call mockCall = mock(Call.class);
-        when(mockCall.execute()).thenReturn(new Response.Builder()
-                .request(new Request.Builder().url("http://localhost").build())
-                .protocol(Protocol.HTTP_1_1)
-                .code(201)
-                .message("OK")
-                .body(ResponseBody.create(indexJsonStringPod, MediaType.parse("application/json")))
-                .build());
-
-        OkHttpClient mockClient = mock(OkHttpClient.class);
-        when(mockClient.newCall(any(Request.class))).thenReturn(mockCall);
-        Pinecone client = new Pinecone.Builder("testAPiKey").withOkHttpClient(mockClient).build();
-
-        // Grab data from json expected response in order to build mock call
-        ObjectMapper objectMapper = new ObjectMapper();
-        HashMap<String, Object> podsIndexMetadata = objectMapper.readValue(indexJsonStringPod, HashMap.class);
-
-        Integer expectedDimension = (Integer) podsIndexMetadata.get("dimension");
-        LinkedHashMap<String, Object> specMetadata = (LinkedHashMap<String, Object>) podsIndexMetadata.get("spec");
-        LinkedHashMap<String, Object> podMetadata = (LinkedHashMap<String, Object>) specMetadata.get("pod");
-        String expectedEnviron = (String) podMetadata.get("environment");
-
-        String indexName = "testPodIndex";
-
-        // Call mock client  (minimal params)
-        IndexModel mockIndex = client.createPodsIndex(indexName, expectedDimension, expectedEnviron);
-
-        // Verify that the call was made 1x
-        verify(mockCall, times(1)).execute();
-
-
-
-    }
-
-        @Test
-        public void testCreatePodsIndexWithMaxParams() throws IOException {
-            String filePath = "src/test/resources/podIndexJsonString.json";
-            String indexJsonStringPod = new String(Files.readAllBytes(Paths.get(filePath)));
-
-            Call mockCall = mock(Call.class);
-            when(mockCall.execute()).thenReturn(new Response.Builder()
-                    .request(new Request.Builder().url("http://localhost").build())
-                    .protocol(Protocol.HTTP_1_1)
-                    .code(201)
-                    .message("OK")
-                    .body(ResponseBody.create(indexJsonStringPod, MediaType.parse("application/json")))
-                    .build());
-
-            OkHttpClient mockClient = mock(OkHttpClient.class);
-            when(mockClient.newCall(any(Request.class))).thenReturn(mockCall);
-            Pinecone client = new Pinecone.Builder("testAPiKey").withOkHttpClient(mockClient).build();
-
-//            PodSpecMetadataConfig podSpecMetadataConfig = new PodSpecMetadataConfig();
-
-            IndexModel createdIndex = client.createPodsIndex("testPodIndex",
-                    3,
-                    "us-east-1-aws",
-                    "cosine",
-                    "p1.x2",
-                    2,
-                    1,
-                    2,
-                    new PodSpecMetadataConfig(),
-                    "some-source-collection");
-
-            verify(mockCall, times(1)).execute();
-
-            // Confirm default podType set by backend is "p1.x1" when not provided by user
-            assertEquals(createdIndex.getSpec().getPod().getPodType(), "p1.x2");
-
-            // Confirm default metric set by backend is COSINE when not provided by user
-            assertEquals(createdIndex.getMetric(), IndexMetric.COSINE);
     }
 
     @Test
