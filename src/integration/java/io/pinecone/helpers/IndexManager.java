@@ -25,6 +25,7 @@ public class IndexManager {
             }
             if (index.getStatus().getState() == IndexModelStatus.StateEnum.READY) {
                 logger.info("Index " + indexName + " is ready after " + waitedTimeMs + "ms");
+                Thread.sleep(15000);
                 break;
             }
             Thread.sleep(intervalMs);

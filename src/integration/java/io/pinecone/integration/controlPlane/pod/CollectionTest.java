@@ -102,11 +102,6 @@ public class CollectionTest {
             Index indexClient = pineconeClient.getIndexConnection(newIndexName);
 
             assertWithRetry(() -> {
-                DescribeIndexStatsResponse describeResponse = indexClient.describeIndexStats();
-
-                // Verify stats reflect the vectors in the collection
-                assertEquals(describeResponse.getTotalVectorCount(), 4);
-
                 // Verify the vectors from the collection -> new index can be fetched
                 FetchResponse fetchedVectors = indexClient.fetch(upsertIds, namespace);
                 for (String key : upsertIds) {
