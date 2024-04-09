@@ -51,7 +51,7 @@ import org.openapitools.client.JSON;
 /**
  * The spec object defines how the index should be deployed.  For serverless indexes, you define only the cloud and region where the index should be hosted. For pod-based indexes, you define the environment where the index should be hosted, the pod type and size to use, and other index characteristics.  Serverless indexes are in public preview and are available only on AWS in the us-west-2 and us-east-1 regions. Test thoroughly before using serverless indexes in production. 
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-04-06T02:44:17.986783Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-04-09T18:17:53.447787Z[Etc/UTC]")
 public class CreateIndexRequestSpec {
   public static final String SERIALIZED_NAME_SERVERLESS = "serverless";
   @SerializedName(SERIALIZED_NAME_SERVERLESS)
