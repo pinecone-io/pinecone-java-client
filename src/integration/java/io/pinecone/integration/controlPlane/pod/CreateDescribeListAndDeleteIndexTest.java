@@ -21,13 +21,13 @@ public class CreateDescribeListAndDeleteIndexTest {
     private static String indexPodType;
     private static final String environment =    System.getenv("PINECONE_ENVIRONMENT");
 
-//    @BeforeAll
-//    public static void setUp() throws InterruptedException {
-//        indexName = indexManager.getPodIndexName();
-//        indexDimension = indexManager.getDimension();
-//        IndexModel podIndex = indexManager.getPodIndexModel();
-//        indexPodType = podIndex.getSpec().getPod().getPodType();
-//    }
+    @BeforeAll
+    public static void setUp() throws InterruptedException {
+        indexName = indexManager.getPodIndexName();
+        indexDimension = indexManager.getDimension();
+        IndexModel podIndex = indexManager.getPodIndexModel();
+        indexPodType = podIndex.getSpec().getPod().getPodType();
+    }
 
     @Test
     public void describeAndListIndex() {
