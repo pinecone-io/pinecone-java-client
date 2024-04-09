@@ -15,6 +15,22 @@ import org.openapitools.client.model.*;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * The Pinecone class is the main entry point for interacting with Pinecone via this Java SDK.
+ * It is used to create, delete, and manage your indexes and collections.
+ * <p>
+ * Instantiating the Pinecone class requires you to leverage the {@link Pinecone.Builder} class to pass
+ * an API key:
+ * <pre>
+ *     import io.pinecone.clients.Pinecone;
+ *     import org.openapitools.client.model.ListResponse;
+ *
+ *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+ *
+ *     // Use the client to interact with Pinecone
+ *     ListResponse indexes = client.listIndexes();
+ * </pre>
+ */
 public class Pinecone {
 
     private static final ConcurrentHashMap<String, PineconeConnection> connectionsMap = new ConcurrentHashMap<>();
@@ -26,8 +42,27 @@ public class Pinecone {
         this.manageIndexesApi = manageIndexesApi;
     }
 
+    /**
+     * Creates a new serverless index with the specified parameters.
+     *
+     * <pre>
+     *     import io.pinecone.clients.Pinecone;
+     *
+     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *
+     *     client.createServerlessIndex("my-index", "cosine", 1536, "aws", "us-west-2");
+     * </pre>
+     *
+     * @param indexName the name of the index to be created.
+     * @param metric the metric type for the index. Must be one of "cosine", "euclidean", or "dot_product".
+     * @param dimension the number of dimensions for the index.
+     * @param cloud the cloud provider for the index.
+     * @param region the cloud region for the index.
+     * @return {@link IndexModel} representing the created serverless index.
+     * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
+     */
     public IndexModel createServerlessIndex(String indexName, String metric, int dimension, String cloud,
-                                            String region) {
+                                            String region) throws PineconeException {
         if (indexName == null || indexName.isEmpty()) {
             throw new PineconeValidationException("Index name cannot be null or empty");
         }
@@ -35,7 +70,7 @@ public class Pinecone {
         if (metric == null || metric.isEmpty()) {
             throw new PineconeValidationException("Metric cannot be null or empty. Must be one of " + Arrays.toString(IndexMetric.values()));
         }
-        if (!(metric == null)) {
+        else {
             try {
                 IndexMetric.fromValue(metric.toLowerCase());
             } catch (IllegalArgumentException e) {
@@ -50,7 +85,7 @@ public class Pinecone {
         if (cloud == null || cloud.isEmpty()) {
             throw new PineconeValidationException("Cloud cannot be null or empty. Must be one of " + Arrays.toString(ServerlessSpec.CloudEnum.values()));
         }
-        if (!(cloud == null)) {
+        else {
             try {
                 ServerlessSpec.CloudEnum.fromValue(cloud.toLowerCase());
             } catch (IllegalArgumentException e) {
@@ -233,7 +268,23 @@ public class Pinecone {
                     "replicas"); }
     }
 
-
+    /**
+     * Retrieves information about an existing index.
+     *
+     * <pre>
+     *     import io.pinecone.clients.Pinecone;
+     *     import org.openapitools.client.model.IndexModel;
+     *
+     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *
+     *     IndexModel index = client.describeIndex("my-index");
+     *     System.out.println("Your index is hosted at: " + index.getHost());
+     * </pre>
+     *
+     * @param indexName the name of the index to describe.
+     * @return {@link IndexModel} with the details of the index.
+     * @throws PineconeException if an error occurs during the operation or the index does not exist.
+     */
     public IndexModel describeIndex(String indexName) throws PineconeException {
         IndexModel indexModel = null;
         try {
@@ -244,8 +295,29 @@ public class Pinecone {
         return indexModel;
     }
 
-    public IndexModel configureIndex(String indexName, String podType, Integer replicas) throws
-            PineconeValidationException {
+    /**
+     * Configures an existing pod-based index with new settings.
+     *
+     * <pre>
+     *     import io.pinecone.clients.Pinecone;
+     *     import org.openapitools.client.model.IndexModel;
+     *
+     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *
+     *     // Make a configuration change
+     *     IndexModel index = client.configureIndex("my-index", "p1.x2", 4);
+     *
+     *     // Call describeIndex to see the index status as the change is applied.
+     *     index = client.describeIndex("my-index");
+     * </pre>
+     *
+     * @param indexName the name of the index to configure.
+     * @param podType the new podType for the index. Can be null if not changing the pod type.
+     * @param replicas the desired number of replicas for the index, lowest value is 0. Can be null if not changing the number of replicas.
+     * @return {@link IndexModel} representing the configured index.
+     * @throws PineconeException if an error occurs during the operation, the index does not exist, or if any of the arguments are invalid.
+     */
+    public IndexModel configureIndex(String indexName, String podType, Integer replicas) throws PineconeException {
         if (indexName == null || indexName.isEmpty()) {
             throw new PineconeValidationException("indexName cannot be null or empty");
         }
@@ -279,16 +351,63 @@ public class Pinecone {
         return indexModel;
     }
 
-    // Overloaded method with indexName and replicas
-    public IndexModel configureIndex(String indexName, Integer replicas) throws PineconeValidationException {
+    /**
+     * Overload for configureIndex to only change the number of replicas for an index.
+     *
+     * <pre>
+     *     import io.pinecone.clients.Pinecone;
+     *     import org.openapitools.client.model.IndexModel;
+     *
+     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *
+     *     IndexModel index = client.configureIndex("my-index", 4);
+     * </pre>
+     *
+     * @param indexName the name of the index.
+     * @param replicas the desired number of replicas for the index, lowest value is 0.
+     * @return {@link IndexModel} of the configured index.
+     * @throws PineconeException if an error occurs during the operation, the index does not exist, or if the number of replicas is invalid.
+     */
+    public IndexModel configureIndex(String indexName, Integer replicas) throws PineconeException {
         return configureIndex(indexName, null, replicas);
     }
 
-    // Overloaded method with indexName and podType
-    public IndexModel configureIndex(String indexName, String podType) throws PineconeValidationException {
+    /**
+     * Overload for configureIndex to only change the podType of an index.
+     *
+     * <pre>
+     *     import io.pinecone.clients.Pinecone;d
+     *     import org.openapitools.client.model.IndexModel;
+     *
+     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *
+     *     IndexModel index = client.configureIndex("my-index", "p1.x2");
+     * </pre>
+     *
+     * @param indexName the name of the index.
+     * @param podType the new podType for the index.
+     * @return {@link IndexModel} of the configured index.
+     * @throws PineconeException if an error occurs during the operation, the index does not exist, or if the podType is invalid.
+     */
+    public IndexModel configureIndex(String indexName, String podType) throws PineconeException {
         return configureIndex(indexName, podType, null);
     }
 
+    /**
+     * Lists all indexes in your project, including the index name, dimension, metric, status, and spec.
+     *
+     * <pre>
+     *     import io.pinecone.clients.Pinecone;
+     *     import org.openapitools.client.model.IndexList;
+     *
+     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *
+     *     IndexList indexes = client.listIndexes();
+     * </pre>
+     *
+     * @return {@link IndexList} containing all indexes.
+     * @throws PineconeException if an error occurs during the operation.
+     */
     public IndexList listIndexes() throws PineconeException {
         IndexList indexList = null;
         try {
@@ -299,6 +418,35 @@ public class Pinecone {
         return indexList;
     }
 
+    /**
+     * Deletes an index.
+     * <p>
+     * Deleting an index is an irreversible operation. All data in the index will be lost.
+     * When you use this command, a request is sent to the Pinecone control plane to delete
+     * the index, but the termination is not synchronous because resources take a few moments to
+     * be released.
+     * <p>
+     * You can check the status of the index by calling the describeIndex command.
+     * With repeated polling of the describeIndex command, you will see the index transition to a
+     * Terminating state before eventually resulting in a 404 after it has been removed.
+     *
+     * <pre>
+     *     import io.pinecone.clients.Pinecone;
+     *     import org.openapitools.client.model.IndexModel;
+     *
+     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *
+     *     // Delete an index
+     *     client.deleteIndex("my-index");
+     *
+     *     // Verify index status with describeIndex
+     *     IndexModel index = client.describeIndex("my-index");
+     *     System.out.println("Index status: " + index.getStatus().getState());
+     * </pre>
+     *
+     * @param indexName the name of the index to delete.
+     * @throws PineconeException if an error occurs during the deletion operation or the index does not exist.
+     */
     public void deleteIndex(String indexName) throws PineconeException {
         try {
             manageIndexesApi.deleteIndex(indexName);
@@ -307,8 +455,24 @@ public class Pinecone {
         }
     }
 
-    public CollectionModel createCollection(String collectionName, String sourceIndex) throws
-            PineconeValidationException {
+    /**
+     * Creates a new collection from a source index.
+     *
+     * <pre>
+     *     import io.pinecone.clients.Pinecone;
+     *     import org.openapitools.client.model.CollectionModel;
+     *
+     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *
+     *     CollectionModel collection = client.createCollection("my-collection", "my-source-index");
+     * </pre>
+     *
+     * @param collectionName the name of the new collection.
+     * @param sourceIndex the name of the source index.
+     * @return {@link CollectionModel} representing the created collection.
+     * @throws PineconeException if an error occurs during the operation, or the source collection is invalid.
+     */
+    public CollectionModel createCollection(String collectionName, String sourceIndex) throws PineconeException {
         if (collectionName == null || collectionName.isEmpty()) {
             throw new PineconeValidationException("collectionName cannot be null or empty");
         }
@@ -329,6 +493,22 @@ public class Pinecone {
         return collection;
     }
 
+    /**
+     * Describes an existing collection.
+     *
+     * <pre>
+     *     import io.pinecone.clients.Pinecone;
+     *     import org.openapitools.client.model.CollectionModel;
+     *
+     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *
+     *     CollectionModel collection = client.describeCollection("my-collection");
+     * </pre>
+     *
+     * @param collectionName the name of the collection to describe.
+     * @return {@link CollectionModel} with the description of the collection.
+     * @throws PineconeException if an error occurs during the operation or the collection does not exist.
+     */
     public CollectionModel describeCollection(String collectionName) throws PineconeException {
         CollectionModel collection = null;
         try {
@@ -339,6 +519,21 @@ public class Pinecone {
         return collection;
     }
 
+    /**
+     * Lists all collections in the project.
+     *
+     * <pre>
+     *     import io.pinecone.clients.Pinecone;
+     *     import org.openapitools.client.model.CollectionList;
+     *
+     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *
+     *     CollectionList collections = client.listCollections();
+     * </pre>
+     *
+     * @return {@link CollectionList} containing all collections.
+     * @throws PineconeException if an error occurs during the listing operation.
+     */
     public CollectionList listCollections() throws PineconeException {
         CollectionList collections = null;
         try {
@@ -349,6 +544,27 @@ public class Pinecone {
         return collections;
     }
 
+    /**
+     * Deletes a collection.
+     * <p>
+     * Deleting a collection is an irreversible operation. All data in the collection will be lost.
+     * This method tells Pinecone you would like to delete a collection, but it takes a few moments to complete the operation.
+     * Use the describeCollection() method to confirm that the collection has been deleted.
+     *
+     * <pre>
+     *     import io.pinecone.clients.Pinecone;
+     *
+     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *
+     *     client.deleteCollection('my-collection');
+     *
+     *     // Verify collection status with describeCollection
+     *     client.describeCollection('my-collection');
+     * </pre>
+     *
+     * @param collectionName the name of the collection to delete.
+     * @throws PineconeException if an error occurs during the deletion operation or the collection does not exist.
+     */
     public void deleteCollection(String collectionName) throws PineconeException {
         try {
             manageIndexesApi.deleteCollection(collectionName);
@@ -357,8 +573,28 @@ public class Pinecone {
         }
     }
 
-    public Index getIndexConnection(String indexName) {
-        if (indexName == null || indexName.isEmpty()) {
+    /**
+     * Retrieves a connection to a specific index for synchronous operations. This method initializes
+     * and returns an {@link Index} object that represents a connection to an index and allowing for
+     * synchronous operations against it.
+     *
+     * <pre>
+     *     import io.pinecone.clients.Pinecone;
+     *     import io.pinecone.clients.Index;
+     *
+     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *     Index index = client.getIndexConnection("my-index");
+     *
+     *     // Use the index object to interact with the index
+     *     index.describeIndexStats();
+     * </pre>
+     *
+     * @param indexName The name of the index to connect to. Must not be null or empty.
+     * @return An {@link Index} object representing the connection to the specified index.
+     * @throws PineconeValidationException If the indexName is null or empty.
+     */
+    public Index getIndexConnection(String indexName) throws PineconeValidationException {
+        if(indexName == null || indexName.isEmpty()) {
             throw new PineconeValidationException("Index name cannot be null or empty");
         }
 
@@ -367,8 +603,28 @@ public class Pinecone {
         return new Index(connection, indexName);
     }
 
-    public AsyncIndex getAsyncIndexConnection(String indexName) {
-        if (indexName == null || indexName.isEmpty()) {
+    /**
+     * Retrieves a connection to a specific index for synchronous operations. This method initializes
+     * and returns an {@link AsyncIndex} object that represents a connection to an index and allowing for
+     * synchronous operations against it.
+     *
+     * <pre>
+     *     import io.pinecone.clients.Pinecone;
+     *     import io.pinecone.clients.AsyncIndex;
+     *
+     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *     AsyncIndex asyncIndex = client.getAsyncIndexConnection("my-index");
+     *
+     *     // Use the index object to interact with the index
+     *     asyncIndex.describeIndexStats();
+     * </pre>
+     *
+     * @param indexName The name of the index to connect to. Must not be null or empty.
+     * @return An {@link AsyncIndex} object representing the connection to the specified index.
+     * @throws PineconeValidationException If the indexName is null or empty.
+     */
+    public AsyncIndex getAsyncIndexConnection(String indexName) throws PineconeValidationException {
+        if(indexName == null || indexName.isEmpty()) {
             throw new PineconeValidationException("Index name cannot be null or empty");
         }
 
@@ -400,28 +656,91 @@ public class Pinecone {
         HttpErrorMapper.mapHttpStatusError(failedRequestInfo);
     }
 
+
+    /**
+     * A builder class for creating a {@link Pinecone} instance. This builder allows for configuring a {@link Pinecone}
+     * instance with custom parameters including an API key, a source tag, and a custom OkHttpClient.
+     */
     public static class Builder {
-        // Required parameters
+        // Required fields
         private final String apiKey;
 
-        // Optional parameters
+        // Optional fields
         private String sourceTag;
         private OkHttpClient okHttpClient = new OkHttpClient();
 
+        /**
+         * Constructs a new {@link Builder} with the mandatory API key.
+         *
+         * <pre>
+         *     import io.pinecone.clients.Pinecone;
+         *     import org.openapitools.client.model.IndexList;
+         *
+         *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+         *
+         *     // Use the client to interact with Pinecone
+         *     IndexList indexes = client.listIndexes();
+         * </pre>
+         *
+         * @param apiKey The API key required for authenticating requests to Pinecone services.
+         */
         public Builder(String apiKey) {
             this.apiKey = apiKey;
         }
 
+        /**
+         * Sets the source tag for the requests made by the Pinecone client.
+         *
+         * <pre>
+         *     import io.pinecone.clients.Pinecone;
+         *     import org.openapitools.client.model.IndexList;
+         *
+         *     Pinecone client = new Pinecone.Builder("your-api-key").withSourceTag("my-source-tag").build();
+         *
+         *     // The tag will be included as a header in all requests made by the client
+         *     IndexList indexes = client.listIndexes();
+         * </pre>
+         *
+         * @param sourceTag The source tag to identify the origin of the requests.
+         * @return This {@link Builder} instance for chaining method calls.
+         */
         public Builder withSourceTag(String sourceTag) {
             this.sourceTag = sourceTag;
             return this;
         }
 
+        /**
+         * Sets a custom OkHttpClient for the Pinecone client to use for making HTTP requests.
+         *
+         * <pre>
+         *     import io.pinecone.clients.Pinecone;
+         *     import org.openapitools.client.model.IndexList;
+         *     import okhttp3.*;
+         *
+         *     OkHttpClient myClient = new OkHttpClient();
+         *     Pinecone client = new Pinecone.Builder("your-api-key").withOkHttpClient(myClient).build();
+         *
+         *     // Network requests will now be made using your custom OkHttpClient
+         *     IndexList indexes = client.listIndexes();
+         * </pre>
+         *
+         * @param okHttpClient The custom OkHttpClient to be used. Must not be null.
+         * @return This {@link Builder} instance for chaining method calls.
+         */
         public Builder withOkHttpClient(OkHttpClient okHttpClient) {
             this.okHttpClient = okHttpClient;
             return this;
         }
 
+        /**
+         * Builds and returns a {@link Pinecone} instance configured with the provided API key, optional source tag,
+         * and OkHttpClient.
+         * <p>
+         * This method also performs configuration validation, sets up the internal API client, and manages indexes API
+         * with debugging options based on the environment variables.
+         *
+         * @return A new {@link Pinecone} instance configured based on the builder parameters.
+         */
         public Pinecone build() {
             PineconeConfig clientConfig = new PineconeConfig(apiKey);
             clientConfig.setSourceTag(sourceTag);
