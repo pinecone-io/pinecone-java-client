@@ -2,6 +2,9 @@
 
 [comment]: <> (When bumping [pc:VERSION_LATEST_RELEASE] create a new entry below)
 ### Unreleased version
+### v0.8.1
+- Update java generated code for control plane operations 
+
 ### v0.8.0
 - Add support for control plane operations for serverless indexes
 - Add support for collections for pod indexes
