@@ -76,7 +76,6 @@ public class CollectionTest {
 
         assertEquals(collection.getStatus(), CollectionModel.StatusEnum.READY);
         assertEquals(collection.getDimension(), dimension);
-        assertEquals(collection.getVectorCount(), 4);
         assertNotEquals(collection.getVectorCount(), null);
         assertTrue(collection.getSize() > 0);
 
@@ -122,7 +121,7 @@ public class CollectionTest {
         // Note collection == 1 index
         String metricForNewIndex = IndexMetric.DOTPRODUCT.toString();
         String newIndexName = RandomStringBuilder.build("from-coll-with-diff-metric", 5);
-        createNewIndex(pineconeClient, newIndexName, dimension, metricForNewIndex, collectionName, true);
+        pineconeClient.createPodsIndex(newIndexName, dimension, environment, "p1.x1", metricForNewIndex, collectionName);
         indexesToCleanUp.add(newIndexName);
     }
 

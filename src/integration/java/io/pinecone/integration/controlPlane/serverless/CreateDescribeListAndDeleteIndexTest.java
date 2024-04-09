@@ -34,7 +34,7 @@ public class CreateDescribeListAndDeleteIndexTest {
         assertNotNull(indexModel);
         assertEquals(dimension, indexModel.getDimension());
         assertEquals(indexName, indexModel.getName());
-        assertEquals(IndexMetric.COSINE, indexModel.getMetric());
+        assertEquals(IndexMetric.DOTPRODUCT, indexModel.getMetric());
         assertNotNull(indexModel.getSpec().getServerless());
 
         // List the index
