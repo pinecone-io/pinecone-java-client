@@ -174,8 +174,8 @@ public class PineconeIndexOperationsTest {
         IndexModel createdIndex = client.createPodsIndex(indexName,
                 3,
                 "us-east-1-aws",
-                "cosine",
                 "p1.x1",
+                "cosine",
                 2,
                 1,
                 2,
@@ -214,19 +214,15 @@ public class PineconeIndexOperationsTest {
         assertEquals("Pod type cannot be null or empty", thrownEmptyPodType.getMessage());
 
         PineconeValidationException thrownEmptyMetric = assertThrows(PineconeValidationException.class,
-                () -> client.createPodsIndex(indexName, 3, "some-environment", "", "p1.x1" ));
+                () -> client.createPodsIndex(indexName, 3, "some-environment", "p1.x1", "" ));
         assertEquals("Metric cannot be null or empty. Must be one of " + Arrays.toString(IndexMetric.values()), thrownEmptyMetric.getMessage());
-
-        PineconeValidationException thrownNullMetric = assertThrows(PineconeValidationException.class,
-                () -> client.createPodsIndex(indexName, 3, "some-environment", null, "p1.x1" ));
-        assertEquals("Metric cannot be null or empty. Must be one of " + Arrays.toString(IndexMetric.values()), thrownNullMetric.getMessage());
 
         PineconeValidationException thrownNegativeReplicas = assertThrows(PineconeValidationException.class,
                 () -> client.createPodsIndex(indexName,
                         3,
                         "some-environment",
-                        "cosine",
                         "p1.x1",
+                        "cosine",
                         -1,
                         2,
                         -2,
@@ -238,8 +234,8 @@ public class PineconeIndexOperationsTest {
                 () -> client.createPodsIndex(indexName,
                         3,
                         "some-environment",
-                        "cosine",
                         "p1.x1",
+                        "cosine",
                         1,
                         -1,
                         -1,

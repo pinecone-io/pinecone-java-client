@@ -131,7 +131,7 @@ public class Pinecone {
 
     // Minimal + metric
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
-                                      String metric, String podType) {
+                                      String podType, String metric) {
         if (indexName == null || indexName.isEmpty()) {
             throw new PineconeValidationException("indexName cannot be null or empty");
         }
@@ -160,8 +160,8 @@ public class Pinecone {
     }
 
     // Minimal + metadata
-    public IndexModel createPodsIndex(String indexName, Integer dimension, String environment, String metric,
-                                      String podType, PodSpecMetadataConfig metadataConfig) {
+    public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
+                                      String podType, String metric, PodSpecMetadataConfig metadataConfig) {
         if (indexName == null || indexName.isEmpty()) {
             throw new PineconeValidationException("indexName cannot be null or empty");
         }
@@ -191,8 +191,8 @@ public class Pinecone {
     }
 
     // Minimal + source collection
-    public IndexModel createPodsIndex(String indexName, Integer dimension, String environment, String metric,
-                                      String podType, String sourceCollection) {
+    public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
+                                      String podType, String metric, String sourceCollection) {
         if (indexName == null || indexName.isEmpty()) {
             throw new PineconeValidationException("indexName cannot be null or empty");
         }
@@ -332,7 +332,7 @@ public class Pinecone {
 
     // Max
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
-                                      String metric, String podType,
+                                      String podType, String metric,
                                       Integer replicas, Integer shards, Integer pods,
                                       PodSpecMetadataConfig metadataConfig, String sourceCollection) throws PineconeException {
         if (indexName == null || indexName.isEmpty()) {
