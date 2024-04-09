@@ -19,7 +19,7 @@ public class CreateDescribeListAndDeleteIndexTest {
     private static String indexName;
     private static int indexDimension;
     private static String indexPodType;
-    private static final String environment =    System.getenv("PINECONE_ENVIRONMENT");
+    private static final String environment = System.getenv("PINECONE_ENVIRONMENT");
 
     @BeforeAll
     public static void setUp() throws InterruptedException {
@@ -76,8 +76,8 @@ public class CreateDescribeListAndDeleteIndexTest {
         String environment = "us-east-1-aws";
         String podType = "p1.x1";
         String metric = "cosine";
-        IndexModel podsIndex = controlPlaneClient.createPodsIndex(podIndexName, dimension, environment, metric,
-                podType);
+        IndexModel podsIndex = controlPlaneClient.createPodsIndex(podIndexName, dimension, environment, podType,
+                metric);
 
         assertEquals(podIndexName, podsIndex.getName());
         assertEquals(dimension, podsIndex.getDimension());
@@ -103,10 +103,8 @@ public class CreateDescribeListAndDeleteIndexTest {
         Integer dimension = 3;
         String environment = "us-east-1-aws";
         String podType = "p1.x1";
-
-        // Empty indexName
         assertThrows(PineconeValidationException.class, () -> {
-            controlPlaneClient.createPodsIndex(indexName, dimension, environment, podType);
+            controlPlaneClient.createPodsIndex(podIndexName, dimension, environment, podType);
         });
     }
 

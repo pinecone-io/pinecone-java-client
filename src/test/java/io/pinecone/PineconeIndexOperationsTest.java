@@ -1,6 +1,5 @@
 package io.pinecone;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.exceptions.PineconeValidationException;
@@ -14,8 +13,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -171,7 +168,7 @@ public class PineconeIndexOperationsTest {
         Pinecone client = new Pinecone.Builder("testAPiKey").withOkHttpClient(mockClient).build();
 
         String indexName = "testPodIndex";
-        IndexModel createdIndex = client.createPodsIndex(indexName,
+        client.createPodsIndex(indexName,
                 3,
                 "us-east-1-aws",
                 "p1.x1",
@@ -188,66 +185,97 @@ public class PineconeIndexOperationsTest {
         verify(mockCall, times(1)).execute();
         assertEquals(requestCaptor.getValue().method(), "POST");
         assertEquals(requestCaptor.getValue().url().toString(), "https://api.pinecone.io/indexes");
+    }
 
+    @Test
+    public void testValidatePodIndexParams() {
+        // indexName
+        PineconeValidationException thrownEmptyIndexName = assertThrows(PineconeValidationException.class,
+                () -> Pinecone.validatePodIndexParams("", 3, "some-environment", "p1.x1", "cosine", null,
+                        null,
+                        null));
+        assertEquals("indexName cannot be null or empty", thrownEmptyIndexName.getMessage());
+
+        PineconeValidationException thrownNullIndexName = assertThrows(PineconeValidationException.class,
+                () -> Pinecone.validatePodIndexParams(null, 3, "some-environment", "p1.x1", "cosine", null,
+                        null,
+                        null));
+        assertEquals("indexName cannot be null or empty", thrownNullIndexName.getMessage());
+
+        // Dimension
         PineconeValidationException thrownNegativeDimension = assertThrows(PineconeValidationException.class,
-                () -> client.createPodsIndex(indexName, -3, "some-environment", "p1.x1"));
+                () -> Pinecone.validatePodIndexParams("test-index", -3, "some-environment", "p1.x1", "cosine", null,
+                        null,
+                        null));
         assertEquals("Dimension must be greater than 0. See limits for more info: https://docs.pinecone.io/reference/limits", thrownNegativeDimension.getMessage());
 
         PineconeValidationException thrownNullDimension = assertThrows(PineconeValidationException.class,
-                () -> client.createPodsIndex(indexName, null, "some-environment", "p1.x1"));
+                () -> Pinecone.validatePodIndexParams("test-index", null, "some-environment", "p1.x1", "cosine", null,
+                        null,
+                        null));
         assertEquals("Dimension cannot be null", thrownNullDimension.getMessage());
 
+        // Environment
         PineconeValidationException thrownEmptyEnvironment = assertThrows(PineconeValidationException.class,
-                () -> client.createPodsIndex(indexName, 3, "", "p1.x1"));
+                () -> Pinecone.validatePodIndexParams("test-index", 3, "", "p1.x1", "cosine", null,
+                        null,
+                        null));
         assertEquals("Environment cannot be null or empty", thrownEmptyEnvironment.getMessage());
 
         PineconeValidationException thrownNullEnvironment = assertThrows(PineconeValidationException.class,
-                () -> client.createPodsIndex(indexName, 3, null, "p1.x1"));
+                () -> Pinecone.validatePodIndexParams("test-index", 3, null, "p1.x1", "cosine", null,
+                        null,
+                        null));
         assertEquals("Environment cannot be null or empty", thrownNullEnvironment.getMessage());
 
+        // podType stuff
         PineconeValidationException thrownNullPodType = assertThrows(PineconeValidationException.class,
-                () -> client.createPodsIndex(indexName, 3, "some-environment", null));
-        assertEquals("Pod type cannot be null or empty", thrownNullPodType.getMessage());
+                () -> Pinecone.validatePodIndexParams("test-index", 3, "some-environment", null, "cosine", null,
+                        null,
+                        null));
+        assertEquals("podType cannot be null or empty", thrownNullPodType.getMessage());
 
         PineconeValidationException thrownEmptyPodType = assertThrows(PineconeValidationException.class,
-                () -> client.createPodsIndex(indexName, 3, "some-environment", ""));
-        assertEquals("Pod type cannot be null or empty", thrownEmptyPodType.getMessage());
+                () -> Pinecone.validatePodIndexParams("test-index", 3, "some-environment", "", "cosine", null,
+                        null,
+                        null));
+        assertEquals("podType cannot be null or empty", thrownEmptyPodType.getMessage());
 
+        // Metric
         PineconeValidationException thrownEmptyMetric = assertThrows(PineconeValidationException.class,
-                () -> client.createPodsIndex(indexName, 3, "some-environment", "p1.x1", "" ));
+                () -> Pinecone.validatePodIndexParams("test-index", 3, "some-environment", "p1.x1", "", null,
+                        null,
+                        null));
         assertEquals("Metric cannot be null or empty. Must be one of " + Arrays.toString(IndexMetric.values()), thrownEmptyMetric.getMessage());
 
+        // Replicas
         PineconeValidationException thrownNegativeReplicas = assertThrows(PineconeValidationException.class,
-                () -> client.createPodsIndex(indexName,
+                () -> Pinecone.validatePodIndexParams("test-index",
                         3,
                         "some-environment",
                         "p1.x1",
                         "cosine",
                         -1,
                         2,
-                        -2,
-                        null,
-                        null));
+                        -2));
         assertEquals("Number of replicas must be >= 1", thrownNegativeReplicas.getMessage());
 
+        // Shards
         PineconeValidationException thrownNegativeShards = assertThrows(PineconeValidationException.class,
-                () -> client.createPodsIndex(indexName,
+                () -> Pinecone.validatePodIndexParams("test-index",
                         3,
                         "some-environment",
                         "p1.x1",
                         "cosine",
                         1,
                         -1,
-                        -1,
-                        null,
-                        null));
+                        -1));
         assertEquals("Number of shards must be >= 1", thrownNegativeShards.getMessage());
 
-        AssertionError incorrectNumReplicasAndShards = assertThrows(AssertionError.class,
-                () -> client.createPodsIndex(indexName, 3, "some-environment", "cosine", "p1.x1", 3, 2, 9,
-                        new PodSpecMetadataConfig(), "some-source-collection"));
-        assertEquals("Number of pods does not equal number of shards times number of " +
-                "replicas ==> expected: <6> but was: <9>", incorrectNumReplicasAndShards.getMessage());
+        // Shards*replicas = pods
+        PineconeValidationException incorrectNumReplicasAndShards = assertThrows(PineconeValidationException.class,
+                () -> Pinecone.validatePodIndexParams("test-index", 3, "some-environment", "cosine", "p1.x1", 3, 2, 9));
+        assertEquals("Number of pods does not equal number of shards times number of replicas", incorrectNumReplicasAndShards.getMessage());
     }
 
     @Test

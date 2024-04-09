@@ -53,7 +53,6 @@ dependencies {
     implementation 'io.gsonfire:gson-fire:1.8.5'
     implementation 'org.openapitools:jackson-databind-nullable:0.2.6'
     implementation 'com.google.protobuf:protobuf-java:3.25.2'
-    implementation 'org.junit.jupiter:junit-jupiter-api:5.8.0'
     compileOnly "org.apache.tomcat:annotations-api:6.0.53" // necessary for Java 9+
 
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")

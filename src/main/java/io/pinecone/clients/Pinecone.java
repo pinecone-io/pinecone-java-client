@@ -15,8 +15,6 @@ import org.openapitools.client.model.*;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 public class Pinecone {
 
     private static final ConcurrentHashMap<String, PineconeConnection> connectionsMap = new ConcurrentHashMap<>();
@@ -26,10 +24,6 @@ public class Pinecone {
     Pinecone(PineconeConfig config, ManageIndexesApi manageIndexesApi) {
         this.config = config;
         this.manageIndexesApi = manageIndexesApi;
-    }
-
-    static void closeConnection(String indexName) {
-        connectionsMap.remove(indexName);
     }
 
     public IndexModel createIndex(CreateIndexRequest createIndexRequest) throws PineconeValidationException {
@@ -106,59 +100,53 @@ public class Pinecone {
 
     // Minimal
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment, String podType) {
-        validateAndBuildPodsIndex(indexName, dimension, environment, podType, null, null, null, null,
-                null, null);
+        validatePodIndexParams(indexName, dimension, environment, podType, null, null, null, null);
 
-        return createPodsIndex(indexName, dimension, environment, null, podType, null, null, null, null, null);
+        return createPodsIndex(indexName, dimension, environment, podType, null, null, null, null, null, null);
     }
 
     // Minimal + metric
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String podType, String metric) {
-        validateAndBuildPodsIndex(indexName, dimension, environment, podType, metric, null, null, null,
-                null, null);
+        validatePodIndexParams(indexName, dimension, environment, podType, metric, null, null, null);
 
-        return createPodsIndex(indexName, dimension, environment, metric, podType, null, null, null, null, null);
+        return createPodsIndex(indexName, dimension, environment, podType, metric, null, null, null, null, null);
     }
 
     // Minimal + metadata
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String podType, String metric, PodSpecMetadataConfig metadataConfig) {
-        validateAndBuildPodsIndex(indexName, dimension, environment, podType, metric, null, null, null,
-                metadataConfig, null);
+        validatePodIndexParams(indexName, dimension, environment, podType, metric, null, null, null);
 
 
-        return createPodsIndex(indexName, dimension, environment, metric, podType, null, null, null, metadataConfig,
+        return createPodsIndex(indexName, dimension, environment, podType, metric, null, null, null, metadataConfig,
                 null);
     }
 
     // Minimal + source collection
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String podType, String metric, String sourceCollection) {
-        validateAndBuildPodsIndex(indexName, dimension, environment, podType, metric, null, null, null,
-                null, sourceCollection);
+        validatePodIndexParams(indexName, dimension, environment, podType, metric, null, null, null);
 
-        return createPodsIndex(indexName, dimension, environment, metric, podType, null, null, null, null,
+        return createPodsIndex(indexName, dimension, environment, podType, metric, null, null, null, null,
                 sourceCollection);
     }
 
     // Minimal + pods
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String podType, Integer pods) {
-        validateAndBuildPodsIndex(indexName, dimension, environment, podType, null, null, null, pods,
-                null, null);
+        validatePodIndexParams(indexName, dimension, environment, podType, null, null, null, pods);
 
-        return createPodsIndex(indexName, dimension, environment, null, podType, null, null, pods, null, null);
+        return createPodsIndex(indexName, dimension, environment, podType, null, null, null, pods, null, null);
     }
 
     // Minimal + pods + metadata
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String podType, Integer pods,
                                       PodSpecMetadataConfig metadataConfig) {
-        validateAndBuildPodsIndex(indexName, dimension, environment, podType, null, null, null, pods,
-                metadataConfig, null);
+        validatePodIndexParams(indexName, dimension, environment, podType, null, null, null, pods);
 
-        return createPodsIndex(indexName, dimension, environment, null, podType, null, null, pods, metadataConfig,
+        return createPodsIndex(indexName, dimension, environment, podType, null, null, null, pods, metadataConfig,
                 null);
     }
 
@@ -166,20 +154,19 @@ public class Pinecone {
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String podType, Integer replicas,
                                       Integer shards) {
-        validateAndBuildPodsIndex(indexName, dimension, environment, podType, null, replicas, shards, null,
-                null, null);
+        validatePodIndexParams(indexName, dimension, environment, podType, null, replicas, shards, null);
 
-        return createPodsIndex(indexName, dimension, environment, null, podType, replicas, shards, null, null, null);
+        return createPodsIndex(indexName, dimension, environment, podType, null, replicas, shards, null, null, null);
     }
 
     // Minimal + replicas, shards + metadata
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String podType, Integer replicas,
                                       Integer shards, PodSpecMetadataConfig metadataConfig) {
-        validateAndBuildPodsIndex(indexName, dimension, environment, podType, null, replicas, shards, null,
-                metadataConfig, null);
+        validatePodIndexParams(indexName, dimension, environment, podType, null, replicas, shards, null);
 
-        return createPodsIndex(indexName, dimension, environment, null, podType, replicas, shards, null, metadataConfig,
+        return createPodsIndex(indexName, dimension, environment, podType, null, replicas, shards, null,
+                metadataConfig,
                 null);
     }
 
@@ -188,8 +175,7 @@ public class Pinecone {
                                       String podType, String metric,
                                       Integer replicas, Integer shards, Integer pods,
                                       PodSpecMetadataConfig metadataConfig, String sourceCollection) throws PineconeException {
-        validateAndBuildPodsIndex(indexName, dimension, environment, podType, metric, replicas, shards, pods,
-                metadataConfig, sourceCollection);
+        validatePodIndexParams(indexName, dimension, environment, podType, metric, replicas, shards, pods);
 
         CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().environment(environment)
                 .podType(podType)
@@ -215,10 +201,9 @@ public class Pinecone {
     }
 
 
-    void validateAndBuildPodsIndex(String indexName, Integer dimension, String environment,
-                                   String podType, String metric,
-                                   Integer replicas, Integer shards, Integer pods,
-                                   PodSpecMetadataConfig metadataConfig, String sourceCollection) {
+    public static void validatePodIndexParams(String indexName, Integer dimension, String environment,
+                                              String podType, String metric,
+                                              Integer replicas, Integer shards, Integer pods) {
 
         if (indexName == null || indexName.isEmpty()) {
             throw new PineconeValidationException("indexName cannot be null or empty");
@@ -236,9 +221,12 @@ public class Pinecone {
             throw new PineconeValidationException("Environment cannot be null or empty");
         }
 
-        if (replicas != null && shards != null && pods != null) {
-            assertEquals(replicas * shards, pods, "Number of pods does not equal number of shards times number of " +
-                    "replicas");
+        if (podType == null || podType.isEmpty()) {
+            throw new PineconeValidationException("podType cannot be null or empty");
+        }
+
+        if (metric != null && metric.isEmpty()) {
+            throw new PineconeValidationException("Metric cannot be null or empty. Must be one of " + Arrays.toString(IndexMetric.values()));
         }
 
         if (replicas != null && replicas < 1) {
@@ -253,14 +241,9 @@ public class Pinecone {
             throw new PineconeValidationException("Number of pods must be >= 1");
         }
 
-        if (podType == null || podType.isEmpty()) {
-            throw new PineconeValidationException("Pod type cannot be null or empty");
-        }
-
-        if (metric != null && metric.isEmpty()) {
-            throw new PineconeValidationException("Metric cannot be null or empty. Must be one of " + Arrays.toString(IndexMetric.values()));
-        }
-
+        if (replicas != null && shards != null && pods != null && (replicas*shards != pods)) {
+            throw new PineconeValidationException("Number of pods does not equal number of shards times number of " +
+                    "replicas"); }
     }
 
 
@@ -417,6 +400,10 @@ public class Pinecone {
 
     String getIndexHost(String indexName) {
         return this.describeIndex(indexName).getHost();
+    }
+
+    static void closeConnection(String indexName) {
+        connectionsMap.remove(indexName);
     }
 
     private void handleApiException(ApiException apiException) throws PineconeException {
