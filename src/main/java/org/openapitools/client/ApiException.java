@@ -21,7 +21,7 @@ import java.util.List;
  * <p>ApiException class.</p>
  */
 @SuppressWarnings("serial")
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-05T14:30:53.594301-05:00[America/New_York]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-04-06T02:44:17.986783Z[Etc/UTC]")
 public class ApiException extends Exception {
     private int code = 0;
     private Map<String, List<String>> responseHeaders = null;
@@ -35,7 +35,7 @@ public class ApiException extends Exception {
     /**
      * <p>Constructor for ApiException.</p>
      *
-     * @param throwable a {@link Throwable} object
+     * @param throwable a {@link java.lang.Throwable} object
      */
     public ApiException(Throwable throwable) {
         super(throwable);
@@ -54,9 +54,9 @@ public class ApiException extends Exception {
      * <p>Constructor for ApiException.</p>
      *
      * @param message the error message
-     * @param throwable a {@link Throwable} object
+     * @param throwable a {@link java.lang.Throwable} object
      * @param code HTTP status code
-     * @param responseHeaders a {@link Map} of HTTP response headers
+     * @param responseHeaders a {@link java.util.Map} of HTTP response headers
      * @param responseBody the response body
      */
     public ApiException(String message, Throwable throwable, int code, Map<String, List<String>> responseHeaders, String responseBody) {
@@ -71,7 +71,7 @@ public class ApiException extends Exception {
      *
      * @param message the error message
      * @param code HTTP status code
-     * @param responseHeaders a {@link Map} of HTTP response headers
+     * @param responseHeaders a {@link java.util.Map} of HTTP response headers
      * @param responseBody the response body
      */
     public ApiException(String message, int code, Map<String, List<String>> responseHeaders, String responseBody) {
@@ -82,9 +82,9 @@ public class ApiException extends Exception {
      * <p>Constructor for ApiException.</p>
      *
      * @param message the error message
-     * @param throwable a {@link Throwable} object
+     * @param throwable a {@link java.lang.Throwable} object
      * @param code HTTP status code
-     * @param responseHeaders a {@link Map} of HTTP response headers
+     * @param responseHeaders a {@link java.util.Map} of HTTP response headers
      */
     public ApiException(String message, Throwable throwable, int code, Map<String, List<String>> responseHeaders) {
         this(message, throwable, code, responseHeaders, null);
@@ -94,7 +94,7 @@ public class ApiException extends Exception {
      * <p>Constructor for ApiException.</p>
      *
      * @param code HTTP status code
-     * @param responseHeaders a {@link Map} of HTTP response headers
+     * @param responseHeaders a {@link java.util.Map} of HTTP response headers
      * @param responseBody the response body
      */
     public ApiException(int code, Map<String, List<String>> responseHeaders, String responseBody) {
@@ -105,7 +105,7 @@ public class ApiException extends Exception {
      * <p>Constructor for ApiException.</p>
      *
      * @param code HTTP status code
-     * @param message a {@link String} object
+     * @param message a {@link java.lang.String} object
      */
     public ApiException(int code, String message) {
         super(message);
@@ -117,7 +117,7 @@ public class ApiException extends Exception {
      *
      * @param code HTTP status code
      * @param message the error message
-     * @param responseHeaders a {@link Map} of HTTP response headers
+     * @param responseHeaders a {@link java.util.Map} of HTTP response headers
      * @param responseBody the response body
      */
     public ApiException(int code, String message, Map<String, List<String>> responseHeaders, String responseBody) {

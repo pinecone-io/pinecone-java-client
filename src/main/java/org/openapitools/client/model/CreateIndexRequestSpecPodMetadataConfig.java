@@ -20,9 +20,9 @@ import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
-import org.openapitools.client.model.PodSpec;
-import org.openapitools.client.model.ServerlessSpec;
+import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -49,60 +49,43 @@ import java.util.Set;
 import org.openapitools.client.JSON;
 
 /**
- * IndexModelSpec
+ * Configuration for the behavior of Pinecone&#39;s internal metadata index. By default, all metadata is indexed; when &#x60;metadata_config&#x60; is present, only specified metadata fields are indexed. These configurations are only valid for use with pod-based indexes.
  */
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-04-06T02:44:17.986783Z[Etc/UTC]")
-public class IndexModelSpec {
-  public static final String SERIALIZED_NAME_POD = "pod";
-  @SerializedName(SERIALIZED_NAME_POD)
-  private PodSpec pod;
+public class CreateIndexRequestSpecPodMetadataConfig {
+  public static final String SERIALIZED_NAME_INDEXED = "indexed";
+  @SerializedName(SERIALIZED_NAME_INDEXED)
+  private List<String> indexed;
 
-  public static final String SERIALIZED_NAME_SERVERLESS = "serverless";
-  @SerializedName(SERIALIZED_NAME_SERVERLESS)
-  private ServerlessSpec serverless;
-
-  public IndexModelSpec() {
+  public CreateIndexRequestSpecPodMetadataConfig() {
   }
 
-  public IndexModelSpec pod(PodSpec pod) {
+  public CreateIndexRequestSpecPodMetadataConfig indexed(List<String> indexed) {
     
-    this.pod = pod;
+    this.indexed = indexed;
+    return this;
+  }
+
+  public CreateIndexRequestSpecPodMetadataConfig addIndexedItem(String indexedItem) {
+    if (this.indexed == null) {
+      this.indexed = new ArrayList<>();
+    }
+    this.indexed.add(indexedItem);
     return this;
   }
 
    /**
-   * Get pod
-   * @return pod
+   * By default, all metadata is indexed; to change this behavior, use this property to specify an array of metadata fields which should be indexed.
+   * @return indexed
   **/
   @javax.annotation.Nullable
-  public PodSpec getPod() {
-    return pod;
+  public List<String> getIndexed() {
+    return indexed;
   }
 
 
-  public void setPod(PodSpec pod) {
-    this.pod = pod;
-  }
-
-
-  public IndexModelSpec serverless(ServerlessSpec serverless) {
-    
-    this.serverless = serverless;
-    return this;
-  }
-
-   /**
-   * Get serverless
-   * @return serverless
-  **/
-  @javax.annotation.Nullable
-  public ServerlessSpec getServerless() {
-    return serverless;
-  }
-
-
-  public void setServerless(ServerlessSpec serverless) {
-    this.serverless = serverless;
+  public void setIndexed(List<String> indexed) {
+    this.indexed = indexed;
   }
 
   /**
@@ -118,9 +101,9 @@ public class IndexModelSpec {
    *
    * @param key name of the property
    * @param value value of the property
-   * @return the IndexModelSpec instance itself
+   * @return the CreateIndexRequestSpecPodMetadataConfig instance itself
    */
-  public IndexModelSpec putAdditionalProperty(String key, Object value) {
+  public CreateIndexRequestSpecPodMetadataConfig putAdditionalProperty(String key, Object value) {
     if (this.additionalProperties == null) {
         this.additionalProperties = new HashMap<String, Object>();
     }
@@ -159,23 +142,21 @@ public class IndexModelSpec {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    IndexModelSpec indexModelSpec = (IndexModelSpec) o;
-    return Objects.equals(this.pod, indexModelSpec.pod) &&
-        Objects.equals(this.serverless, indexModelSpec.serverless)&&
-        Objects.equals(this.additionalProperties, indexModelSpec.additionalProperties);
+    CreateIndexRequestSpecPodMetadataConfig createIndexRequestSpecPodMetadataConfig = (CreateIndexRequestSpecPodMetadataConfig) o;
+    return Objects.equals(this.indexed, createIndexRequestSpecPodMetadataConfig.indexed)&&
+        Objects.equals(this.additionalProperties, createIndexRequestSpecPodMetadataConfig.additionalProperties);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(pod, serverless, additionalProperties);
+    return Objects.hash(indexed, additionalProperties);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class IndexModelSpec {\n");
-    sb.append("    pod: ").append(toIndentedString(pod)).append("\n");
-    sb.append("    serverless: ").append(toIndentedString(serverless)).append("\n");
+    sb.append("class CreateIndexRequestSpecPodMetadataConfig {\n");
+    sb.append("    indexed: ").append(toIndentedString(indexed)).append("\n");
     sb.append("    additionalProperties: ").append(toIndentedString(additionalProperties)).append("\n");
     sb.append("}");
     return sb.toString();
@@ -199,8 +180,7 @@ public class IndexModelSpec {
   static {
     // a set of all properties/fields (JSON key names)
     openapiFields = new HashSet<String>();
-    openapiFields.add("pod");
-    openapiFields.add("serverless");
+    openapiFields.add("indexed");
 
     // a set of required properties/fields (JSON key names)
     openapiRequiredFields = new HashSet<String>();
@@ -210,22 +190,18 @@ public class IndexModelSpec {
   * Validates the JSON Element and throws an exception if issues found
   *
   * @param jsonElement JSON Element
-  * @throws IOException if the JSON Element is invalid with respect to IndexModelSpec
+  * @throws IOException if the JSON Element is invalid with respect to CreateIndexRequestSpecPodMetadataConfig
   */
   public static void validateJsonElement(JsonElement jsonElement) throws IOException {
       if (jsonElement == null) {
-        if (!IndexModelSpec.openapiRequiredFields.isEmpty()) { // has required fields but JSON element is null
-          throw new IllegalArgumentException(String.format("The required field(s) %s in IndexModelSpec is not found in the empty JSON string", IndexModelSpec.openapiRequiredFields.toString()));
+        if (!CreateIndexRequestSpecPodMetadataConfig.openapiRequiredFields.isEmpty()) { // has required fields but JSON element is null
+          throw new IllegalArgumentException(String.format("The required field(s) %s in CreateIndexRequestSpecPodMetadataConfig is not found in the empty JSON string", CreateIndexRequestSpecPodMetadataConfig.openapiRequiredFields.toString()));
         }
       }
         JsonObject jsonObj = jsonElement.getAsJsonObject();
-      // validate the optional field `pod`
-      if (jsonObj.get("pod") != null && !jsonObj.get("pod").isJsonNull()) {
-        PodSpec.validateJsonElement(jsonObj.get("pod"));
-      }
-      // validate the optional field `serverless`
-      if (jsonObj.get("serverless") != null && !jsonObj.get("serverless").isJsonNull()) {
-        ServerlessSpec.validateJsonElement(jsonObj.get("serverless"));
+      // ensure the optional json data is an array if present
+      if (jsonObj.get("indexed") != null && !jsonObj.get("indexed").isJsonNull() && !jsonObj.get("indexed").isJsonArray()) {
+        throw new IllegalArgumentException(String.format("Expected the field `indexed` to be an array in the JSON string but got `%s`", jsonObj.get("indexed").toString()));
       }
   }
 
@@ -233,16 +209,16 @@ public class IndexModelSpec {
     @SuppressWarnings("unchecked")
     @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-       if (!IndexModelSpec.class.isAssignableFrom(type.getRawType())) {
-         return null; // this class only serializes 'IndexModelSpec' and its subtypes
+       if (!CreateIndexRequestSpecPodMetadataConfig.class.isAssignableFrom(type.getRawType())) {
+         return null; // this class only serializes 'CreateIndexRequestSpecPodMetadataConfig' and its subtypes
        }
        final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
-       final TypeAdapter<IndexModelSpec> thisAdapter
-                        = gson.getDelegateAdapter(this, TypeToken.get(IndexModelSpec.class));
+       final TypeAdapter<CreateIndexRequestSpecPodMetadataConfig> thisAdapter
+                        = gson.getDelegateAdapter(this, TypeToken.get(CreateIndexRequestSpecPodMetadataConfig.class));
 
-       return (TypeAdapter<T>) new TypeAdapter<IndexModelSpec>() {
+       return (TypeAdapter<T>) new TypeAdapter<CreateIndexRequestSpecPodMetadataConfig>() {
            @Override
-           public void write(JsonWriter out, IndexModelSpec value) throws IOException {
+           public void write(JsonWriter out, CreateIndexRequestSpecPodMetadataConfig value) throws IOException {
              JsonObject obj = thisAdapter.toJsonTree(value).getAsJsonObject();
              obj.remove("additionalProperties");
              // serialize additional properties
@@ -265,12 +241,12 @@ public class IndexModelSpec {
            }
 
            @Override
-           public IndexModelSpec read(JsonReader in) throws IOException {
+           public CreateIndexRequestSpecPodMetadataConfig read(JsonReader in) throws IOException {
              JsonElement jsonElement = elementAdapter.read(in);
              validateJsonElement(jsonElement);
              JsonObject jsonObj = jsonElement.getAsJsonObject();
              // store additional fields in the deserialized instance
-             IndexModelSpec instance = thisAdapter.fromJsonTree(jsonObj);
+             CreateIndexRequestSpecPodMetadataConfig instance = thisAdapter.fromJsonTree(jsonObj);
              for (Map.Entry<String, JsonElement> entry : jsonObj.entrySet()) {
                if (!openapiFields.contains(entry.getKey())) {
                  if (entry.getValue().isJsonPrimitive()) { // primitive type
@@ -297,18 +273,18 @@ public class IndexModelSpec {
   }
 
  /**
-  * Create an instance of IndexModelSpec given an JSON string
+  * Create an instance of CreateIndexRequestSpecPodMetadataConfig given an JSON string
   *
   * @param jsonString JSON string
-  * @return An instance of IndexModelSpec
-  * @throws IOException if the JSON string is invalid with respect to IndexModelSpec
+  * @return An instance of CreateIndexRequestSpecPodMetadataConfig
+  * @throws IOException if the JSON string is invalid with respect to CreateIndexRequestSpecPodMetadataConfig
   */
-  public static IndexModelSpec fromJson(String jsonString) throws IOException {
-    return JSON.getGson().fromJson(jsonString, IndexModelSpec.class);
+  public static CreateIndexRequestSpecPodMetadataConfig fromJson(String jsonString) throws IOException {
+    return JSON.getGson().fromJson(jsonString, CreateIndexRequestSpecPodMetadataConfig.class);
   }
 
  /**
-  * Convert an instance of IndexModelSpec to an JSON string
+  * Convert an instance of CreateIndexRequestSpecPodMetadataConfig to an JSON string
   *
   * @return JSON string
   */
