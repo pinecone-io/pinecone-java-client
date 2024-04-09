@@ -127,7 +127,5 @@ public class ConfigureIndexTest {
             assertNotNull(podSpec);
             assertEquals(podSpec.getPodType(), "p1.x2");
         });
-
-        waitUntilIndexStateIsReady(indexName);
     }
 }

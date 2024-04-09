@@ -6,33 +6,33 @@ import io.pinecone.clients.Pinecone;
 import io.pinecone.clients.Index;
 import io.pinecone.clients.AsyncIndex;
 import io.pinecone.helpers.RandomStringBuilder;
+import io.pinecone.helpers.TestIndexResourcesManager;
 import io.pinecone.proto.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.openapitools.client.model.IndexModelSpec;
 
 import java.io.IOException;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import static io.pinecone.helpers.AssertRetry.assertWithRetry;
 import static io.pinecone.helpers.BuildUpsertRequest.*;
-import static io.pinecone.helpers.IndexManager.createIndexIfNotExistsDataPlane;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class UpsertDescribeIndexStatsAndDeletePodTest {
+    private static final TestIndexResourcesManager indexManager = TestIndexResourcesManager.getInstance();
     private static Index index;
     private static AsyncIndex asyncIndex;
-    private static final int dimension = 3;
+    private static int dimension;
     private static final Struct nullFilterStruct = null;
 
     @BeforeAll
     public static void setUp() throws IOException, InterruptedException {
-        AbstractMap.SimpleEntry<String, Pinecone> indexAndClient = createIndexIfNotExistsDataPlane(dimension, IndexModelSpec.SERIALIZED_NAME_POD);
-        String indexName = indexAndClient.getKey();
-        Pinecone pineconeClient = indexAndClient.getValue();
+        Pinecone pineconeClient = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+
+        String indexName = indexManager.getPodIndexName();
+        dimension = indexManager.getDimension();
         index = pineconeClient.getIndexConnection(indexName);
         asyncIndex = pineconeClient.getAsyncIndexConnection(indexName);
     }
@@ -40,7 +40,6 @@ public class UpsertDescribeIndexStatsAndDeletePodTest {
     @Test
     public void upsertVectorsAndDeleteByIdSyncTest() throws InterruptedException {
         // Upsert vectors with required parameters
-        int dimension = 3;
         Struct emptyFilterStruct = null;
         int numOfVectors = 3;
 
@@ -53,9 +52,6 @@ public class UpsertDescribeIndexStatsAndDeletePodTest {
         }
 
         int actualVectorCount = numOfVectors;
-
-        // wait sometime for the vectors to be upserted
-        Thread.sleep(10000);
 
         assertWithRetry(() -> {
             // call describeIndexStats to get updated vector count
@@ -153,7 +149,6 @@ public class UpsertDescribeIndexStatsAndDeletePodTest {
     @Test
     public void upsertVectorsAndDeleteByIdFutureTest() throws InterruptedException, ExecutionException {
         // Upsert vectors with required parameters
-        int dimension = 3;
         Struct emptyFilterStruct = null;
         int numOfVectors = 3;
         String namespace = RandomStringBuilder.build("ns", 8);
@@ -165,9 +160,6 @@ public class UpsertDescribeIndexStatsAndDeletePodTest {
         }
 
         int actualVectorCount = numOfVectors;
-
-        // wait sometime for the vectors to be upserted
-        Thread.sleep(10000);
 
         assertWithRetry(() -> {
             // call describeIndexStats to get updated vector count

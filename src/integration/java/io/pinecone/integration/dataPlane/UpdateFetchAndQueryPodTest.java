@@ -9,13 +9,13 @@ import io.pinecone.clients.AsyncIndex;
 import io.pinecone.exceptions.PineconeException;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.helpers.RandomStringBuilder;
+import io.pinecone.helpers.TestIndexResourcesManager;
 import io.pinecone.proto.*;
 import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
 import io.pinecone.unsigned_indices_model.ScoredVectorWithUnsignedIndices;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.openapitools.client.model.IndexModelSpec;
 
 import java.io.IOException;
 import java.util.*;
@@ -23,25 +23,23 @@ import java.util.concurrent.ExecutionException;
 
 import static io.pinecone.helpers.AssertRetry.assertWithRetry;
 import static io.pinecone.helpers.BuildUpsertRequest.*;
-import static io.pinecone.helpers.IndexManager.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UpdateFetchAndQueryPodTest {
+    private static final TestIndexResourcesManager indexManager = TestIndexResourcesManager.getInstance();
     private static Index index;
     private static AsyncIndex asyncIndex;
     private static String namespace;
     private static List<String> upsertIds;
     private static List<List<Float>> sparseValuesList;
-    private static final int dimension = 3;
+    private static int dimension;
 
     @BeforeAll
     public static void setUp() throws IOException, InterruptedException {
-        String apiKey = System.getenv("PINECONE_API_KEY");
-        String indexType = IndexModelSpec.SERIALIZED_NAME_POD;
-        Pinecone pinecone = new Pinecone.Builder(apiKey).build();
+        Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
 
-        String indexName = findIndexWithDimensionAndType(pinecone, dimension, indexType);
-        if (indexName.isEmpty()) indexName = createNewIndex(pinecone, dimension, indexType, true);
+        String indexName = indexManager.getPodIndexName();
+        dimension = indexManager.getDimension();
         index = pinecone.getIndexConnection(indexName);
         asyncIndex = pinecone.getAsyncIndexConnection(indexName);
 
@@ -71,9 +69,6 @@ public class UpdateFetchAndQueryPodTest {
                     generateVectorValuesByDimension(dimension),
                     namespace);
         }
-
-        // wait sometime for the vectors to be upserted
-        Thread.sleep(90000);
     }
 
     @AfterAll
@@ -94,7 +89,7 @@ public class UpdateFetchAndQueryPodTest {
         });
 
         String idToUpdate = upsertIds.get(0);
-        List<Float> valuesToUpdate = Arrays.asList(201F, 202F, 203F);
+        List<Float> valuesToUpdate = Arrays.asList(201F, 202F, 203F, 204F);
         HashMap<String, List<String>> metadataMap = createAndGetMetadataMap();
         Struct metadataToUpdate = Struct.newBuilder()
                 .putFields(metadataFields[0],
@@ -105,9 +100,6 @@ public class UpdateFetchAndQueryPodTest {
 
         // Update required+optional fields
         index.update(idToUpdate, valuesToUpdate, metadataToUpdate, namespace, null, null);
-
-        // wait some time for the vectors to be updated
-        Thread.sleep(7500);
 
         // Query by vector to verify
         assertWithRetry(() -> {
@@ -142,28 +134,26 @@ public class UpdateFetchAndQueryPodTest {
             Collections.sort(expectedSparseValues);
 
             assertEquals(expectedSparseValues, actualSparseValues);
-        });
+        }, 3);
     }
 
     @Test
     public void addIncorrectDimensionalValuesSyncTest() throws InterruptedException {
         // Update required fields only but with incorrect values dimension
         String idToUpdate = upsertIds.get(0);
-        List<Float> updatedValues = Arrays.asList(101F); // should be of size 3
+        List<Float> updatedValues = Arrays.asList(101F);
 
-        // Should fail since only 1 value is added for the vector of dimension 3
         try {
             index.update(idToUpdate, updatedValues, namespace);
 
             fail("Expected to throw statusRuntimeException");
         } catch (StatusRuntimeException statusRuntimeException) {
-            assert (statusRuntimeException.toString().contains("Vector dimension 1 does not match the dimension of the index 3"));
+            assert (statusRuntimeException.toString().contains("Vector dimension 1 does not match the dimension of the index " + dimension));
         }
     }
 
     @Test
     public void updateNullSparseIndicesNotNullSparseValuesSyncTest() {
-        int dimension = 3;
         String id = RandomStringBuilder.build(3);
 
         try {
@@ -223,7 +213,7 @@ public class UpdateFetchAndQueryPodTest {
         });
 
         String idToUpdate = upsertIds.get(0);
-        List<Float> valuesToUpdate = Arrays.asList(301F, 302F, 303F);
+        List<Float> valuesToUpdate = Arrays.asList(301F, 302F, 303F, 304F);
         HashMap<String, List<String>> metadataMap = createAndGetMetadataMap();
         Struct metadataToUpdate = Struct.newBuilder()
                 .putFields(metadataFields[0],
@@ -274,15 +264,14 @@ public class UpdateFetchAndQueryPodTest {
     public void addIncorrectDimensionalValuesFutureTest() throws InterruptedException {
         // Update required fields only but with incorrect values dimension
         String idToUpdate = upsertIds.get(0);
-        List<Float> updatedValues = Arrays.asList(101F); // should be of size 3
+        List<Float> updatedValues = Arrays.asList(101F);
 
-        // Should fail since only 1 value is added for the vector of dimension 3
         try {
             asyncIndex.update(idToUpdate, updatedValues, null, namespace, null, null).get();
 
             fail("Expected to throw statusRuntimeException");
         } catch (ExecutionException executionException) {
-            assert (executionException.toString().contains("Vector dimension 1 does not match the dimension of the index 3"));
+            assert (executionException.toString().contains("Vector dimension 1 does not match the dimension of the index " + dimension));
         }
     }
 
@@ -290,7 +279,6 @@ public class UpdateFetchAndQueryPodTest {
     public void queryWithFilersFutureTest() throws ExecutionException, InterruptedException {
         String fieldToQuery = metadataFields[0];
         String valueToQuery = createAndGetMetadataMap().get(fieldToQuery).get(0);
-
 
         try {
             Struct filter = Struct.newBuilder()
@@ -320,7 +308,6 @@ public class UpdateFetchAndQueryPodTest {
 
     @Test
     public void updateNullSparseIndicesNotNullSparseValuesFutureTest() throws InterruptedException, ExecutionException {
-        int dimension = 3;
         String id = RandomStringBuilder.build(3);
 
         try {

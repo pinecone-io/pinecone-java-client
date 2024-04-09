@@ -27,8 +27,8 @@ public class TestIndexResourcesManager {
             ? "us-east4-gcp"
             : System.getenv("PINECONE_ENVIRONMENT");
     private static final String metric = System.getenv("METRIC") == null
-            ? IndexMetric.COSINE.toString()
-            : System.getenv("METRIC");
+            ? IndexMetric.DOTPRODUCT.toString()
+            : IndexMetric.valueOf(System.getenv("METRIC")).toString();
     private static final String cloud = System.getenv("CLOUD") == null
             ? ServerlessSpec.CloudEnum.AWS.toString()
             : System.getenv("CLOUD");
@@ -145,7 +145,7 @@ public class TestIndexResourcesManager {
 
         // Explicitly wait after ready to avoid the "no healthy upstream" issue
         Thread.sleep(30000);
-
+        
         // Seed default vector IDs into default namespace
         seedIndex(vectorIdsForDefaultNamespace, indexName, defaultNamespace);
 

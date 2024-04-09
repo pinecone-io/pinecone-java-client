@@ -47,9 +47,6 @@ public class CollectionTest {
 
     @AfterAll
     public static void cleanUp() throws InterruptedException {
-        // wait for things to settle before cleanup...
-        Thread.sleep(2500);
-
         // Clean up indexes
         for (String index : indexesToCleanUp) {
             pineconeClient.deleteIndex(index);

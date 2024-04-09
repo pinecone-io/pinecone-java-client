@@ -6,35 +6,34 @@ import io.pinecone.clients.AsyncIndex;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.helpers.RandomStringBuilder;
+import io.pinecone.helpers.TestIndexResourcesManager;
 import io.pinecone.proto.*;
 import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
 import io.pinecone.unsigned_indices_model.ScoredVectorWithUnsignedIndices;
 import org.junit.jupiter.api.*;
-import org.openapitools.client.model.IndexModelSpec;
 
 import static io.pinecone.helpers.BuildUpsertRequest.*;
-import static io.pinecone.helpers.IndexManager.createIndexIfNotExistsDataPlane;
 import static io.pinecone.helpers.AssertRetry.assertWithRetry;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
-import java.util.AbstractMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class UpsertAndQueryPodTest {
-    private static Pinecone pineconeClient;
+    private static final TestIndexResourcesManager indexManager = TestIndexResourcesManager.getInstance();
     private static String indexName;
     private static Index indexClient;
     private static AsyncIndex asyncIndexClient;
-    private static final int dimension = 3;
+    private static int dimension;
     private static final Struct emptyFilterStruct = Struct.newBuilder().build();
 
     @BeforeAll
     public static void setUp() throws IOException, InterruptedException {
-        AbstractMap.SimpleEntry<String, Pinecone> indexAndClient = createIndexIfNotExistsDataPlane(dimension, IndexModelSpec.SERIALIZED_NAME_POD);
-        indexName = indexAndClient.getKey();
-        pineconeClient = indexAndClient.getValue();
+        Pinecone pineconeClient = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+
+        indexName = indexManager.getPodIndexName();
+        dimension = indexManager.getDimension();
         indexClient = pineconeClient.getIndexConnection(indexName);
         asyncIndexClient = pineconeClient.getAsyncIndexConnection(indexName);
     }
