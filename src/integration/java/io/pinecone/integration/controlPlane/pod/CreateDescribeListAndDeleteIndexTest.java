@@ -21,13 +21,13 @@ public class CreateDescribeListAndDeleteIndexTest {
     private static String indexPodType;
     private static final String environment =    System.getenv("PINECONE_ENVIRONMENT");
 
-    @BeforeAll
-    public static void setUp() throws InterruptedException {
-        indexName = indexManager.getPodIndexName();
-        indexDimension = indexManager.getDimension();
-        IndexModel podIndex = indexManager.getPodIndexModel();
-        indexPodType = podIndex.getSpec().getPod().getPodType();
-    }
+//    @BeforeAll
+//    public static void setUp() throws InterruptedException {
+//        indexName = indexManager.getPodIndexName();
+//        indexDimension = indexManager.getDimension();
+//        IndexModel podIndex = indexManager.getPodIndexModel();
+//        indexPodType = podIndex.getSpec().getPod().getPodType();
+//    }
 
     @Test
     public void describeAndListIndex() {
@@ -75,11 +75,14 @@ public class CreateDescribeListAndDeleteIndexTest {
         Integer dimension = 3;
         String environment = "us-east-1-aws";
         String podType = "p1.x1";
-        IndexModel podsIndex = controlPlaneClient.createPodsIndex(podIndexName, dimension, environment, podType);
+        String metric = "cosine";
+        IndexModel podsIndex = controlPlaneClient.createPodsIndex(podIndexName, dimension, environment, metric,
+                podType);
 
         assertEquals(podIndexName, podsIndex.getName());
         assertEquals(dimension, podsIndex.getDimension());
         assertEquals(environment, podsIndex.getSpec().getPod().getEnvironment());
+        assertEquals(metric, podsIndex.getMetric().toString());
         assertEquals(podType, podsIndex.getSpec().getPod().getPodType());
 
         // Confirm defaults are put in by the backend when not supplied by the user
