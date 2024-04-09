@@ -142,7 +142,7 @@ public class TestIndexResourcesManager {
 
         podIndexModel = pineconeClient.createPodsIndex(indexName, dimension, environment, "p1.x1");
         waitUntilIndexIsReady(pineconeClient, indexName);
-
+        
         // Explicitly wait after ready to avoid the "no healthy upstream" issue
         Thread.sleep(30000);
 
