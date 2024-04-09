@@ -115,7 +115,7 @@ public class Pinecone {
 
     // Minimal + metadata
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
-                                      String podType, String metric, PodSpecMetadataConfig metadataConfig) {
+                                      String podType, String metric, CreateIndexRequestSpecPodMetadataConfig metadataConfig) {
         validatePodIndexParams(indexName, dimension, environment, podType, metric, null, null, null);
 
 
@@ -143,7 +143,7 @@ public class Pinecone {
     // Minimal + pods + metadata
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String podType, Integer pods,
-                                      PodSpecMetadataConfig metadataConfig) {
+                                      CreateIndexRequestSpecPodMetadataConfig metadataConfig) {
         validatePodIndexParams(indexName, dimension, environment, podType, null, null, null, pods);
 
         return createPodsIndex(indexName, dimension, environment, podType, null, null, null, pods, metadataConfig,
@@ -162,7 +162,7 @@ public class Pinecone {
     // Minimal + replicas, shards + metadata
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String podType, Integer replicas,
-                                      Integer shards, PodSpecMetadataConfig metadataConfig) {
+                                      Integer shards, CreateIndexRequestSpecPodMetadataConfig metadataConfig) {
         validatePodIndexParams(indexName, dimension, environment, podType, null, replicas, shards, null);
 
         return createPodsIndex(indexName, dimension, environment, podType, null, replicas, shards, null,
@@ -174,7 +174,7 @@ public class Pinecone {
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String podType, String metric,
                                       Integer replicas, Integer shards, Integer pods,
-                                      PodSpecMetadataConfig metadataConfig, String sourceCollection) throws PineconeException {
+                                      CreateIndexRequestSpecPodMetadataConfig metadataConfig, String sourceCollection) throws PineconeException {
         validatePodIndexParams(indexName, dimension, environment, podType, metric, replicas, shards, pods);
 
         CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().environment(environment)

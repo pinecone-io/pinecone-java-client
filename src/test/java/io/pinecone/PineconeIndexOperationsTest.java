@@ -176,7 +176,7 @@ public class PineconeIndexOperationsTest {
                 2,
                 1,
                 2,
-                new PodSpecMetadataConfig(),
+                new CreateIndexRequestSpecPodMetadataConfig(),
                 "some-source-collection");
 
         ArgumentCaptor<Request> requestCaptor = ArgumentCaptor.forClass(Request.class);
