@@ -101,7 +101,7 @@ public class UpsertDescribeIndexStatsAndDeleteServerlessTest {
             DescribeIndexStatsResponse describeIndexStatsResponse = index.describeIndexStats(emptyFilterStruct);
             // Verify the updated vector count
             assertEquals(describeIndexStatsResponse.getNamespacesMap().get(namespace).getVectorCount(), testMultipleDeletedVectorCount);
-        }, 4);
+        }, 3);
     }
 
     @Test
@@ -160,6 +160,6 @@ public class UpsertDescribeIndexStatsAndDeleteServerlessTest {
             DescribeIndexStatsResponse describeIndexStatsResponse = asyncIndex.describeIndexStats().get();
             // Verify the updated vector count
             assertEquals(describeIndexStatsResponse.getNamespacesMap().get(namespace).getVectorCount(), testMultipleDeletedVectorCount);
-        }, 4);
+        }, 3);
     }
 }

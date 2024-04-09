@@ -195,7 +195,7 @@ public class UpdateFetchAndQueryPodTest {
 
                 // Verify the metadata field is correctly filtered in the query response
                 assert (queryResponse.getMatches(0).getMetadata().getFieldsMap().get(fieldToQuery).toString().contains(valueToQuery));
-            }, 4);
+            }, 3);
         } catch (Exception e) {
             throw new PineconeException(e.getLocalizedMessage());
         }
@@ -257,7 +257,7 @@ public class UpdateFetchAndQueryPodTest {
             Collections.sort(actualSparseValues);
             Collections.sort(expectedSparseValues);
             assertEquals(expectedSparseValues, actualSparseValues);
-        }, 4);
+        }, 3);
     }
 
     @Test
@@ -300,7 +300,7 @@ public class UpdateFetchAndQueryPodTest {
 
                 // Verify the metadata field is correctly filtered in the query response
                 assert (queryResponse.getMatches(0).getMetadata().getFieldsMap().get(fieldToQuery).toString().contains(valueToQuery));
-            }, 4);
+            }, 3);
         } catch (Exception exception) {
             throw exception;
         }

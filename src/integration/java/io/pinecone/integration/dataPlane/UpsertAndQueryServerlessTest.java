@@ -117,7 +117,7 @@ public class UpsertAndQueryServerlessTest {
             Collections.sort(expectedSparseValues);
             Collections.sort(sparseValues);
             assertEquals(expectedSparseValues, sparseValues);
-        }, 4);
+        }, 3);
     }
 
     @Test
@@ -207,7 +207,7 @@ public class UpsertAndQueryServerlessTest {
             Collections.sort(expectedSparseValues);
             Collections.sort(sparseValues);
             assertEquals(expectedSparseValues, sparseValues);
-        }, 4);
+        }, 3);
     }
 
     @Test

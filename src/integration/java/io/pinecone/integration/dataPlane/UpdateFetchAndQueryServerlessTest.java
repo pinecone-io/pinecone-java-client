@@ -198,7 +198,7 @@ public class UpdateFetchAndQueryServerlessTest {
 
                 // Verify the metadata field is correctly filtered in the query response
                 assert (queryResponse.getMatches(0).getMetadata().getFieldsMap().get(fieldToQuery).toString().contains(valueToQuery));
-            }, 4);
+            }, 3);
         } catch (Exception e) {
             throw new PineconeException(e.getLocalizedMessage());
         }
@@ -260,7 +260,7 @@ public class UpdateFetchAndQueryServerlessTest {
             Collections.sort(actualSparseValues);
             Collections.sort(expectedSparseValues);
             assertEquals(expectedSparseValues, actualSparseValues);
-        }, 4);
+        }, 3);
     }
 
     @Test
@@ -305,7 +305,7 @@ public class UpdateFetchAndQueryServerlessTest {
 
                 // Verify the metadata field is correctly filtered in the query response
                 assert (queryResponse.getMatches(0).getMetadata().getFieldsMap().get(fieldToQuery).toString().contains(valueToQuery));
-            }, 4);
+            }, 3);
         } catch (Exception exception) {
             throw exception;
         }
