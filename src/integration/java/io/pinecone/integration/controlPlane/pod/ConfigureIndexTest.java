@@ -36,7 +36,7 @@ public class ConfigureIndexTest {
         while (index.getStatus().getState() != IndexModelStatus.StateEnum.READY && timeWaited <= timeToWaitMs) {
             Thread.sleep(2000);
             timeWaited += 2000;
-            logger.info("waited 2000ms for index to upgrade, time left: " + timeToWaitMs);
+            logger.info("waited 2000ms for index to upgrade, time waited: " + timeWaited);
             index = controlPlaneClient.describeIndex(indexName);
         }
         if (!index.getStatus().getReady()) {
