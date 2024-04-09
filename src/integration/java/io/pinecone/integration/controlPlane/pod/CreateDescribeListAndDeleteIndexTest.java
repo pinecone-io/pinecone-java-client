@@ -103,7 +103,7 @@ public class CreateDescribeListAndDeleteIndexTest {
         Integer dimension = 3;
         String environment = "us-east-1-aws";
         String podType = "p1.x1";
-        assertThrows(PineconeValidationException.class, () -> {
+        assertThrows(PineconeBadRequestException.class, () -> {
             controlPlaneClient.createPodsIndex(podIndexName, dimension, environment, podType);
         });
     }
