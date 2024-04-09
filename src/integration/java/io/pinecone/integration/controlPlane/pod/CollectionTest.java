@@ -97,7 +97,7 @@ public class CollectionTest {
         Thread.sleep(30000);
 
         // If the index is ready, validate contents
-        if (indexDescription.getStatus().getReady()) {
+        if (indexDescription.getStatus().getState() == IndexModelStatus.StateEnum.READY) {
             // Set up new index data plane connection
             Index indexClient = pineconeClient.getIndexConnection(newIndexName);
 
