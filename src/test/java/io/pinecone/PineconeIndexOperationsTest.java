@@ -247,11 +247,6 @@ public class PineconeIndexOperationsTest {
                         null));
         assertEquals("Number of shards must be >= 1", thrownNegativeShards.getMessage());
 
-
-
-
-
-
         AssertionError incorrectNumReplicasAndShards = assertThrows(AssertionError.class,
                 () -> client.createPodsIndex(indexName, 3, "some-environment", "cosine", "p1.x1", 3, 2, 9,
                         new PodSpecMetadataConfig(), "some-source-collection"));
