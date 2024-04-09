@@ -81,7 +81,7 @@ public class ManageIndexesApi {
 
     /**
      * Build call for configureIndex
-     * @param indexName The name of the index to configure (required)
+     * @param indexName The name of the index to configure. (required)
      * @param configureIndexRequest The desired pod type and replica configuration for the index. (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
@@ -93,9 +93,9 @@ public class ManageIndexesApi {
         <tr><td> 400 </td><td> Bad request. The request body included invalid request parameters. </td><td>  -  </td></tr>
         <tr><td> 401 </td><td> Unauthorized. Possible causes: Invalid API key. </td><td>  -  </td></tr>
         <tr><td> 403 </td><td> You&#39;ve exceed your pod quota. </td><td>  -  </td></tr>
-        <tr><td> 404 </td><td> Index not found </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Index not found. </td><td>  -  </td></tr>
         <tr><td> 422 </td><td> Unprocessable entity. The request body could not be deserialized. </td><td>  -  </td></tr>
-        <tr><td> 500 </td><td> Internal server error </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
     public okhttp3.Call configureIndexCall(String indexName, ConfigureIndexRequest configureIndexRequest, final ApiCallback _callback) throws ApiException {
@@ -161,9 +161,9 @@ public class ManageIndexesApi {
     }
 
     /**
-     * 
-     * This operation specifies the pod type and number of replicas for an index.
-     * @param indexName The name of the index to configure (required)
+     * Configure an index
+     * This operation specifies the pod type and number of replicas for an index. It applies to pod-based indexes only. Serverless indexes scale automatically based on usage.
+     * @param indexName The name of the index to configure. (required)
      * @param configureIndexRequest The desired pod type and replica configuration for the index. (required)
      * @return IndexModel
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
@@ -174,9 +174,9 @@ public class ManageIndexesApi {
         <tr><td> 400 </td><td> Bad request. The request body included invalid request parameters. </td><td>  -  </td></tr>
         <tr><td> 401 </td><td> Unauthorized. Possible causes: Invalid API key. </td><td>  -  </td></tr>
         <tr><td> 403 </td><td> You&#39;ve exceed your pod quota. </td><td>  -  </td></tr>
-        <tr><td> 404 </td><td> Index not found </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Index not found. </td><td>  -  </td></tr>
         <tr><td> 422 </td><td> Unprocessable entity. The request body could not be deserialized. </td><td>  -  </td></tr>
-        <tr><td> 500 </td><td> Internal server error </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
     public IndexModel configureIndex(String indexName, ConfigureIndexRequest configureIndexRequest) throws ApiException {
@@ -185,9 +185,9 @@ public class ManageIndexesApi {
     }
 
     /**
-     * 
-     * This operation specifies the pod type and number of replicas for an index.
-     * @param indexName The name of the index to configure (required)
+     * Configure an index
+     * This operation specifies the pod type and number of replicas for an index. It applies to pod-based indexes only. Serverless indexes scale automatically based on usage.
+     * @param indexName The name of the index to configure. (required)
      * @param configureIndexRequest The desired pod type and replica configuration for the index. (required)
      * @return ApiResponse&lt;IndexModel&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
@@ -198,9 +198,9 @@ public class ManageIndexesApi {
         <tr><td> 400 </td><td> Bad request. The request body included invalid request parameters. </td><td>  -  </td></tr>
         <tr><td> 401 </td><td> Unauthorized. Possible causes: Invalid API key. </td><td>  -  </td></tr>
         <tr><td> 403 </td><td> You&#39;ve exceed your pod quota. </td><td>  -  </td></tr>
-        <tr><td> 404 </td><td> Index not found </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Index not found. </td><td>  -  </td></tr>
         <tr><td> 422 </td><td> Unprocessable entity. The request body could not be deserialized. </td><td>  -  </td></tr>
-        <tr><td> 500 </td><td> Internal server error </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
     public ApiResponse<IndexModel> configureIndexWithHttpInfo(String indexName, ConfigureIndexRequest configureIndexRequest) throws ApiException {
@@ -210,9 +210,9 @@ public class ManageIndexesApi {
     }
 
     /**
-     *  (asynchronously)
-     * This operation specifies the pod type and number of replicas for an index.
-     * @param indexName The name of the index to configure (required)
+     * Configure an index (asynchronously)
+     * This operation specifies the pod type and number of replicas for an index. It applies to pod-based indexes only. Serverless indexes scale automatically based on usage.
+     * @param indexName The name of the index to configure. (required)
      * @param configureIndexRequest The desired pod type and replica configuration for the index. (required)
      * @param _callback The callback to be executed when the API call finishes
      * @return The request call
@@ -224,9 +224,9 @@ public class ManageIndexesApi {
         <tr><td> 400 </td><td> Bad request. The request body included invalid request parameters. </td><td>  -  </td></tr>
         <tr><td> 401 </td><td> Unauthorized. Possible causes: Invalid API key. </td><td>  -  </td></tr>
         <tr><td> 403 </td><td> You&#39;ve exceed your pod quota. </td><td>  -  </td></tr>
-        <tr><td> 404 </td><td> Index not found </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Index not found. </td><td>  -  </td></tr>
         <tr><td> 422 </td><td> Unprocessable entity. The request body could not be deserialized. </td><td>  -  </td></tr>
-        <tr><td> 500 </td><td> Internal server error </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
     public okhttp3.Call configureIndexAsync(String indexName, ConfigureIndexRequest configureIndexRequest, final ApiCallback<IndexModel> _callback) throws ApiException {
@@ -251,7 +251,7 @@ public class ManageIndexesApi {
         <tr><td> 403 </td><td> You&#39;ve exceed your collections quota. </td><td>  -  </td></tr>
         <tr><td> 409 </td><td> A collection already exists with the name provided. </td><td>  -  </td></tr>
         <tr><td> 422 </td><td> Unprocessable entity. The request body could not be deserialized. </td><td>  -  </td></tr>
-        <tr><td> 500 </td><td> Internal server error </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
     public okhttp3.Call createCollectionCall(CreateCollectionRequest createCollectionRequest, final ApiCallback _callback) throws ApiException {
@@ -311,8 +311,8 @@ public class ManageIndexesApi {
     }
 
     /**
-     * 
-     * This operation creates a Pinecone collection.
+     * Create a collection
+     * This operation creates a Pinecone collection.  Serverless and starter indexes do not support collections. 
      * @param createCollectionRequest The desired configuration for the collection. (required)
      * @return CollectionModel
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
@@ -325,7 +325,7 @@ public class ManageIndexesApi {
         <tr><td> 403 </td><td> You&#39;ve exceed your collections quota. </td><td>  -  </td></tr>
         <tr><td> 409 </td><td> A collection already exists with the name provided. </td><td>  -  </td></tr>
         <tr><td> 422 </td><td> Unprocessable entity. The request body could not be deserialized. </td><td>  -  </td></tr>
-        <tr><td> 500 </td><td> Internal server error </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
     public CollectionModel createCollection(CreateCollectionRequest createCollectionRequest) throws ApiException {
@@ -334,8 +334,8 @@ public class ManageIndexesApi {
     }
 
     /**
-     * 
-     * This operation creates a Pinecone collection.
+     * Create a collection
+     * This operation creates a Pinecone collection.  Serverless and starter indexes do not support collections. 
      * @param createCollectionRequest The desired configuration for the collection. (required)
      * @return ApiResponse&lt;CollectionModel&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
@@ -348,7 +348,7 @@ public class ManageIndexesApi {
         <tr><td> 403 </td><td> You&#39;ve exceed your collections quota. </td><td>  -  </td></tr>
         <tr><td> 409 </td><td> A collection already exists with the name provided. </td><td>  -  </td></tr>
         <tr><td> 422 </td><td> Unprocessable entity. The request body could not be deserialized. </td><td>  -  </td></tr>
-        <tr><td> 500 </td><td> Internal server error </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
     public ApiResponse<CollectionModel> createCollectionWithHttpInfo(CreateCollectionRequest createCollectionRequest) throws ApiException {
@@ -358,8 +358,8 @@ public class ManageIndexesApi {
     }
 
     /**
-     *  (asynchronously)
-     * This operation creates a Pinecone collection.
+     * Create a collection (asynchronously)
+     * This operation creates a Pinecone collection.  Serverless and starter indexes do not support collections. 
      * @param createCollectionRequest The desired configuration for the collection. (required)
      * @param _callback The callback to be executed when the API call finishes
      * @return The request call
@@ -373,7 +373,7 @@ public class ManageIndexesApi {
         <tr><td> 403 </td><td> You&#39;ve exceed your collections quota. </td><td>  -  </td></tr>
         <tr><td> 409 </td><td> A collection already exists with the name provided. </td><td>  -  </td></tr>
         <tr><td> 422 </td><td> Unprocessable entity. The request body could not be deserialized. </td><td>  -  </td></tr>
-        <tr><td> 500 </td><td> Internal server error </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
     public okhttp3.Call createCollectionAsync(CreateCollectionRequest createCollectionRequest, final ApiCallback<CollectionModel> _callback) throws ApiException {
@@ -392,14 +392,14 @@ public class ManageIndexesApi {
      * @http.response.details
      <table summary="Response Details" border="1">
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 201 </td><td> The index has been successfully created </td><td>  -  </td></tr>
+        <tr><td> 201 </td><td> The index has been successfully created. </td><td>  -  </td></tr>
         <tr><td> 400 </td><td> Bad request. The request body included invalid request parameters. </td><td>  -  </td></tr>
         <tr><td> 401 </td><td> Unauthorized. Possible causes: Invalid API key. </td><td>  -  </td></tr>
         <tr><td> 403 </td><td> You&#39;ve exceed your pod quota. </td><td>  -  </td></tr>
-        <tr><td> 404 </td><td> Unknown cloud or region when creating a serverless index </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Unknown cloud or region when creating a serverless index. </td><td>  -  </td></tr>
         <tr><td> 422 </td><td> Unprocessable entity. The request body could not be deserialized. </td><td>  -  </td></tr>
         <tr><td> 409 </td><td> Index of given name already exists. </td><td>  -  </td></tr>
-        <tr><td> 500 </td><td> Internal server error </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
     public okhttp3.Call createIndexCall(CreateIndexRequest createIndexRequest, final ApiCallback _callback) throws ApiException {
@@ -459,22 +459,22 @@ public class ManageIndexesApi {
     }
 
     /**
-     * 
-     * This operation deploys a Pinecone index. This is where you specify the measure of similarity, the dimension of vectors to be stored in the index, which cloud provider you would like to deploy with, and more.
+     * Create an index
+     * This operation deploys a Pinecone index. This is where you specify the measure of similarity, the dimension of vectors to be stored in the index, which cloud provider you would like to deploy with, and more.  For guidance and examples, see [Create an index](https://docs.pinecone.io/guides/indexes/create-an-index#create-a-serverless-index). 
      * @param createIndexRequest The desired configuration for the index. (required)
      * @return IndexModel
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
      <table summary="Response Details" border="1">
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 201 </td><td> The index has been successfully created </td><td>  -  </td></tr>
+        <tr><td> 201 </td><td> The index has been successfully created. </td><td>  -  </td></tr>
         <tr><td> 400 </td><td> Bad request. The request body included invalid request parameters. </td><td>  -  </td></tr>
         <tr><td> 401 </td><td> Unauthorized. Possible causes: Invalid API key. </td><td>  -  </td></tr>
         <tr><td> 403 </td><td> You&#39;ve exceed your pod quota. </td><td>  -  </td></tr>
-        <tr><td> 404 </td><td> Unknown cloud or region when creating a serverless index </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Unknown cloud or region when creating a serverless index. </td><td>  -  </td></tr>
         <tr><td> 422 </td><td> Unprocessable entity. The request body could not be deserialized. </td><td>  -  </td></tr>
         <tr><td> 409 </td><td> Index of given name already exists. </td><td>  -  </td></tr>
-        <tr><td> 500 </td><td> Internal server error </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
     public IndexModel createIndex(CreateIndexRequest createIndexRequest) throws ApiException {
@@ -483,22 +483,22 @@ public class ManageIndexesApi {
     }
 
     /**
-     * 
-     * This operation deploys a Pinecone index. This is where you specify the measure of similarity, the dimension of vectors to be stored in the index, which cloud provider you would like to deploy with, and more.
+     * Create an index
+     * This operation deploys a Pinecone index. This is where you specify the measure of similarity, the dimension of vectors to be stored in the index, which cloud provider you would like to deploy with, and more.  For guidance and examples, see [Create an index](https://docs.pinecone.io/guides/indexes/create-an-index#create-a-serverless-index). 
      * @param createIndexRequest The desired configuration for the index. (required)
      * @return ApiResponse&lt;IndexModel&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
      <table summary="Response Details" border="1">
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 201 </td><td> The index has been successfully created </td><td>  -  </td></tr>
+        <tr><td> 201 </td><td> The index has been successfully created. </td><td>  -  </td></tr>
         <tr><td> 400 </td><td> Bad request. The request body included invalid request parameters. </td><td>  -  </td></tr>
         <tr><td> 401 </td><td> Unauthorized. Possible causes: Invalid API key. </td><td>  -  </td></tr>
         <tr><td> 403 </td><td> You&#39;ve exceed your pod quota. </td><td>  -  </td></tr>
-        <tr><td> 404 </td><td> Unknown cloud or region when creating a serverless index </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Unknown cloud or region when creating a serverless index. </td><td>  -  </td></tr>
         <tr><td> 422 </td><td> Unprocessable entity. The request body could not be deserialized. </td><td>  -  </td></tr>
         <tr><td> 409 </td><td> Index of given name already exists. </td><td>  -  </td></tr>
-        <tr><td> 500 </td><td> Internal server error </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
     public ApiResponse<IndexModel> createIndexWithHttpInfo(CreateIndexRequest createIndexRequest) throws ApiException {
@@ -508,8 +508,8 @@ public class ManageIndexesApi {
     }
 
     /**
-     *  (asynchronously)
-     * This operation deploys a Pinecone index. This is where you specify the measure of similarity, the dimension of vectors to be stored in the index, which cloud provider you would like to deploy with, and more.
+     * Create an index (asynchronously)
+     * This operation deploys a Pinecone index. This is where you specify the measure of similarity, the dimension of vectors to be stored in the index, which cloud provider you would like to deploy with, and more.  For guidance and examples, see [Create an index](https://docs.pinecone.io/guides/indexes/create-an-index#create-a-serverless-index). 
      * @param createIndexRequest The desired configuration for the index. (required)
      * @param _callback The callback to be executed when the API call finishes
      * @return The request call
@@ -517,14 +517,14 @@ public class ManageIndexesApi {
      * @http.response.details
      <table summary="Response Details" border="1">
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 201 </td><td> The index has been successfully created </td><td>  -  </td></tr>
+        <tr><td> 201 </td><td> The index has been successfully created. </td><td>  -  </td></tr>
         <tr><td> 400 </td><td> Bad request. The request body included invalid request parameters. </td><td>  -  </td></tr>
         <tr><td> 401 </td><td> Unauthorized. Possible causes: Invalid API key. </td><td>  -  </td></tr>
         <tr><td> 403 </td><td> You&#39;ve exceed your pod quota. </td><td>  -  </td></tr>
-        <tr><td> 404 </td><td> Unknown cloud or region when creating a serverless index </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Unknown cloud or region when creating a serverless index. </td><td>  -  </td></tr>
         <tr><td> 422 </td><td> Unprocessable entity. The request body could not be deserialized. </td><td>  -  </td></tr>
         <tr><td> 409 </td><td> Index of given name already exists. </td><td>  -  </td></tr>
-        <tr><td> 500 </td><td> Internal server error </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
     public okhttp3.Call createIndexAsync(CreateIndexRequest createIndexRequest, final ApiCallback<IndexModel> _callback) throws ApiException {
@@ -536,7 +536,7 @@ public class ManageIndexesApi {
     }
     /**
      * Build call for deleteCollection
-     * @param collectionName The name of the collection (required)
+     * @param collectionName The name of the collection. (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
      * @throws ApiException If fail to serialize the request body object
@@ -545,8 +545,8 @@ public class ManageIndexesApi {
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
         <tr><td> 202 </td><td> The index has been successfully deleted. </td><td>  -  </td></tr>
         <tr><td> 401 </td><td> Unauthorized. Possible causes: Invalid API key. </td><td>  -  </td></tr>
-        <tr><td> 404 </td><td> Collection not found </td><td>  -  </td></tr>
-        <tr><td> 500 </td><td> Internal server error </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Collection not found. </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
     public okhttp3.Call deleteCollectionCall(String collectionName, final ApiCallback _callback) throws ApiException {
@@ -607,9 +607,9 @@ public class ManageIndexesApi {
     }
 
     /**
-     * 
-     * This operation deletes an existing collection.
-     * @param collectionName The name of the collection (required)
+     * Delete a collection
+     * This operation deletes an existing collection.  Serverless and starter indexes do not support collections. 
+     * @param collectionName The name of the collection. (required)
      * @return String
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
@@ -617,8 +617,8 @@ public class ManageIndexesApi {
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
         <tr><td> 202 </td><td> The index has been successfully deleted. </td><td>  -  </td></tr>
         <tr><td> 401 </td><td> Unauthorized. Possible causes: Invalid API key. </td><td>  -  </td></tr>
-        <tr><td> 404 </td><td> Collection not found </td><td>  -  </td></tr>
-        <tr><td> 500 </td><td> Internal server error </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Collection not found. </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
     public String deleteCollection(String collectionName) throws ApiException {
@@ -627,9 +627,9 @@ public class ManageIndexesApi {
     }
 
     /**
-     * 
-     * This operation deletes an existing collection.
-     * @param collectionName The name of the collection (required)
+     * Delete a collection
+     * This operation deletes an existing collection.  Serverless and starter indexes do not support collections. 
+     * @param collectionName The name of the collection. (required)
      * @return ApiResponse&lt;String&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
@@ -637,8 +637,8 @@ public class ManageIndexesApi {
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
         <tr><td> 202 </td><td> The index has been successfully deleted. </td><td>  -  </td></tr>
         <tr><td> 401 </td><td> Unauthorized. Possible causes: Invalid API key. </td><td>  -  </td></tr>
-        <tr><td> 404 </td><td> Collection not found </td><td>  -  </td></tr>
-        <tr><td> 500 </td><td> Internal server error </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Collection not found. </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
     public ApiResponse<String> deleteCollectionWithHttpInfo(String collectionName) throws ApiException {
@@ -648,9 +648,9 @@ public class ManageIndexesApi {
     }
 
     /**
-     *  (asynchronously)
-     * This operation deletes an existing collection.
-     * @param collectionName The name of the collection (required)
+     * Delete a collection (asynchronously)
+     * This operation deletes an existing collection.  Serverless and starter indexes do not support collections. 
+     * @param collectionName The name of the collection. (required)
      * @param _callback The callback to be executed when the API call finishes
      * @return The request call
      * @throws ApiException If fail to process the API call, e.g. serializing the request body object
@@ -659,8 +659,8 @@ public class ManageIndexesApi {
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
         <tr><td> 202 </td><td> The index has been successfully deleted. </td><td>  -  </td></tr>
         <tr><td> 401 </td><td> Unauthorized. Possible causes: Invalid API key. </td><td>  -  </td></tr>
-        <tr><td> 404 </td><td> Collection not found </td><td>  -  </td></tr>
-        <tr><td> 500 </td><td> Internal server error </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Collection not found. </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
     public okhttp3.Call deleteCollectionAsync(String collectionName, final ApiCallback<String> _callback) throws ApiException {
@@ -672,7 +672,7 @@ public class ManageIndexesApi {
     }
     /**
      * Build call for deleteIndex
-     * @param indexName The name of the index to delete (required)
+     * @param indexName The name of the index to delete. (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
      * @throws ApiException If fail to serialize the request body object
@@ -681,9 +681,9 @@ public class ManageIndexesApi {
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
         <tr><td> 202 </td><td> The request to delete the index has been accepted. </td><td>  -  </td></tr>
         <tr><td> 401 </td><td> Unauthorized. Possible causes: Invalid API key. </td><td>  -  </td></tr>
-        <tr><td> 404 </td><td> Index not found </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Index not found. </td><td>  -  </td></tr>
         <tr><td> 412 </td><td> There is a pending collection created from this index. </td><td>  -  </td></tr>
-        <tr><td> 500 </td><td> Internal server error </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
     public okhttp3.Call deleteIndexCall(String indexName, final ApiCallback _callback) throws ApiException {
@@ -743,18 +743,18 @@ public class ManageIndexesApi {
     }
 
     /**
-     * 
+     * Delete an index
      * This operation deletes an existing index.
-     * @param indexName The name of the index to delete (required)
+     * @param indexName The name of the index to delete. (required)
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
      <table summary="Response Details" border="1">
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
         <tr><td> 202 </td><td> The request to delete the index has been accepted. </td><td>  -  </td></tr>
         <tr><td> 401 </td><td> Unauthorized. Possible causes: Invalid API key. </td><td>  -  </td></tr>
-        <tr><td> 404 </td><td> Index not found </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Index not found. </td><td>  -  </td></tr>
         <tr><td> 412 </td><td> There is a pending collection created from this index. </td><td>  -  </td></tr>
-        <tr><td> 500 </td><td> Internal server error </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
     public void deleteIndex(String indexName) throws ApiException {
@@ -762,9 +762,9 @@ public class ManageIndexesApi {
     }
 
     /**
-     * 
+     * Delete an index
      * This operation deletes an existing index.
-     * @param indexName The name of the index to delete (required)
+     * @param indexName The name of the index to delete. (required)
      * @return ApiResponse&lt;Void&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
@@ -772,9 +772,9 @@ public class ManageIndexesApi {
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
         <tr><td> 202 </td><td> The request to delete the index has been accepted. </td><td>  -  </td></tr>
         <tr><td> 401 </td><td> Unauthorized. Possible causes: Invalid API key. </td><td>  -  </td></tr>
-        <tr><td> 404 </td><td> Index not found </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Index not found. </td><td>  -  </td></tr>
         <tr><td> 412 </td><td> There is a pending collection created from this index. </td><td>  -  </td></tr>
-        <tr><td> 500 </td><td> Internal server error </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
     public ApiResponse<Void> deleteIndexWithHttpInfo(String indexName) throws ApiException {
@@ -783,9 +783,9 @@ public class ManageIndexesApi {
     }
 
     /**
-     *  (asynchronously)
+     * Delete an index (asynchronously)
      * This operation deletes an existing index.
-     * @param indexName The name of the index to delete (required)
+     * @param indexName The name of the index to delete. (required)
      * @param _callback The callback to be executed when the API call finishes
      * @return The request call
      * @throws ApiException If fail to process the API call, e.g. serializing the request body object
@@ -794,9 +794,9 @@ public class ManageIndexesApi {
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
         <tr><td> 202 </td><td> The request to delete the index has been accepted. </td><td>  -  </td></tr>
         <tr><td> 401 </td><td> Unauthorized. Possible causes: Invalid API key. </td><td>  -  </td></tr>
-        <tr><td> 404 </td><td> Index not found </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Index not found. </td><td>  -  </td></tr>
         <tr><td> 412 </td><td> There is a pending collection created from this index. </td><td>  -  </td></tr>
-        <tr><td> 500 </td><td> Internal server error </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
     public okhttp3.Call deleteIndexAsync(String indexName, final ApiCallback<Void> _callback) throws ApiException {
@@ -807,17 +807,17 @@ public class ManageIndexesApi {
     }
     /**
      * Build call for describeCollection
-     * @param collectionName The name of the collection to be described (required)
+     * @param collectionName The name of the collection to be described. (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
      * @throws ApiException If fail to serialize the request body object
      * @http.response.details
      <table summary="Response Details" border="1">
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> Configuration information and status of the collection </td><td>  -  </td></tr>
+        <tr><td> 200 </td><td> Configuration information and status of the collection. </td><td>  -  </td></tr>
         <tr><td> 401 </td><td> Unauthorized. Possible causes: Invalid API key. </td><td>  -  </td></tr>
-        <tr><td> 404 </td><td> Collection not found </td><td>  -  </td></tr>
-        <tr><td> 500 </td><td> Internal server error </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Collection not found. </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
     public okhttp3.Call describeCollectionCall(String collectionName, final ApiCallback _callback) throws ApiException {
@@ -877,18 +877,18 @@ public class ManageIndexesApi {
     }
 
     /**
-     * 
-     * This operation gets a description of a collection.
-     * @param collectionName The name of the collection to be described (required)
+     * Describe a collection
+     * This operation gets a description of a collection.  Serverless and starter indexes do not support collections. 
+     * @param collectionName The name of the collection to be described. (required)
      * @return CollectionModel
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
      <table summary="Response Details" border="1">
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> Configuration information and status of the collection </td><td>  -  </td></tr>
+        <tr><td> 200 </td><td> Configuration information and status of the collection. </td><td>  -  </td></tr>
         <tr><td> 401 </td><td> Unauthorized. Possible causes: Invalid API key. </td><td>  -  </td></tr>
-        <tr><td> 404 </td><td> Collection not found </td><td>  -  </td></tr>
-        <tr><td> 500 </td><td> Internal server error </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Collection not found. </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
     public CollectionModel describeCollection(String collectionName) throws ApiException {
@@ -897,18 +897,18 @@ public class ManageIndexesApi {
     }
 
     /**
-     * 
-     * This operation gets a description of a collection.
-     * @param collectionName The name of the collection to be described (required)
+     * Describe a collection
+     * This operation gets a description of a collection.  Serverless and starter indexes do not support collections. 
+     * @param collectionName The name of the collection to be described. (required)
      * @return ApiResponse&lt;CollectionModel&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
      <table summary="Response Details" border="1">
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> Configuration information and status of the collection </td><td>  -  </td></tr>
+        <tr><td> 200 </td><td> Configuration information and status of the collection. </td><td>  -  </td></tr>
         <tr><td> 401 </td><td> Unauthorized. Possible causes: Invalid API key. </td><td>  -  </td></tr>
-        <tr><td> 404 </td><td> Collection not found </td><td>  -  </td></tr>
-        <tr><td> 500 </td><td> Internal server error </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Collection not found. </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
     public ApiResponse<CollectionModel> describeCollectionWithHttpInfo(String collectionName) throws ApiException {
@@ -918,19 +918,19 @@ public class ManageIndexesApi {
     }
 
     /**
-     *  (asynchronously)
-     * This operation gets a description of a collection.
-     * @param collectionName The name of the collection to be described (required)
+     * Describe a collection (asynchronously)
+     * This operation gets a description of a collection.  Serverless and starter indexes do not support collections. 
+     * @param collectionName The name of the collection to be described. (required)
      * @param _callback The callback to be executed when the API call finishes
      * @return The request call
      * @throws ApiException If fail to process the API call, e.g. serializing the request body object
      * @http.response.details
      <table summary="Response Details" border="1">
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> Configuration information and status of the collection </td><td>  -  </td></tr>
+        <tr><td> 200 </td><td> Configuration information and status of the collection. </td><td>  -  </td></tr>
         <tr><td> 401 </td><td> Unauthorized. Possible causes: Invalid API key. </td><td>  -  </td></tr>
-        <tr><td> 404 </td><td> Collection not found </td><td>  -  </td></tr>
-        <tr><td> 500 </td><td> Internal server error </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Collection not found. </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
     public okhttp3.Call describeCollectionAsync(String collectionName, final ApiCallback<CollectionModel> _callback) throws ApiException {
@@ -942,17 +942,17 @@ public class ManageIndexesApi {
     }
     /**
      * Build call for describeIndex
-     * @param indexName The name of the index to be described (required)
+     * @param indexName The name of the index to be described. (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
      * @throws ApiException If fail to serialize the request body object
      * @http.response.details
      <table summary="Response Details" border="1">
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> Configuration information and deployment status of the index </td><td>  -  </td></tr>
+        <tr><td> 200 </td><td> Configuration information and deployment status of the index. </td><td>  -  </td></tr>
         <tr><td> 401 </td><td> Unauthorized. Possible causes: Invalid API key. </td><td>  -  </td></tr>
-        <tr><td> 404 </td><td> Index not found </td><td>  -  </td></tr>
-        <tr><td> 500 </td><td> Internal server error </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Index not found. </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
     public okhttp3.Call describeIndexCall(String indexName, final ApiCallback _callback) throws ApiException {
@@ -1012,18 +1012,18 @@ public class ManageIndexesApi {
     }
 
     /**
-     * 
+     * Describe an index
      * Get a description of an index.
-     * @param indexName The name of the index to be described (required)
+     * @param indexName The name of the index to be described. (required)
      * @return IndexModel
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
      <table summary="Response Details" border="1">
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> Configuration information and deployment status of the index </td><td>  -  </td></tr>
+        <tr><td> 200 </td><td> Configuration information and deployment status of the index. </td><td>  -  </td></tr>
         <tr><td> 401 </td><td> Unauthorized. Possible causes: Invalid API key. </td><td>  -  </td></tr>
-        <tr><td> 404 </td><td> Index not found </td><td>  -  </td></tr>
-        <tr><td> 500 </td><td> Internal server error </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Index not found. </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
     public IndexModel describeIndex(String indexName) throws ApiException {
@@ -1032,18 +1032,18 @@ public class ManageIndexesApi {
     }
 
     /**
-     * 
+     * Describe an index
      * Get a description of an index.
-     * @param indexName The name of the index to be described (required)
+     * @param indexName The name of the index to be described. (required)
      * @return ApiResponse&lt;IndexModel&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
      <table summary="Response Details" border="1">
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> Configuration information and deployment status of the index </td><td>  -  </td></tr>
+        <tr><td> 200 </td><td> Configuration information and deployment status of the index. </td><td>  -  </td></tr>
         <tr><td> 401 </td><td> Unauthorized. Possible causes: Invalid API key. </td><td>  -  </td></tr>
-        <tr><td> 404 </td><td> Index not found </td><td>  -  </td></tr>
-        <tr><td> 500 </td><td> Internal server error </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Index not found. </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
     public ApiResponse<IndexModel> describeIndexWithHttpInfo(String indexName) throws ApiException {
@@ -1053,19 +1053,19 @@ public class ManageIndexesApi {
     }
 
     /**
-     *  (asynchronously)
+     * Describe an index (asynchronously)
      * Get a description of an index.
-     * @param indexName The name of the index to be described (required)
+     * @param indexName The name of the index to be described. (required)
      * @param _callback The callback to be executed when the API call finishes
      * @return The request call
      * @throws ApiException If fail to process the API call, e.g. serializing the request body object
      * @http.response.details
      <table summary="Response Details" border="1">
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> Configuration information and deployment status of the index </td><td>  -  </td></tr>
+        <tr><td> 200 </td><td> Configuration information and deployment status of the index. </td><td>  -  </td></tr>
         <tr><td> 401 </td><td> Unauthorized. Possible causes: Invalid API key. </td><td>  -  </td></tr>
-        <tr><td> 404 </td><td> Index not found </td><td>  -  </td></tr>
-        <tr><td> 500 </td><td> Internal server error </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Index not found. </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
     public okhttp3.Call describeIndexAsync(String indexName, final ApiCallback<IndexModel> _callback) throws ApiException {
@@ -1085,7 +1085,7 @@ public class ManageIndexesApi {
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
         <tr><td> 200 </td><td> This operation returns a list of all the collections in your current project. </td><td>  -  </td></tr>
         <tr><td> 401 </td><td> Unauthorized. Possible causes: Invalid API key. </td><td>  -  </td></tr>
-        <tr><td> 500 </td><td> Internal server error </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
     public okhttp3.Call listCollectionsCall(final ApiCallback _callback) throws ApiException {
@@ -1139,8 +1139,8 @@ public class ManageIndexesApi {
     }
 
     /**
-     * 
-     * This operation returns a list of your Pinecone collections.
+     * List collections
+     * This operation returns a list of all collections in a project.  Serverless and starter indexes do not support collections. 
      * @return CollectionList
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
@@ -1148,7 +1148,7 @@ public class ManageIndexesApi {
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
         <tr><td> 200 </td><td> This operation returns a list of all the collections in your current project. </td><td>  -  </td></tr>
         <tr><td> 401 </td><td> Unauthorized. Possible causes: Invalid API key. </td><td>  -  </td></tr>
-        <tr><td> 500 </td><td> Internal server error </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
     public CollectionList listCollections() throws ApiException {
@@ -1157,8 +1157,8 @@ public class ManageIndexesApi {
     }
 
     /**
-     * 
-     * This operation returns a list of your Pinecone collections.
+     * List collections
+     * This operation returns a list of all collections in a project.  Serverless and starter indexes do not support collections. 
      * @return ApiResponse&lt;CollectionList&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
@@ -1166,7 +1166,7 @@ public class ManageIndexesApi {
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
         <tr><td> 200 </td><td> This operation returns a list of all the collections in your current project. </td><td>  -  </td></tr>
         <tr><td> 401 </td><td> Unauthorized. Possible causes: Invalid API key. </td><td>  -  </td></tr>
-        <tr><td> 500 </td><td> Internal server error </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
     public ApiResponse<CollectionList> listCollectionsWithHttpInfo() throws ApiException {
@@ -1176,8 +1176,8 @@ public class ManageIndexesApi {
     }
 
     /**
-     *  (asynchronously)
-     * This operation returns a list of your Pinecone collections.
+     * List collections (asynchronously)
+     * This operation returns a list of all collections in a project.  Serverless and starter indexes do not support collections. 
      * @param _callback The callback to be executed when the API call finishes
      * @return The request call
      * @throws ApiException If fail to process the API call, e.g. serializing the request body object
@@ -1186,7 +1186,7 @@ public class ManageIndexesApi {
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
         <tr><td> 200 </td><td> This operation returns a list of all the collections in your current project. </td><td>  -  </td></tr>
         <tr><td> 401 </td><td> Unauthorized. Possible causes: Invalid API key. </td><td>  -  </td></tr>
-        <tr><td> 500 </td><td> Internal server error </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
     public okhttp3.Call listCollectionsAsync(final ApiCallback<CollectionList> _callback) throws ApiException {
@@ -1206,7 +1206,7 @@ public class ManageIndexesApi {
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
         <tr><td> 200 </td><td> This operation returns a list of all the indexes that you have previously created, and which are associated with the given project </td><td>  -  </td></tr>
         <tr><td> 401 </td><td> Unauthorized. Possible causes: Invalid API key. </td><td>  -  </td></tr>
-        <tr><td> 500 </td><td> Internal server error </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
     public okhttp3.Call listIndexesCall(final ApiCallback _callback) throws ApiException {
@@ -1260,8 +1260,8 @@ public class ManageIndexesApi {
     }
 
     /**
-     * 
-     * This operation returns a list of your Pinecone indexes.
+     * List indexes
+     * This operation returns a list of all indexes in a project.
      * @return IndexList
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
@@ -1269,7 +1269,7 @@ public class ManageIndexesApi {
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
         <tr><td> 200 </td><td> This operation returns a list of all the indexes that you have previously created, and which are associated with the given project </td><td>  -  </td></tr>
         <tr><td> 401 </td><td> Unauthorized. Possible causes: Invalid API key. </td><td>  -  </td></tr>
-        <tr><td> 500 </td><td> Internal server error </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
     public IndexList listIndexes() throws ApiException {
@@ -1278,8 +1278,8 @@ public class ManageIndexesApi {
     }
 
     /**
-     * 
-     * This operation returns a list of your Pinecone indexes.
+     * List indexes
+     * This operation returns a list of all indexes in a project.
      * @return ApiResponse&lt;IndexList&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
@@ -1287,7 +1287,7 @@ public class ManageIndexesApi {
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
         <tr><td> 200 </td><td> This operation returns a list of all the indexes that you have previously created, and which are associated with the given project </td><td>  -  </td></tr>
         <tr><td> 401 </td><td> Unauthorized. Possible causes: Invalid API key. </td><td>  -  </td></tr>
-        <tr><td> 500 </td><td> Internal server error </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
     public ApiResponse<IndexList> listIndexesWithHttpInfo() throws ApiException {
@@ -1297,8 +1297,8 @@ public class ManageIndexesApi {
     }
 
     /**
-     *  (asynchronously)
-     * This operation returns a list of your Pinecone indexes.
+     * List indexes (asynchronously)
+     * This operation returns a list of all indexes in a project.
      * @param _callback The callback to be executed when the API call finishes
      * @return The request call
      * @throws ApiException If fail to process the API call, e.g. serializing the request body object
@@ -1307,7 +1307,7 @@ public class ManageIndexesApi {
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
         <tr><td> 200 </td><td> This operation returns a list of all the indexes that you have previously created, and which are associated with the given project </td><td>  -  </td></tr>
         <tr><td> 401 </td><td> Unauthorized. Possible causes: Invalid API key. </td><td>  -  </td></tr>
-        <tr><td> 500 </td><td> Internal server error </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
     public okhttp3.Call listIndexesAsync(final ApiCallback<IndexList> _callback) throws ApiException {

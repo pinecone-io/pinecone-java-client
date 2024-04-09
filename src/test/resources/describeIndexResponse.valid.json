@@ -1,0 +1,16 @@
+{
+  "name": "test-index",
+  "dimension": 1536,
+  "metric": "cosine",
+  "status": {
+    "ready": true,
+    "state": "Ready"
+  },
+  "host": "https://index-host.com",
+  "spec": {
+    "serverless": {
+      "cloud": "aws",
+      "region": "us-east2-gcp"
+    }
+  }
+}

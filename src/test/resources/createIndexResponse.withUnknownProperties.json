@@ -1,0 +1,19 @@
+{
+  "name": "serverless-index",
+  "metric": "cosine",
+  "dimension": 1536,
+  "ux_feedback": "much wow",
+  "status": {
+    "ready": true,
+    "state": "Ready",
+    "reticulating_splines": true
+  },
+  "host": "serverless-index-4zo0ijk.svc.dev-us-west2-aws.pinecone.io",
+  "spec": {
+    "serverless": {
+      "region": "us-west-2",
+      "cloud": "aws",
+      "weather_forecast": "partly sunny"
+    }
+  }
+}
