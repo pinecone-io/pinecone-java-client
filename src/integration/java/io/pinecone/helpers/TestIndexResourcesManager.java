@@ -145,7 +145,7 @@ public class TestIndexResourcesManager {
         
         // Explicitly wait after ready to avoid the "no healthy upstream" issue
         Thread.sleep(30000);
-
+        
         // Seed default vector IDs into default namespace
         seedIndex(vectorIdsForDefaultNamespace, indexName, defaultNamespace);
 
