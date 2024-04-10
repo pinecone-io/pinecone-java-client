@@ -16,7 +16,7 @@ import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * The Pinecone class is the main entry point for interacting with Pinecone via this Java SDK.
+ * The Pinecone class is the main entry point for interacting with Pinecone via the Java SDK.
  * It is used to create, delete, and manage your indexes and collections.
  * <p>
  * Instantiating the Pinecone class requires you to leverage the {@link Pinecone.Builder} class to pass
@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *     import io.pinecone.clients.Pinecone;
  *     import org.openapitools.client.model.ListResponse;
  *
- *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+ *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
  *
  *     // Use the client to interact with Pinecone
  *     ListResponse indexes = client.listIndexes();
@@ -48,7 +48,7 @@ public class Pinecone {
      * <pre>
      *     import io.pinecone.clients.Pinecone;
      *
-     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
      *
      *     client.createServerlessIndex("my-index", "cosine", 1536, "aws", "us-west-2");
      * </pre>
@@ -117,12 +117,12 @@ public class Pinecone {
     }
 
     /**
-     * Overload for creating a new pod index with environment and podType.
+     * Overload for creating a new pods index with environment and podType, the minimum required parameters.
      *
      * <pre>
      *     import io.pinecone.clients.Pinecone;
      *
-     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
      *
      *     client.createPodsIndex("my-index", 1536, "us-east4-gcp", "p1.x2");
      * </pre>
@@ -139,14 +139,14 @@ public class Pinecone {
     }
 
     /**
-     * Overload for creating a new pod index with environment, podType, and metric.
+     * Overload for creating a new pods index with environment, podType, and metric.
      *
      * <pre>
      *     import io.pinecone.clients.Pinecone;
      *
-     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
      *
-     *     client.createPodsIndex("my-index", 1536, "us-east4-gcp", "p1.x2", "euclidean");
+     *     client.createPodsIndex("my-index", 1536, "us-east4-gcp", "p1.x2", "cosine");
      * </pre>
      *
      * @param indexName the name of the index to be created.
@@ -163,16 +163,16 @@ public class Pinecone {
     }
 
     /**
-     * Overload for creating a new pod index with environment, podType, and metric, and metadataConfig.
+     * Overload for creating a new pods index with environment, podType, metric, and metadataConfig.
      *
      * <pre>
      *     import io.pinecone.clients.Pinecone;
      *     import org.openapitools.client.model.CreateIndexRequestSpecPodMetadataConfig;
      *
-     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
      *
      *     CreateIndexRequestSpecPodMetadataConfig metadataConfig = new CreateIndexRequestSpecPodMetadataConfig().fields(Arrays.asList("genre", "year"));
-     *     client.createPodsIndex("my-index", 1536, "us-east4-gcp", "p1.x2", "euclidean", metadataConfig);
+     *     client.createPodsIndex("my-index", 1536, "us-east4-gcp", "p1.x2", "cosine", metadataConfig);
      * </pre>
      *
      * @param indexName the name of the index to be created.
@@ -192,14 +192,14 @@ public class Pinecone {
     }
 
     /**
-     * Overload for creating a new pod index with environment, podType, and metric, and sourceCollection.
+     * Overload for creating a new pods index with environment, podType, metric, and sourceCollection.
      *
      * <pre>
      *     import io.pinecone.clients.Pinecone;
      *
-     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
      *
-     *     client.createPodsIndex("my-index", 1536, "us-east4-gcp", "p1.x2", "euclidean", "my-collection");
+     *     client.createPodsIndex("my-index", 1536, "us-east4-gcp", "p1.x2", "cosine", "my-collection");
      * </pre>
      *
      * @param indexName the name of the index to be created.
@@ -207,7 +207,7 @@ public class Pinecone {
      * @param environment the cloud environment where you want the index to be hosted.
      * @param podType the type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
      * @param metric the metric type for the index. Must be one of "cosine", "euclidean", or "dot_product".
-     * @param sourceCollection the name of the collection to be used as the source for the index.
+     * @param sourceCollection the name of the collection to be used as the source for the index. Collections are snapshots of an index at a point in time.
      * @return {@link IndexModel} representing the created serverless index.
      * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
      */
@@ -218,14 +218,14 @@ public class Pinecone {
     }
 
     /**
-     * Overload for creating a new pod index with environment, podType, and pods.
+     * Overload for creating a new pods index with environment, podType, and pods.
      *
      * <pre>
      *     import io.pinecone.clients.Pinecone;
      *
-     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
      *
-     *     client.createPodsIndex("my-index", 1536, "us-east4-gcp", "p1.x2", "euclidean", 6);
+     *     client.createPodsIndex("my-index", 1536, "us-east4-gcp", "p1.x2", "cosine", 6);
      * </pre>
      *
      * @param indexName the name of the index to be created.
@@ -242,16 +242,16 @@ public class Pinecone {
     }
 
     /**
-     * Overload for creating a new pod index with environment, podType, pods, and metadataConfig.
+     * Overload for creating a new pods index with environment, podType, pods, and metadataConfig.
      *
      * <pre>
      *     import io.pinecone.clients.Pinecone;
      *     import org.openapitools.client.model.CreateIndexRequestSpecPodMetadataConfig;
      *
-     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
      *
      *     CreateIndexRequestSpecPodMetadataConfig metadataConfig = new CreateIndexRequestSpecPodMetadataConfig().fields(Arrays.asList("genre", "year"));
-     *     client.createPodsIndex("my-index", 1536, "us-east4-gcp", "p1.x2", "euclidean", 6);
+     *     client.createPodsIndex("my-index", 1536, "us-east4-gcp", "p1.x2", "cosine", 6);
      * </pre>
      *
      * @param indexName the name of the index to be created.
@@ -270,14 +270,14 @@ public class Pinecone {
     }
 
     /**
-     * Overload for creating a new pod index with environment, podType, replicas, and shards.
+     * Overload for creating a new pods index with environment, podType, replicas, and shards.
      *
      * <pre>
      *     import io.pinecone.clients.Pinecone;
      *
-     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
      *
-     *     client.createPodsIndex("my-index", 1536, "us-east4-gcp", "p1.x2", "euclidean", 2, 2);
+     *     client.createPodsIndex("my-index", 1536, "us-east4-gcp", "p1.x2", "cosine", 2, 2);
      * </pre>
      *
      * @param indexName the name of the index to be created.
@@ -296,16 +296,16 @@ public class Pinecone {
     }
 
     /**
-     * Overload for creating a new pod index with environment, podType, replicas, shards, and metadataConfig.
+     * Overload for creating a new pods index with environment, podType, replicas, shards, and metadataConfig.
      *
      * <pre>
      *     import io.pinecone.clients.Pinecone;
      *     import org.openapitools.client.model.CreateIndexRequestSpecPodMetadataConfig;
      *
-     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
      *
      *     CreateIndexRequestSpecPodMetadataConfig metadataConfig = new CreateIndexRequestSpecPodMetadataConfig().fields(Arrays.asList("genre", "year"));
-     *     client.createPodsIndex("my-index", 1536, "us-east4-gcp", "p1.x2", "euclidean", 2, 2, metadataConfig);
+     *     client.createPodsIndex("my-index", 1536, "us-east4-gcp", "p1.x2", "cosine", 2, 2, metadataConfig);
      * </pre>
      *
      * @param indexName the name of the index to be created.
@@ -326,13 +326,13 @@ public class Pinecone {
     }
 
     /**
-     * Creates a new pod index with the specified parameters.
+     * Creates a new pods index with the specified parameters.
      *
      * <pre>
      *     import io.pinecone.clients.Pinecone;
      *     import org.openapitools.client.model.CreateIndexRequestSpecPodMetadataConfig;
      *
-     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
      *
      *     CreateIndexRequestSpecPodMetadataConfig metadataConfig = new CreateIndexRequestSpecPodMetadataConfig().fields(Arrays.asList("genre", "year"));
      *     client.createPodsIndex("my-index", 1536, "us-east4-gcp", "p1.x2", "cosine", 2, 2, 4, null, null);
@@ -348,7 +348,7 @@ public class Pinecone {
      * @param pods the number of pods to be used in the index. This should be equal to shards x replicas.
      * @param metadataConfig the configuration for the behavior of Pinecone's internal metadata index. By default, all metadata is indexed;
      *                       when metadataConfig is present, only specified metadata fields are indexed.
-     * @param sourceCollection the name of the collection to be used as the source for the index.
+     * @param sourceCollection the name of the collection to be used as the source for the index. Collections are snapshots of an index at a point in time.
      * @return {@link IndexModel} representing the created serverless index.
      * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
      */
@@ -434,7 +434,7 @@ public class Pinecone {
      *     import io.pinecone.clients.Pinecone;
      *     import org.openapitools.client.model.IndexModel;
      *
-     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
      *
      *     IndexModel index = client.describeIndex("my-index");
      *     System.out.println("Your index is hosted at: " + index.getHost());
@@ -461,7 +461,7 @@ public class Pinecone {
      *     import io.pinecone.clients.Pinecone;
      *     import org.openapitools.client.model.IndexModel;
      *
-     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
      *
      *     // Make a configuration change
      *     IndexModel index = client.configureIndex("my-index", "p1.x2", 4);
@@ -517,7 +517,7 @@ public class Pinecone {
      *     import io.pinecone.clients.Pinecone;
      *     import org.openapitools.client.model.IndexModel;
      *
-     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
      *
      *     IndexModel index = client.configureIndex("my-index", 4);
      * </pre>
@@ -538,7 +538,7 @@ public class Pinecone {
      *     import io.pinecone.clients.Pinecone;d
      *     import org.openapitools.client.model.IndexModel;
      *
-     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
      *
      *     IndexModel index = client.configureIndex("my-index", "p1.x2");
      * </pre>
@@ -559,7 +559,7 @@ public class Pinecone {
      *     import io.pinecone.clients.Pinecone;
      *     import org.openapitools.client.model.IndexList;
      *
-     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
      *
      *     IndexList indexes = client.listIndexes();
      * </pre>
@@ -593,7 +593,7 @@ public class Pinecone {
      *     import io.pinecone.clients.Pinecone;
      *     import org.openapitools.client.model.IndexModel;
      *
-     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
      *
      *     // Delete an index
      *     client.deleteIndex("my-index");
@@ -621,7 +621,7 @@ public class Pinecone {
      *     import io.pinecone.clients.Pinecone;
      *     import org.openapitools.client.model.CollectionModel;
      *
-     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
      *
      *     CollectionModel collection = client.createCollection("my-collection", "my-source-index");
      * </pre>
@@ -659,7 +659,7 @@ public class Pinecone {
      *     import io.pinecone.clients.Pinecone;
      *     import org.openapitools.client.model.CollectionModel;
      *
-     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
      *
      *     CollectionModel collection = client.describeCollection("my-collection");
      * </pre>
@@ -685,7 +685,7 @@ public class Pinecone {
      *     import io.pinecone.clients.Pinecone;
      *     import org.openapitools.client.model.CollectionList;
      *
-     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
      *
      *     CollectionList collections = client.listCollections();
      * </pre>
@@ -713,7 +713,7 @@ public class Pinecone {
      * <pre>
      *     import io.pinecone.clients.Pinecone;
      *
-     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
      *
      *     client.deleteCollection('my-collection');
      *
@@ -741,7 +741,7 @@ public class Pinecone {
      *     import io.pinecone.clients.Pinecone;
      *     import io.pinecone.clients.Index;
      *
-     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
      *     Index index = client.getIndexConnection("my-index");
      *
      *     // Use the index object to interact with the index
@@ -771,7 +771,7 @@ public class Pinecone {
      *     import io.pinecone.clients.Pinecone;
      *     import io.pinecone.clients.AsyncIndex;
      *
-     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
      *     AsyncIndex asyncIndex = client.getAsyncIndexConnection("my-index");
      *
      *     // Use the index object to interact with the index
@@ -835,7 +835,7 @@ public class Pinecone {
          *     import io.pinecone.clients.Pinecone;
          *     import org.openapitools.client.model.IndexList;
          *
-         *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+         *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
          *
          *     // Use the client to interact with Pinecone
          *     IndexList indexes = client.listIndexes();
@@ -854,7 +854,7 @@ public class Pinecone {
          *     import io.pinecone.clients.Pinecone;
          *     import org.openapitools.client.model.IndexList;
          *
-         *     Pinecone client = new Pinecone.Builder("your-api-key").withSourceTag("my-source-tag").build();
+         *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).withSourceTag("my-source-tag").build();
          *
          *     // The tag will be included as a header in all requests made by the client
          *     IndexList indexes = client.listIndexes();
@@ -877,7 +877,7 @@ public class Pinecone {
          *     import okhttp3.*;
          *
          *     OkHttpClient myClient = new OkHttpClient();
-         *     Pinecone client = new Pinecone.Builder("your-api-key").withOkHttpClient(myClient).build();
+         *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).withOkHttpClient(myClient).build();
          *
          *     // Network requests will now be made using your custom OkHttpClient
          *     IndexList indexes = client.listIndexes();
