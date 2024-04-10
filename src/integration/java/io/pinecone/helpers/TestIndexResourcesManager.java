@@ -112,7 +112,7 @@ public class TestIndexResourcesManager {
         waitUntilIndexIsReady(pineconeClient, indexName);
 
         // Explicitly wait after ready to avoid the "no healthy upstream" issue
-        Thread.sleep(10000);
+        Thread.sleep(30000);
 
         // Seed data
         seedIndex(podIndexVectorIds, indexName);

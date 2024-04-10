@@ -92,11 +92,11 @@ public class CollectionTest {
         waitUntilIndexIsReady(pineconeClient, newIndexName, 120000);
 
         IndexModel indexDescription = pineconeClient.describeIndex(newIndexName);
+        assertEquals(indexDescription.getName(), newIndexName);
+        assertEquals(indexDescription.getSpec().getPod().getSourceCollection(), collectionName);
 
-        assertWithRetry(() -> {
-            assertEquals(indexDescription.getName(), newIndexName);
-            assertEquals(indexDescription.getSpec().getPod().getSourceCollection(), collectionName);
-        }, 3);
+        // Wait to try and avoid "no healthy upstream" before interacting with the new index
+        Thread.sleep(30000);
 
         // If the index is ready, validate contents
         if (indexDescription.getStatus().getReady()) {
