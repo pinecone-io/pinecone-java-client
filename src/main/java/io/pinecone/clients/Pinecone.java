@@ -386,7 +386,7 @@ public class Pinecone {
     }
 
 
-    private static void validatePodIndexParams(String indexName, Integer dimension, String environment,
+    public static void validatePodIndexParams(String indexName, Integer dimension, String environment,
                                               String podType, String metric,
                                               Integer replicas, Integer shards, Integer pods) {
 
