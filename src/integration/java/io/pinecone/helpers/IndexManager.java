@@ -52,12 +52,13 @@ public class IndexManager {
 
         if (indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_POD)) {
             pinecone.createPodsIndex(indexName, dimension, environment, "p1.x1");
+            pinecone.createPodsIndex(indexName, dimension, environment, "p1.x1", "dotproduct");
             if (waitUntilIndexIsReady) {
                 waitUntilIndexIsReady(pinecone, indexName);
             }
             return indexName;
         } else {
-            pinecone.createServerlessIndex(indexName, "cosine", dimension, ServerlessSpec.CloudEnum.AWS.toString(), "us-west-2");
+            pinecone.createServerlessIndex(indexName, "dotproduct", dimension, ServerlessSpec.CloudEnum.AWS.toString(), "us-west-2");
             if (waitUntilIndexIsReady) {
                 waitUntilIndexIsReady(pinecone, indexName);
             }

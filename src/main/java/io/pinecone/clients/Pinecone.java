@@ -54,7 +54,7 @@ public class Pinecone {
      * </pre>
      *
      * @param indexName the name of the index to be created.
-     * @param metric the metric type for the index. Must be one of "cosine", "euclidean", or "dot_product".
+     * @param metric the metric type for the index. Must be one of "cosine", "euclidean", or "dotproduct".
      * @param dimension the number of dimensions for the index.
      * @param cloud the cloud provider for the index.
      * @param region the cloud region for the index.
@@ -153,7 +153,7 @@ public class Pinecone {
      * @param dimension the number of dimensions for the index.
      * @param environment the cloud environment where you want the index to be hosted.
      * @param podType the type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
-     * @param metric the metric type for the index. Must be one of "cosine", "euclidean", or "dot_product".
+     * @param metric the metric type for the index. Must be one of "cosine", "euclidean", or "dotproduct".
      * @return {@link IndexModel} representing the created serverless index.
      * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
      */
@@ -179,7 +179,7 @@ public class Pinecone {
      * @param dimension the number of dimensions for the index.
      * @param environment the cloud environment where you want the index to be hosted.
      * @param podType the type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
-     * @param metric the metric type for the index. Must be one of "cosine", "euclidean", or "dot_product".
+     * @param metric the metric type for the index. Must be one of "cosine", "euclidean", or "dotproduct".
      * @param metadataConfig the configuration for the behavior of Pinecone's internal metadata index. By default, all metadata is indexed;
      *                       when metadataConfig is present, only specified metadata fields are indexed.
      * @return {@link IndexModel} representing the created serverless index.
@@ -206,7 +206,7 @@ public class Pinecone {
      * @param dimension the number of dimensions for the index.
      * @param environment the cloud environment where you want the index to be hosted.
      * @param podType the type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
-     * @param metric the metric type for the index. Must be one of "cosine", "euclidean", or "dot_product".
+     * @param metric the metric type for the index. Must be one of "cosine", "euclidean", or "dotproduct".
      * @param sourceCollection the name of the collection to be used as the source for the index. Collections are snapshots of an index at a point in time.
      * @return {@link IndexModel} representing the created serverless index.
      * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
@@ -342,7 +342,7 @@ public class Pinecone {
      * @param dimension the number of dimensions for the index.
      * @param environment the cloud environment where you want the index to be hosted.
      * @param podType the type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
-     * @param metric the metric type for the index. Must be one of "cosine", "euclidean", or "dot_product".
+     * @param metric the metric type for the index. Must be one of "cosine", "euclidean", or "dotproduct".
      * @param replicas the number of replicas. Replicas duplicate your index. They provide higher availability and throughput and can be scaled.
      * @param shards the number of shards. Shards split your data across multiple pods so you can fit more data into an index.
      * @param pods the number of pods to be used in the index. This should be equal to shards x replicas.
