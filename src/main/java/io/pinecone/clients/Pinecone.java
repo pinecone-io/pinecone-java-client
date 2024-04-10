@@ -70,12 +70,10 @@ public class Pinecone {
         if (metric == null || metric.isEmpty()) {
             throw new PineconeValidationException("Metric cannot be null or empty. Must be one of " + Arrays.toString(IndexMetric.values()));
         }
-        else {
-            try {
-                IndexMetric.fromValue(metric.toLowerCase());
-            } catch (IllegalArgumentException e) {
-                throw new PineconeValidationException("Metric cannot be null or empty. Must be one of " + Arrays.toString(IndexMetric.values()));
-            }
+        try {
+            IndexMetric.fromValue(metric.toLowerCase());
+        } catch (IllegalArgumentException e) {
+            throw new PineconeValidationException("Metric cannot be null or empty. Must be one of " + Arrays.toString(IndexMetric.values()));
         }
 
         if (dimension < 1) {
@@ -85,12 +83,10 @@ public class Pinecone {
         if (cloud == null || cloud.isEmpty()) {
             throw new PineconeValidationException("Cloud cannot be null or empty. Must be one of " + Arrays.toString(ServerlessSpec.CloudEnum.values()));
         }
-        else {
-            try {
-                ServerlessSpec.CloudEnum.fromValue(cloud.toLowerCase());
-            } catch (IllegalArgumentException e) {
-                throw new PineconeValidationException("Cloud cannot be null or empty. Must be one of " + Arrays.toString(ServerlessSpec.CloudEnum.values()));
-            }
+        try {
+            ServerlessSpec.CloudEnum.fromValue(cloud.toLowerCase());
+        } catch (IllegalArgumentException e) {
+            throw new PineconeValidationException("Cloud cannot be null or empty. Must be one of " + Arrays.toString(ServerlessSpec.CloudEnum.values()));
         }
 
         if (region == null || region.isEmpty()) {
@@ -767,7 +763,7 @@ public class Pinecone {
     }
 
     /**
-     * Retrieves a connection to a specific index for synchronous operations. This method initializes
+     * Retrieves a connection to a specific index for asynchronous operations. This method initializes
      * and returns an {@link AsyncIndex} object that represents a connection to an index and allowing for
      * synchronous operations against it.
      *
