@@ -120,79 +120,242 @@ public class Pinecone {
         return indexModel;
     }
 
-    // Minimal
+    /**
+     * Overload for creating a new pod index with environment and podType.
+     *
+     * <pre>
+     *     import io.pinecone.clients.Pinecone;
+     *
+     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *
+     *     client.createPodsIndex("my-index", 1536, "us-east4-gcp", "p1.x2");
+     * </pre>
+     *
+     * @param indexName the name of the index to be created.
+     * @param dimension the number of dimensions for the index.
+     * @param environment the cloud environment where you want the index to be hosted.
+     * @param podType the type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
+     * @return {@link IndexModel} representing the created serverless index.
+     * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
+     */
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment, String podType) {
-        validatePodIndexParams(indexName, dimension, environment, podType, null, null, null, null);
-
         return createPodsIndex(indexName, dimension, environment, podType, null, null, null, null, null, null);
     }
 
-    // Minimal + metric
+    /**
+     * Overload for creating a new pod index with environment, podType, and metric.
+     *
+     * <pre>
+     *     import io.pinecone.clients.Pinecone;
+     *
+     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *
+     *     client.createPodsIndex("my-index", 1536, "us-east4-gcp", "p1.x2", "euclidean");
+     * </pre>
+     *
+     * @param indexName the name of the index to be created.
+     * @param dimension the number of dimensions for the index.
+     * @param environment the cloud environment where you want the index to be hosted.
+     * @param podType the type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
+     * @param metric the metric type for the index. Must be one of "cosine", "euclidean", or "dot_product".
+     * @return {@link IndexModel} representing the created serverless index.
+     * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
+     */
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String podType, String metric) {
-        validatePodIndexParams(indexName, dimension, environment, podType, metric, null, null, null);
-
         return createPodsIndex(indexName, dimension, environment, podType, metric, null, null, null, null, null);
     }
 
-    // Minimal + metadata
+    /**
+     * Overload for creating a new pod index with environment, podType, and metric, and metadataConfig.
+     *
+     * <pre>
+     *     import io.pinecone.clients.Pinecone;
+     *     import org.openapitools.client.model.CreateIndexRequestSpecPodMetadataConfig;
+     *
+     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *
+     *     CreateIndexRequestSpecPodMetadataConfig metadataConfig = new CreateIndexRequestSpecPodMetadataConfig().fields(Arrays.asList("genre", "year"));
+     *     client.createPodsIndex("my-index", 1536, "us-east4-gcp", "p1.x2", "euclidean", metadataConfig);
+     * </pre>
+     *
+     * @param indexName the name of the index to be created.
+     * @param dimension the number of dimensions for the index.
+     * @param environment the cloud environment where you want the index to be hosted.
+     * @param podType the type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
+     * @param metric the metric type for the index. Must be one of "cosine", "euclidean", or "dot_product".
+     * @param metadataConfig the configuration for the behavior of Pinecone's internal metadata index. By default, all metadata is indexed;
+     *                       when metadataConfig is present, only specified metadata fields are indexed.
+     * @return {@link IndexModel} representing the created serverless index.
+     * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
+     */
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String podType, String metric, CreateIndexRequestSpecPodMetadataConfig metadataConfig) {
-        validatePodIndexParams(indexName, dimension, environment, podType, metric, null, null, null);
-
-
         return createPodsIndex(indexName, dimension, environment, podType, metric, null, null, null, metadataConfig,
                 null);
     }
 
-    // Minimal + source collection
+    /**
+     * Overload for creating a new pod index with environment, podType, and metric, and sourceCollection.
+     *
+     * <pre>
+     *     import io.pinecone.clients.Pinecone;
+     *
+     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *
+     *     client.createPodsIndex("my-index", 1536, "us-east4-gcp", "p1.x2", "euclidean", "my-collection");
+     * </pre>
+     *
+     * @param indexName the name of the index to be created.
+     * @param dimension the number of dimensions for the index.
+     * @param environment the cloud environment where you want the index to be hosted.
+     * @param podType the type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
+     * @param metric the metric type for the index. Must be one of "cosine", "euclidean", or "dot_product".
+     * @param sourceCollection the name of the collection to be used as the source for the index.
+     * @return {@link IndexModel} representing the created serverless index.
+     * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
+     */
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String podType, String metric, String sourceCollection) {
-        validatePodIndexParams(indexName, dimension, environment, podType, metric, null, null, null);
-
         return createPodsIndex(indexName, dimension, environment, podType, metric, null, null, null, null,
                 sourceCollection);
     }
 
-    // Minimal + pods
+    /**
+     * Overload for creating a new pod index with environment, podType, and pods.
+     *
+     * <pre>
+     *     import io.pinecone.clients.Pinecone;
+     *
+     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *
+     *     client.createPodsIndex("my-index", 1536, "us-east4-gcp", "p1.x2", "euclidean", 6);
+     * </pre>
+     *
+     * @param indexName the name of the index to be created.
+     * @param dimension the number of dimensions for the index.
+     * @param environment the cloud environment where you want the index to be hosted.
+     * @param podType the type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
+     * @param pods the number of pods to be used in the index.
+     * @return {@link IndexModel} representing the created serverless index.
+     * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
+     */
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String podType, Integer pods) {
-        validatePodIndexParams(indexName, dimension, environment, podType, null, null, null, pods);
-
         return createPodsIndex(indexName, dimension, environment, podType, null, null, null, pods, null, null);
     }
 
-    // Minimal + pods + metadata
+    /**
+     * Overload for creating a new pod index with environment, podType, pods, and metadataConfig.
+     *
+     * <pre>
+     *     import io.pinecone.clients.Pinecone;
+     *     import org.openapitools.client.model.CreateIndexRequestSpecPodMetadataConfig;
+     *
+     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *
+     *     CreateIndexRequestSpecPodMetadataConfig metadataConfig = new CreateIndexRequestSpecPodMetadataConfig().fields(Arrays.asList("genre", "year"));
+     *     client.createPodsIndex("my-index", 1536, "us-east4-gcp", "p1.x2", "euclidean", 6);
+     * </pre>
+     *
+     * @param indexName the name of the index to be created.
+     * @param dimension the number of dimensions for the index.
+     * @param environment the cloud environment where you want the index to be hosted.
+     * @param podType the type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
+     * @param pods the number of pods to be used in the index.
+     * @return {@link IndexModel} representing the created serverless index.
+     * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
+     */
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String podType, Integer pods,
                                       CreateIndexRequestSpecPodMetadataConfig metadataConfig) {
-        validatePodIndexParams(indexName, dimension, environment, podType, null, null, null, pods);
-
         return createPodsIndex(indexName, dimension, environment, podType, null, null, null, pods, metadataConfig,
                 null);
     }
 
-    // Minimal + replicas, shards
+    /**
+     * Overload for creating a new pod index with environment, podType, replicas, and shards.
+     *
+     * <pre>
+     *     import io.pinecone.clients.Pinecone;
+     *
+     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *
+     *     client.createPodsIndex("my-index", 1536, "us-east4-gcp", "p1.x2", "euclidean", 2, 2);
+     * </pre>
+     *
+     * @param indexName the name of the index to be created.
+     * @param dimension the number of dimensions for the index.
+     * @param environment the cloud environment where you want the index to be hosted.
+     * @param podType the type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
+     * @param replicas the number of replicas. Replicas duplicate your index. They provide higher availability and throughput and can be scaled.
+     * @param shards the number of shards. Shards split your data across multiple pods so you can fit more data into an index.
+     * @return {@link IndexModel} representing the created serverless index.
+     * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
+     */
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String podType, Integer replicas,
                                       Integer shards) {
-        validatePodIndexParams(indexName, dimension, environment, podType, null, replicas, shards, null);
-
         return createPodsIndex(indexName, dimension, environment, podType, null, replicas, shards, null, null, null);
     }
 
-    // Minimal + replicas, shards + metadata
+    /**
+     * Overload for creating a new pod index with environment, podType, replicas, shards, and metadataConfig.
+     *
+     * <pre>
+     *     import io.pinecone.clients.Pinecone;
+     *     import org.openapitools.client.model.CreateIndexRequestSpecPodMetadataConfig;
+     *
+     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *
+     *     CreateIndexRequestSpecPodMetadataConfig metadataConfig = new CreateIndexRequestSpecPodMetadataConfig().fields(Arrays.asList("genre", "year"));
+     *     client.createPodsIndex("my-index", 1536, "us-east4-gcp", "p1.x2", "euclidean", 2, 2, metadataConfig);
+     * </pre>
+     *
+     * @param indexName the name of the index to be created.
+     * @param dimension the number of dimensions for the index.
+     * @param environment the cloud environment where you want the index to be hosted.
+     * @param podType the type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
+     * @param replicas the number of replicas. Replicas duplicate your index. They provide higher availability and throughput and can be scaled.
+     * @param shards the number of shards. Shards split your data across multiple pods so you can fit more data into an index.
+     * @return {@link IndexModel} representing the created serverless index.
+     * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
+     */
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String podType, Integer replicas,
                                       Integer shards, CreateIndexRequestSpecPodMetadataConfig metadataConfig) {
-        validatePodIndexParams(indexName, dimension, environment, podType, null, replicas, shards, null);
-
         return createPodsIndex(indexName, dimension, environment, podType, null, replicas, shards, null,
                 metadataConfig,
                 null);
     }
 
-    // Max
+    /**
+     * Creates a new pod index with the specified parameters.
+     *
+     * <pre>
+     *     import io.pinecone.clients.Pinecone;
+     *     import org.openapitools.client.model.CreateIndexRequestSpecPodMetadataConfig;
+     *
+     *     Pinecone client = new Pinecone.Builder("your-api-key").build();
+     *
+     *     CreateIndexRequestSpecPodMetadataConfig metadataConfig = new CreateIndexRequestSpecPodMetadataConfig().fields(Arrays.asList("genre", "year"));
+     *     client.createPodsIndex("my-index", 1536, "us-east4-gcp", "p1.x2", "cosine", 2, 2, 4, null, null);
+     * </pre>
+     *
+     * @param indexName the name of the index to be created.
+     * @param dimension the number of dimensions for the index.
+     * @param environment the cloud environment where you want the index to be hosted.
+     * @param podType the type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
+     * @param metric the metric type for the index. Must be one of "cosine", "euclidean", or "dot_product".
+     * @param replicas the number of replicas. Replicas duplicate your index. They provide higher availability and throughput and can be scaled.
+     * @param shards the number of shards. Shards split your data across multiple pods so you can fit more data into an index.
+     * @param pods the number of pods to be used in the index. This should be equal to shards x replicas.
+     * @param metadataConfig the configuration for the behavior of Pinecone's internal metadata index. By default, all metadata is indexed;
+     *                       when metadataConfig is present, only specified metadata fields are indexed.
+     * @param sourceCollection the name of the collection to be used as the source for the index.
+     * @return {@link IndexModel} representing the created serverless index.
+     * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
+     */
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String podType, String metric,
                                       Integer replicas, Integer shards, Integer pods,
@@ -223,7 +386,7 @@ public class Pinecone {
     }
 
 
-    public static void validatePodIndexParams(String indexName, Integer dimension, String environment,
+    private static void validatePodIndexParams(String indexName, Integer dimension, String environment,
                                               String podType, String metric,
                                               Integer replicas, Integer shards, Integer pods) {
 
