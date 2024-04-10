@@ -49,7 +49,6 @@ public class IndexManager {
     public static String createNewIndex(Pinecone pinecone, int dimension, String indexType, boolean waitUntilIndexIsReady) throws InterruptedException {
         String indexName = RandomStringBuilder.build("index-name", 8);
         String environment = System.getenv("PINECONE_ENVIRONMENT");
-        CreateIndexRequestSpec createIndexRequestSpec;
 
         if (indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_POD)) {
             pinecone.createPodsIndex(indexName, dimension, environment, "p1.x1");
@@ -69,7 +68,8 @@ public class IndexManager {
     public static Pinecone createNewIndex(Pinecone pinecone, String indexName, int dimension,
                                           String metric, String sourceCollection, boolean waitUntilIndexIsReady) throws InterruptedException,
             PineconeException {
-        pinecone.createPodsIndex(indexName, dimension, "us-east4-gcp", "p1.x1", metric, sourceCollection);
+        String environment = System.getenv("PINECONE_ENVIRONMENT");
+        pinecone.createPodsIndex(indexName, dimension, environment, "p1.x1", metric, sourceCollection);
 
         if (waitUntilIndexIsReady) {
             waitUntilIndexIsReady(pinecone, indexName);
