@@ -17,7 +17,6 @@ public class CreateDescribeListAndDeleteIndexTest {
 
     private static final TestIndexResourcesManager indexManager = TestIndexResourcesManager.getInstance();
     // Serverless currently has limited availability in specific regions, hard-code us-west-2 for now
-    private static final String serverlessRegion = "us-west-2";
     private static final Pinecone controlPlaneClient = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
     private static String indexName;
     private static int dimension;
