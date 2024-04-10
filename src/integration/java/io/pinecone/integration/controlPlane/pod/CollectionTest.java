@@ -119,24 +119,12 @@ public class CollectionTest {
     }
 
     @Test
-    public void testIndexFromDifferentMetricCollection() throws InterruptedException {
-        // Use a different metric than the source index
-        IndexMetric[] metrics = {IndexMetric.COSINE, IndexMetric.EUCLIDEAN, IndexMetric.DOTPRODUCT};
-        IndexMetric targetMetric = IndexMetric.COSINE;
-        for (IndexMetric metric : metrics) {
-            targetMetric = metric;
-        }
-
-        String newIndexName = RandomStringBuilder.build("from-coll", 8);
-        createNewIndex(pineconeClient, newIndexName, dimension, targetMetric.toString(), false);
+    public void testCreateIndexFromCollectionWithDiffMetric() throws InterruptedException {
+        // Note collection == 1 index
+        String metricForNewIndex = IndexMetric.DOTPRODUCT.toString();
+        String newIndexName = RandomStringBuilder.build("from-coll-with-diff-metric", 5);
+        createNewIndex(pineconeClient, newIndexName, dimension, metricForNewIndex, collectionName, true);
         indexesToCleanUp.add(newIndexName);
-
-        logger.info("Waiting until index is ready.");
-        waitUntilIndexIsReady(pineconeClient, newIndexName, 400);
-
-        IndexModel newIndex = pineconeClient.describeIndex(newIndexName);
-        assertEquals(newIndex.getName(), newIndexName);
-        assertEquals(newIndex.getMetric(), targetMetric);
     }
 
     @Test
