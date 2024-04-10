@@ -8,7 +8,7 @@ The Pinecone Java client lets JVM applications interact with Pinecone services.
 
 ## Installation
 
-*pinecone-client* can be installed from Maven Central for use as a maven dependency in the following ways:
+*pinecone-client* can be installed from [Maven Central](https://mvnrepository.com/repos/central) for use as a maven dependency in the following ways:
 
 Maven:
 ```
@@ -28,7 +28,9 @@ implementation "io.pinecone:pinecone-client:1.0.0-rc.4"
 
 [comment]: <> (^ [pc:VERSION_LATEST_RELEASE])
 
-Alternatively, you can use our standalone uberjar [pinecone-client-1.0.0-rc.4-all.jar](https://repo1.maven.org/maven2/io/pinecone/pinecone-client/1.0.0-rc.4/pinecone-client-1.0.0-rc.4-all.jar), which bundles the pinecone client and all dependencies together inside a single jar. You can include this on your classpath like any 3rd party JAR without having to obtain the *pinecone-client* dependencies separately.
+Alternatively, you can use our standalone uberjar [pinecone-client-1.0.0-rc.4-all.jar](https://repo1.maven.org/maven2/io/pinecone/pinecone-client/1.0.0-rc.4/pinecone-client-1.0.0-rc.4-all.jar), which bundles the pinecone 
+client and all dependencies together. You can include this in your classpath like you do with any 3rd party JAR without 
+having to obtain the *pinecone-client* dependencies separately.
 
 [comment]: <> (^ [pc:VERSION_LATEST_RELEASE])
 
@@ -36,17 +38,24 @@ Alternatively, you can use our standalone uberjar [pinecone-client-1.0.0-rc.4-al
 
 ### Initializing the client
 
-Before you can use the Pinecone SDK, you must sign up for an account and find your API key in the Pinecone console dashboard at [https://app.pinecone.io](https://app.pinecone.io).
+Before you can use the Pinecone Java SDK, you must sign up for a Pinecone account and find your API key in the Pinecone 
+console 
+dashboard at [https://app.pinecone.io](https://app.pinecone.io).
 
 #### Using apiKey
 
-The `Pinecone` class is your main entry point into the Pinecone java SDK. You can instantiate the client with apiKey.
+The `Pinecone` class is your main entry point into the Pinecone Java SDK. You can instantiate the client with 
+your `apiKey`, either by passing it as an argument in your code or by setting it as an environment variable called 
+`PINECONE_API_KEY`.
+
+Note: for pod-based indexes, you will also need an `environment` variable. You can set pass this as an argument in 
+your code or set it as an environment variable called `PINECONE_ENVIRONMENT`.
 
 ```java
 import io.pinecone.clients.Pinecone;
 import org.openapitools.client.model.*;
 
-public class IntializeClientExample {
+public class InitializeClientExample {
     public static void main(String[] args) {
         Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
     }
@@ -57,7 +66,7 @@ public class IntializeClientExample {
 ```java
 import io.pinecone.clients.Pinecone;
 
-public class IntializeClientExample {
+public class InitializeClientExample {
     public static void main(String[] args) {
         OkHttpClient.Builder builder = new OkHttpClient.Builder()
                 .connectTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
@@ -72,8 +81,11 @@ public class IntializeClientExample {
 ```
 
 # Indexes
+Operations related to the building and managing of Pinecone indexes are called [control plane](https://docs.pinecone.io/reference/api/introduction#control-plane) operations.
 
 ## Create Index
+You can use the Java SDK to create two types of indexes: [serverless indexes](https://docs.pinecone.io/guides/indexes/understanding-indexes#serverless-indexes) (recommended for most use cases) and 
+[pod-based indexes](https://docs.pinecone.io/guides/indexes/understanding-indexes#pod-based-indexes) (recommended for high-throughput use cases).
 
 ### Create a serverless index
 
@@ -88,22 +100,21 @@ import org.openapitools.client.model.*;
 public class CreateServerlessIndexExample {
     public static void main(String[] args) {
         Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
-        ServerlessSpec serverlessSpec = new ServerlessSpec().cloud(ServerlessSpec.CloudEnum.AWS).region("us-west-2");
-        CreateIndexRequestSpec createIndexRequestSpec = new CreateIndexRequestSpec().serverless(serverlessSpec);
-        CreateIndexRequest createIndexRequest = new CreateIndexRequest()
-                .name("example-index")
-                .metric(IndexMetric.COSINE)
-                .dimension(10)
-                .spec(createIndexRequestSpec);
-        pinecone.createIndex(createIndexRequest);
+        
+        String indexName = "example-index";
+        String similarityMetric = "cosine";
+        Integer dimension = 1538;
+        String cloud = "aws";
+        String region = "us-west-2";
+
+        pinecone.createServerlessIndex(indexName, similarityMetric, dimension, cloud, region);
     }
 }
 ```
 
 ### Create a pod index
-
-The following example creates an index without a metadata
-configuration. By default, Pinecone indexes all metadata.
+The following is a minimal example of creating a pod-based index. For all the possible configuration options, see 
+`main/java/io/pinecone/clients/Pinecone.java`.
 
 ```java
 import io.pinecone.clients.Pinecone;
@@ -112,21 +123,21 @@ import org.openapitools.client.model.*;
 public class CreatePodIndexExample {
     public static void main(String[] args) {
         Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
-        CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().environment("PINECONE_ENVIRONMENT").podType("p1.x1");
-        CreateIndexRequestSpec createIndexRequestSpec = new CreateIndexRequestSpec().pod(podSpec);
-        CreateIndexRequest createIndexRequest = new CreateIndexRequest()
-                .name("example-index")
-                .metric(IndexMetric.COSINE)
-                .dimension(10)
-                .spec(createIndexRequestSpec);
-        pinecone.createIndex(createIndexRequest);
+        
+        String indexName = "example-index";
+        String similarityMetric = "cosine"; // Optional; defaults to cosine similarity
+        Integer dimension = 1538;
+        String environment = "us-east-1-aws";
+        String podType = "p1.x1";
+        
+        pinecone.createPodsIndex(indexName, similarityMetric, dimension, environment, podType);
     }
 }
 ```
 
 ## List indexes
 
-The following example returns all indexes in your project.
+The following example returns all indexes (and their corresponding metadata) in your project.
 
 ```java
 import io.pinecone.clients.Pinecone;
@@ -135,7 +146,9 @@ import org.openapitools.client.model.*;
 public class ListIndexExample {
     public static void main(String[] args) {
         Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+        
         IndexList indexList = pinecone.listIndexes();
+        
         System.out.println(indexList);
     }
 }
@@ -143,7 +156,7 @@ public class ListIndexExample {
 
 ## Describe index
 
-The following example returns information about the index `example-index`.
+The following example returns metadata about an index.
 
 ```java
 import io.pinecone.clients.Pinecone;
@@ -152,7 +165,9 @@ import org.openapitools.client.model.*;
 public class DescribeIndexExample {
     public static void main(String[] args) {
         Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+        
         IndexModel indexModel = pinecone.describeIndex("example-index");
+        
         System.out.println(indexModel);
     }
 }
@@ -160,7 +175,7 @@ public class DescribeIndexExample {
 
 ## Delete an index
 
-The following example deletes the index named `example-index`.
+The following example deletes an index.
 
 ```java
 import io.pinecone.clients.Pinecone;
@@ -175,7 +190,9 @@ public class DeleteIndexExample {
 
 ## Scale replicas
 
-The following example changes the number of replicas for `example-index`.
+The following example changes the number of replicas for an index.
+
+Note: scaling replicas is only applicable to pod-based indexes.
 
 ```java
 import io.pinecone.clients.Pinecone;
@@ -184,10 +201,12 @@ import org.openapitools.client.model.*;
 public class ConfigureIndexExample {
     public static void main(String[] args) {
         Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
-        ConfigureIndexRequestSpecPod pod = new ConfigureIndexRequestSpecPod().replicas(4);
-        ConfigureIndexRequestSpec spec = new ConfigureIndexRequestSpec().pod(pod);
-        ConfigureIndexRequest configureIndexRequest = new ConfigureIndexRequest().spec(spec);
-        pinecone.configureIndex("example-index", configureIndexRequest);
+        
+        String indexName = "example-index";
+        String podType = "p1.x1";
+        Integer newNumberOfReplicas = 7;
+        
+        pinecone.configureIndex(indexName, podType, newNumberOfReplicas);
     }
 }
 
@@ -195,7 +214,7 @@ public class ConfigureIndexExample {
 
 ## Describe index statistics
 
-The following example returns statistics about the index `example-index`.
+The following example returns statistics about an index.
 
 ```java
 import io.pinecone.clients.Index;
@@ -208,6 +227,7 @@ public class DescribeIndexStatsExample {
 
         Index index = pinecone.getIndexConnection("example-index");
         DescribeIndexStatsResponse indexStatsResponse = index.describeIndexStats();
+        
         System.out.println(indexStatsResponse);
     }
 }
@@ -444,3 +464,4 @@ public class DeleteCollectionExample {
 ## Examples
 
 - The data and control plane operation examples can be found in `io/pinecone/integration` folder.
+- A full end-to-end Semantic Search example can be found in the [Java Examples](https://github.com/pinecone-io/java-examples/tree/main) repo on Github.
