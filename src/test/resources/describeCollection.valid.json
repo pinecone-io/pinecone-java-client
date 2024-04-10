@@ -1,0 +1,8 @@
+{
+  "dimension": 3,
+  "environment": "us-east1-gcp",
+  "name": "tiny-collection",
+  "size": 3126700,
+  "status": "Ready",
+  "vector_count": 99
+}

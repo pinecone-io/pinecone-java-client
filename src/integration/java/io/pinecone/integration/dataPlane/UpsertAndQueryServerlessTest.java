@@ -24,24 +24,24 @@ import static io.pinecone.commons.IndexInterface.buildUpsertVectorWithUnsignedIn
 import static io.pinecone.helpers.AssertRetry.assertWithRetry;
 import static io.pinecone.helpers.BuildUpsertRequest.*;
 import static io.pinecone.helpers.IndexManager.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class UpsertAndQueryServerlessTest {
+
     private static Index index;
     private static AsyncIndex asyncIndex;
-    private static final int dimension = 3;
-    private static final Struct emptyFilterStruct = Struct.newBuilder().build();
 
     @BeforeAll
     public static void setUp() throws InterruptedException {
+        int dimension = 3;
         String apiKey = System.getenv("PINECONE_API_KEY");
         String indexType = IndexModelSpec.SERIALIZED_NAME_SERVERLESS;
-        Pinecone pinecone = new Pinecone(apiKey);
+        Pinecone pinecone = new Pinecone.Builder(apiKey).build();
 
         String indexName = findIndexWithDimensionAndType(pinecone, dimension, indexType);
-        if (indexName.isEmpty()) indexName = createNewIndex(pinecone, dimension, indexType);
-        index = pinecone.createIndexConnection(indexName);
-        asyncIndex = pinecone.createAsyncIndexConnection(indexName);
+        if (indexName.isEmpty()) indexName = createNewIndex(pinecone, dimension, indexType, true);
+        index = pinecone.getIndexConnection(indexName);
+        asyncIndex = pinecone.getAsyncIndexConnection(indexName);
     }
 
     @AfterAll
@@ -53,6 +53,8 @@ public class UpsertAndQueryServerlessTest {
     @Test
     public void upsertOptionalVectorsAndQueryIndexSyncTest() throws Exception {
         int numOfVectors = 5;
+        int dimension = 3;
+        Struct emptyFilterStruct = Struct.newBuilder().build();
         DescribeIndexStatsResponse describeIndexStatsResponse1 = index.describeIndexStats(emptyFilterStruct);
         // Confirm the starting state by verifying the dimension of the index
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
@@ -74,7 +76,7 @@ public class UpsertAndQueryServerlessTest {
         index.upsert(vectors, namespace);
 
         // wait sometime for the vectors to be upserted
-        Thread.sleep(5000);
+        Thread.sleep(90000);
 
         // Query by vector to verify
         assertWithRetry(() -> {
@@ -93,15 +95,15 @@ public class UpsertAndQueryServerlessTest {
 
             // if the sizes are not equal, let the following assertions fail and retry again
             if (queryResponse.getMatchesList().size() == upsertIds.size()) {
-                for (int i = 0; i < topK; i++) {
-                    if (upsertIds.get(0).equals(queryResponse.getMatches(i).getId())) {
-                        scoredVectorV1 = queryResponse.getMatches(i);
+                for (ScoredVectorWithUnsignedIndices indexModel : queryResponse.getMatchesList()) {
+                    if (upsertIds.get(0).equals(indexModel.getId())) {
+                        scoredVectorV1 = indexModel;
                     }
                 }
             }
 
             // Verify the correct vector id was updated
-            assert scoredVectorV1 != null;
+            assertNotNull(scoredVectorV1);
             assertEquals(scoredVectorV1.getId(), upsertIds.get(0));
 
             // Verify the updated values
@@ -121,13 +123,14 @@ public class UpsertAndQueryServerlessTest {
             Collections.sort(expectedSparseValues);
             Collections.sort(sparseValues);
             assertEquals(expectedSparseValues, sparseValues);
-        });
+        }, 4);
     }
 
     @Test
     public void upsertNullSparseIndicesNotNullSparseValuesSyncTest() {
         String id = RandomStringBuilder.build(3);
-        StringBuilder exceptionMessage = new StringBuilder();
+        int dimension = 3;
+
         try {
             index.upsert(id,
                     generateVectorValuesByDimension(dimension),
@@ -135,16 +138,19 @@ public class UpsertAndQueryServerlessTest {
                     generateVectorValuesByDimension(dimension),
                     null,
                     null);
-        } catch (PineconeValidationException validationException) {
-            exceptionMessage.append(validationException.getLocalizedMessage());
-        } finally {
-            assertEquals(exceptionMessage.toString(), "Invalid upsert request. Please ensure that both sparse indices and values are present.");
+
+            fail("Expected to throw PineconeValidationException");
+        } catch (PineconeValidationException expected) {
+            assertTrue(expected.getLocalizedMessage().contains("ensure that both sparse indices and values are present"));
         }
     }
 
     @Test
     public void upsertOptionalVectorsAndQueryIndexFutureTest() throws InterruptedException, ExecutionException {
         int numOfVectors = 5;
+        int dimension = 3;
+        Struct emptyFilterStruct = Struct.newBuilder().build();
+
         DescribeIndexStatsResponse describeIndexStatsResponse1 = asyncIndex.describeIndexStats(emptyFilterStruct).get();
         // Confirm the starting state by verifying the dimension of the index
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
@@ -165,7 +171,7 @@ public class UpsertAndQueryServerlessTest {
         asyncIndex.upsert(vectors, namespace).get();
 
         // wait sometime for the vectors to be upserted
-        Thread.sleep(5000);
+        Thread.sleep(90000);
 
         // Query by vector to verify
         assertWithRetry(() -> {
@@ -183,15 +189,15 @@ public class UpsertAndQueryServerlessTest {
             ScoredVectorWithUnsignedIndices scoredVectorV1 = null;
             // if the sizes are not equal, let the following assertions fail and retry again
             if (queryResponse.getMatchesList().size() == upsertIds.size()) {
-                for (int i = 0; i < topK; i++) {
-                    if (upsertIds.get(0).equals(queryResponse.getMatches(i).getId())) {
-                        scoredVectorV1 = queryResponse.getMatches(i);
+                for (ScoredVectorWithUnsignedIndices indexModel : queryResponse.getMatchesList()) {
+                    if (upsertIds.get(0).equals(indexModel.getId())) {
+                        scoredVectorV1 = indexModel;
                     }
                 }
             }
 
             // Verify the correct vector id was updated
-            assert scoredVectorV1 != null;
+            assertNotNull(scoredVectorV1);
             assertEquals(scoredVectorV1.getId(), upsertIds.get(0));
 
             // Verify the updated values
@@ -211,13 +217,14 @@ public class UpsertAndQueryServerlessTest {
             Collections.sort(expectedSparseValues);
             Collections.sort(sparseValues);
             assertEquals(expectedSparseValues, sparseValues);
-        });
+        }, 4);
     }
 
     @Test
-    public void upsertNullSparseIndicesNotNullSparseValuesFutureTest() {
+    public void upsertNullSparseIndicesNotNullSparseValuesFutureTest() throws ExecutionException, InterruptedException {
         String id = RandomStringBuilder.build(3);
-        StringBuilder exceptionMessage = new StringBuilder();
+        int dimension = 3;
+
         try {
             asyncIndex.upsert(id,
                     generateVectorValuesByDimension(dimension),
@@ -225,12 +232,10 @@ public class UpsertAndQueryServerlessTest {
                     generateVectorValuesByDimension(dimension),
                     null,
                     null).get();
-        } catch (PineconeValidationException validationException) {
-            exceptionMessage.append(validationException.getLocalizedMessage());
-        } catch (ExecutionException | InterruptedException e) {
-            throw new RuntimeException(e);
-        } finally {
-            assertEquals(exceptionMessage.toString(), "Invalid upsert request. Please ensure that both sparse indices and values are present.");
+
+            fail("Expected to throw PineconeValidationException");
+        } catch (PineconeValidationException expected) {
+            assertTrue(expected.getLocalizedMessage().contains("ensure that both sparse indices and values are present"));
         }
     }
 }

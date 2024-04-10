@@ -38,13 +38,13 @@ public interface IndexInterface<T, U, V, W, X, Y> extends AutoCloseable {
         for (VectorWithUnsignedIndices vectorWithUnsignedIndices : vectorWithUnsignedIndicesList) {
             SparseValuesWithUnsignedIndices sparseValuesWithUnsignedIndices = vectorWithUnsignedIndices.getSparseValuesWithUnsignedIndices();
 
-            Vector vector = buildUpsertVector(vectorWithUnsignedIndices.getId(),
-                    vectorWithUnsignedIndices.getValuesList(),
-                    sparseValuesWithUnsignedIndices.getIndicesWithUnsigned32IntList(),
-                    sparseValuesWithUnsignedIndices.getValuesList(),
-                    vectorWithUnsignedIndices.getMetadata());
+                Vector vector = buildUpsertVector(vectorWithUnsignedIndices.getId(),
+                        vectorWithUnsignedIndices.getValuesList(),
+                        (sparseValuesWithUnsignedIndices != null) ? sparseValuesWithUnsignedIndices.getIndicesWithUnsigned32IntList() : null,
+                        (sparseValuesWithUnsignedIndices != null) ? sparseValuesWithUnsignedIndices.getValuesList() : null,
+                        vectorWithUnsignedIndices.getMetadata());
+                vectors.add(vector);
 
-            vectors.add(vector);
         }
 
         return UpsertRequest.newBuilder().addAllVectors(vectors).setNamespace(namespace).build();
@@ -266,6 +266,8 @@ public interface IndexInterface<T, U, V, W, X, Y> extends AutoCloseable {
         return describeIndexStatsRequest.build();
     }
 
+    T upsert(List<VectorWithUnsignedIndices> vectorList, String namespace);
+
     T upsert(String id, List<Float> values);
 
     T upsert(String id, List<Float> values, String namespace);
@@ -275,12 +277,28 @@ public interface IndexInterface<T, U, V, W, X, Y> extends AutoCloseable {
 
     U queryByVectorId(int topK, String id);
 
+    U queryByVectorId(int topK, String id, boolean includeValues, boolean includeMetadata);
+
     U queryByVectorId(int topK, String id, String namespace);
+
+    U queryByVectorId(int topK, String id, String namespace, boolean includeValues, boolean includeMetadata);
 
     U queryByVectorId(int topK, String id, String namespace, Struct filter);
 
     U queryByVectorId(int topK, String id, String namespace, Struct filter, boolean includeValues,
                       boolean includeMetadata);
+
+    U queryByVector(int topK, List<Float> vector);
+
+    U queryByVector(int topK, List<Float> vector, boolean includeValues, boolean includeMetadata);
+
+    U queryByVector(int topK, List<Float> vector, String namespace);
+
+    U queryByVector(int topK, List<Float> vector, String namespace, boolean includeValues, boolean includeMetadata);
+
+    U queryByVector(int topK, List<Float> vector, String namespace, Struct filter);
+
+    U queryByVector(int topK, List<Float> vector, String namespace, Struct filter, boolean includeValues, boolean includeMetadata);
 
     U query(int topK, List<Float> vector, List<Long> sparseIndices, List<Float> sparseValues, String id,
             String namespace, Struct filter, boolean includeValues, boolean includeMetadata);
@@ -307,6 +325,8 @@ public interface IndexInterface<T, U, V, W, X, Y> extends AutoCloseable {
     X deleteAll(String namespace);
 
     X delete(List<String> ids, boolean deleteAll, String namespace, Struct filter);
+
+    Y describeIndexStats();
 
     Y describeIndexStats(Struct filter);
 }

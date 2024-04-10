@@ -10,11 +10,8 @@ import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.proto.*;
 import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
 import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertResponse>,
         ListenableFuture<QueryResponseWithUnsignedIndices>,
@@ -25,17 +22,19 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     private final PineconeConnection connection;
     private final VectorServiceGrpc.VectorServiceFutureStub asyncStub;
+    private final String indexName;
 
-    private static final Logger logger = LoggerFactory.getLogger(AsyncIndex.class);
-
-    public AsyncIndex(PineconeConnection connection) {
+    public AsyncIndex(PineconeConnection connection, String indexName) {
         if (connection == null) {
             throw new PineconeValidationException("Pinecone connection object cannot be null.");
         }
+
+        this.indexName = indexName;
         this.connection = connection;
-        this.asyncStub = connection.getFutureStub();
+        this.asyncStub = connection.getAsyncStub();
     }
 
+    @Override
     public ListenableFuture<UpsertResponse> upsert(List<VectorWithUnsignedIndices> vectorList,
                                                    String namespace) {
         UpsertRequest upsertRequest = validateUpsertRequest(vectorList, namespace);
@@ -108,14 +107,79 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
     @Override
     public ListenableFuture<QueryResponseWithUnsignedIndices> queryByVectorId(int topK,
                                                                               String id,
+                                                                              String namespace,
+                                                                              boolean includeValues,
+                                                                              boolean includeMetadata) {
+        return query(topK, null, null, null, id, namespace, null, includeValues, includeMetadata);
+    }
+
+    @Override
+    public ListenableFuture<QueryResponseWithUnsignedIndices> queryByVectorId(int topK,
+                                                                              String id,
                                                                               String namespace) {
         return query(topK, null, null, null, id, namespace, null, false, false);
+    }
+
+    @Override
+    public ListenableFuture<QueryResponseWithUnsignedIndices> queryByVectorId(int topK, String id,
+                                                                              boolean includeValues,
+                                                                              boolean includeMetadata) {
+        return query(topK, null, null, null, id, null, null, includeValues, includeMetadata);
     }
 
     @Override
     public ListenableFuture<QueryResponseWithUnsignedIndices> queryByVectorId(int topK,
                                                                               String id) {
         return query(topK, null, null, null, id, null, null, false, false);
+    }
+
+
+    @Override
+    public ListenableFuture<QueryResponseWithUnsignedIndices> queryByVector(int topK,
+                                                                            List<Float> vector,
+                                                                            String namespace,
+                                                                            Struct filter,
+                                                                            boolean includeValues,
+                                                                            boolean includeMetadata) {
+        return query(topK, vector, null, null, null, namespace, filter, includeValues, includeMetadata);
+    }
+
+    @Override
+    public ListenableFuture<QueryResponseWithUnsignedIndices> queryByVector(int topK,
+                                                                            List<Float> vector,
+                                                                            String namespace,
+                                                                            Struct filter) {
+        return query(topK, vector, null, null, null, namespace, filter, false, false);
+    }
+
+    @Override
+    public ListenableFuture<QueryResponseWithUnsignedIndices> queryByVector(int topK,
+                                                                            List<Float> vector,
+                                                                            String namespace,
+                                                                            boolean includeValues,
+                                                                            boolean includeMetadata) {
+        return query(topK, vector, null, null, null, namespace, null, includeValues, includeMetadata);
+    }
+
+    @Override
+    public ListenableFuture<QueryResponseWithUnsignedIndices> queryByVector(int topK,
+                                                                            List<Float> vector,
+                                                                            String namespace) {
+        return query(topK, vector, null, null, null, namespace, null, false, false);
+    }
+
+    @Override
+    public ListenableFuture<QueryResponseWithUnsignedIndices> queryByVector(int topK,
+                                                                            List<Float> vector,
+                                                                            boolean includeValues,
+                                                                            boolean includeMetadata) {
+        return query(topK, vector, null, null, null, null, null, includeValues, includeMetadata);
+    }
+
+    @Override
+    public ListenableFuture<QueryResponseWithUnsignedIndices> queryByVector(int topK,
+                                                                            List<Float> vector) {
+        return query(topK, vector, null, null, null, null, null, false, false);
     }
 
     @Override
@@ -193,6 +257,13 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
     }
 
     @Override
+    public ListenableFuture<DescribeIndexStatsResponse> describeIndexStats() {
+        DescribeIndexStatsRequest describeIndexStatsRequest = validateDescribeIndexStatsRequest(null);
+
+        return asyncStub.describeIndexStats(describeIndexStatsRequest);
+    }
+
+    @Override
     public ListenableFuture<DescribeIndexStatsResponse> describeIndexStats(Struct filter) {
         DescribeIndexStatsRequest describeIndexStatsRequest = validateDescribeIndexStatsRequest(filter);
 
@@ -206,11 +277,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      */
     @Override
     public void close() {
-        try {
-            logger.debug("closing channel");
-            connection.getChannel().shutdownNow().awaitTermination(5, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            logger.warn("Channel shutdown interrupted before termination confirmed");
-        }
+        Pinecone.closeConnection(indexName);
+        connection.close();
     }
 }

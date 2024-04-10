@@ -58,14 +58,14 @@ public class BuildUpsertVectorWithUnsignedIndicesTest {
         List<Long> sparseIndices = Arrays.asList(0L, 2L);
         List<Float> sparseValues = Arrays.asList(1.5f, 3.5f);
         Struct metadata = Struct.newBuilder().build();
-        StringBuilder exceptionMessage = new StringBuilder();
 
         try {
             buildUpsertVectorWithUnsignedIndices(id, values, sparseIndices, sparseValues, metadata);
+
+            fail("Expecting PineconeValidationException");
         } catch (PineconeValidationException exception) {
-            exceptionMessage.append(exception.getLocalizedMessage());
-        } finally {
-            assertEquals(exceptionMessage.toString(), "Invalid upsert request. Please ensure that both id " +
+
+            assertEquals(exception.getLocalizedMessage(), "Invalid upsert request. Please ensure that both id " +
                     "and values are provided.");
         }
     }
@@ -77,14 +77,13 @@ public class BuildUpsertVectorWithUnsignedIndicesTest {
         List<Long> sparseIndices = Arrays.asList(0L, 2L);
         List<Float> sparseValues = Arrays.asList(1.5f, 3.5f);
         Struct metadata = Struct.newBuilder().build();
-        StringBuilder exceptionMessage = new StringBuilder();
 
         try {
             buildUpsertVectorWithUnsignedIndices(id, values, sparseIndices, sparseValues, metadata);
+
+            fail("Expecting PineconeValidation exception");
         } catch (PineconeValidationException exception) {
-            exceptionMessage.append(exception.getLocalizedMessage());
-        } finally {
-            assertEquals(exceptionMessage.toString(), "Invalid upsert request. Please ensure that both id " +
+            assertEquals(exception.getLocalizedMessage(), "Invalid upsert request. Please ensure that both id " +
                     "and values are provided.");
         }
     }
@@ -96,14 +95,13 @@ public class BuildUpsertVectorWithUnsignedIndicesTest {
         List<Long> sparseIndices = Arrays.asList(0L, 1L, 2L);
         List<Float> sparseValues = Arrays.asList(1.5f, 3.5f);
         Struct metadata = null;
-        StringBuilder exceptionMessage = new StringBuilder();
 
         try {
             buildUpsertVectorWithUnsignedIndices(id, values, sparseIndices, sparseValues, metadata);
+
+            fail("Expecting PineconeValidation exception");
         } catch (PineconeValidationException exception) {
-            exceptionMessage.append(exception.getLocalizedMessage());
-        } finally {
-            assertEquals(exceptionMessage.toString(), "Invalid upsert request. Please ensure that both " +
+            assertEquals(exception.getLocalizedMessage(), "Invalid upsert request. Please ensure that both " +
                     "sparse indices and values are of the same length.");
         }
     }

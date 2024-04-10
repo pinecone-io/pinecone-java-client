@@ -1,0 +1,19 @@
+{
+  "name":"testPodIndex",
+  "metric":"cosine",
+  "dimension":3,
+  "host":"test-pod-host.io",
+  "spec": {
+    "pod": {
+      "environment": "us-west1-aws",
+      "replicas": 1,
+      "shards": 1,
+      "pods": 1,
+      "pod_type": "p1.x1"
+    }
+  },
+  "status": {
+    "state":"Ready",
+    "ready":true
+  }
+}

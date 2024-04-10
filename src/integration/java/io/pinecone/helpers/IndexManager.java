@@ -1,135 +1,112 @@
 package io.pinecone.helpers;
 
-import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
-import io.pinecone.configs.PineconeConfig;
-import io.pinecone.configs.PineconeConnection;
 import io.pinecone.exceptions.PineconeException;
 import org.openapitools.client.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.AbstractMap;
 import java.util.List;
 
-import static io.pinecone.helpers.AssertRetry.assertWithRetry;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class IndexManager {
     private static final Logger logger = LoggerFactory.getLogger(IndexManager.class);
 
-    public static PineconeConnection createIndexIfNotExistsDataPlane(int dimension, String indexType) throws IOException, InterruptedException {
+    public static AbstractMap.SimpleEntry<String, Pinecone> createIndexIfNotExistsDataPlane(int dimension, String indexType) throws IOException, InterruptedException {
         String apiKey = System.getenv("PINECONE_API_KEY");
-        Pinecone pinecone = new Pinecone(apiKey);
+        Pinecone pinecone = new Pinecone.Builder(apiKey).build();
 
         String indexName = findIndexWithDimensionAndType(pinecone, dimension, indexType);
-        if (indexName.isEmpty()) indexName = createNewIndex(pinecone, dimension, indexType);
+        if (indexName.isEmpty()) indexName = createNewIndex(pinecone, dimension, indexType, true);
 
-        // Do not proceed until the newly created index is ready
-        isIndexReady(indexName, pinecone);
-
-        // Adding to test PineconeConnection(pineconeConfig, host) constructor
-        String host = pinecone.describeIndex(indexName).getHost();
-        PineconeConfig config = new PineconeConfig(apiKey);
-        config.setHost(host);
-        return new PineconeConnection(config);
+        return new AbstractMap.SimpleEntry<>(indexName, pinecone);
     }
 
-    public static String createIndexIfNotExistsControlPlane(Pinecone pinecone, int dimension, String indexType) throws IOException, InterruptedException {
-        String indexName = findIndexWithDimensionAndType(pinecone, dimension, indexType);
-
-        return (indexName.isEmpty()) ? createNewIndex(pinecone, dimension, indexType) : indexName;
-    }
-
-    public static String findIndexWithDimensionAndType(Pinecone pinecone, int dimension, String indexType)
-            throws InterruptedException {
+    public static String findIndexWithDimensionAndType(Pinecone pinecone, int dimension, String indexType) {
         String indexName = "";
-        int i = 0;
         List<IndexModel> indexModels = pinecone.listIndexes().getIndexes();
         if(indexModels == null) {
             return indexName;
         }
-        while (i < indexModels.size()) {
-             IndexModel indexModel = isIndexReady(indexModels.get(i).getName(), pinecone);
-            if (indexModel.getDimension() == dimension
-                    && ((indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_POD)
-                        && indexModel.getSpec().getPod() != null
-                        && indexModel.getSpec().getPod().getReplicas() == 1
-                        && indexModel.getSpec().getPod().getPodType().equalsIgnoreCase("p1.x1"))
-                    || (indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_SERVERLESS)))) {
-                return indexModel.getName();
+
+        for (IndexModel indexModel : indexModels) {
+            boolean typePod = indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_POD) && indexModel.getSpec().getPod() != null;
+            boolean typeServerless = indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_SERVERLESS) && indexModel.getSpec().getServerless() != null;
+
+            if (indexModel.getDimension() == dimension && indexModel.getMetric() == IndexMetric.DOTPRODUCT) {
+                if (typePod || typeServerless) {
+                    return indexModel.getName();
+                }
             }
-            i++;
         }
         return indexName;
     }
 
-    public static String createNewIndex(Pinecone pinecone, int dimension, String indexType) {
+    public static String createNewIndex(Pinecone pinecone, int dimension, String indexType, boolean waitUntilIndexIsReady) throws InterruptedException {
         String indexName = RandomStringBuilder.build("index-name", 8);
         String environment = System.getenv("PINECONE_ENVIRONMENT");
-        CreateIndexRequestSpec createIndexRequestSpec;
 
         if (indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_POD)) {
-            CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().environment(environment).podType("p1.x1");
-            createIndexRequestSpec = new CreateIndexRequestSpec().pod(podSpec);
+            pinecone.createPodsIndex(indexName, dimension, environment, "p1.x1", "dotproduct");
+            if (waitUntilIndexIsReady) {
+                waitUntilIndexIsReady(pinecone, indexName);
+            }
+            return indexName;
         } else {
-            ServerlessSpec serverlessSpec = new ServerlessSpec().cloud(ServerlessSpec.CloudEnum.AWS).region(environment);
-            createIndexRequestSpec = new CreateIndexRequestSpec().serverless(serverlessSpec);
+            pinecone.createServerlessIndex(indexName, "dotproduct", dimension, ServerlessSpec.CloudEnum.AWS.toString(), "us-west-2");
+            if (waitUntilIndexIsReady) {
+                waitUntilIndexIsReady(pinecone, indexName);
+            }
+            return indexName;
         }
+    }
 
-        CreateIndexRequest createIndexRequest = new CreateIndexRequest()
-                .name(indexName)
-                .dimension(dimension)
-                .metric(IndexMetric.DOTPRODUCT)
-                .spec(createIndexRequestSpec);
-        pinecone.createIndex(createIndexRequest);
+    public static Pinecone createNewIndex(Pinecone pinecone, String indexName, int dimension,
+                                          String metric, String sourceCollection, boolean waitUntilIndexIsReady) throws InterruptedException,
+            PineconeException {
+        String environment = System.getenv("PINECONE_ENVIRONMENT");
+        pinecone.createPodsIndex(indexName, dimension, environment, "p1.x1", metric, sourceCollection);
 
-        return indexName;
+        if (waitUntilIndexIsReady) {
+            waitUntilIndexIsReady(pinecone, indexName);
+        }
+        return pinecone;
     }
 
     public static IndexModel waitUntilIndexIsReady(Pinecone pinecone, String indexName, Integer totalMsToWait) throws InterruptedException {
         IndexModel index = pinecone.describeIndex(indexName);
         int waitedTimeMs = 0;
-        int intervalMs = 1500;
+        int intervalMs = 2000;
 
-        while (!index.getStatus().getReady()) {
+        while (index.getStatus().getState() != IndexModelStatus.StateEnum.READY) {
             index = pinecone.describeIndex(indexName);
             if (waitedTimeMs >= totalMsToWait) {
-                logger.info("Index " + indexName + " not ready after " + waitedTimeMs + "ms");
+                logger.info("WARNING: Index " + indexName + " not ready after " + waitedTimeMs + "ms");
                 break;
             }
             if (index.getStatus().getReady()) {
                 logger.info("Index " + indexName + " is ready after " + waitedTimeMs + "ms");
+                // Wait one final time before we start connecting and operating on the index
+                Thread.sleep(10000);
                 break;
             }
             Thread.sleep(intervalMs);
+            logger.info("Waited " + waitedTimeMs + "ms for " + indexName + " to get ready");
             waitedTimeMs += intervalMs;
         }
         return index;
     }
 
     public static IndexModel waitUntilIndexIsReady(Pinecone pinecone, String indexName) throws InterruptedException {
-        return waitUntilIndexIsReady(pinecone, indexName, 120000);
-    }
-
-    public static PineconeConnection createNewIndexAndConnect(Pinecone pinecone, String indexName, int dimension, IndexMetric metric, CreateIndexRequestSpec spec) throws InterruptedException, PineconeException {
-        String apiKey = System.getenv("PINECONE_API_KEY");
-        CreateIndexRequest createIndexRequest = new CreateIndexRequest().name(indexName).dimension(dimension).metric(metric).spec(spec);
-        pinecone.createIndex(createIndexRequest);
-
-        // Wait until index is ready
-        waitUntilIndexIsReady(pinecone, indexName, 200000);
-        // wait a bit more before we connect...
-        Thread.sleep(15000);
-
-        PineconeConfig config = new PineconeConfig(apiKey);
-        return new PineconeConnection(config, indexName);
+        return waitUntilIndexIsReady(pinecone, indexName, 200000);
     }
 
     public static CollectionModel createCollection(Pinecone pinecone, String collectionName, String indexName, boolean waitUntilReady) throws InterruptedException {
-        CreateCollectionRequest createCollectionRequest = new CreateCollectionRequest().name(collectionName).source(indexName);
-        CollectionModel collection = pinecone.createCollection(createCollectionRequest);
+        CollectionModel collection = pinecone.createCollection(collectionName, indexName);
 
         assertEquals(collection.getStatus(), CollectionModel.StatusEnum.INITIALIZING);
 
@@ -138,7 +115,8 @@ public class IndexManager {
             int timeWaited = 0;
             CollectionModel.StatusEnum collectionReady = collection.getStatus();
             while (collectionReady != CollectionModel.StatusEnum.READY && timeWaited < 120000) {
-                logger.info("Waiting for collection " + collectionName + " to be ready. Waited " + timeWaited + " milliseconds...");
+                logger.info("Waiting for collection " + collectionName + " to be ready. Waited " + timeWaited + " " +
+                        "milliseconds...");
                 Thread.sleep(5000);
                 timeWaited += 5000;
                 collection = pinecone.describeCollection(collectionName);
@@ -151,16 +129,5 @@ public class IndexManager {
         }
 
         return collection;
-    }
-
-    public static IndexModel isIndexReady(String indexName, Pinecone pinecone)
-            throws InterruptedException {
-        final IndexModel[] indexModels = new IndexModel[1];
-        assertWithRetry(() -> {
-            indexModels[0] = pinecone.describeIndex(indexName);
-            assert (indexModels[0].getStatus().getReady());
-        }, 4);
-
-        return indexModels[0];
     }
 }

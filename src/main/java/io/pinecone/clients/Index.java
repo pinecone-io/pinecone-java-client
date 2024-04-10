@@ -7,11 +7,8 @@ import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.proto.*;
 import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
 import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class Index implements IndexInterface<UpsertResponse,
         QueryResponseWithUnsignedIndices,
@@ -21,19 +18,20 @@ public class Index implements IndexInterface<UpsertResponse,
         DescribeIndexStatsResponse> {
 
     private final PineconeConnection connection;
+    private final String indexName;
     private final VectorServiceGrpc.VectorServiceBlockingStub blockingStub;
 
-    private static final Logger logger = LoggerFactory.getLogger(Index.class);
-
-    public Index(PineconeConnection connection) {
+    public Index(PineconeConnection connection, String indexName) {
         if (connection == null) {
             throw new PineconeValidationException("Pinecone connection object cannot be null.");
         }
 
         this.connection = connection;
+        this.indexName = indexName;
         this.blockingStub = connection.getBlockingStub();
     }
 
+    @Override
     public UpsertResponse upsert(List<VectorWithUnsignedIndices> vectorList,
                                  String namespace) {
         UpsertRequest upsertRequest = validateUpsertRequest(vectorList, namespace);
@@ -103,14 +101,79 @@ public class Index implements IndexInterface<UpsertResponse,
     @Override
     public QueryResponseWithUnsignedIndices queryByVectorId(int topK,
                                                             String id,
+                                                            String namespace,
+                                                            boolean includeValues,
+                                                            boolean includeMetadata) {
+        return query(topK, null, null, null, id, namespace, null, includeValues, includeMetadata);
+    }
+
+    @Override
+    public QueryResponseWithUnsignedIndices queryByVectorId(int topK,
+                                                            String id,
                                                             String namespace) {
         return query(topK, null, null, null, id, namespace, null, false, false);
     }
 
     @Override
     public QueryResponseWithUnsignedIndices queryByVectorId(int topK,
+                                                            String id,
+                                                            boolean includeValues,
+                                                            boolean includeMetadata) {
+        return query(topK, null, null, null, id, null, null, includeValues, includeMetadata);
+    }
+
+    @Override
+    public QueryResponseWithUnsignedIndices queryByVectorId(int topK,
                                                             String id) {
         return query(topK, null, null, null, id, null, null, false, false);
+    }
+
+    @Override
+    public QueryResponseWithUnsignedIndices queryByVector(int topK,
+                                                          List<Float> vector,
+                                                          String namespace,
+                                                          Struct filter,
+                                                          boolean includeValues,
+                                                          boolean includeMetadata) {
+        return query(topK, vector, null, null, null, namespace, filter, includeValues, includeMetadata);
+    }
+
+    @Override
+    public QueryResponseWithUnsignedIndices queryByVector(int topK,
+                                                          List<Float> vector,
+                                                          String namespace,
+                                                          Struct filter) {
+        return query(topK, vector, null, null, null, namespace, filter, false, false);
+    }
+
+    @Override
+    public QueryResponseWithUnsignedIndices queryByVector(int topK,
+                                                          List<Float> vector,
+                                                          String namespace,
+                                                          boolean includeValues,
+                                                          boolean includeMetadata) {
+        return query(topK, vector, null, null, null, namespace, null, includeValues, includeMetadata);
+    }
+
+    @Override
+    public QueryResponseWithUnsignedIndices queryByVector(int topK,
+                                                          List<Float> vector,
+                                                          String namespace) {
+        return query(topK, vector, null, null, null, namespace, null, false, false);
+    }
+
+    @Override
+    public QueryResponseWithUnsignedIndices queryByVector(int topK,
+                                                          List<Float> vector,
+                                                          boolean includeValues,
+                                                          boolean includeMetadata) {
+        return query(topK, vector, null, null, null, null, null, includeValues, includeMetadata);
+    }
+
+    @Override
+    public QueryResponseWithUnsignedIndices queryByVector(int topK,
+                                                          List<Float> vector) {
+        return query(topK, vector, null, null, null, null, null, false, false);
     }
 
     @Override
@@ -187,6 +250,13 @@ public class Index implements IndexInterface<UpsertResponse,
     }
 
     @Override
+    public DescribeIndexStatsResponse describeIndexStats() {
+        DescribeIndexStatsRequest describeIndexStatsRequest = validateDescribeIndexStatsRequest(null);
+
+        return blockingStub.describeIndexStats(describeIndexStatsRequest);
+    }
+
+    @Override
     public DescribeIndexStatsResponse describeIndexStats(Struct filter) {
         DescribeIndexStatsRequest describeIndexStatsRequest = validateDescribeIndexStatsRequest(filter);
 
@@ -195,11 +265,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     @Override
     public void close() {
-        try {
-            logger.debug("closing channel");
-            connection.getChannel().shutdownNow().awaitTermination(5, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            logger.warn("Channel shutdown interrupted before termination confirmed");
-        }
+        Pinecone.closeConnection(indexName);
+        connection.close();
     }
 }

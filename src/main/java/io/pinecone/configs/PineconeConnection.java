@@ -6,7 +6,6 @@ import io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.NegotiationType;
 import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.MetadataUtils;
-import io.pinecone.clients.Pinecone;
 import io.pinecone.exceptions.PineconeException;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.proto.VectorServiceGrpc;
@@ -34,7 +33,7 @@ public class PineconeConnection implements AutoCloseable {
      */
     private VectorServiceGrpc.VectorServiceBlockingStub blockingStub;
 
-    private VectorServiceGrpc.VectorServiceFutureStub futureStub;
+    private VectorServiceGrpc.VectorServiceFutureStub asyncStub;
 
     public PineconeConnection(PineconeConfig config) {
         this.config = config;
@@ -49,24 +48,11 @@ public class PineconeConnection implements AutoCloseable {
         initialize();
     }
 
-    public PineconeConnection(PineconeConfig config, String indexName) {
-        this.config = config;
-        if (config.getCustomManagedChannel() != null) {
-            channel = config.getCustomManagedChannel();
-        } else {
-            if (config.getHost() == null || config.getHost().isEmpty()) {
-                config.setHost(getHost(config.getApiKey(), indexName));
-            }
-            channel = buildChannel(config.getHost());
-        }
-        initialize();
-    }
-
     private void initialize() {
         channel.notifyWhenStateChanged(channel.getState(false), this::onConnectivityStateChanged);
         Metadata metadata = assembleMetadata(config);
         blockingStub = generateBlockingStub(metadata);
-        futureStub = generateFutureStub(metadata);
+        asyncStub = generateAsyncStub(metadata);
         logger.debug("created new PineconeConnection for channel: {}", channel);
     }
 
@@ -78,7 +64,7 @@ public class PineconeConnection implements AutoCloseable {
                 .withMaxOutboundMessageSize(DEFAULT_MAX_MESSAGE_SIZE);
     }
 
-    private VectorServiceGrpc.VectorServiceFutureStub generateFutureStub(Metadata metadata) {
+    private VectorServiceGrpc.VectorServiceFutureStub generateAsyncStub(Metadata metadata) {
         return VectorServiceGrpc
                 .newFutureStub(channel)
                 .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(metadata))
@@ -109,8 +95,8 @@ public class PineconeConnection implements AutoCloseable {
         return blockingStub;
     }
 
-    public VectorServiceGrpc.VectorServiceFutureStub getFutureStub() {
-        return futureStub;
+    public VectorServiceGrpc.VectorServiceFutureStub getAsyncStub() {
+        return asyncStub;
     }
 
     private void onConnectivityStateChanged() {
@@ -135,9 +121,8 @@ public class PineconeConnection implements AutoCloseable {
 
     private static Metadata assembleMetadata(PineconeConfig config) {
         Metadata metadata = new Metadata();
-        metadata.put(Metadata.Key.of("api-key",
-                Metadata.ASCII_STRING_MARSHALLER), config.getApiKey());
-        metadata.put(Metadata.Key.of("User-Agent", Metadata.ASCII_STRING_MARSHALLER), config.getUserAgent());
+        metadata.put(Metadata.Key.of("api-key", Metadata.ASCII_STRING_MARSHALLER), config.getApiKey());
+        metadata.put(Metadata.Key.of("User-Agent", Metadata.ASCII_STRING_MARSHALLER), config.getUserAgentGrpc());
         return metadata;
     }
 
@@ -147,10 +132,5 @@ public class PineconeConnection implements AutoCloseable {
         } else {
             throw new PineconeValidationException("Index host cannot be null or empty");
         }
-    }
-
-    private static String getHost(String apiKey, String indexName) {
-        Pinecone controlPlaneClient = new Pinecone(apiKey);
-        return controlPlaneClient.describeIndex(indexName).getHost();
     }
 }

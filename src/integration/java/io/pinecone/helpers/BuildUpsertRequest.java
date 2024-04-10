@@ -6,11 +6,12 @@ import com.google.protobuf.Value;
 import io.pinecone.proto.SparseValues;
 import io.pinecone.proto.UpsertRequest;
 import io.pinecone.proto.Vector;
+import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
 
 import java.util.*;
 
 public class BuildUpsertRequest {
-    // ToDo: Remove all buildUpsertRequest methods after future stub test changes are in and rename this class
+
     public static final float[][] upsertValues = {{1.0F, 2.0F, 3.0F}, {4.0F, 5.0F, 6.0F}, {7.0F, 8.0F, 9.0F}};
     public static final String[] metadataFields = new String[]{"genre", "year"};
     public static final List<Integer> sparseIndices = Arrays.asList(0, 1, 2);
@@ -90,24 +91,6 @@ public class BuildUpsertRequest {
         return valuesList;
     }
 
-    // ToDo: cleanup after all of the tests are completed
-//    public static List<Struct> getMetadataStruct(int metadataSize) {
-//        HashMap<String, List<String>> metadataMap = createAndGetMetadataMap();
-//
-//        List<Struct> structList = new ArrayList<>(metadataSize);
-//
-//        for (int i = 0; i < metadataSize; i++) {
-//            structList.add(Struct.newBuilder()
-//                    .putFields(metadataFields[0],
-//                            Value.newBuilder().setStringValue(metadataMap.get(metadataFields[0]).get(i % metadataSize)).build())
-//                    .putFields(metadataFields[1],
-//                            Value.newBuilder().setStringValue(metadataMap.get(metadataFields[1]).get(i % metadataSize)).build())
-//                    .build());
-//        }
-//
-//        return structList;
-//    }
-
     public static UpsertRequest buildRequiredUpsertRequest() {
         return buildRequiredUpsertRequest(new ArrayList<>(), "");
     }
@@ -135,21 +118,15 @@ public class BuildUpsertRequest {
                 .build();
     }
 
-    public static UpsertRequest buildRequiredUpsertRequestByDimension(List<String> upsertIds, int dimension, String namespace) {
+    public static List<VectorWithUnsignedIndices> buildRequiredUpsertRequestByDimension(List<String> upsertIds, int dimension) {
         if (upsertIds.isEmpty()) upsertIds = Arrays.asList("v1", "v2", "v3");
 
-        List<Vector> upsertVectors = new ArrayList<>();
+        List<VectorWithUnsignedIndices> upsertVectors = new ArrayList<>();
         for (String upsertId : upsertIds) {
-            upsertVectors.add(Vector.newBuilder()
-                    .addAllValues(generateVectorValuesByDimension(dimension))
-                    .setId(upsertId)
-                    .build());
+            upsertVectors.add(new VectorWithUnsignedIndices(upsertId, generateVectorValuesByDimension(dimension)));
         }
 
-        return UpsertRequest.newBuilder()
-                .addAllVectors(upsertVectors)
-                .setNamespace(namespace)
-                .build();
+        return upsertVectors;
     }
 
     public static UpsertRequest buildOptionalUpsertRequest() {

@@ -36,7 +36,7 @@ sourceSets {
     }
 }
 
-def grpcVersion = '1.58.0'
+def grpcVersion = '1.60.2'
 
 dependencies {
     api "io.grpc:grpc-protobuf:${grpcVersion}"
@@ -45,29 +45,76 @@ dependencies {
     runtimeOnly 'io.netty:netty-tcnative-boringssl-static:2.0.61.Final'
     implementation 'org.slf4j:slf4j-api:2.0.5'
     implementation 'com.google.api.grpc:proto-google-common-protos:2.14.3'
-    implementation 'com.squareup.okhttp3:okhttp:4.10.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.12.0'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.2'
     implementation 'com.fasterxml.jackson.core:jackson-core:2.14.2'
     implementation 'com.google.code.gson:gson:2.9.1'
-    implementation 'com.squareup.okhttp3:logging-interceptor:4.10.0'
     implementation 'io.gsonfire:gson-fire:1.8.5'
     implementation 'org.openapitools:jackson-databind-nullable:0.2.6'
     implementation 'com.google.protobuf:protobuf-java:3.25.2'
     compileOnly "org.apache.tomcat:annotations-api:6.0.53" // necessary for Java 9+
 
-    testImplementation("com.squareup.okhttp3:mockwebserver:4.10.0")
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
     testImplementation "io.grpc:grpc-testing:${grpcVersion}"
     testImplementation "org.hamcrest:hamcrest:2.2"
     testImplementation 'org.mockito:mockito-inline:4.8.0'
     testImplementation 'org.slf4j:slf4j-simple:2.0.5'
     testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.14.2'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.0'
+    testImplementation 'org.junit.platform:junit-platform-launcher:1.8.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.0'
+}
+
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+
+tasks.withType(Test) {
+    testLogging {
+        // set options for log level LIFECYCLE
+        events TestLogEvent.FAILED,
+                TestLogEvent.PASSED,
+                TestLogEvent.SKIPPED,
+                TestLogEvent.STANDARD_OUT
+        exceptionFormat TestExceptionFormat.FULL
+        showExceptions true
+        showCauses true
+        showStackTraces true
+
+        // set options for log level DEBUG and INFO
+        debug {
+            events TestLogEvent.STARTED,
+                    TestLogEvent.FAILED,
+                    TestLogEvent.PASSED,
+                    TestLogEvent.SKIPPED,
+                    TestLogEvent.STANDARD_ERROR,
+                    TestLogEvent.STANDARD_OUT
+            exceptionFormat TestExceptionFormat.FULL
+        }
+        info.events = debug.events
+        info.exceptionFormat = debug.exceptionFormat
+
+        afterSuite { desc, result ->
+            if (!desc.parent) { // will match the outermost suite
+                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} passed, ${result.failedTestCount} failed, ${result.skippedTestCount} skipped)"
+                def startItem = '|  ', endItem = '  |'
+                def repeatLength = startItem.length() + output.length() + endItem.length()
+                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
+            }
+        }
+    }
 }
 
 javadoc {
     options.tags = [ "http.response.details:a:Http Response Details" ]
     options.addStringOption('Xdoclint:none', '-quiet')
+}
+
+// Javadoc task
+task generateJavadoc(type: Javadoc) {
+    source = sourceSets.main.allJava
+    options.memberLevel = JavadocMemberLevel.PUBLIC
+    destinationDir = file("${projectDir}/docs")
 }
 
 configurations {

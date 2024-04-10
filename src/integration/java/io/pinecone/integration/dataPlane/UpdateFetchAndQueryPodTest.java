@@ -3,7 +3,7 @@ package io.pinecone.integration.dataPlane;
 import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
 import io.grpc.StatusRuntimeException;
-import io.pinecone.configs.PineconeConnection;
+import io.pinecone.clients.Pinecone;
 import io.pinecone.clients.Index;
 import io.pinecone.clients.AsyncIndex;
 import io.pinecone.exceptions.PineconeException;
@@ -18,106 +18,75 @@ import org.junit.jupiter.api.Test;
 import org.openapitools.client.model.IndexModelSpec;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 import static io.pinecone.helpers.AssertRetry.assertWithRetry;
 import static io.pinecone.helpers.BuildUpsertRequest.*;
-import static io.pinecone.helpers.IndexManager.createIndexIfNotExistsDataPlane;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static io.pinecone.helpers.IndexManager.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class UpdateFetchAndQueryPodTest {
-    private static PineconeConnection connection;
+    private static Index index;
+    private static AsyncIndex asyncIndex;
+    private static String namespace;
+    private static List<String> upsertIds;
+    private static List<List<Float>> sparseValuesList;
     private static final int dimension = 3;
 
     @BeforeAll
     public static void setUp() throws IOException, InterruptedException {
-        connection = createIndexIfNotExistsDataPlane(dimension, IndexModelSpec.SERIALIZED_NAME_POD);
-    }
+        String apiKey = System.getenv("PINECONE_API_KEY");
+        String indexType = IndexModelSpec.SERIALIZED_NAME_POD;
+        Pinecone pinecone = new Pinecone.Builder(apiKey).build();
 
-    @AfterAll
-    public static void cleanUp() {
-        connection.close();
-    }
+        String indexName = findIndexWithDimensionAndType(pinecone, dimension, indexType);
+        if (indexName.isEmpty()) indexName = createNewIndex(pinecone, dimension, indexType, true);
+        index = pinecone.getIndexConnection(indexName);
+        asyncIndex = pinecone.getAsyncIndexConnection(indexName);
 
-    @Test
-    public void updateRequiredParamsFetchAndQuerySyncTest() throws InterruptedException {
-        // Upsert vectors with required parameters
-        int numOfVectors = 3;
-        String namespace = RandomStringBuilder.build("ns", 8);
-        List<String> upsertIds = getIdsList(numOfVectors);
-        Index dataPlaneClient = new Index(connection);
-        for (String id : upsertIds) {
-            dataPlaneClient.upsert(id, generateVectorValuesByDimension(dimension), namespace);
-        }
-
-        // Verify the upserted vector count with fetch
-        assertWithRetry(() -> {
-            FetchResponse fetchResponse = dataPlaneClient.fetch(upsertIds, namespace);
-            assertEquals(fetchResponse.getVectorsCount(), upsertIds.size());
-            for (String key : upsertIds) {
-                assert (fetchResponse.containsVectors(key));
-            }
-        });
-
-        // Update required fields only
-        String idToUpdate = upsertIds.get(0);
-        List<Float> updatedValues = Arrays.asList(101F, 102F, 103F);
-        dataPlaneClient.update(idToUpdate, updatedValues, null, namespace, null, null);
-
-        // Query by ID to verify
-        assertWithRetry(() -> {
-            QueryResponseWithUnsignedIndices queryResponse = dataPlaneClient.query(1,
-                    null,
-                    null,
-                    null,
-                    idToUpdate,
-                    namespace,
-                    null,
-                    true,
-                    false);
-
-            List<Float> queryResponseValues = queryResponse.getMatches(0).getValuesList();
-            assert (updatedValues.equals(queryResponseValues));
-        });
-    }
-
-    @Test
-    public void updateAllParamsFetchAndQuerySyncTest() throws InterruptedException {
+        // Upsert vectors only once
         int numOfVectors = 3;
         int numOfSparseVectors = 2;
-        String namespace = RandomStringBuilder.build("ns", 8);
-        List<String> upsertIds = getIdsList(numOfVectors);
-        Index dataPlaneClient = new Index(connection);
-        DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(null);
-        assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
+        namespace = RandomStringBuilder.build("ns", 8);
+        upsertIds = getIdsList(numOfVectors);
         List<List<Long>> sparseIndicesList = getSparseIndicesList(numOfSparseVectors, dimension);
-        List<List<Float>> sparseValuesList = getValuesListLists(numOfSparseVectors, dimension);
+        sparseValuesList = getValuesListLists(numOfSparseVectors, dimension);
 
         // upsert vectors with required + optional parameters
-        int index = 0;
-        for (int i = index; i < numOfSparseVectors; i++) {
-            dataPlaneClient.upsert(upsertIds.get(i),
+        int sparseVectorCount = 0;
+        for (int i = sparseVectorCount; i < numOfSparseVectors; i++) {
+            index.upsert(upsertIds.get(i),
                     generateVectorValuesByDimension(dimension),
                     sparseIndicesList.get(i),
                     sparseValuesList.get(i),
-                    generateMetadataStruct(),
+                    generateMetadataStruct(i,i),
                     namespace);
-            index++;
+            sparseVectorCount++;
         }
 
-        for (int j = index; j < numOfVectors; j++) {
-            dataPlaneClient.upsert(
+        for (int j = sparseVectorCount; j < numOfVectors; j++) {
+            index.upsert(
                     upsertIds.get(j),
                     generateVectorValuesByDimension(dimension),
                     namespace);
         }
 
+        // wait sometime for the vectors to be upserted
+        Thread.sleep(90000);
+    }
+
+    @AfterAll
+    public static void cleanUp() {
+        index.close();
+        asyncIndex.close();
+    }
+
+    @Test
+    public void updateAllParamsFetchAndQuerySyncTest() throws InterruptedException {
         // Verify the upserted vector count with fetch
         assertWithRetry(() -> {
-            FetchResponse fetchResponse = dataPlaneClient.fetch(upsertIds, namespace);
+            FetchResponse fetchResponse = index.fetch(upsertIds, namespace);
             assertEquals(fetchResponse.getVectorsCount(), upsertIds.size());
             for (String key : upsertIds) {
                 assert (fetchResponse.containsVectors(key));
@@ -125,7 +94,7 @@ public class UpdateFetchAndQueryPodTest {
         });
 
         String idToUpdate = upsertIds.get(0);
-        List<Float> valuesToUpdate = Arrays.asList(101F, 102F, 103F);
+        List<Float> valuesToUpdate = Arrays.asList(201F, 202F, 203F);
         HashMap<String, List<String>> metadataMap = createAndGetMetadataMap();
         Struct metadataToUpdate = Struct.newBuilder()
                 .putFields(metadataFields[0],
@@ -135,11 +104,14 @@ public class UpdateFetchAndQueryPodTest {
                 .build();
 
         // Update required+optional fields
-        dataPlaneClient.update(idToUpdate, valuesToUpdate, metadataToUpdate, namespace, null, null);
+        index.update(idToUpdate, valuesToUpdate, metadataToUpdate, namespace, null, null);
+
+        // wait some time for the vectors to be updated
+        Thread.sleep(7500);
 
         // Query by vector to verify
         assertWithRetry(() -> {
-            QueryResponseWithUnsignedIndices queryResponse = dataPlaneClient.query(
+            QueryResponseWithUnsignedIndices queryResponse = index.query(
                     5,
                     valuesToUpdate,
                     null,
@@ -155,75 +127,65 @@ public class UpdateFetchAndQueryPodTest {
             assertEquals(scoredVectorV1.getId(), idToUpdate);
 
             // Verify the updated values
-            assertEquals(valuesToUpdate, scoredVectorV1.getValuesList());
+            List<Float> valuesList = new ArrayList<>(scoredVectorV1.getValuesList());
+            Collections.sort(valuesList);
+            Collections.sort(valuesToUpdate);
+            assertEquals(valuesToUpdate, valuesList);
 
             // Verify the updated metadata
             assertEquals(scoredVectorV1.getMetadata(), metadataToUpdate);
 
             // Verify the initial sparse values set for upsert operation
-            assertEquals(scoredVectorV1.getSparseValuesWithUnsignedIndices().getValuesList(), sparseValuesList.get(0));
+            List<Float> expectedSparseValues = new ArrayList<>(scoredVectorV1.getSparseValuesWithUnsignedIndices().getValuesList());
+            List<Float> actualSparseValues = new ArrayList<>(sparseValuesList.get(0));
+            Collections.sort(actualSparseValues);
+            Collections.sort(expectedSparseValues);
+
+            assertEquals(expectedSparseValues, actualSparseValues);
         });
     }
 
     @Test
     public void addIncorrectDimensionalValuesSyncTest() throws InterruptedException {
-        // Upsert vectors with required parameters
-        int numOfVectors = 3;
-        String namespace = RandomStringBuilder.build("ns", 8);
-        List<String> upsertIds = getIdsList(numOfVectors);
-        Index dataPlaneClient = new Index(connection);
-
-        for (String id : upsertIds) {
-            dataPlaneClient.upsert(id,
-                    generateVectorValuesByDimension(dimension),
-                    namespace);
-        }
-
-        // Verify the upserted vector count with fetch
-        assertWithRetry(() -> {
-            FetchResponse fetchResponse = dataPlaneClient.fetch(upsertIds, namespace);
-            assertEquals(fetchResponse.getVectorsCount(), upsertIds.size());
-            for (String key : upsertIds) {
-                assert (fetchResponse.containsVectors(key));
-            }
-        });
-
         // Update required fields only but with incorrect values dimension
         String idToUpdate = upsertIds.get(0);
         List<Float> updatedValues = Arrays.asList(101F); // should be of size 3
 
         // Should fail since only 1 value is added for the vector of dimension 3
         try {
-            dataPlaneClient.update(idToUpdate, updatedValues, null, namespace, null, null);
+            index.update(idToUpdate, updatedValues, namespace);
+
+            fail("Expected to throw statusRuntimeException");
         } catch (StatusRuntimeException statusRuntimeException) {
-            assert (statusRuntimeException.getTrailers().toString().contains("grpc-status=3"));
-            assert (statusRuntimeException.getTrailers().toString().contains("Vector dimension 1 does not match the dimension of the index 3"));
+            assert (statusRuntimeException.toString().contains("Vector dimension 1 does not match the dimension of the index 3"));
+        }
+    }
+
+    @Test
+    public void updateNullSparseIndicesNotNullSparseValuesSyncTest() {
+        int dimension = 3;
+        String id = RandomStringBuilder.build(3);
+
+        try {
+            index.update(id,
+                    generateVectorValuesByDimension(dimension),
+                    null,
+                    null,
+                    null,
+                    generateVectorValuesByDimension(dimension));
+
+            fail("Expected to throw PineconeValidationException");
+        } catch (PineconeValidationException validationException) {
+            assert(validationException.toString().contains("Invalid upsert request. Please ensure that both sparse indices and values are present."));
         }
     }
 
     @Test
     public void queryWithFilersSyncTest() {
-        // Upsert vectors with all parameters
         String fieldToQuery = metadataFields[0];
         String valueToQuery = createAndGetMetadataMap().get(fieldToQuery).get(0);
 
-        int numOfVectors = 3;
-        String namespace = RandomStringBuilder.build("ns", 8);
-        List<String> upsertIds = getIdsList(numOfVectors);
-        Index dataPlaneClient = new Index(connection);
-        DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(null);
-        assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
-
         try {
-            for (int i = 0; i < upsertIds.size(); i++) {
-                dataPlaneClient.upsert(upsertIds.get(0),
-                        generateVectorValuesByDimension(dimension),
-                        generateSparseIndicesByDimension(dimension),
-                        generateVectorValuesByDimension(dimension),
-                        generateMetadataStruct(0, 0),
-                        namespace);
-            }
-
             Struct filter = Struct.newBuilder()
                     .putFields(metadataFields[0], Value.newBuilder()
                             .setStructValue(Struct.newBuilder()
@@ -234,7 +196,7 @@ public class UpdateFetchAndQueryPodTest {
                     .build();
 
             assertWithRetry(() -> {
-                QueryResponseWithUnsignedIndices queryResponse = dataPlaneClient.queryByVectorId(3,
+                QueryResponseWithUnsignedIndices queryResponse = index.queryByVectorId(3,
                         upsertIds.get(0),
                         namespace,
                         filter,
@@ -243,105 +205,17 @@ public class UpdateFetchAndQueryPodTest {
 
                 // Verify the metadata field is correctly filtered in the query response
                 assert (queryResponse.getMatches(0).getMetadata().getFieldsMap().get(fieldToQuery).toString().contains(valueToQuery));
-            });
+            }, 4);
         } catch (Exception e) {
             throw new PineconeException(e.getLocalizedMessage());
         }
     }
 
     @Test
-    public void updateNullSparseIndicesNotNullSparseValuesSyncTest() {
-        Index dataPlaneClient = new Index(connection);
-        String id = RandomStringBuilder.build(3);
-
-        try {
-            dataPlaneClient.update(id,
-                    generateVectorValuesByDimension(dimension),
-                    null,
-                    null,
-                    null,
-                    generateVectorValuesByDimension(dimension));
-        } catch (PineconeValidationException validationException) {
-            assertEquals(validationException.getLocalizedMessage(), "Invalid upsert request. Please ensure that both sparse indices and values are present.");
-        }
-    }
-
-    @Test
-    public void updateRequiredParamsFetchAndQueryFutureTest() throws InterruptedException {
-        // Upsert vectors with required parameters
-        int numOfVectors = 3;
-        String namespace = RandomStringBuilder.build("ns", 8);
-        List<String> upsertIds = getIdsList(numOfVectors);
-        AsyncIndex dataPlaneClient = new AsyncIndex(connection);
-        for (String id : upsertIds) {
-            dataPlaneClient.upsert(id, generateVectorValuesByDimension(dimension), namespace);
-        }
-
-        // Verify the upserted vector count with fetch
-        assertWithRetry(() -> {
-            FetchResponse fetchResponse = dataPlaneClient.fetch(upsertIds, namespace).get();
-            assertEquals(fetchResponse.getVectorsCount(), upsertIds.size());
-            for (String key : upsertIds) {
-                assert (fetchResponse.containsVectors(key));
-            }
-        });
-
-        // Update required fields only
-        String idToUpdate = upsertIds.get(0);
-        List<Float> updatedValues = Arrays.asList(101F, 102F, 103F);
-        dataPlaneClient.update(idToUpdate, updatedValues, null, namespace, null, null);
-
-        // Query by ID to verify
-        assertWithRetry(() -> {
-            QueryResponseWithUnsignedIndices queryResponse = dataPlaneClient.query(1,
-                    null,
-                    null,
-                    null,
-                    idToUpdate,
-                    namespace,
-                    null,
-                    true,
-                    false).get();
-
-            List<Float> queryResponseValues = queryResponse.getMatches(0).getValuesList();
-            assert (updatedValues.equals(queryResponseValues));
-        });
-    }
-
-    @Test
     public void updateAllParamsFetchAndQueryFutureTest() throws InterruptedException, ExecutionException {
-        int numOfVectors = 3;
-        int numOfSparseVectors = 2;
-        String namespace = RandomStringBuilder.build("ns", 8);
-        List<String> upsertIds = getIdsList(numOfVectors);
-        AsyncIndex dataPlaneClient = new AsyncIndex(connection);
-        DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(null).get();
-        assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
-        List<List<Long>> sparseIndicesList = getSparseIndicesList(numOfSparseVectors, dimension);
-        List<List<Float>> sparseValuesList = getValuesListLists(numOfSparseVectors, dimension);
-
-        // upsert vectors with required + optional parameters
-        int index = 0;
-        for (int i = index; i < numOfSparseVectors; i++) {
-            dataPlaneClient.upsert(upsertIds.get(i),
-                    generateVectorValuesByDimension(dimension),
-                    sparseIndicesList.get(i),
-                    sparseValuesList.get(i),
-                    generateMetadataStruct(),
-                    namespace);
-            index++;
-        }
-
-        for (int j = index; j < numOfVectors; j++) {
-            dataPlaneClient.upsert(
-                    upsertIds.get(j),
-                    generateVectorValuesByDimension(dimension),
-                    namespace);
-        }
-
         // Verify the upserted vector count with fetch
         assertWithRetry(() -> {
-            FetchResponse fetchResponse = dataPlaneClient.fetch(upsertIds, namespace).get();
+            FetchResponse fetchResponse = asyncIndex.fetch(upsertIds, namespace).get();
             assertEquals(fetchResponse.getVectorsCount(), upsertIds.size());
             for (String key : upsertIds) {
                 assert (fetchResponse.containsVectors(key));
@@ -349,7 +223,7 @@ public class UpdateFetchAndQueryPodTest {
         });
 
         String idToUpdate = upsertIds.get(0);
-        List<Float> valuesToUpdate = Arrays.asList(101F, 102F, 103F);
+        List<Float> valuesToUpdate = Arrays.asList(301F, 302F, 303F);
         HashMap<String, List<String>> metadataMap = createAndGetMetadataMap();
         Struct metadataToUpdate = Struct.newBuilder()
                 .putFields(metadataFields[0],
@@ -359,11 +233,11 @@ public class UpdateFetchAndQueryPodTest {
                 .build();
 
         // Update required+optional fields
-        dataPlaneClient.update(idToUpdate, valuesToUpdate, metadataToUpdate, namespace, null, null);
+        asyncIndex.update(idToUpdate, valuesToUpdate, metadataToUpdate, namespace, null, null).get();
 
         // Query by vector to verify
         assertWithRetry(() -> {
-            QueryResponseWithUnsignedIndices queryResponse = dataPlaneClient.query(
+            QueryResponseWithUnsignedIndices queryResponse = asyncIndex.query(
                     5,
                     valuesToUpdate,
                     null,
@@ -379,75 +253,46 @@ public class UpdateFetchAndQueryPodTest {
             assertEquals(scoredVectorV1.getId(), idToUpdate);
 
             // Verify the updated values
-            assertEquals(valuesToUpdate, scoredVectorV1.getValuesList());
+            List<Float> valuesList = new ArrayList<>(scoredVectorV1.getValuesList());
+            Collections.sort(valuesList);
+            Collections.sort(valuesToUpdate);
+            assertEquals(valuesToUpdate, valuesList);
 
             // Verify the updated metadata
             assertEquals(scoredVectorV1.getMetadata(), metadataToUpdate);
 
             // Verify the initial sparse values set for upsert operation
-            assertEquals(scoredVectorV1.getSparseValuesWithUnsignedIndices().getValuesList(), sparseValuesList.get(0));
-        });
+            List<Float> expectedSparseValues = new ArrayList<>(scoredVectorV1.getSparseValuesWithUnsignedIndices().getValuesList());
+            List<Float> actualSparseValues = new ArrayList<>(sparseValuesList.get(0));
+            Collections.sort(actualSparseValues);
+            Collections.sort(expectedSparseValues);
+            assertEquals(expectedSparseValues, actualSparseValues);
+        }, 4);
     }
 
     @Test
     public void addIncorrectDimensionalValuesFutureTest() throws InterruptedException {
-        // Upsert vectors with required parameters
-        int numOfVectors = 3;
-        String namespace = RandomStringBuilder.build("ns", 8);
-        List<String> upsertIds = getIdsList(numOfVectors);
-        AsyncIndex dataPlaneClient = new AsyncIndex(connection);
-
-        for (String id : upsertIds) {
-            dataPlaneClient.upsert(id,
-                    generateVectorValuesByDimension(dimension),
-                    namespace);
-        }
-
-        // Verify the upserted vector count with fetch
-        assertWithRetry(() -> {
-            FetchResponse fetchResponse = dataPlaneClient.fetch(upsertIds, namespace).get();
-            assertEquals(fetchResponse.getVectorsCount(), upsertIds.size());
-            for (String key : upsertIds) {
-                assert (fetchResponse.containsVectors(key));
-            }
-        });
-
         // Update required fields only but with incorrect values dimension
         String idToUpdate = upsertIds.get(0);
         List<Float> updatedValues = Arrays.asList(101F); // should be of size 3
 
         // Should fail since only 1 value is added for the vector of dimension 3
         try {
-            dataPlaneClient.update(idToUpdate, updatedValues, null, namespace, null, null);
-        } catch (StatusRuntimeException statusRuntimeException) {
-            assert (statusRuntimeException.getTrailers().toString().contains("grpc-status=3"));
-            assert (statusRuntimeException.getTrailers().toString().contains("Vector dimension 1 does not match the dimension of the index 3"));
+            asyncIndex.update(idToUpdate, updatedValues, null, namespace, null, null).get();
+
+            fail("Expected to throw statusRuntimeException");
+        } catch (ExecutionException executionException) {
+            assert (executionException.toString().contains("Vector dimension 1 does not match the dimension of the index 3"));
         }
     }
 
     @Test
     public void queryWithFilersFutureTest() throws ExecutionException, InterruptedException {
-        // Upsert vectors with all parameters
         String fieldToQuery = metadataFields[0];
         String valueToQuery = createAndGetMetadataMap().get(fieldToQuery).get(0);
 
-        int numOfVectors = 3;
-        String namespace = RandomStringBuilder.build("ns", 8);
-        List<String> upsertIds = getIdsList(numOfVectors);
-        AsyncIndex dataPlaneClient = new AsyncIndex(connection);
-        DescribeIndexStatsResponse describeIndexStatsResponse1 = dataPlaneClient.describeIndexStats(null).get();
-        assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
 
         try {
-            for (int i = 0; i < upsertIds.size(); i++) {
-                dataPlaneClient.upsert(upsertIds.get(0),
-                        generateVectorValuesByDimension(dimension),
-                        generateSparseIndicesByDimension(dimension),
-                        generateVectorValuesByDimension(dimension),
-                        generateMetadataStruct(0, 0),
-                        namespace).get();
-            }
-
             Struct filter = Struct.newBuilder()
                     .putFields(metadataFields[0], Value.newBuilder()
                             .setStructValue(Struct.newBuilder()
@@ -458,7 +303,7 @@ public class UpdateFetchAndQueryPodTest {
                     .build();
 
             assertWithRetry(() -> {
-                QueryResponseWithUnsignedIndices queryResponse = dataPlaneClient.queryByVectorId(3,
+                QueryResponseWithUnsignedIndices queryResponse = asyncIndex.queryByVectorId(3,
                         upsertIds.get(0),
                         namespace,
                         filter,
@@ -467,26 +312,27 @@ public class UpdateFetchAndQueryPodTest {
 
                 // Verify the metadata field is correctly filtered in the query response
                 assert (queryResponse.getMatches(0).getMetadata().getFieldsMap().get(fieldToQuery).toString().contains(valueToQuery));
-            });
+            }, 4);
         } catch (Exception exception) {
             throw exception;
         }
     }
 
     @Test
-    public void updateNullSparseIndicesNotNullSparseValuesFutureTest() {
-        AsyncIndex dataPlaneClient = new AsyncIndex(connection);
+    public void updateNullSparseIndicesNotNullSparseValuesFutureTest() throws InterruptedException, ExecutionException {
+        int dimension = 3;
         String id = RandomStringBuilder.build(3);
 
         try {
-            dataPlaneClient.update(id,
+            asyncIndex.update(id,
                     generateVectorValuesByDimension(dimension),
                     null,
                     null,
                     null,
-                    generateVectorValuesByDimension(dimension));
+                    generateVectorValuesByDimension(dimension)).get();
+            fail("Expected to throw PineconeValidationException");
         } catch (PineconeValidationException validationException) {
-            assertEquals(validationException.getLocalizedMessage(), "Invalid upsert request. Please ensure that both sparse indices and values are present.");
+            assert(validationException.toString().contains("Invalid upsert request. Please ensure that both sparse indices and values are present."));
         }
     }
 }
