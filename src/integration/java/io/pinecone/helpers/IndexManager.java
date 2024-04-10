@@ -51,7 +51,6 @@ public class IndexManager {
         String environment = System.getenv("PINECONE_ENVIRONMENT");
 
         if (indexType.equalsIgnoreCase(IndexModelSpec.SERIALIZED_NAME_POD)) {
-            pinecone.createPodsIndex(indexName, dimension, environment, "p1.x1");
             pinecone.createPodsIndex(indexName, dimension, environment, "p1.x1", "dotproduct");
             if (waitUntilIndexIsReady) {
                 waitUntilIndexIsReady(pinecone, indexName);
