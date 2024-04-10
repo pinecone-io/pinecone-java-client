@@ -17,7 +17,6 @@ public class CreateDescribeListAndDeleteIndexTest {
     private static String indexName;
     private static int indexDimension;
     private static String indexPodType;
-    private static final String environment = System.getenv("PINECONE_ENVIRONMENT");
 
     @BeforeAll
     public static void setUp() throws InterruptedException {
