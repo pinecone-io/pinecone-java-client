@@ -277,12 +277,28 @@ public interface IndexInterface<T, U, V, W, X, Y> extends AutoCloseable {
 
     U queryByVectorId(int topK, String id);
 
+    U queryByVectorId(int topK, String id, boolean includeValues, boolean includeMetadata);
+
     U queryByVectorId(int topK, String id, String namespace);
+
+    U queryByVectorId(int topK, String id, String namespace, boolean includeValues, boolean includeMetadata);
 
     U queryByVectorId(int topK, String id, String namespace, Struct filter);
 
     U queryByVectorId(int topK, String id, String namespace, Struct filter, boolean includeValues,
                       boolean includeMetadata);
+
+    U queryByVector(int topK, List<Float> vector);
+
+    U queryByVector(int topK, List<Float> vector, boolean includeValues, boolean includeMetadata);
+
+    U queryByVector(int topK, List<Float> vector, String namespace);
+
+    U queryByVector(int topK, List<Float> vector, String namespace, boolean includeValues, boolean includeMetadata);
+
+    U queryByVector(int topK, List<Float> vector, String namespace, Struct filter);
+
+    U queryByVector(int topK, List<Float> vector, String namespace, Struct filter, boolean includeValues, boolean includeMetadata);
 
     U query(int topK, List<Float> vector, List<Long> sparseIndices, List<Float> sparseValues, String id,
             String namespace, Struct filter, boolean includeValues, boolean includeMetadata);
