@@ -147,9 +147,9 @@ public class ListIndexExample {
     public static void main(String[] args) {
         Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
         
-        IndexList indexList = pinecone.listIndexes();
+        IndexList indexesInYourProject = pinecone.listIndexes();
         
-        System.out.println(indexList);
+        System.out.println(indexesInYourProject);
     }
 }
 ```
@@ -166,9 +166,9 @@ public class DescribeIndexExample {
     public static void main(String[] args) {
         Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
         
-        IndexModel indexModel = pinecone.describeIndex("example-index");
+        IndexModel indexMetadata = pinecone.describeIndex("example-index");
         
-        System.out.println(indexModel);
+        System.out.println(indexMetadata);
     }
 }
 ```
@@ -234,6 +234,13 @@ public class DescribeIndexStatsExample {
 ```
 
 ## Upsert vectors
+
+Operations related to the indexing, deleting, and querying of vectors are called [data plane](https://docs.pinecone.io/reference/api/introduction#data-plane) 
+operations.
+
+
+
+
 
 The following example upserts vectors to `example-index`.
 
@@ -391,6 +398,7 @@ public class DataPlaneExample {
 ```
 
 # Collections
+Collections fall under data plane operations.
 
 ## Create collection
 
@@ -399,17 +407,16 @@ The following example creates the collection `example-collection` from
 
 ```java
 import io.pinecone.clients.Pinecone;
-import org.openapitools.client.model.CollectionModel;
-import org.openapitools.client.model.CreateCollectionRequest;
+import org.openapitools.client.model.*;
 
 public class Collections {
     public static void main(String[] args) {
         Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
-        String indexName = "example-index";
+
         String collectionName = "example-collection";
+        String sourceIndex = "an-index-you-want-a-static-copy-of";
         
-        CreateCollectionRequest createCollectionRequest = new CreateCollectionRequest().name(collectionName).source(indexName);
-        CollectionModel collection = pinecone.createCollection(createCollectionRequest);
+        pinecone.createCollection(collectionName, sourceIndex);
     }
 }
 ```
@@ -420,12 +427,12 @@ The following example returns a list of the collections in the current project.
 
 ```java
 import io.pinecone.clients.Pinecone;
-import org.openapitools.client.model.CollectionModel;
+import org.openapitools.client.model.*;
 
 public class ListCollectionsExample {
     public static void main(String[] args) {
         Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
-        List<CollectionModel> collectionList = pinecone.listCollections().getCollections();
+        System.out.println(pinecone.listCollections().getCollections());
     }
 }
 ```
@@ -436,12 +443,12 @@ The following example returns a description of the collection
 
 ```java
 import io.pinecone.clients.Pinecone;
-import org.openapitools.client.model.CollectionModel;
+import org.openapitools.client.model.*;
 
 public class DescribeCollectionExample {
     public static void main(String[] args) {
         Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
-        CollectionModel collectionModel = pinecone.describeCollection("example-collection");
+        System.out.println(pinecone.describeCollection("example-collection"));
     }
 }
 ```
