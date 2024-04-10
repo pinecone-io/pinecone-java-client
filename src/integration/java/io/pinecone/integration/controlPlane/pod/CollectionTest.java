@@ -132,6 +132,9 @@ public class CollectionTest {
         createNewIndex(pineconeClient, newIndexName, dimension, targetMetric.toString(), false);
         indexesToCleanUp.add(newIndexName);
 
+        logger.info("Waiting until index is ready.");
+        waitUntilIndexIsReady(pineconeClient, newIndexName, 400);
+
         IndexModel newIndex = pineconeClient.describeIndex(newIndexName);
         assertEquals(newIndex.getName(), newIndexName);
         assertEquals(newIndex.getMetric(), targetMetric);
