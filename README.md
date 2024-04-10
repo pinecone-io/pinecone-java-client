@@ -15,7 +15,7 @@ Maven:
 <dependency>
   <groupId>io.pinecone</groupId>
   <artifactId>pinecone-client</artifactId>
-  <version>1.0.0-rc.3</version>
+  <version>1.0.0-rc.4</version>
 </dependency>
 ```
 
@@ -23,12 +23,12 @@ Maven:
 
 Gradle:
 ```
-implementation "io.pinecone:pinecone-client:1.0.0-rc.3"
+implementation "io.pinecone:pinecone-client:1.0.0-rc.4"
 ```
 
 [comment]: <> (^ [pc:VERSION_LATEST_RELEASE])
 
-Alternatively, you can use our standalone uberjar [pinecone-client-1.0.0-rc.3-all.jar](https://repo1.maven.org/maven2/io/pinecone/pinecone-client/1.0.0-rc.3/pinecone-client-1.0.0-rc.3-all.jar), which bundles the pinecone client and all dependencies together inside a single jar. You can include this on your classpath like any 3rd party JAR without having to obtain the *pinecone-client* dependencies separately.
+Alternatively, you can use our standalone uberjar [pinecone-client-1.0.0-rc.4-all.jar](https://repo1.maven.org/maven2/io/pinecone/pinecone-client/1.0.0-rc.4/pinecone-client-1.0.0-rc.4-all.jar), which bundles the pinecone client and all dependencies together inside a single jar. You can include this on your classpath like any 3rd party JAR without having to obtain the *pinecone-client* dependencies separately.
 
 [comment]: <> (^ [pc:VERSION_LATEST_RELEASE])
 
@@ -206,7 +206,7 @@ public class DescribeIndexStatsExample {
     public static void main(String[] args) {
         Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
 
-        Index index = pinecone.createIndexConnection("indexName");
+        Index index = pinecone.getIndexConnection("example-index");
         DescribeIndexStatsResponse indexStatsResponse = index.describeIndexStats();
         System.out.println(indexStatsResponse);
     }
@@ -232,19 +232,52 @@ import static io.pinecone.commons.IndexInterface.buildUpsertVectorWithUnsignedIn
 public class UpsertVectorsExample {
     public static void main(String[] args) {
         Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
-        Index index = pinecone.createIndexConnection("example-index");
+        Index index = pinecone.getIndexConnection("example-index");
+        // Vector ids to be upserted
         List<String> upsertIds = Arrays.asList("v1", "v2", "v3");
-        List<Float> values = Arrays.asList(1.0f, 2.0f, 3.0f);
-        List<Long> sparseIndices = Arrays.asList(1L, 2L, 3L);
-        List<Float> sparseValues = Arrays.asList(1000f, 2000f, 3000f);
+
+        // List of values to be upserted
+        List<List<Float>> values = new ArrayList<>();
+        values.add(Arrays.asList(1.0f, 2.0f, 3.0f));
+        values.add(Arrays.asList(4.0f, 5.0f, 6.0f));
+        values.add(Arrays.asList(7.0f, 8.0f, 9.0f));
+
+        // List of sparse indices to be upserted
+        List<List<Long>> sparseIndices = new ArrayList<>();
+        sparseIndices.add(Arrays.asList(1L, 2L, 3L));
+        sparseIndices.add(Arrays.asList(4L, 5L, 6L));
+        sparseIndices.add(Arrays.asList(7L, 8L, 9L));
+
+        // List of sparse values to be upserted
+        List<List<Float>> sparseValues = new ArrayList<>();
+        sparseValues.add(Arrays.asList(1000f, 2000f, 3000f));
+        sparseValues.add(Arrays.asList(4000f, 5000f, 6000f));
+        sparseValues.add(Arrays.asList(7000f, 8000f, 9000f));
 
         List<VectorWithUnsignedIndices> vectors = new ArrayList<>(3);
-        Struct emptyMetaDataStruct = null;
 
-        for (String id : upsertIds) {
-            vectors.add(buildUpsertVectorWithUnsignedIndices(id, values, sparseIndices, sparseValues, emptyMetaDataStruct));
+        // metadata to be upserted
+        Struct metadataStruct1 = Struct.newBuilder()
+                .putFields("genre", Value.newBuilder().setStringValue("action").build())
+                .putFields("year", Value.newBuilder().setNumberValue(2019).build())
+                .build();
+
+        Struct metadataStruct2 = Struct.newBuilder()
+                .putFields("genre", Value.newBuilder().setStringValue("thriller").build())
+                .putFields("year", Value.newBuilder().setNumberValue(2020).build())
+                .build();
+
+        Struct metadataStruct3 = Struct.newBuilder()
+                .putFields("genre", Value.newBuilder().setStringValue("comedy").build())
+                .putFields("year", Value.newBuilder().setNumberValue(2021).build())
+                .build();
+        List<Struct> metadataStructList = Arrays.asList(metadataStruct1, metadataStruct2, metadataStruct3);
+
+        // Call upsert data
+        for (int i=0; i<metadataStructList.size(); i++) {
+            vectors.add(buildUpsertVectorWithUnsignedIndices(upsertIds.get(i), values.get(i), sparseIndices.get(i), sparseValues.get(i), metadataStructList.get(i)));
         }
-        
+
         UpsertResponse upsertResponse = index.upsert(vectors, "example-namespace");
         System.out.println(upsertResponse);
     }
@@ -264,7 +297,7 @@ import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
 public class QueryVectorsExample {
     public static void main(String[] args) {
         Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
-        Index index = pinecone.createIndexConnection("example-index");
+        Index index = pinecone.getIndexConnection("example-index");
         QueryResponseWithUnsignedIndices queryRespone = index.queryByVectorId(3, "v1", "example-namespace");
         System.out.println(queryRespone);
     }
@@ -284,7 +317,7 @@ import java.util.List;
 public class DeleteVectorsExample {
     public static void main(String[] args) {
         Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
-        Index index = pinecone.createIndexConnection("example-index");
+        Index index = pinecone.getIndexConnection("example-index");
         List<String> ids = Arrays.asList("v1", "v2", "v3");
         DeleteResponse deleteResponse = index.deleteByIds(ids, "example-namespace");
     }
@@ -306,7 +339,7 @@ import java.util.List;
 public class DataPlaneExample {
     public static void main(String[] args) {
         Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
-        Index index = pinecone.createIndexConnection("example-index");
+        Index index = pinecone.getIndexConnection("example-index");
         List<String> ids = Arrays.asList("v1", "v2", "v3");
         FetchResponse fetchResponse = index.fetch(ids, "example-namespace");
         System.out.println(fetchResponse);
@@ -329,7 +362,7 @@ import java.util.List;
 public class DataPlaneExample {
     public static void main(String[] args) {
         Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
-        Index index = pinecone.createIndexConnection("example-index");
+        Index index = pinecone.getIndexConnection("example-index");
         List<Float> values = Arrays.asList(1F, 2F, 3F);
         UpdateResponse updateResponse = index.update("v1", values, "example-namespace");
         System.out.println(updateResponse);
