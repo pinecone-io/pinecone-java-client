@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.exceptions.PineconeValidationException;
 import okhttp3.*;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.openapitools.client.model.*;
@@ -13,7 +12,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -118,37 +116,6 @@ public class PineconeIndexOperationsTest {
         assertEquals("Region cannot be null or empty", thrownNullRegion.getMessage());
     }
 
-
-    @Test
-    public void testCreatePodIndex() throws IOException {
-        String filePath = "src/test/resources/podIndexJsonString.json";
-        String indexJsonStringPod = new String(Files.readAllBytes(Paths.get(filePath)));
-
-        CreateIndexRequest createIndexRequest = new CreateIndexRequest()
-                .name("test_name").dimension(3).metric(IndexMetric.COSINE);
-
-        Call mockCall = mock(Call.class);
-        when(mockCall.execute()).thenReturn(new Response.Builder()
-                .request(new Request.Builder().url("http://localhost").build())
-                .protocol(Protocol.HTTP_1_1)
-                .code(201)
-                .message("OK")
-                .body(ResponseBody.create(indexJsonStringPod, MediaType.parse("application/json")))
-                .build());
-
-        OkHttpClient mockClient = mock(OkHttpClient.class);
-        when(mockClient.newCall(any(Request.class))).thenReturn(mockCall);
-        Pinecone client = new Pinecone.Builder("testAPiKey").withOkHttpClient(mockClient).build();
-        client.createIndex(createIndexRequest);
-
-        ArgumentCaptor<Request> requestCaptor = ArgumentCaptor.forClass(Request.class);
-
-        verify(mockClient, times(1)).newCall(requestCaptor.capture());
-        verify(mockCall, times(1)).execute();
-        assertEquals(requestCaptor.getValue().method(), "POST");
-        assertEquals(requestCaptor.getValue().url().toString(), "https://api.pinecone.io/indexes");
-    }
-
     @Test
     public void testCreatePodsIndex() throws IOException {
         String filePath = "src/test/resources/podIndexJsonString.json";
@@ -228,7 +195,7 @@ public class PineconeIndexOperationsTest {
                         null));
         assertEquals("Environment cannot be null or empty", thrownNullEnvironment.getMessage());
 
-        // podType stuff
+        // podType
         PineconeValidationException thrownNullPodType = assertThrows(PineconeValidationException.class,
                 () -> Pinecone.validatePodIndexParams("test-index", 3, "some-environment", null, "cosine", null,
                         null,
@@ -276,75 +243,6 @@ public class PineconeIndexOperationsTest {
         PineconeValidationException incorrectNumReplicasAndShards = assertThrows(PineconeValidationException.class,
                 () -> Pinecone.validatePodIndexParams("test-index", 3, "some-environment", "cosine", "p1.x1", 3, 2, 9));
         assertEquals("Number of pods does not equal number of shards times number of replicas", incorrectNumReplicasAndShards.getMessage());
-    }
-
-    @Test
-    @Disabled("Re-enable when control plane validations added")
-    public void testCreateIndexWithNullIndex() {
-        CreateIndexRequest createIndexRequest = new CreateIndexRequest().dimension(3);
-
-        OkHttpClient mockClient = mock(OkHttpClient.class);
-        Pinecone client = new Pinecone.Builder("testAPiKey").withOkHttpClient(mockClient).build();
-        client.createIndex(createIndexRequest);
-        assertThrows(PineconeValidationException.class, () -> client.createIndex(createIndexRequest));
-    }
-
-    @Test
-    @Disabled("Re-enable when control plane validations added")
-    public void testCreateIndexWithNullDimensions() {
-        CreateIndexRequest createIndexRequest = new CreateIndexRequest().name("testIndex");
-
-        OkHttpClient mockClient = mock(OkHttpClient.class);
-        Pinecone client = new Pinecone.Builder("testAPiKey").withOkHttpClient(mockClient).build();
-        client.createIndex(createIndexRequest);
-        assertThrows(PineconeValidationException.class, () -> client.createIndex(createIndexRequest));
-    }
-
-    @Test
-    public void testCreateIndexWithAllFields() throws IOException {
-        String filePath = "src/test/resources/podIndexJsonString.json";
-        String indexJsonStringPod = new String(Files.readAllBytes(Paths.get(filePath)));
-        IndexModel expectedIndex = gson.fromJson(indexJsonStringPod, IndexModel.class);
-
-        CreateIndexRequestSpecPodMetadataConfig createIndexRequestSpecPodMetadataConfig = new CreateIndexRequestSpecPodMetadataConfig();
-        List<String> indexedItems = Arrays.asList("A", "B", "C", "D");
-        createIndexRequestSpecPodMetadataConfig.setIndexed(indexedItems);
-
-        CreateIndexRequestSpecPod requestSpecPod = new CreateIndexRequestSpecPod().pods(2).podType("p1.x2").replicas(2).metadataConfig(createIndexRequestSpecPodMetadataConfig).sourceCollection("step");
-        CreateIndexRequestSpec requestSpec = new CreateIndexRequestSpec().pod(requestSpecPod);
-        CreateIndexRequest createIndexRequest = new CreateIndexRequest()
-                .name("test_name")
-                .dimension(3)
-                .metric(IndexMetric.EUCLIDEAN)
-                .spec(requestSpec);
-
-        Call mockCall = mock(Call.class);
-        when(mockCall.execute()).thenReturn(new Response.Builder()
-                .request(new Request.Builder().url("http://localhost").build())
-                .protocol(Protocol.HTTP_1_1)
-                .code(201)
-                .message("OK")
-                .body(ResponseBody.create(indexJsonStringPod, MediaType.parse("application/json")))
-                .build());
-
-        OkHttpClient mockClient = mock(OkHttpClient.class);
-        when(mockClient.newCall(any(Request.class))).thenReturn(mockCall);
-
-        Pinecone client = new Pinecone.Builder("testAPiKey").withOkHttpClient(mockClient).build();
-        IndexModel createdIndex = client.createIndex(createIndexRequest);
-
-        ArgumentCaptor<Request> requestCaptor = ArgumentCaptor.forClass(Request.class);
-
-        verify(mockClient, times(1)).newCall(requestCaptor.capture());
-        verify(mockCall, times(1)).execute();
-        assertEquals(createdIndex, expectedIndex);
-        assertEquals(requestCaptor.getValue().method(), "POST");
-        assertEquals(requestCaptor.getValue().url().toString(), "https://api.pinecone.io/indexes");
-
-        // Test for null CreateIndexRequest object
-        PineconeValidationException thrown = assertThrows(PineconeValidationException.class,
-                () -> client.createIndex(null));
-        assertEquals("CreateIndexRequest object cannot be null", thrown.getMessage());
     }
 
     @Test
