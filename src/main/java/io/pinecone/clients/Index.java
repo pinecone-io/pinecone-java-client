@@ -115,7 +115,10 @@ public class Index implements IndexInterface<UpsertResponse,
     }
 
     @Override
-    public QueryResponseWithUnsignedIndices queryByVectorId(int topK, String id, boolean includeValues, boolean includeMetadata) {
+    public QueryResponseWithUnsignedIndices queryByVectorId(int topK,
+                                                            String id,
+                                                            boolean includeValues,
+                                                            boolean includeMetadata) {
         return query(topK, null, null, null, id, null, null, includeValues, includeMetadata);
     }
 
@@ -126,32 +129,50 @@ public class Index implements IndexInterface<UpsertResponse,
     }
 
     @Override
-    public QueryResponseWithUnsignedIndices queryByVector(int topK, List<Float> vector, String namespace, Struct filter, boolean includeValues, boolean includeMetadata) {
+    public QueryResponseWithUnsignedIndices queryByVector(int topK,
+                                                          List<Float> vector,
+                                                          String namespace,
+                                                          Struct filter,
+                                                          boolean includeValues,
+                                                          boolean includeMetadata) {
         return query(topK, vector, null, null, null, namespace, filter, includeValues, includeMetadata);
     }
 
     @Override
-    public QueryResponseWithUnsignedIndices queryByVector(int topK, List<Float> vector, String namespace, Struct filter) {
+    public QueryResponseWithUnsignedIndices queryByVector(int topK,
+                                                          List<Float> vector,
+                                                          String namespace,
+                                                          Struct filter) {
         return query(topK, vector, null, null, null, namespace, filter, false, false);
     }
 
     @Override
-    public QueryResponseWithUnsignedIndices queryByVector(int topK, List<Float> vector, String namespace, boolean includeValues, boolean includeMetadata) {
+    public QueryResponseWithUnsignedIndices queryByVector(int topK,
+                                                          List<Float> vector,
+                                                          String namespace,
+                                                          boolean includeValues,
+                                                          boolean includeMetadata) {
         return query(topK, vector, null, null, null, namespace, null, includeValues, includeMetadata);
     }
 
     @Override
-    public QueryResponseWithUnsignedIndices queryByVector(int topK, List<Float> vector, String namespace) {
+    public QueryResponseWithUnsignedIndices queryByVector(int topK,
+                                                          List<Float> vector,
+                                                          String namespace) {
         return query(topK, vector, null, null, null, namespace, null, false, false);
     }
 
     @Override
-    public QueryResponseWithUnsignedIndices queryByVector(int topK, List<Float> vector, boolean includeValues, boolean includeMetadata) {
+    public QueryResponseWithUnsignedIndices queryByVector(int topK,
+                                                          List<Float> vector,
+                                                          boolean includeValues,
+                                                          boolean includeMetadata) {
         return query(topK, vector, null, null, null, null, null, includeValues, includeMetadata);
     }
 
     @Override
-    public QueryResponseWithUnsignedIndices queryByVector(int topK, List<Float> vector) {
+    public QueryResponseWithUnsignedIndices queryByVector(int topK,
+                                                          List<Float> vector) {
         return query(topK, vector, null, null, null, null, null, false, false);
     }
 

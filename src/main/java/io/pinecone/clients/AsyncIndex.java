@@ -135,41 +135,50 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
 
     @Override
-    public ListenableFuture<QueryResponseWithUnsignedIndices> queryByVector(int topK, List<Float> vector,
-                                                                            String namespace, Struct filter,
+    public ListenableFuture<QueryResponseWithUnsignedIndices> queryByVector(int topK,
+                                                                            List<Float> vector,
+                                                                            String namespace,
+                                                                            Struct filter,
                                                                             boolean includeValues,
                                                                             boolean includeMetadata) {
         return query(topK, vector, null, null, null, namespace, filter, includeValues, includeMetadata);
     }
 
     @Override
-    public ListenableFuture<QueryResponseWithUnsignedIndices> queryByVector(int topK, List<Float> vector,
-                                                                            String namespace, Struct filter) {
+    public ListenableFuture<QueryResponseWithUnsignedIndices> queryByVector(int topK,
+                                                                            List<Float> vector,
+                                                                            String namespace,
+                                                                            Struct filter) {
         return query(topK, vector, null, null, null, namespace, filter, false, false);
     }
 
     @Override
-    public ListenableFuture<QueryResponseWithUnsignedIndices> queryByVector(int topK, List<Float> vector,
-                                                                            String namespace, boolean includeValues,
+    public ListenableFuture<QueryResponseWithUnsignedIndices> queryByVector(int topK,
+                                                                            List<Float> vector,
+                                                                            String namespace,
+                                                                            boolean includeValues,
                                                                             boolean includeMetadata) {
         return query(topK, vector, null, null, null, namespace, null, includeValues, includeMetadata);
     }
 
     @Override
-    public ListenableFuture<QueryResponseWithUnsignedIndices> queryByVector(int topK, List<Float> vector,
+    public ListenableFuture<QueryResponseWithUnsignedIndices> queryByVector(int topK,
+                                                                            List<Float> vector,
                                                                             String namespace) {
         return query(topK, vector, null, null, null, namespace, null, false, false);
     }
 
     @Override
-    public ListenableFuture<QueryResponseWithUnsignedIndices> queryByVector(int topK, List<Float> vector,
+    public ListenableFuture<QueryResponseWithUnsignedIndices> queryByVector(int topK,
+                                                                            List<Float> vector,
                                                                             boolean includeValues,
                                                                             boolean includeMetadata) {
         return query(topK, vector, null, null, null, null, null, includeValues, includeMetadata);
     }
 
     @Override
-    public ListenableFuture<QueryResponseWithUnsignedIndices> queryByVector(int topK, List<Float> vector) {
+    public ListenableFuture<QueryResponseWithUnsignedIndices> queryByVector(int topK,
+                                                                            List<Float> vector) {
         return query(topK, vector, null, null, null, null, null, false, false);
     }
 
