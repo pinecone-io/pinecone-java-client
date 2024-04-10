@@ -64,10 +64,9 @@ public class ConfigureIndexTest {
     public void configureIndexExceedingQuota() {
         try {
             controlPlaneClient.configureIndex(indexName, 600);
-
             fail("Expected to throw PineconeForbiddenException");
         } catch (PineconeForbiddenException expected) {
-            assertTrue(expected.getLocalizedMessage().contains("quota"));
+            assertTrue(expected.getLocalizedMessage().contains("reached the max pods allowed"));
         }
     }
 
