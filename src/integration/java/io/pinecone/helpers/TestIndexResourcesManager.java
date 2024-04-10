@@ -25,14 +25,20 @@ public class TestIndexResourcesManager {
     private final String environment = System.getenv("PINECONE_ENVIRONMENT") == null
             ? "us-east4-gcp"
             : System.getenv("PINECONE_ENVIRONMENT");
-    private static final IndexMetric metric = System.getenv("METRIC") == null
-            ? IndexMetric.COSINE
-            : IndexMetric.valueOf(System.getenv("METRIC"));
+    private static final String metric = System.getenv("METRIC") == null
+            ? IndexMetric.COSINE.toString()
+            : System.getenv("METRIC");
+    private static final String cloud = System.getenv("CLOUD") == null
+            ? ServerlessSpec.CloudEnum.AWS.toString()
+            : System.getenv("CLOUD");
+    private static final String region = System.getenv("REGION") == null
+            ? "us-west-2"
+            : System.getenv("REGION");
     private Pinecone pineconeClient;
     private String podIndexName;
     private IndexModel podIndexModel;
     private String serverlessIndexName;
-    private IndexModel serverlessIndexModel;
+//    private IndexModel serverlessIndexModel;
     private String collectionName;
     private CollectionModel collectionModel;
     private final List<String> podIndexVectorIds = Arrays.asList("id1", "id2", "id3");
@@ -64,10 +70,6 @@ public class TestIndexResourcesManager {
         return dimension;
     }
 
-    public IndexMetric getMetric() {
-        return metric;
-    }
-
     public String getEnvironment() {
         return environment;
     }
@@ -79,11 +81,6 @@ public class TestIndexResourcesManager {
     public IndexModel getPodIndexModel() throws InterruptedException {
         podIndexModel = pineconeClient.describeIndex(createOrGetPodIndex());
         return podIndexModel;
-    }
-
-    public IndexModel getServerlessIndexModel() throws InterruptedException {
-        serverlessIndexModel = pineconeClient.describeIndex(createOrGetServerlessIndex());
-        return serverlessIndexModel;
     }
 
     public CollectionModel getCollectionModel() throws InterruptedException {
@@ -112,13 +109,7 @@ public class TestIndexResourcesManager {
 
         String indexName = RandomStringBuilder.build("pod-index", 8);
 
-        // Create index
-        CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod()
-                .podType("p1.x1")
-                .environment(environment);
-        CreateIndexRequestSpec spec = new CreateIndexRequestSpec().pod(podSpec);
-        CreateIndexRequest createIndexRequest = new CreateIndexRequest().name(indexName).dimension(dimension).metric(metric).spec(spec);
-        podIndexModel = pineconeClient.createIndex(createIndexRequest);
+        podIndexModel = pineconeClient.createPodsIndex(indexName, dimension, environment, "p1.x1");
         waitUntilIndexIsReady(pineconeClient, indexName);
 
         // Explicitly wait after ready to avoid the "no healthy upstream" issue
@@ -138,11 +129,7 @@ public class TestIndexResourcesManager {
 
         String indexName = RandomStringBuilder.build("serverless-index", 8);
 
-        // Create index
-        ServerlessSpec serverlessSpec = new ServerlessSpec().cloud(ServerlessSpec.CloudEnum.AWS).region("us-west-2");
-        CreateIndexRequestSpec spec = new CreateIndexRequestSpec().serverless(serverlessSpec);
-        CreateIndexRequest createIndexRequest = new CreateIndexRequest().name(indexName).dimension(dimension).metric(metric).spec(spec);
-        serverlessIndexModel = pineconeClient.createIndex(createIndexRequest);
+        pineconeClient.createServerlessIndex(indexName, metric, dimension, cloud, region);
 
         serverlessIndexName = indexName;
         return indexName;
