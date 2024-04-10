@@ -28,7 +28,6 @@ public class CollectionTest {
     private static final Pinecone pineconeClient = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
     private static final Logger logger = LoggerFactory.getLogger(CollectionTest.class);
     private static final ArrayList<String> indexesToCleanUp = new ArrayList<>();
-//    private static final IndexMetric indexMetric = indexManager.getMetric();
     private static final String indexMetric = IndexMetric.COSINE.toString();
     private static final List<String> upsertIds = indexManager.getPodIndexVectorIds();
     private static final String environment = indexManager.getEnvironment();
