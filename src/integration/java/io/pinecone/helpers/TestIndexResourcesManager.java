@@ -38,7 +38,6 @@ public class TestIndexResourcesManager {
     private String podIndexName;
     private IndexModel podIndexModel;
     private String serverlessIndexName;
-//    private IndexModel serverlessIndexModel;
     private String collectionName;
     private CollectionModel collectionModel;
     private final List<String> podIndexVectorIds = Arrays.asList("id1", "id2", "id3");

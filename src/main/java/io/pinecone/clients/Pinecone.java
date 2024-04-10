@@ -26,19 +26,6 @@ public class Pinecone {
         this.manageIndexesApi = manageIndexesApi;
     }
 
-//    public IndexModel createIndex(CreateIndexRequest createIndexRequest) throws PineconeValidationException {
-//        if (createIndexRequest == null) {
-//            throw new PineconeValidationException("CreateIndexRequest object cannot be null");
-//        }
-//        IndexModel indexModel = null;
-//        try {
-//            indexModel = manageIndexesApi.createIndex(createIndexRequest);
-//        } catch (ApiException apiException) {
-//            handleApiException(apiException);
-//        }
-//        return indexModel;
-//    }
-
     public IndexModel createServerlessIndex(String indexName, String metric, int dimension, String cloud,
                                             String region) {
         if (indexName == null || indexName.isEmpty()) {
