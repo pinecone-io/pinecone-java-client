@@ -195,7 +195,7 @@ public class PineconeIndexOperationsTest {
                         null));
         assertEquals("Environment cannot be null or empty", thrownNullEnvironment.getMessage());
 
-        // podType stuff
+        // podType
         PineconeValidationException thrownNullPodType = assertThrows(PineconeValidationException.class,
                 () -> Pinecone.validatePodIndexParams("test-index", 3, "some-environment", null, "cosine", null,
                         null,
