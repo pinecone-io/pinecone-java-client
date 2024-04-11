@@ -3,7 +3,7 @@ package io.pinecone.configs;
 import io.grpc.ManagedChannel;
 import io.pinecone.exceptions.PineconeConfigurationException;
 /**
- * The `PineconeConfig` class is responsible for managing the configuration settings
+ * The {@link PineconeConfig} class is responsible for managing the configuration settings
  * required to interact with the Pinecone API. It provides methods to set and retrieve
  * the necessary API key, host, source tag, and custom managed channel.
  */

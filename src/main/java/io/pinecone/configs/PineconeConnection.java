@@ -16,7 +16,7 @@ import javax.net.ssl.SSLException;
 import java.util.concurrent.TimeUnit;
 
 /**
- * The PineconeConnection class handles communication with a Pinecone service or router. One PineconeConnection
+ * The {@link PineconeConnection} class handles communication with a Pinecone service or router. One PineconeConnection
  * can be shared and used concurrently by multiple threads.
  */
 public class PineconeConnection implements AutoCloseable {
