@@ -13,6 +13,14 @@ import java.util.List;
 /**
  * A client for interacting with a Pinecone index via GRPC synchronously. Allows for upserting, querying, fetching, updating, and deleting vectors.
  * This class provides a direct interface to interact with a specific index, encapsulating network communication and request validation.
+ *
+ * <pre>{@code
+ *     import io.pinecone.clients.Pinecone;
+ *     import io.pinecone.clients.Index;
+ *
+ *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+ *     Index index = client.getIndexConnection("my-index");
+ * }</pre>
  */
 public class Index implements IndexInterface<UpsertResponse,
         QueryResponseWithUnsignedIndices,
@@ -28,9 +36,17 @@ public class Index implements IndexInterface<UpsertResponse,
     /**
      * Constructs an {@link Index} instance for interacting with a Pinecone index.
      *
+     * <pre>{@code
+     *     import io.pinecone.clients.Pinecone;
+     *     import io.pinecone.clients.Index;
+     *
+     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+     *     Index index = client.getIndexConnection("my-index");
+     * }</pre>
+     *
      * @param connection The {@link PineconeConnection} configuration to be used for this index.
      * @param indexName The name of the index to interact with. The index host will be automatically resolved.
-     * @throws PineconeValidationException if the connection object is null or the indexName is null or empty.
+     * @throws PineconeValidationException if the connection object is null.
      */
     public Index(PineconeConnection connection, String indexName) {
         if (connection == null) {

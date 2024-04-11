@@ -16,6 +16,14 @@ import java.util.List;
 /**
  * A client for interacting with a Pinecone index via GRPC asynchronously. Allows for upserting, querying, fetching, updating, and deleting vectors.
  * This class provides a direct interface to interact with a specific index, encapsulating network communication and request validation.
+ *
+ * <pre>{@code
+ *     import io.pinecone.clients.Pinecone;
+ *     import io.pinecone.clients.AsyncIndex;
+ *
+ *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+ *     AsyncIndex asyncIndex = client.getAsyncIndexConnection("my-index");
+ * }</pre>
  */
 public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertResponse>,
         ListenableFuture<QueryResponseWithUnsignedIndices>,
@@ -31,9 +39,17 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
     /**
      * Constructs an {@link AsyncIndex} instance for interacting with a Pinecone index.
      *
+     * <pre>{@code
+     *     import io.pinecone.clients.Pinecone;
+     *     import io.pinecone.clients.AsyncIndex;
+     *
+     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+     *     AsyncIndex asyncIndex = client.getAsyncIndexConnection("my-index");
+     * }</pre>
+     *
      * @param connection The {@link PineconeConnection} configuration to be used for this index.
      * @param indexName The name of the index to interact with. The index host will be automatically resolved.
-     * @throws PineconeValidationException if the connection object is null or the indexName is null or empty.
+     * @throws PineconeValidationException if the connection object is null.
      */
     public AsyncIndex(PineconeConnection connection, String indexName) {
         if (connection == null) {
