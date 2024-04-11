@@ -91,7 +91,7 @@ You can use the Java SDK to create two types of indexes: [serverless indexes](ht
 
 > [!WARNING]  
 > Serverless indexes are in **public preview** and are available only on AWS in the
-> `us-west-2` region. Check the [current limitations](https://docs.pinecone.io/docs/limits#serverless-index-limitations) and test thoroughly before using it in production.
+> `us-east-1` and `us-west-2` regions. Check the [current limitations](https://docs.pinecone.io/docs/limits#serverless-index-limitations) and test thoroughly before using it in production.
 
 ```java
 import io.pinecone.clients.Pinecone;
