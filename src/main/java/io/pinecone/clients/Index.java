@@ -13,7 +13,8 @@ import java.util.List;
 /**
  * A client for interacting with a Pinecone index via GRPC synchronously. Allows for upserting, querying, fetching, updating, and deleting vectors.
  * This class provides a direct interface to interact with a specific index, encapsulating network communication and request validation.
- *
+ * <p/>
+ * Example:
  * <pre>{@code
  *     import io.pinecone.clients.Pinecone;
  *     import io.pinecone.clients.Index;
@@ -35,7 +36,8 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * Constructs an {@link Index} instance for interacting with a Pinecone index.
-     *
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.clients.Pinecone;
      *     import io.pinecone.clients.Index;
@@ -60,6 +62,8 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.proto.UpsertResponse;
      *     import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
@@ -79,7 +83,9 @@ public class Index implements IndexInterface<UpsertResponse,
      *     List<VectorWithUnsignedIndices> vectors = new ArrayList<>(3);
      *
      *     for (int i=0; i<upsertIds.size(); i++) {
-     *         vectors.add(buildUpsertVectorWithUnsignedIndices(upsertIds.get(i), values.get(i), null, null, null));
+     *         vectors.add(
+     *             buildUpsertVectorWithUnsignedIndices(upsertIds.get(i),
+     *                 values.get(i), null, null, null));
      *     }
      *
      *     UpsertResponse upsertResponse = index.upsert(vectors, "example-namespace");
@@ -94,12 +100,10 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
-     *     import io.pinecone.proto.UpsertResponse;
-     *
-     *     ...
-     *
-     *     UpsertResponse upsertResponse = index.upsert("my-vector-id", Arrays.asList(1.0f, 2.0f, 3.0f));
+     *     index.upsert("my-vector-id", Arrays.asList(1.0f, 2.0f, 3.0f));
      * }</pre>
      */
     @Override
@@ -110,12 +114,17 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.proto.UpsertResponse;
      *
      *     ...
      *
-     *     UpsertResponse upsertResponse = index.upsert("my-vector-id", Arrays.asList(1.0f, 2.0f, 3.0f), "example-namespace");
+     *     UpsertResponse upsertResponse =
+     *     index.upsert("my-vector-id",
+     *         Arrays.asList(1.0f, 2.0f, 3.0f),
+     *         "example-namespace");
      * }</pre>
      */
     @Override
@@ -127,6 +136,8 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.proto.UpsertResponse;
      *     import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
@@ -137,16 +148,17 @@ public class Index implements IndexInterface<UpsertResponse,
      *
      *     // metadata
      *     Struct metadataStruct = Struct.newBuilder()
-     *             .putFields("genre", Value.newBuilder().setStringValue("action").build())
-     *             .putFields("year", Value.newBuilder().setNumberValue(2019).build())
-     *             .build();
+     *         .putFields("genre", Value.newBuilder().setStringValue("action").build())
+     *         .putFields("year", Value.newBuilder().setNumberValue(2019).build())
+     *         .build();
      *
-     *     UpsertResponse upsertResponse = index.upsert("my-vector-id",
-     *                                                  Arrays.asList(1.0f, 2.0f, 3.0f),
-     *                                                  Arrays.asList(1L, 2L, 3L),
-     *                                                  Arrays.asList(1000f, 2000f, 3000f),
-     *                                                  metadataStruct,
-     *                                                  "example-namespace");
+     *     UpsertResponse upsertResponse =
+     *     index.upsert("my-vector-id",
+     *         Arrays.asList(1.0f, 2.0f, 3.0f),
+     *         Arrays.asList(1L, 2L, 3L),
+     *         Arrays.asList(1000f, 2000f, 3000f),
+     *         metadataStruct,
+     *         "example-namespace");
      * }</pre>
      */
     @Override
@@ -164,20 +176,23 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *
      *     ...
      *
-     *     QueryResponseWithUnsignedIndices queryResponse = index.query(10,
-     *                                                                  Arrays.asList(1.0f, 2.0f, 3.0f),
-     *                                                                  Arrays.asList(1L, 2L, 3L),
-     *                                                                  Arrays.asList(1000f, 2000f, 3000f),
-     *                                                                  null,
-     *                                                                  "example-namespace",
-     *                                                                  null,
-     *                                                                  true,
-     *                                                                  true);
+     *     QueryResponseWithUnsignedIndices queryResponse =
+     *         index.query(10,
+     *             Arrays.asList(1.0f, 2.0f, 3.0f),
+     *             Arrays.asList(1L, 2L, 3L),
+     *             Arrays.asList(1000f, 2000f, 3000f),
+     *             null,
+     *             "example-namespace",
+     *             null,
+     *             true,
+     *             true);
      * }</pre>
      */
     @Override
@@ -198,17 +213,20 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *
      *     ...
      *
-     *     QueryResponseWithUnsignedIndices queryResponse = index.queryByVectorId(10,
-     *                                                                            "my-vector-id",
-     *                                                                            "example-namespace",
-     *                                                                            null,
-     *                                                                            true,
-     *                                                                            true);
+     *     QueryResponseWithUnsignedIndices queryResponse =
+     *         index.queryByVectorId(10,
+     *             "my-vector-id",
+     *             "example-namespace",
+     *             null,
+     *             true,
+     *             true);
      * }</pre>
      */
     @Override
@@ -223,17 +241,21 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *     import com.google.protobuf.Struct;
      *
      *     ...
      *
-     *     Struct filter = Struct.newBuilder().putFields("genre", Value.newBuilder().setStringValue("action").build()).build();
-     *     QueryResponseWithUnsignedIndices queryResponse = index.queryByVectorId(10,
-     *                                                                            "my-vector-id",
-     *                                                                            "example-namespace",
-     *                                                                            filter);
+     *     Struct filter = Struct.newBuilder()
+     *         .putFields("genre", Value.newBuilder().setStringValue("action").build()).build();
+     *     QueryResponseWithUnsignedIndices queryResponse =
+     *         index.queryByVectorId(10,
+     *             "my-vector-id",
+     *             "example-namespace",
+     *             filter);
      * }</pre>
      */
     @Override
@@ -246,12 +268,19 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *
      *     ...
      *
-     *     QueryResponseWithUnsignedIndices queryResponse = index.queryByVectorId(10, "my-vector-id", "example-namespace", true, true);
+     *     QueryResponseWithUnsignedIndices queryResponse =
+     *     index.queryByVectorId(10,
+     *         "my-vector-id",
+     *         "example-namespace",
+     *         true,
+     *         true);
      * }</pre>
      */
     @Override
@@ -265,12 +294,17 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *
      *     ...
      *
-     *     QueryResponseWithUnsignedIndices queryResponse = index.queryByVectorId(10, "my-vector-id", "example-namespace");
+     *     QueryResponseWithUnsignedIndices queryResponse =
+     *     index.queryByVectorId(10,
+     *         "my-vector-id",
+     *         "example-namespace");
      * }</pre>
      */
     @Override
@@ -282,12 +316,18 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *
      *     ...
      *
-     *     QueryResponseWithUnsignedIndices queryResponse = index.queryByVectorId(10, "my-vector-id", true, true);
+     *     QueryResponseWithUnsignedIndices queryResponse =
+     *     index.queryByVectorId(10,
+     *         "my-vector-id",
+     *         true,
+     *         true);
      * }</pre>
      */
     @Override
@@ -300,12 +340,16 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *
      *     ...
      *
-     *     QueryResponseWithUnsignedIndices queryResponse = index.queryByVectorId(10, "my-vector-id");
+     *     QueryResponseWithUnsignedIndices queryResponse =
+     *     index.queryByVectorId(10,
+     *         "my-vector-id");
      * }</pre>
      */
     @Override
@@ -316,19 +360,23 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *     import com.google.protobuf.Struct;
      *
      *     ...
      *
-     *     Struct filter = Struct.newBuilder().putFields("genre", Value.newBuilder().setStringValue("action").build()).build();
-     *     QueryResponseWithUnsignedIndices queryResponse = index.queryByVector(10,
-     *                                                                          Arrays.asList(1.0f, 2.0f, 3.0f),
-     *                                                                          "example-namespace",
-     *                                                                          filter,
-     *                                                                          true,
-     *                                                                          true);
+     *     Struct filter = Struct.newBuilder()
+     *         .putFields("genre", Value.newBuilder().setStringValue("action").build()).build();
+     *     QueryResponseWithUnsignedIndices queryResponse =
+     *     index.queryByVector(10,
+     *         Arrays.asList(1.0f, 2.0f, 3.0f),
+     *         "example-namespace",
+     *         filter,
+     *         true,
+     *         true);
      * }</pre>
      */
     @Override
@@ -343,17 +391,21 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *     import com.google.protobuf.Struct;
      *
      *     ...
      *
-     *     Struct filter = Struct.newBuilder().putFields("genre", Value.newBuilder().setStringValue("action").build()).build();
-     *     QueryResponseWithUnsignedIndices queryResponse = index.queryByVector(10,
-     *                                                                          Arrays.asList(1.0f, 2.0f, 3.0f),
-     *                                                                          "example-namespace",
-     *                                                                          filter);
+     *     Struct filter = Struct.newBuilder()
+     *         .putFields("genre", Value.newBuilder().setStringValue("action").build()).build();
+     *     QueryResponseWithUnsignedIndices queryResponse =
+     *     index.queryByVector(10,
+     *         Arrays.asList(1.0f, 2.0f, 3.0f),
+     *         "example-namespace",
+     *         filter);
      * }</pre>
      */
     @Override
@@ -366,16 +418,19 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *
      *     ...
      *
-     *     QueryResponseWithUnsignedIndices queryResponse = index.queryByVector(10,
-     *                                                                          Arrays.asList(1.0f, 2.0f, 3.0f),
-     *                                                                          "example-namespace",
-     *                                                                          true,
-     *                                                                          true);
+     *     QueryResponseWithUnsignedIndices queryResponse =
+     *     index.queryByVector(10,
+     *         Arrays.asList(1.0f, 2.0f, 3.0f),
+     *         "example-namespace",
+     *         true,
+     *         true);
      * }</pre>
      */
     @Override
@@ -389,12 +444,17 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *
      *     ...
      *
-     *     QueryResponseWithUnsignedIndices queryResponse = index.queryByVector(10, Arrays.asList(1.0f, 2.0f, 3.0f), "example-namespace");
+     *     QueryResponseWithUnsignedIndices queryResponse =
+     *     index.queryByVector(10,
+     *         Arrays.asList(1.0f, 2.0f, 3.0f),
+     *         "example-namespace");
      * }</pre>
      */
     @Override
@@ -406,12 +466,18 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *
      *     ...
      *
-     *     QueryResponseWithUnsignedIndices queryResponse = index.queryByVector(10, Arrays.asList(1.0f, 2.0f, 3.0f), true, true);
+     *     QueryResponseWithUnsignedIndices queryResponse =
+     *     index.queryByVector(10,
+     *         Arrays.asList(1.0f, 2.0f, 3.0f),
+     *         true,
+     *         true);
      * }</pre>
      */
     @Override
@@ -424,12 +490,15 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *
      *     ...
      *
-     *     QueryResponseWithUnsignedIndices queryResponse = index.queryByVector(10, Arrays.asList(1.0f, 2.0f, 3.0f));
+     *     QueryResponseWithUnsignedIndices queryResponse =
+     *     index.queryByVector(10, Arrays.asList(1.0f, 2.0f, 3.0f));
      * }</pre>
      */
     @Override
@@ -440,6 +509,8 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.proto.FetchResponse;
      *
@@ -455,6 +526,8 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.proto.FetchResponse;
      *
@@ -473,6 +546,8 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.proto.UpdateResponse;
      *
@@ -489,14 +564,17 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.proto.UpdateResponse;
      *
      *     ...
      *
-     *     UpdateResponse updateResponse = index.update("my-vector-id",
-     *                                                  Arrays.asList(1.0f, 2.0f, 3.0f),
-     *                                                  "example-namespace");
+     *     UpdateResponse updateResponse =
+     *     index.update("my-vector-id",
+     *         Arrays.asList(1.0f, 2.0f, 3.0f),
+     *         "example-namespace");
      * }</pre>
      */
     @Override
@@ -508,6 +586,8 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.proto.UpdateResponse;
      *     import com.google.protobuf.Struct;
@@ -515,16 +595,17 @@ public class Index implements IndexInterface<UpsertResponse,
      *     ...
      *
      *     Struct metadata = Struct.newBuilder()
-     *             .putFields("genre", Value.newBuilder().setStringValue("action").build())
-     *             .putFields("year", Value.newBuilder().setNumberValue(2019).build())
-     *             .build();
+     *         .putFields("genre", Value.newBuilder().setStringValue("action").build())
+     *         .putFields("year", Value.newBuilder().setNumberValue(2019).build())
+     *         .build();
      *
-     *     UpdateResponse updateResponse = index.update("my-vector-id",
-     *                                                  Arrays.asList(1.0f, 2.0f, 3.0f),
-     *                                                  metadata,
-     *                                                  "example-namespace",
-     *                                                  Arrays.asList(1L, 2L, 3L),
-     *                                                  Arrays.asList(1000f, 2000f, 3000f));
+     *     UpdateResponse updateResponse =
+     *     index.update("my-vector-id",
+     *         Arrays.asList(1.0f, 2.0f, 3.0f),
+     *         metadata,
+     *         "example-namespace",
+     *         Arrays.asList(1L, 2L, 3L),
+     *         Arrays.asList(1000f, 2000f, 3000f));
      * }</pre>
      */
     @Override
@@ -542,13 +623,16 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.proto.DeleteResponse;
      *     import com.google.protobuf.Struct;
      *
      *     ...
      *
-     *     DeleteResponse deleteResponse = index.deleteByIds(Arrays.asList("v1", "v2", "v3"), "example-namespace");
+     *     DeleteResponse deleteResponse =
+     *     index.deleteByIds(Arrays.asList("v1", "v2", "v3"), "example-namespace");
      * }</pre>
      */
     @Override
@@ -558,6 +642,8 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.proto.DeleteResponse;
      *     import com.google.protobuf.Struct;
@@ -574,13 +660,16 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.proto.DeleteResponse;
      *     import com.google.protobuf.Struct;
      *
      *     ...
      *
-     *     Struct filter = Struct.newBuilder().putFields("genre", Value.newBuilder().setStringValue("action").build()).build();
+     *     Struct filter = Struct.newBuilder()
+     *         .putFields("genre", Value.newBuilder().setStringValue("action").build()).build();
      *     DeleteResponse deleteResponse = index.deleteByFilter(filter, "example-namespace");
      * }</pre>
      */
@@ -591,13 +680,16 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.proto.DeleteResponse;
      *     import com.google.protobuf.Struct;
      *
      *     ...
      *
-     *     Struct filter = Struct.newBuilder().putFields("genre", Value.newBuilder().setStringValue("action").build()).build();
+     *     Struct filter = Struct.newBuilder()
+     *         .putFields("genre", Value.newBuilder().setStringValue("action").build()).build();
      *     DeleteResponse deleteResponse = index.deleteByFilter(filter);
      * }</pre>
      */
@@ -608,6 +700,8 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.proto.DeleteResponse;
      *
@@ -623,15 +717,15 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.proto.DeleteResponse;
      *
      *     ...
      *
-     *     DeleteResponse deleteResponse = index.delete(Arrays.asList("v1", "v2", "v3"),
-     *                                                  false,
-     *                                                  "example-namespace",
-     *                                                  null);
+     *     DeleteResponse deleteResponse =
+     *     index.delete(Arrays.asList("v1", "v2", "v3"),false,"example-namespace",null);
      * }</pre>
      */
     @Override
@@ -646,6 +740,8 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.proto.DescribeIndexStatsResponse;
      *
@@ -663,13 +759,16 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.proto.DescribeIndexStatsResponse;
      *     import com.google.protobuf.Struct;
      *
      *     ...
      *
-     *     Struct filter = Struct.newBuilder().putFields("genre", Value.newBuilder().setStringValue("action").build()).build();
+     *     Struct filter = Struct.newBuilder()
+     *         .putFields("genre", Value.newBuilder().setStringValue("action").build()).build();
      *     DescribeIndexStatsResponse describeIndexStatsResponse = index.describeIndexStats();
      * }</pre>
      */

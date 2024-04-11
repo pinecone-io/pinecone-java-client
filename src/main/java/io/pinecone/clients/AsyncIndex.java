@@ -16,7 +16,8 @@ import java.util.List;
 /**
  * A client for interacting with a Pinecone index via GRPC asynchronously. Allows for upserting, querying, fetching, updating, and deleting vectors.
  * This class provides a direct interface to interact with a specific index, encapsulating network communication and request validation.
- *
+ * <p/>
+ * Example:
  * <pre>{@code
  *     import io.pinecone.clients.Pinecone;
  *     import io.pinecone.clients.AsyncIndex;
@@ -38,7 +39,8 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * Constructs an {@link AsyncIndex} instance for interacting with a Pinecone index.
-     *
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.clients.Pinecone;
      *     import io.pinecone.clients.AsyncIndex;
@@ -63,6 +65,8 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.proto.UpsertResponse;
      *     import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
@@ -97,25 +101,31 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      *
      *     // metadata
      *     Struct metadataStruct1 = Struct.newBuilder()
-     *             .putFields("genre", Value.newBuilder().setStringValue("action").build())
-     *             .putFields("year", Value.newBuilder().setNumberValue(2019).build())
-     *             .build();
+     *         .putFields("genre", Value.newBuilder().setStringValue("action").build())
+     *         .putFields("year", Value.newBuilder().setNumberValue(2019).build())
+     *         .build();
      *
      *     Struct metadataStruct2 = Struct.newBuilder()
-     *             .putFields("genre", Value.newBuilder().setStringValue("thriller").build())
-     *             .putFields("year", Value.newBuilder().setNumberValue(2020).build())
-     *             .build();
+     *         .putFields("genre", Value.newBuilder().setStringValue("thriller").build())
+     *         .putFields("year", Value.newBuilder().setNumberValue(2020).build())
+     *         .build();
      *
      *     Struct metadataStruct3 = Struct.newBuilder()
-     *             .putFields("genre", Value.newBuilder().setStringValue("comedy").build())
-     *             .putFields("year", Value.newBuilder().setNumberValue(2021).build())
-     *             .build();
-     *     List<Struct> metadataStructList = Arrays.asList(metadataStruct1, metadataStruct2, metadataStruct3);
+     *         .putFields("genre", Value.newBuilder().setStringValue("comedy").build())
+     *         .putFields("year", Value.newBuilder().setNumberValue(2021).build())
+     *         .build();
+     *     List<Struct> metadataStructList =
+     *     Arrays.asList(metadataStruct1, metadataStruct2, metadataStruct3);
      *
      *     List<VectorWithUnsignedIndices> vectors = new ArrayList<>(3);
      *
      *     for (int i=0; i<upsertIds.size(); i++) {
-     *         vectors.add(buildUpsertVectorWithUnsignedIndices(upsertIds.get(i), values.get(i), sparseIndices.get(i), sparseValues.get(i), metadataStructList.get(i)));
+     *         vectors.add(
+     *             buildUpsertVectorWithUnsignedIndices(upsertIds.get(i),
+     *                 values.get(i),
+     *                 sparseIndices.get(i),
+     *                 sparseValues.get(i),
+     *                 metadataStructList.get(i)));
      *     }
      *
      *     ListenableFuture<UpsertResponse> listenableFuture = asyncIndex.upsert(vectors, "example-namespace");
@@ -130,13 +140,16 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.proto.UpsertResponse;
      *     import com.google.common.util.concurrent.ListenableFuture;
      *
      *     ...
      *
-     *     ListenableFuture<UpsertResponse> listenableFuture = asyncIndex.upsert("my-vector-id", Arrays.asList(1.0f, 2.0f, 3.0f));
+     *     ListenableFuture<UpsertResponse> listenableFuture =
+     *     asyncIndex.upsert("my-vector-id", Arrays.asList(1.0f, 2.0f, 3.0f));
      * }</pre>
      */
     @Override
@@ -147,13 +160,16 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.proto.UpsertResponse;
      *     import com.google.common.util.concurrent.ListenableFuture;
      *
      *     ...
      *
-     *     ListenableFuture<UpsertResponse> listenableFuture = asyncIndex.upsert("my-vector-id", Arrays.asList(1.0f, 2.0f, 3.0f), "example-namespace");
+     *     ListenableFuture<UpsertResponse> listenableFuture =
+     *     asyncIndex.upsert("my-vector-id", Arrays.asList(1.0f, 2.0f, 3.0f), "example-namespace");
      * }</pre>
      */
     @Override
@@ -165,6 +181,8 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.proto.UpsertResponse;
      *     import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
@@ -176,16 +194,17 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      *
      *     // metadata
      *     Struct metadataStruct = Struct.newBuilder()
-     *             .putFields("genre", Value.newBuilder().setStringValue("action").build())
-     *             .putFields("year", Value.newBuilder().setNumberValue(2019).build())
-     *             .build();
+     *         .putFields("genre", Value.newBuilder().setStringValue("action").build())
+     *         .putFields("year", Value.newBuilder().setNumberValue(2019).build())
+     *         .build();
      *
-     *     ListenableFuture<UpsertResponse> listenableFuture = asyncIndex.upsert("my-vector-id",
-     *                                                                           Arrays.asList(1.0f, 2.0f, 3.0f),
-     *                                                                           Arrays.asList(1L, 2L, 3L),
-     *                                                                           Arrays.asList(1000f, 2000f, 3000f),
-     *                                                                           metadataStruct,
-     *                                                                           "example-namespace");
+     *     ListenableFuture<UpsertResponse> listenableFuture =
+     *     asyncIndex.upsert("my-vector-id",
+     *         Arrays.asList(1.0f, 2.0f, 3.0f),
+     *         Arrays.asList(1L, 2L, 3L),
+     *         Arrays.asList(1000f, 2000f, 3000f),
+     *         metadataStruct,
+     *         "example-namespace");
      * }</pre>
      */
     @Override
@@ -203,21 +222,24 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *     import com.google.common.util.concurrent.ListenableFuture;
      *
      *     ...
      *
-     *     ListenableFuture<QueryResponseWithUnsignedIndices> listenableFuture = asyncIndex.query(10,
-     *                                                                                            Arrays.asList(1.0f, 2.0f, 3.0f),
-     *                                                                                            Arrays.asList(1L, 2L, 3L),
-     *                                                                                            Arrays.asList(1000f, 2000f, 3000f),
-     *                                                                                            null,
-     *                                                                                            "example-namespace",
-     *                                                                                            null,
-     *                                                                                            true,
-     *                                                                                            true);
+     *     ListenableFuture<QueryResponseWithUnsignedIndices> listenableFuture =
+     *     asyncIndex.query(10,
+     *         Arrays.asList(1.0f, 2.0f, 3.0f),
+     *         Arrays.asList(1L, 2L, 3L),
+     *         Arrays.asList(1000f, 2000f, 3000f),
+     *         null,
+     *         "example-namespace",
+     *         null,
+     *         true,
+     *         true);
      * }</pre>
      */
     @Override
@@ -241,18 +263,21 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *     import com.google.common.util.concurrent.ListenableFuture;
      *
      *     ...
      *
-     *     ListenableFuture<QueryResponseWithUnsignedIndices> listenableFuture = asyncIndex.queryByVectorId(10,
-     *                                                                                                      "my-vector-id",
-     *                                                                                                      "example-namespace",
-     *                                                                                                      null,
-     *                                                                                                      true,
-     *                                                                                                      true);
+     *     ListenableFuture<QueryResponseWithUnsignedIndices> listenableFuture =
+     *     asyncIndex.queryByVectorId(10,
+     *         "my-vector-id",
+     *         "example-namespace",
+     *         null,
+     *         true,
+     *         true);
      * }</pre>
      */
     @Override
@@ -267,6 +292,8 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *     import com.google.protobuf.Struct;
@@ -274,11 +301,13 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      *
      *     ...
      *
-     *     Struct filter = Struct.newBuilder().putFields("genre", Value.newBuilder().setStringValue("action").build()).build();
-     *     ListenableFuture<QueryResponseWithUnsignedIndices> listenableFuture = asyncIndex.queryByVectorId(10,
-     *                                                                                                      "my-vector-id",
-     *                                                                                                      "example-namespace",
-     *                                                                                                      filter);
+     *     Struct filter = Struct.newBuilder()
+     *         .putFields("genre", Value.newBuilder().setStringValue("action").build()).build();
+     *     ListenableFuture<QueryResponseWithUnsignedIndices> listenableFuture =
+     *     asyncIndex.queryByVectorId(10,
+     *         "my-vector-id",
+     *         "example-namespace",
+     *         filter);
      * }</pre>
      */
     @Override
@@ -291,17 +320,20 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *     import com.google.common.util.concurrent.ListenableFuture;
      *
      *     ...
      *
-     *     ListenableFuture<QueryResponseWithUnsignedIndices> listenableFuture = asyncIndex.queryByVectorId(10,
-     *                                                                                                      "my-vector-id",
-     *                                                                                                      "example-namespace",
-     *                                                                                                      true,
-     *                                                                                                      true);
+     *     ListenableFuture<QueryResponseWithUnsignedIndices> listenableFuture =
+     *     asyncIndex.queryByVectorId(10,
+     *         "my-vector-id",
+     *         "example-namespace",
+     *         true,
+     *         true);
      * }</pre>
      */
     @Override
@@ -315,13 +347,16 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *     import com.google.common.util.concurrent.ListenableFuture;
      *
      *     ...
      *
-     *     ListenableFuture<QueryResponseWithUnsignedIndices> listenableFuture = asyncIndex.queryByVectorId(10, "my-vector-id", "example-namespace");
+     *     ListenableFuture<QueryResponseWithUnsignedIndices> listenableFuture =
+     *     asyncIndex.queryByVectorId(10, "my-vector-id", "example-namespace");
      * }</pre>
      */
     @Override
@@ -333,13 +368,16 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *     import com.google.common.util.concurrent.ListenableFuture;
      *
      *     ...
      *
-     *     ListenableFuture<QueryResponseWithUnsignedIndices> listenableFuture = asyncIndex.queryByVectorId(10, "my-vector-id", true, true);
+     *     ListenableFuture<QueryResponseWithUnsignedIndices> listenableFuture =
+     *     asyncIndex.queryByVectorId(10, "my-vector-id", true, true);
      * }</pre>
      */
     @Override
@@ -352,13 +390,16 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *     import com.google.common.util.concurrent.ListenableFuture;
      *
      *     ...
      *
-     *     ListenableFuture<QueryResponseWithUnsignedIndices> listenableFuture = asyncIndex.queryByVectorId(10, "my-vector-id");
+     *     ListenableFuture<QueryResponseWithUnsignedIndices> listenableFuture =
+     *     asyncIndex.queryByVectorId(10, "my-vector-id");
      * }</pre>
      */
     @Override
@@ -369,6 +410,8 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *     import com.google.protobuf.Struct;
@@ -376,13 +419,15 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      *
      *     ...
      *
-     *     Struct filter = Struct.newBuilder().putFields("genre", Value.newBuilder().setStringValue("action").build()).build();
-     *     ListenableFuture<QueryResponseWithUnsignedIndices> listenableFuture = asyncIndex.queryByVector(10,
-     *                                                                                                    Arrays.asList(1.0f, 2.0f, 3.0f),
-     *                                                                                                    "example-namespace",
-     *                                                                                                    filter,
-     *                                                                                                    true,
-     *                                                                                                    true);
+     *     Struct filter = Struct.newBuilder()
+     *         .putFields("genre", Value.newBuilder().setStringValue("action").build()).build();
+     *     ListenableFuture<QueryResponseWithUnsignedIndices> listenableFuture =
+     *     asyncIndex.queryByVector(10,
+     *         Arrays.asList(1.0f, 2.0f, 3.0f),
+     *         "example-namespace",
+     *         filter,
+     *         true,
+     *         true);
      * }</pre>
      */
     @Override
@@ -397,6 +442,8 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *     import com.google.protobuf.Struct;
@@ -404,11 +451,13 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      *
      *     ...
      *
-     *     Struct filter = Struct.newBuilder().putFields("genre", Value.newBuilder().setStringValue("action").build()).build();
-     *     ListenableFuture<QueryResponseWithUnsignedIndices> listenableFuture = asyncIndex.queryByVector(10,
-     *                                                                                                    Arrays.asList(1.0f, 2.0f, 3.0f),
-     *                                                                                                    "example-namespace",
-     *                                                                                                    filter);
+     *     Struct filter = Struct.newBuilder()
+     *         .putFields("genre", Value.newBuilder().setStringValue("action").build()).build();
+     *     ListenableFuture<QueryResponseWithUnsignedIndices> listenableFuture =
+     *     asyncIndex.queryByVector(10,
+     *         Arrays.asList(1.0f, 2.0f, 3.0f),
+     *         "example-namespace",
+     *         filter);
      * }</pre>
      */
     @Override
@@ -421,17 +470,20 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *     import com.google.common.util.concurrent.ListenableFuture;
      *
      *     ...
      *
-     *     ListenableFuture<QueryResponseWithUnsignedIndices> listenableFuture = index.queryByVector(10,
-     *                                                                                               Arrays.asList(1.0f, 2.0f, 3.0f),
-     *                                                                                               "example-namespace",
-     *                                                                                               true,
-     *                                                                                               true);
+     *     ListenableFuture<QueryResponseWithUnsignedIndices> listenableFuture =
+     *     index.queryByVector(10,
+     *         Arrays.asList(1.0f, 2.0f, 3.0f),
+     *         "example-namespace",
+     *         true,
+     *         true);
      * }</pre>
      */
     @Override
@@ -445,13 +497,16 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *     import com.google.common.util.concurrent.ListenableFuture;
      *
      *     ...
      *
-     *     ListenableFuture<QueryResponseWithUnsignedIndices> listenableFuture = asyncIndex.queryByVector(10, Arrays.asList(1.0f, 2.0f, 3.0f), "example-namespace");
+     *     ListenableFuture<QueryResponseWithUnsignedIndices> listenableFuture =
+     *     asyncIndex.queryByVector(10, Arrays.asList(1.0f, 2.0f, 3.0f), "example-namespace");
      * }</pre>
      */
     @Override
@@ -463,13 +518,16 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *     import com.google.common.util.concurrent.ListenableFuture;
      *
      *     ...
      *
-     *     ListenableFuture<QueryResponseWithUnsignedIndices> listenableFuture = asyncIndex.queryByVector(10, Arrays.asList(1.0f, 2.0f, 3.0f), true, true);
+     *     ListenableFuture<QueryResponseWithUnsignedIndices> listenableFuture =
+     *     asyncIndex.queryByVector(10, Arrays.asList(1.0f, 2.0f, 3.0f), true, true);
      * }</pre>
      */
     @Override
@@ -482,13 +540,16 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *     import com.google.common.util.concurrent.ListenableFuture;
      *
      *     ...
      *
-     *     ListenableFuture<QueryResponseWithUnsignedIndices> listenableFuture = asyncIndex.queryByVector(10, Arrays.asList(1.0f, 2.0f, 3.0f));
+     *     ListenableFuture<QueryResponseWithUnsignedIndices> listenableFuture =
+     *     asyncIndex.queryByVector(10, Arrays.asList(1.0f, 2.0f, 3.0f));
      * }</pre>
      */
     @Override
@@ -499,13 +560,16 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.proto.FetchResponse;
      *     import com.google.common.util.concurrent.ListenableFuture;
      *
      *     ...
      *
-     *     ListenableFuture<FetchResponse> listenableFuture = asyncIndex.fetch(Arrays.asList("v1", "v2", "v3"));
+     *     ListenableFuture<FetchResponse> listenableFuture =
+     *     asyncIndex.fetch(Arrays.asList("v1", "v2", "v3"));
      * }</pre>
      */
     @Override
@@ -515,13 +579,16 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.proto.FetchResponse;
      *     import com.google.common.util.concurrent.ListenableFuture;
      *
      *     ...
      *
-     *     ListenableFuture<FetchResponse> listenableFuture = asyncIndex.fetch(Arrays.asList("v1", "v2", "v3"), "example-namespace");
+     *     ListenableFuture<FetchResponse> listenableFuture =
+     *     asyncIndex.fetch(Arrays.asList("v1", "v2", "v3"), "example-namespace");
      * }</pre>
      */
     @Override
@@ -534,13 +601,16 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.proto.UpdateResponse;
      *     import com.google.common.util.concurrent.ListenableFuture;
      *
      *     ...
      *
-     *     ListenableFuture<UpdateResponse> listenableFuture = asyncIndex.update("my-vector-id", Arrays.asList(1.0f, 2.0f, 3.0f));
+     *     ListenableFuture<UpdateResponse> listenableFuture =
+     *     asyncIndex.update("my-vector-id", Arrays.asList(1.0f, 2.0f, 3.0f));
      * }</pre>
      */
     @Override
@@ -551,15 +621,16 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.proto.UpdateResponse;
      *     import com.google.common.util.concurrent.ListenableFuture;
      *
      *     ...
      *
-     *     ListenableFuture<UpdateResponse> listenableFuture = asyncIndex.update("my-vector-id",
-     *                                                                           Arrays.asList(1.0f, 2.0f, 3.0f),
-     *                                                                           "example-namespace");
+     *     ListenableFuture<UpdateResponse> listenableFuture =
+     *     asyncIndex.update("my-vector-id",Arrays.asList(1.0f, 2.0f, 3.0f),"example-namespace");
      * }</pre>
      */
     @Override
@@ -571,6 +642,8 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.proto.UpdateResponse;
      *     import com.google.protobuf.Struct;
@@ -579,16 +652,17 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      *     ...
      *
      *     Struct metadata = Struct.newBuilder()
-     *             .putFields("genre", Value.newBuilder().setStringValue("action").build())
-     *             .putFields("year", Value.newBuilder().setNumberValue(2019).build())
-     *             .build();
+     *         .putFields("genre", Value.newBuilder().setStringValue("action").build())
+     *         .putFields("year", Value.newBuilder().setNumberValue(2019).build())
+     *         .build();
      *
-     *     ListenableFuture<UpdateResponse> listenableFuture = asyncIndex.update("my-vector-id",
-     *                                                                           Arrays.asList(1.0f, 2.0f, 3.0f),
-     *                                                                           metadata,
-     *                                                                           "example-namespace",
-     *                                                                           Arrays.asList(1L, 2L, 3L),
-     *                                                                           Arrays.asList(1000f, 2000f, 3000f));
+     *     ListenableFuture<UpdateResponse> listenableFuture =
+     *     asyncIndex.update("my-vector-id",
+     *         Arrays.asList(1.0f, 2.0f, 3.0f),
+     *         metadata,
+     *         "example-namespace",
+     *         Arrays.asList(1L, 2L, 3L),
+     *         Arrays.asList(1000f, 2000f, 3000f));
      * }</pre>
      */
     @Override
@@ -606,6 +680,8 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.proto.DeleteResponse;
      *     import com.google.protobuf.Struct;
@@ -613,7 +689,8 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      *
      *     ...
      *
-     *     ListenableFuture<DeleteResponse> listenableFuture = asyncIndex.deleteByIds(Arrays.asList("v1", "v2", "v3"), "example-namespace");
+     *     ListenableFuture<DeleteResponse> listenableFuture =
+     *     asyncIndex.deleteByIds(Arrays.asList("v1", "v2", "v3"), "example-namespace");
      * }</pre>
      */
     @Override
@@ -623,6 +700,8 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.proto.DeleteResponse;
      *     import com.google.protobuf.Struct;
@@ -630,7 +709,8 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      *
      *     ...
      *
-     *     ListenableFuture<DeleteResponse> listenableFuture = asyncIndex.deleteByIds(Arrays.asList("v1", "v2", "v3"));
+     *     ListenableFuture<DeleteResponse> listenableFuture =
+     *     asyncIndex.deleteByIds(Arrays.asList("v1", "v2", "v3"));
      * }</pre>
      */
     @Override
@@ -640,6 +720,8 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.proto.DeleteResponse;
      *     import com.google.protobuf.Struct;
@@ -647,8 +729,10 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      *
      *     ...
      *
-     *     Struct filter = Struct.newBuilder().putFields("genre", Value.newBuilder().setStringValue("action").build()).build();
-     *     ListenableFuture<DeleteResponse> listenableFuture = asyncIndex.deleteByFilter(filter, "example-namespace");
+     *     Struct filter = Struct.newBuilder()
+     *         .putFields("genre", Value.newBuilder().setStringValue("action").build()).build();
+     *     ListenableFuture<DeleteResponse> listenableFuture =
+     *     asyncIndex.deleteByFilter(filter, "example-namespace");
      * }</pre>
      */
     @Override
@@ -658,6 +742,8 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.proto.DeleteResponse;
      *     import com.google.protobuf.Struct;
@@ -665,7 +751,8 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      *
      *     ...
      *
-     *     Struct filter = Struct.newBuilder().putFields("genre", Value.newBuilder().setStringValue("action").build()).build();
+     *     Struct filter = Struct.newBuilder()
+     *         .putFields("genre", Value.newBuilder().setStringValue("action").build()).build();
      *     ListenableFuture<DeleteResponse> listenableFuture = asyncIndex.deleteByFilter(filter);
      * }</pre>
      */
@@ -676,6 +763,8 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.proto.DeleteResponse;
      *     import com.google.common.util.concurrent.ListenableFuture;
@@ -692,16 +781,16 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.proto.DeleteResponse;
      *     import com.google.common.util.concurrent.ListenableFuture;
      *
      *     ...
      *
-     *     ListenableFuture<DeleteResponse> listenableFuture = asyncIndex.delete(Arrays.asList("v1", "v2", "v3"),
-     *                                                                           false,
-     *                                                                           "example-namespace",
-     *                                                                           null);
+     *     ListenableFuture<DeleteResponse> listenableFuture =
+     *     asyncIndex.delete(Arrays.asList("v1", "v2", "v3"),false,"example-namespace",null);
      * }</pre>
      */
     @Override
@@ -716,6 +805,8 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.proto.DescribeIndexStatsResponse;
      *     import com.google.common.util.concurrent.ListenableFuture;
@@ -734,6 +825,8 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
+     * <p/>
+     * Example:
      * <pre>{@code
      *     import io.pinecone.proto.DescribeIndexStatsResponse;
      *     import com.google.protobuf.Struct;
@@ -741,7 +834,8 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      *
      *     ...
      *
-     *     Struct filter = Struct.newBuilder().putFields("genre", Value.newBuilder().setStringValue("action").build()).build();
+     *     Struct filter = Struct.newBuilder()
+     *         .putFields("genre", Value.newBuilder().setStringValue("action").build()).build();
      *     ListenableFuture<DescribeIndexStatsResponse> listenableFuture = asyncIndex.describeIndexStats();
      * }</pre>
      */
