@@ -8,13 +8,13 @@ import java.util.List;
  * This class represents a vector with sparse values, where the indices of the sparse values are represented
  * as unsigned 32-bit integers.
  * <p>
- * The `VectorWithUnsignedIndices` class contains the following fields:
- * - `id`: the identifier of the vector
- * - `values`: the dense vector values
- * - `metadata`: the metadata associated with the vector
- * - `sparseValuesWithUnsignedIndices`: the sparse values associated with the vector, using unsigned 32-bit integer indices
+ * The {@link VectorWithUnsignedIndices} class contains the following fields:
+ * - id: the identifier of the vector
+ * - values: the dense vector values
+ * - metadata: the metadata associated with the vector
+ * - sparseValuesWithUnsignedIndices: the sparse values associated with the vector, using unsigned 32-bit integer indices
  * <p>
- * The class provides constructors to create `VectorWithUnsignedIndices` objects, as well as getter and setter
+ * The class provides constructors to create {@link VectorWithUnsignedIndices} objects, as well as getter and setter
  * methods for each of the fields.
  */
 public class VectorWithUnsignedIndices {
@@ -40,15 +40,15 @@ public class VectorWithUnsignedIndices {
     private SparseValuesWithUnsignedIndices sparseValuesWithUnsignedIndices;
 
     /**
-     * Constructs an empty `VectorWithUnsignedIndices` object.
+     * Constructs an empty {@link VectorWithUnsignedIndices} object.
      */
     public VectorWithUnsignedIndices() {}
 
     /**
-     * Constructs a `VectorWithUnsignedIndices` object with the given identifier and dense vector values.
+     * Constructs a {@link VectorWithUnsignedIndices} object with the given identifier and dense vector values.
      *
-     * @param id     the identifier of the vector
-     * @param values the dense vector values
+     * @param id     The identifier of the vector
+     * @param values The dense vector values
      */
     public VectorWithUnsignedIndices(String id, List<Float> values) {
         this.id = id;
@@ -56,13 +56,13 @@ public class VectorWithUnsignedIndices {
     }
 
     /**
-     * Constructs a `VectorWithUnsignedIndices` object with the given identifier, dense vector values, metadata,
+     * Constructs a {@link VectorWithUnsignedIndices} object with the given identifier, dense vector values, metadata,
      * and sparse values with unsigned 32-bit integer indices.
      *
-     * @param id                              the identifier of the vector
-     * @param values                         the dense vector values
-     * @param metadata                       the metadata associated with the vector
-     * @param sparseValuesWithUnsignedIndices the sparse values associated with the vector, using unsigned 32-bit integer indices
+     * @param id                              The identifier of the vector
+     * @param values                         The dense vector values
+     * @param metadata                       The metadata associated with the vector
+     * @param sparseValuesWithUnsignedIndices The sparse values associated with the vector, using unsigned 32-bit integer indices
      */
     public VectorWithUnsignedIndices(String id, List<Float> values, Struct metadata, SparseValuesWithUnsignedIndices sparseValuesWithUnsignedIndices) {
         this.id = id;
@@ -74,7 +74,7 @@ public class VectorWithUnsignedIndices {
     /**
      * Returns the identifier of the vector.
      *
-     * @return the identifier
+     * @return The identifier
      */
     public String getId() {
         return id;
@@ -83,16 +83,16 @@ public class VectorWithUnsignedIndices {
     /**
      * Sets the identifier of the vector.
      *
-     * @param id the new identifier
+     * @param id The new identifier
      */
     public void setId(String id) {
         this.id = id;
     }
 
     /**
-     * Returns the dense vector values.
+     * Returns The dense vector values.
      *
-     * @return the list of values
+     * @return The list of values
      */
     public List<Float> getValuesList() {
         return values;
@@ -101,7 +101,7 @@ public class VectorWithUnsignedIndices {
     /**
      * Sets the dense vector values.
      *
-     * @param values the new list of values
+     * @param values The new list of values
      */
     public void setValues(List<Float> values) {
         this.values = values;
@@ -110,7 +110,7 @@ public class VectorWithUnsignedIndices {
     /**
      * Returns the metadata associated with the vector.
      *
-     * @return the metadata
+     * @return The metadata
      */
     public Struct getMetadata() {
         return metadata;
@@ -119,7 +119,7 @@ public class VectorWithUnsignedIndices {
     /**
      * Sets the metadata associated with the vector.
      *
-     * @param metadata the new metadata
+     * @param metadata The new metadata
      */
     public void setMetadata(Struct metadata) {
         this.metadata = metadata;
@@ -128,7 +128,7 @@ public class VectorWithUnsignedIndices {
     /**
      * Returns the sparse values associated with the vector, using unsigned 32-bit integer indices.
      *
-     * @return the `SparseValuesWithUnsignedIndices` object
+     * @return the {@link SparseValuesWithUnsignedIndices} object
      */
     public SparseValuesWithUnsignedIndices getSparseValuesWithUnsignedIndices() {
         return sparseValuesWithUnsignedIndices;
@@ -137,7 +137,7 @@ public class VectorWithUnsignedIndices {
     /**
      * Sets the sparse values associated with the vector, using unsigned 32-bit integer indices.
      *
-     * @param sparseValuesWithUnsignedIndices the new `SparseValuesWithUnsignedIndices` object
+     * @param sparseValuesWithUnsignedIndices the new {@link SparseValuesWithUnsignedIndices} object
      */
     public void setSparseValuesWithUnsignedIndices(SparseValuesWithUnsignedIndices sparseValuesWithUnsignedIndices) {
         this.sparseValuesWithUnsignedIndices = sparseValuesWithUnsignedIndices;

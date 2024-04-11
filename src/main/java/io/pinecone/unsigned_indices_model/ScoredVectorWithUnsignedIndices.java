@@ -8,19 +8,19 @@ import java.util.List;
 
 /**
  * This class represents a scored vector with unsigned 32-bit integer indices for the sparse values.
- * Unlike the `ScoredVector` class, which uses the `SparseValues` class to represent the sparse values,
- * this class uses the `SparseValuesWithUnsignedIndices` class, which allows for the use of unsigned 32-bit
+ * Unlike the {@link ScoredVector} class, which uses the SparseValues class to represent the sparse values,
+ * this class uses the {@link SparseValuesWithUnsignedIndices} class, which allows for the use of unsigned 32-bit
  * integers as indices.
  * <p>
- * The `ScoredVectorWithUnsignedIndices` class contains the following fields:
- * - `score`: the score associated with the vector
- * - `id`: the identifier of the vector
- * - `values`: the dense vector values
- * - `metadata`: the metadata associated with the vector
- * - `sparseValuesWithUnsignedIndices`: the sparse values associated with the vector, using unsigned 32-bit integer indices
+ * The {@link ScoredVectorWithUnsignedIndices} class contains the following fields:
+ * - score: the score associated with the vector
+ * - id: the identifier of the vector
+ * - values: the dense vector values
+ * - metadata: the metadata associated with the vector
+ * - sparseValuesWithUnsignedIndices: the sparse values associated with the vector, using unsigned 32-bit integer indices
  * <p>
- * The class provides a constructor that takes a `ScoredVector` object and converts it to a
- * `ScoredVectorWithUnsignedIndices` object, as well as getter and setter methods for each of the fields.
+ * The class provides a constructor that takes a {@link ScoredVector} object and converts it to a
+ * {@link ScoredVectorWithUnsignedIndices} object, as well as getter and setter methods for each of the fields.
  */
 public class ScoredVectorWithUnsignedIndices {
 
@@ -50,10 +50,10 @@ public class ScoredVectorWithUnsignedIndices {
     private SparseValuesWithUnsignedIndices sparseValuesWithUnsignedIndices;
 
     /**
-     * Constructs a `ScoredVectorWithUnsignedIndices` object from a `ScoredVector` object, converting the
-     * `SparseValues` to `SparseValuesWithUnsignedIndices`.
+     * Constructs a {@link ScoredVectorWithUnsignedIndices} object from a {@link ScoredVector} object, converting the
+     * SparseValues to {@link SparseValuesWithUnsignedIndices}.
      *
-     * @param scoredVector the `ScoredVector` object to convert
+     * @param scoredVector the {@link ScoredVector} object to convert
      */
     public ScoredVectorWithUnsignedIndices(ScoredVector scoredVector) {
         if (scoredVector == null) {
@@ -74,7 +74,7 @@ public class ScoredVectorWithUnsignedIndices {
     /**
      * Returns the score associated with the vector.
      *
-     * @return the score
+     * @return The score
      */
     public float getScore() {
         return score;
@@ -83,7 +83,7 @@ public class ScoredVectorWithUnsignedIndices {
     /**
      * Sets the score associated with the vector.
      *
-     * @param score the new score
+     * @param score The new score
      */
     public void setScore(float score) {
         this.score = score;
@@ -92,7 +92,7 @@ public class ScoredVectorWithUnsignedIndices {
     /**
      * Returns the identifier of the vector.
      *
-     * @return the id
+     * @return The id
      */
     public String getId() {
         return id;
@@ -101,7 +101,7 @@ public class ScoredVectorWithUnsignedIndices {
     /**
      * Sets the identifier of the vector.
      *
-     * @param id the new id
+     * @param id The new id
      */
     public void setId(String id) {
         this.id = id;
@@ -110,7 +110,7 @@ public class ScoredVectorWithUnsignedIndices {
     /**
      * Returns the dense vector values.
      *
-     * @return the list of values
+     * @return The list of values
      */
     public List<Float> getValuesList() {
         return values;
@@ -119,7 +119,7 @@ public class ScoredVectorWithUnsignedIndices {
     /**
      * Sets the dense vector values.
      *
-     * @param values the new list of values
+     * @param values The new list of values
      */
     public void setValues(List<Float> values) {
         this.values = values;
@@ -128,7 +128,7 @@ public class ScoredVectorWithUnsignedIndices {
     /**
      * Returns the metadata associated with the vector.
      *
-     * @return the metadata
+     * @return The metadata
      */
     public Struct getMetadata() {
         return metadata;
@@ -137,7 +137,7 @@ public class ScoredVectorWithUnsignedIndices {
     /**
      * Sets the metadata associated with the vector.
      *
-     * @param metadata the new metadata
+     * @param metadata The new metadata
      */
     public void setMetadata(Struct metadata) {
         this.metadata = metadata;
@@ -146,7 +146,7 @@ public class ScoredVectorWithUnsignedIndices {
     /**
      * Returns the sparse values associated with the vector, using unsigned 32-bit integer indices.
      *
-     * @return the `SparseValuesWithUnsignedIndices` object
+     * @return The {@link SparseValuesWithUnsignedIndices} object
      */
     public SparseValuesWithUnsignedIndices getSparseValuesWithUnsignedIndices() {
         return sparseValuesWithUnsignedIndices;
@@ -155,7 +155,7 @@ public class ScoredVectorWithUnsignedIndices {
     /**
      * Sets the sparse values associated with the vector, using unsigned 32-bit integer indices.
      *
-     * @param sparseValuesWithUnsignedIndices the new `SparseValuesWithUnsignedIndices` object
+     * @param sparseValuesWithUnsignedIndices The new {@link SparseValuesWithUnsignedIndices} object
      */
     public void setSparseValuesWithUnsignedIndices(SparseValuesWithUnsignedIndices sparseValuesWithUnsignedIndices) {
         this.sparseValuesWithUnsignedIndices = sparseValuesWithUnsignedIndices;
@@ -164,8 +164,8 @@ public class ScoredVectorWithUnsignedIndices {
     /**
      * Converts the given object to a string with each line indented by 4 spaces (except the first line).
      *
-     * @param o the object to convert to a string
-     * @return the indented string representation of the object
+     * @param o The object to convert to a string
+     * @return The indented string representation of the object
      */
     private String toIndentedString(Object o) {
         if (o == null) {
