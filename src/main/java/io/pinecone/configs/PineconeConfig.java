@@ -110,6 +110,10 @@ public class PineconeConfig {
         this.customManagedChannel = customManagedChannel;
     }
 
+    public interface CustomChannelBuilder {
+        ManagedChannel buildChannel();
+    }
+
     /**
      * Validates the configuration, ensuring that the API key is not null or empty.
      *
