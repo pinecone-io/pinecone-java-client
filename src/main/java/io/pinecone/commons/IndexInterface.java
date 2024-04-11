@@ -692,6 +692,7 @@ public interface IndexInterface<T, U, V, W, X, Y> extends AutoCloseable {
 
     /**
      * Retrieves statistics about the index's contents for vectors that satisfy the applied metadata filter.
+     * 
      * @param filter A metadata filter used to select vectors that satisfy the filter criteria.
      * @return A generic type {@code Y} that contains the stats about the index.
      */
