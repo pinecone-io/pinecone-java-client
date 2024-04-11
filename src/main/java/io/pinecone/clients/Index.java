@@ -61,14 +61,11 @@ public class Index implements IndexInterface<UpsertResponse,
     /**
      * {@inheritDoc}
      * <pre>{@code
-     *     import io.pinecone.clients.Pinecone;
-     *     import io.pinecone.clients.Index;
      *     import io.pinecone.proto.UpsertResponse;
      *     import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
      *     import static io.pinecone.commons.IndexInterface.buildUpsertVectorWithUnsignedIndices;
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *     Index index = client.getIndexConnection("my-index");
+     *     ...
      *
      *     // Vector ids to be upserted
      *     List<String> upsertIds = Arrays.asList("v1", "v2", "v3");
@@ -98,12 +95,9 @@ public class Index implements IndexInterface<UpsertResponse,
     /**
      * {@inheritDoc}
      * <pre>{@code
-     *     import io.pinecone.clients.Pinecone;
-     *     import io.pinecone.clients.Index;
      *     import io.pinecone.proto.UpsertResponse;
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *     Index index = client.getIndexConnection("my-index");
+     *     ...
      *
      *     UpsertResponse upsertResponse = index.upsert("my-vector-id", Arrays.asList(1.0f, 2.0f, 3.0f));
      * }</pre>
@@ -117,12 +111,9 @@ public class Index implements IndexInterface<UpsertResponse,
     /**
      * {@inheritDoc}
      * <pre>{@code
-     *     import io.pinecone.clients.Pinecone;
-     *     import io.pinecone.clients.Index;
      *     import io.pinecone.proto.UpsertResponse;
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *     Index index = client.getIndexConnection("my-index");
+     *     ...
      *
      *     UpsertResponse upsertResponse = index.upsert("my-vector-id", Arrays.asList(1.0f, 2.0f, 3.0f), "example-namespace");
      * }</pre>
@@ -137,15 +128,12 @@ public class Index implements IndexInterface<UpsertResponse,
     /**
      * {@inheritDoc}
      * <pre>{@code
-     *     import io.pinecone.clients.Pinecone;
-     *     import io.pinecone.clients.Index;
      *     import io.pinecone.proto.UpsertResponse;
      *     import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
      *     import static io.pinecone.commons.IndexInterface.buildUpsertVectorWithUnsignedIndices;
      *     import com.google.protobuf.Struct;
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *     Index index = client.getIndexConnection("my-index");
+     *     ...
      *
      *     // metadata
      *     Struct metadataStruct = Struct.newBuilder()
@@ -177,12 +165,9 @@ public class Index implements IndexInterface<UpsertResponse,
     /**
      * {@inheritDoc}
      * <pre>{@code
-     *     import io.pinecone.clients.Pinecone;
-     *     import io.pinecone.clients.Index;
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *     Index index = client.getIndexConnection("my-index");
+     *     ...
      *
      *     QueryResponseWithUnsignedIndices queryResponse = index.query(10,
      *                                                                  Arrays.asList(1.0f, 2.0f, 3.0f),
@@ -214,12 +199,9 @@ public class Index implements IndexInterface<UpsertResponse,
     /**
      * {@inheritDoc}
      * <pre>{@code
-     *     import io.pinecone.clients.Pinecone;
-     *     import io.pinecone.clients.Index;
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *     Index index = client.getIndexConnection("my-index");
+     *     ...
      *
      *     QueryResponseWithUnsignedIndices queryResponse = index.queryByVectorId(10,
      *                                                                            "my-vector-id",
@@ -242,13 +224,10 @@ public class Index implements IndexInterface<UpsertResponse,
     /**
      * {@inheritDoc}
      * <pre>{@code
-     *     import io.pinecone.clients.Pinecone;
-     *     import io.pinecone.clients.Index;
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *     import com.google.protobuf.Struct;
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *     Index index = client.getIndexConnection("my-index");
+     *     ...
      *
      *     Struct filter = Struct.newBuilder().putFields("genre", Value.newBuilder().setStringValue("action").build()).build();
      *     QueryResponseWithUnsignedIndices queryResponse = index.queryByVectorId(10,
@@ -268,12 +247,9 @@ public class Index implements IndexInterface<UpsertResponse,
     /**
      * {@inheritDoc}
      * <pre>{@code
-     *     import io.pinecone.clients.Pinecone;
-     *     import io.pinecone.clients.Index;
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *     Index index = client.getIndexConnection("my-index");
+     *     ...
      *
      *     QueryResponseWithUnsignedIndices queryResponse = index.queryByVectorId(10, "my-vector-id", "example-namespace", true, true);
      * }</pre>
@@ -290,12 +266,9 @@ public class Index implements IndexInterface<UpsertResponse,
     /**
      * {@inheritDoc}
      * <pre>{@code
-     *     import io.pinecone.clients.Pinecone;
-     *     import io.pinecone.clients.Index;
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *     Index index = client.getIndexConnection("my-index");
+     *     ...
      *
      *     QueryResponseWithUnsignedIndices queryResponse = index.queryByVectorId(10, "my-vector-id", "example-namespace");
      * }</pre>
@@ -310,12 +283,9 @@ public class Index implements IndexInterface<UpsertResponse,
     /**
      * {@inheritDoc}
      * <pre>{@code
-     *     import io.pinecone.clients.Pinecone;
-     *     import io.pinecone.clients.Index;
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *     Index index = client.getIndexConnection("my-index");
+     *     ...
      *
      *     QueryResponseWithUnsignedIndices queryResponse = index.queryByVectorId(10, "my-vector-id", true, true);
      * }</pre>
@@ -331,12 +301,9 @@ public class Index implements IndexInterface<UpsertResponse,
     /**
      * {@inheritDoc}
      * <pre>{@code
-     *     import io.pinecone.clients.Pinecone;
-     *     import io.pinecone.clients.Index;
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *     Index index = client.getIndexConnection("my-index");
+     *     ...
      *
      *     QueryResponseWithUnsignedIndices queryResponse = index.queryByVectorId(10, "my-vector-id");
      * }</pre>
@@ -350,13 +317,10 @@ public class Index implements IndexInterface<UpsertResponse,
     /**
      * {@inheritDoc}
      * <pre>{@code
-     *     import io.pinecone.clients.Pinecone;
-     *     import io.pinecone.clients.Index;
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *     import com.google.protobuf.Struct;
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *     Index index = client.getIndexConnection("my-index");
+     *     ...
      *
      *     Struct filter = Struct.newBuilder().putFields("genre", Value.newBuilder().setStringValue("action").build()).build();
      *     QueryResponseWithUnsignedIndices queryResponse = index.queryByVector(10,
@@ -380,13 +344,10 @@ public class Index implements IndexInterface<UpsertResponse,
     /**
      * {@inheritDoc}
      * <pre>{@code
-     *     import io.pinecone.clients.Pinecone;
-     *     import io.pinecone.clients.Index;
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *     import com.google.protobuf.Struct;
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *     Index index = client.getIndexConnection("my-index");
+     *     ...
      *
      *     Struct filter = Struct.newBuilder().putFields("genre", Value.newBuilder().setStringValue("action").build()).build();
      *     QueryResponseWithUnsignedIndices queryResponse = index.queryByVector(10,
@@ -406,12 +367,9 @@ public class Index implements IndexInterface<UpsertResponse,
     /**
      * {@inheritDoc}
      * <pre>{@code
-     *     import io.pinecone.clients.Pinecone;
-     *     import io.pinecone.clients.Index;
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *     Index index = client.getIndexConnection("my-index");
+     *     ...
      *
      *     QueryResponseWithUnsignedIndices queryResponse = index.queryByVector(10,
      *                                                                          Arrays.asList(1.0f, 2.0f, 3.0f),
@@ -432,12 +390,9 @@ public class Index implements IndexInterface<UpsertResponse,
     /**
      * {@inheritDoc}
      * <pre>{@code
-     *     import io.pinecone.clients.Pinecone;
-     *     import io.pinecone.clients.Index;
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *     Index index = client.getIndexConnection("my-index");
+     *     ...
      *
      *     QueryResponseWithUnsignedIndices queryResponse = index.queryByVector(10, Arrays.asList(1.0f, 2.0f, 3.0f), "example-namespace");
      * }</pre>
@@ -452,12 +407,9 @@ public class Index implements IndexInterface<UpsertResponse,
     /**
      * {@inheritDoc}
      * <pre>{@code
-     *     import io.pinecone.clients.Pinecone;
-     *     import io.pinecone.clients.Index;
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *     Index index = client.getIndexConnection("my-index");
+     *     ...
      *
      *     QueryResponseWithUnsignedIndices queryResponse = index.queryByVector(10, Arrays.asList(1.0f, 2.0f, 3.0f), true, true);
      * }</pre>
@@ -473,12 +425,9 @@ public class Index implements IndexInterface<UpsertResponse,
     /**
      * {@inheritDoc}
      * <pre>{@code
-     *     import io.pinecone.clients.Pinecone;
-     *     import io.pinecone.clients.Index;
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *     Index index = client.getIndexConnection("my-index");
+     *     ...
      *
      *     QueryResponseWithUnsignedIndices queryResponse = index.queryByVector(10, Arrays.asList(1.0f, 2.0f, 3.0f));
      * }</pre>
@@ -492,12 +441,9 @@ public class Index implements IndexInterface<UpsertResponse,
     /**
      * {@inheritDoc}
      * <pre>{@code
-     *     import io.pinecone.clients.Pinecone;
-     *     import io.pinecone.clients.Index;
      *     import io.pinecone.proto.FetchResponse;
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *     Index index = client.getIndexConnection("my-index");
+     *     ...
      *
      *     FetchResponse fetchResponse = index.fetch(Arrays.asList("v1", "v2", "v3"));
      * }</pre>
@@ -510,12 +456,9 @@ public class Index implements IndexInterface<UpsertResponse,
     /**
      * {@inheritDoc}
      * <pre>{@code
-     *     import io.pinecone.clients.Pinecone;
-     *     import io.pinecone.clients.Index;
      *     import io.pinecone.proto.FetchResponse;
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *     Index index = client.getIndexConnection("my-index");
+     *     ...
      *
      *     FetchResponse fetchResponse = index.fetch(Arrays.asList("v1", "v2", "v3"), "example-namespace");
      * }</pre>
@@ -531,12 +474,9 @@ public class Index implements IndexInterface<UpsertResponse,
     /**
      * {@inheritDoc}
      * <pre>{@code
-     *     import io.pinecone.clients.Pinecone;
-     *     import io.pinecone.clients.Index;
      *     import io.pinecone.proto.UpdateResponse;
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *     Index index = client.getIndexConnection("my-index");
+     *     ...
      *
      *     UpdateResponse updateResponse = index.update("my-vector-id", Arrays.asList(1.0f, 2.0f, 3.0f));
      * }</pre>
@@ -550,12 +490,9 @@ public class Index implements IndexInterface<UpsertResponse,
     /**
      * {@inheritDoc}
      * <pre>{@code
-     *     import io.pinecone.clients.Pinecone;
-     *     import io.pinecone.clients.Index;
      *     import io.pinecone.proto.UpdateResponse;
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *     Index index = client.getIndexConnection("my-index");
+     *     ...
      *
      *     UpdateResponse updateResponse = index.update("my-vector-id",
      *                                                  Arrays.asList(1.0f, 2.0f, 3.0f),
@@ -572,13 +509,10 @@ public class Index implements IndexInterface<UpsertResponse,
     /**
      * {@inheritDoc}
      * <pre>{@code
-     *     import io.pinecone.clients.Pinecone;
-     *     import io.pinecone.clients.Index;
      *     import io.pinecone.proto.UpdateResponse;
      *     import com.google.protobuf.Struct;
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *     Index index = client.getIndexConnection("my-index");
+     *     ...
      *
      *     Struct metadata = Struct.newBuilder()
      *             .putFields("genre", Value.newBuilder().setStringValue("action").build())
@@ -609,13 +543,10 @@ public class Index implements IndexInterface<UpsertResponse,
     /**
      * {@inheritDoc}
      * <pre>{@code
-     *     import io.pinecone.clients.Pinecone;
-     *     import io.pinecone.clients.Index;
      *     import io.pinecone.proto.DeleteResponse;
      *     import com.google.protobuf.Struct;
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *     Index index = client.getIndexConnection("my-index");
+     *     ...
      *
      *     DeleteResponse deleteResponse = index.deleteByIds(Arrays.asList("v1", "v2", "v3"), "example-namespace");
      * }</pre>
@@ -628,13 +559,10 @@ public class Index implements IndexInterface<UpsertResponse,
     /**
      * {@inheritDoc}
      * <pre>{@code
-     *     import io.pinecone.clients.Pinecone;
-     *     import io.pinecone.clients.Index;
      *     import io.pinecone.proto.DeleteResponse;
      *     import com.google.protobuf.Struct;
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *     Index index = client.getIndexConnection("my-index");
+     *     ...
      *
      *     DeleteResponse deleteResponse = index.deleteByIds(Arrays.asList("v1", "v2", "v3"));
      * }</pre>
@@ -647,13 +575,10 @@ public class Index implements IndexInterface<UpsertResponse,
     /**
      * {@inheritDoc}
      * <pre>{@code
-     *     import io.pinecone.clients.Pinecone;
-     *     import io.pinecone.clients.Index;
      *     import io.pinecone.proto.DeleteResponse;
      *     import com.google.protobuf.Struct;
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *     Index index = client.getIndexConnection("my-index");
+     *     ...
      *
      *     Struct filter = Struct.newBuilder().putFields("genre", Value.newBuilder().setStringValue("action").build()).build();
      *     DeleteResponse deleteResponse = index.deleteByFilter(filter, "example-namespace");
@@ -667,13 +592,10 @@ public class Index implements IndexInterface<UpsertResponse,
     /**
      * {@inheritDoc}
      * <pre>{@code
-     *     import io.pinecone.clients.Pinecone;
-     *     import io.pinecone.clients.Index;
      *     import io.pinecone.proto.DeleteResponse;
      *     import com.google.protobuf.Struct;
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *     Index index = client.getIndexConnection("my-index");
+     *     ...
      *
      *     Struct filter = Struct.newBuilder().putFields("genre", Value.newBuilder().setStringValue("action").build()).build();
      *     DeleteResponse deleteResponse = index.deleteByFilter(filter);
@@ -687,12 +609,9 @@ public class Index implements IndexInterface<UpsertResponse,
     /**
      * {@inheritDoc}
      * <pre>{@code
-     *     import io.pinecone.clients.Pinecone;
-     *     import io.pinecone.clients.Index;
      *     import io.pinecone.proto.DeleteResponse;
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *     Index index = client.getIndexConnection("my-index");
+     *     ...
      *
      *     DeleteResponse deleteResponse = index.deleteAll("example-namespace");
      * }</pre>
@@ -705,12 +624,9 @@ public class Index implements IndexInterface<UpsertResponse,
     /**
      * {@inheritDoc}
      * <pre>{@code
-     *     import io.pinecone.clients.Pinecone;
-     *     import io.pinecone.clients.Index;
      *     import io.pinecone.proto.DeleteResponse;
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *     Index index = client.getIndexConnection("my-index");
+     *     ...
      *
      *     DeleteResponse deleteResponse = index.delete(Arrays.asList("v1", "v2", "v3"),
      *                                                  false,
@@ -731,12 +647,9 @@ public class Index implements IndexInterface<UpsertResponse,
     /**
      * {@inheritDoc}
      * <pre>{@code
-     *     import io.pinecone.clients.Pinecone;
-     *     import io.pinecone.clients.Index;
      *     import io.pinecone.proto.DescribeIndexStatsResponse;
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *     Index index = client.getIndexConnection("my-index");
+     *     ...
      *
      *     DescribeIndexStatsResponse describeIndexStatsResponse = index.describeIndexStats();
      * }</pre>
@@ -751,13 +664,10 @@ public class Index implements IndexInterface<UpsertResponse,
     /**
      * {@inheritDoc}
      * <pre>{@code
-     *     import io.pinecone.clients.Pinecone;
-     *     import io.pinecone.clients.Index;
      *     import io.pinecone.proto.DescribeIndexStatsResponse;
      *     import com.google.protobuf.Struct;
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *     Index index = client.getIndexConnection("my-index");
+     *     ...
      *
      *     Struct filter = Struct.newBuilder().putFields("genre", Value.newBuilder().setStringValue("action").build()).build();
      *     DescribeIndexStatsResponse describeIndexStatsResponse = index.describeIndexStats();
