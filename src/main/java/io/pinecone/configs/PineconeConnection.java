@@ -18,6 +18,25 @@ import java.util.concurrent.TimeUnit;
 /**
  * The {@link PineconeConnection} class handles communication with a Pinecone service or router. One PineconeConnection
  * can be shared and used concurrently by multiple threads.
+ *  <pre>{@code
+ *
+ *  import io.pinecone.clients.AsyncIndex;
+ *  import io.pinecone.clients.Index;
+ *  import io.pinecone.configs.PineconeConnection;
+ *  ...
+ *
+ *  // Construct the connection object
+ *  PineconeConnection connection = new PineconeConnection(config);
+ *
+ *  // Construct the index object for synchronous data plane operations
+ *  Index index = new Index(connection, "example-index");
+ *  index.describeIndexStats();
+ *
+ *  // Construct the async index object for asynchronous data plane operations
+ *  AsyncIndex asyncIndex = new AsyncIndex(connection, "example-index");
+ *  asyncIndex.describeIndexStats();
+ *
+ *  }</pre>
  */
 public class PineconeConnection implements AutoCloseable {
 

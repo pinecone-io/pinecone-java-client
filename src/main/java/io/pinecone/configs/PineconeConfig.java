@@ -2,10 +2,43 @@ package io.pinecone.configs;
 
 import io.grpc.ManagedChannel;
 import io.pinecone.exceptions.PineconeConfigurationException;
+
 /**
  * The {@link PineconeConfig} class is responsible for managing the configuration settings
  * required to interact with the Pinecone API. It provides methods to set and retrieve
  * the necessary API key, host, source tag, and custom managed channel.
+ * <pre>{@code
+ *
+ *     import io.grpc.ManagedChannel;
+ *     import io.grpc.netty.GrpcSslContexts;
+ *     import io.grpc.netty.NegotiationType;
+ *     import io.grpc.netty.NettyChannelBuilder;
+ *     import io.pinecone.configs.PineconeConfig;
+ *     import io.pinecone.exceptions.PineconeException;
+ *
+ *     import javax.net.ssl.SSLException;
+ *     import java.util.concurrent.TimeUnit;
+ * ...
+ *
+ *
+ *     PineconeConfig config = new PineconeConfig("apikey");
+ *     String endpoint = "some-endpoint";
+ *     NettyChannelBuilder builder = NettyChannelBuilder.forTarget(endpoint);
+ *
+ *     // Custom channel with timeouts
+ *     try {
+ *         builder = builder.overrideAuthority(endpoint)
+ *             .negotiationType(NegotiationType.TLS)
+ *             .keepAliveTimeout(5, TimeUnit.SECONDS)
+ *             .sslContext(GrpcSslContexts.forClient().build());
+ *     } catch (SSLException e) {
+ *         throw new PineconeException("SSL error opening gRPC channel", e);
+ *     }
+ *
+ *     // Build the managed channel with the configured options
+ *     ManagedChannel channel = builder.build();
+ *     config.setCustomManagedChannel(channel);
+ * }</pre>
  */
 public class PineconeConfig {
 
@@ -29,8 +62,8 @@ public class PineconeConfig {
     /**
      * Constructs a {@link PineconeConfig} instance with the specified API key and source tag.
      *
-     * @param apiKey      The API key required to authenticate with the Pinecone API.
-     * @param sourceTag   An optional source tag to be included in the user agent.
+     * @param apiKey    The API key required to authenticate with the Pinecone API.
+     * @param sourceTag An optional source tag to be included in the user agent.
      */
     public PineconeConfig(String apiKey, String sourceTag) {
         this.apiKey = apiKey;
