@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * A client for interacting with a Pinecone index via GRPC synchronously. Allows for upserting, querying, fetching, updating, and deleting vectors.
  * This class provides a direct interface to interact with a specific index, encapsulating network communication and request validation.
- * <p/>
+ * <p>
  * Example:
  * <pre>{@code
  *     import io.pinecone.clients.Pinecone;
@@ -36,7 +36,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * Constructs an {@link Index} instance for interacting with a Pinecone index.
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.clients.Pinecone;
@@ -62,7 +62,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.proto.UpsertResponse;
@@ -100,7 +100,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     index.upsert("my-vector-id", Arrays.asList(1.0f, 2.0f, 3.0f));
@@ -114,7 +114,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.proto.UpsertResponse;
@@ -136,7 +136,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.proto.UpsertResponse;
@@ -176,7 +176,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
@@ -213,7 +213,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
@@ -241,7 +241,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
@@ -268,7 +268,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
@@ -294,7 +294,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
@@ -316,7 +316,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
@@ -340,7 +340,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
@@ -360,7 +360,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
@@ -391,7 +391,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
@@ -418,7 +418,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
@@ -444,7 +444,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
@@ -466,7 +466,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
@@ -490,7 +490,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
@@ -509,7 +509,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.proto.FetchResponse;
@@ -526,7 +526,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.proto.FetchResponse;
@@ -546,7 +546,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.proto.UpdateResponse;
@@ -564,7 +564,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.proto.UpdateResponse;
@@ -586,7 +586,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.proto.UpdateResponse;
@@ -623,7 +623,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.proto.DeleteResponse;
@@ -642,7 +642,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.proto.DeleteResponse;
@@ -660,7 +660,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.proto.DeleteResponse;
@@ -680,7 +680,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.proto.DeleteResponse;
@@ -700,7 +700,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.proto.DeleteResponse;
@@ -717,7 +717,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.proto.DeleteResponse;
@@ -740,7 +740,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.proto.DescribeIndexStatsResponse;
@@ -759,7 +759,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.proto.DescribeIndexStatsResponse;

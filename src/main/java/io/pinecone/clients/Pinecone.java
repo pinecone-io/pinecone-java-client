@@ -48,7 +48,7 @@ public class Pinecone {
 
     /**
      * Creates a new serverless index with the specified parameters.
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code 
      *     client.createServerlessIndex("YOUR-INDEX", "cosine", 1536, "aws", "us-west-2");
@@ -119,7 +119,7 @@ public class Pinecone {
 
     /**
      * Overload for creating a new pods index with environment and podType, the minimum required parameters.
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code 
      *     client.createPodsIndex("YOUR-INDEX", 1536, "us-east4-gcp", "p1.x2");
@@ -138,7 +138,7 @@ public class Pinecone {
 
     /**
      * Overload for creating a new pods index with environment, podType, and metric.
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code 
      *     client.createPodsIndex("YOUR-INDEX", 1536, "us-east4-gcp", "p1.x2", "cosine");
@@ -159,7 +159,7 @@ public class Pinecone {
 
     /**
      * Overload for creating a new pods index with environment, podType, metric, and metadataConfig.
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code 
      *     import org.openapitools.client.model.CreateIndexRequestSpecPodMetadataConfig;
@@ -190,7 +190,7 @@ public class Pinecone {
 
     /**
      * Overload for creating a new pods index with environment, podType, metric, and sourceCollection.
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code 
      *     client.createPodsIndex("YOUR-INDEX", 1536, "us-east4-gcp", "p1.x2", "cosine", "my-collection");
@@ -213,7 +213,7 @@ public class Pinecone {
 
     /**
      * Overload for creating a new pods index with environment, podType, and pods.
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code 
      *     client.createPodsIndex("YOUR-INDEX", 1536, "us-east4-gcp", "p1.x2", "cosine", 6);
@@ -234,7 +234,7 @@ public class Pinecone {
 
     /**
      * Overload for creating a new pods index with environment, podType, pods, and metadataConfig.
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code 
      *     import org.openapitools.client.model.CreateIndexRequestSpecPodMetadataConfig;
@@ -263,7 +263,7 @@ public class Pinecone {
 
     /**
      * Overload for creating a new pods index with environment, podType, replicas, and shards.
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     client.createPodsIndex("YOUR-INDEX", 1536, "us-east4-gcp", "p1.x2", "cosine", 2, 2);
@@ -286,7 +286,7 @@ public class Pinecone {
 
     /**
      * Overload for creating a new pods index with environment, podType, replicas, shards, and metadataConfig.
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code 
      *     import org.openapitools.client.model.CreateIndexRequestSpecPodMetadataConfig;
@@ -317,7 +317,7 @@ public class Pinecone {
 
     /**
      * Creates a new pods index with the specified parameters.
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code 
      *     import org.openapitools.client.model.CreateIndexRequestSpecPodMetadataConfig;
@@ -420,7 +420,7 @@ public class Pinecone {
 
     /**
      * Retrieves information about an existing index.
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code 
      *     import org.openapitools.client.model.IndexModel;
@@ -445,7 +445,7 @@ public class Pinecone {
 
     /**
      * Configures an existing pod-based index with new settings.
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code 
      *     import org.openapitools.client.model.IndexModel;
@@ -500,7 +500,7 @@ public class Pinecone {
 
     /**
      * Overload for configureIndex to only change the number of replicas for an index.
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code 
      *     import org.openapitools.client.model.IndexModel;
@@ -520,7 +520,7 @@ public class Pinecone {
 
     /**
      * Overload for configureIndex to only change the podType of an index.
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code 
      *     import org.openapitools.client.model.IndexModel;
@@ -540,7 +540,7 @@ public class Pinecone {
 
     /**
      * Lists all indexes in your project, including the index name, dimension, metric, status, and spec.
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code 
      *     import org.openapitools.client.model.IndexList;
@@ -573,7 +573,7 @@ public class Pinecone {
      * You can check the status of the index by calling the describeIndex command.
      * With repeated polling of the describeIndex command, you will see the index transition to a
      * Terminating state before eventually resulting in a 404 after it has been removed.
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code 
      *     import org.openapitools.client.model.IndexModel;
@@ -600,7 +600,7 @@ public class Pinecone {
 
     /**
      * Creates a new collection from a source index.
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code 
      *     import org.openapitools.client.model.CollectionModel;
@@ -637,7 +637,7 @@ public class Pinecone {
 
     /**
      * Describes an existing collection.
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code 
      *     import io.pinecone.clients.Pinecone;
@@ -663,7 +663,7 @@ public class Pinecone {
 
     /**
      * Lists all collections in the project.
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code 
      *     import org.openapitools.client.model.CollectionList;
@@ -691,7 +691,7 @@ public class Pinecone {
      * Deleting a collection is an irreversible operation. All data in the collection will be lost.
      * This method tells Pinecone you would like to delete a collection, but it takes a few moments to complete the operation.
      * Use the describeCollection() method to confirm that the collection has been deleted.
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code 
      *     client.deleteCollection('my-collection');
@@ -715,7 +715,7 @@ public class Pinecone {
      * Retrieves a connection to a specific index for synchronous operations. This method initializes
      * and returns an {@link Index} object that represents a connection to an index and allowing for
      * synchronous operations against it.
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code 
      *     import io.pinecone.clients.Index;
@@ -745,7 +745,7 @@ public class Pinecone {
      * Retrieves a connection to a specific index for asynchronous operations. This method initializes
      * and returns an {@link AsyncIndex} object that represents a connection to an index and allowing for
      * synchronous operations against it.
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code 
      *     import io.pinecone.clients.AsyncIndex;
@@ -824,7 +824,7 @@ public class Pinecone {
 
         /**
          * Sets the source tag to include with all requests made by the Pinecone client.
-         * <p/>
+         * <p>
          * Source tag is an optional string identifier used to help Pinecone attribute API activity to our partners.
          * For more info, see
          * <a href="https://docs.pinecone.io/integrations/build-integration/attribute-api-activity">

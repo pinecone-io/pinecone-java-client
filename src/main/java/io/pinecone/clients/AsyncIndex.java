@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * A client for interacting with a Pinecone index via GRPC asynchronously. Allows for upserting, querying, fetching, updating, and deleting vectors.
  * This class provides a direct interface to interact with a specific index, encapsulating network communication and request validation.
- * <p/>
+ * <p>
  * Example:
  * <pre>{@code
  *     import io.pinecone.clients.Pinecone;
@@ -39,7 +39,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * Constructs an {@link AsyncIndex} instance for interacting with a Pinecone index.
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.clients.Pinecone;
@@ -65,7 +65,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.proto.UpsertResponse;
@@ -140,7 +140,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.proto.UpsertResponse;
@@ -160,7 +160,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.proto.UpsertResponse;
@@ -181,7 +181,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.proto.UpsertResponse;
@@ -222,7 +222,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
@@ -263,7 +263,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
@@ -292,7 +292,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
@@ -320,7 +320,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
@@ -347,7 +347,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
@@ -368,7 +368,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
@@ -390,7 +390,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
@@ -410,7 +410,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
@@ -442,7 +442,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
@@ -470,7 +470,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
@@ -497,7 +497,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
@@ -518,7 +518,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
@@ -540,7 +540,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
@@ -560,7 +560,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.proto.FetchResponse;
@@ -579,7 +579,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.proto.FetchResponse;
@@ -601,7 +601,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.proto.UpdateResponse;
@@ -621,7 +621,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.proto.UpdateResponse;
@@ -642,7 +642,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.proto.UpdateResponse;
@@ -680,7 +680,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.proto.DeleteResponse;
@@ -700,7 +700,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.proto.DeleteResponse;
@@ -720,7 +720,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.proto.DeleteResponse;
@@ -742,7 +742,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.proto.DeleteResponse;
@@ -763,7 +763,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.proto.DeleteResponse;
@@ -781,7 +781,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.proto.DeleteResponse;
@@ -805,7 +805,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.proto.DescribeIndexStatsResponse;
@@ -825,7 +825,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Example:
      * <pre>{@code
      *     import io.pinecone.proto.DescribeIndexStatsResponse;
