@@ -6,14 +6,55 @@ import io.pinecone.proto.ScoredVector;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * This class represents a scored vector with unsigned 32-bit integer indices for the sparse values.
+ * Unlike the `ScoredVector` class, which uses the `SparseValues` class to represent the sparse values,
+ * this class uses the `SparseValuesWithUnsignedIndices` class, which allows for the use of unsigned 32-bit
+ * integers as indices.
+ * <p>
+ * The `ScoredVectorWithUnsignedIndices` class contains the following fields:
+ * - `score`: the score associated with the vector
+ * - `id`: the identifier of the vector
+ * - `values`: the dense vector values
+ * - `metadata`: the metadata associated with the vector
+ * - `sparseValuesWithUnsignedIndices`: the sparse values associated with the vector, using unsigned 32-bit integer indices
+ * <p>
+ * The class provides a constructor that takes a `ScoredVector` object and converts it to a
+ * `ScoredVectorWithUnsignedIndices` object, as well as getter and setter methods for each of the fields.
+ */
 public class ScoredVectorWithUnsignedIndices {
 
+    /**
+     * The score associated with the vector.
+     */
     private float score;
+
+    /**
+     * The identifier of the vector.
+     */
     private String id;
+
+    /**
+     * The dense vector values.
+     */
     private List<Float> values;
+
+    /**
+     * The metadata associated with the vector.
+     */
     private Struct metadata;
+
+    /**
+     * The sparse values associated with the vector, using unsigned 32-bit integer indices.
+     */
     private SparseValuesWithUnsignedIndices sparseValuesWithUnsignedIndices;
 
+    /**
+     * Constructs a `ScoredVectorWithUnsignedIndices` object from a `ScoredVector` object, converting the
+     * `SparseValues` to `SparseValuesWithUnsignedIndices`.
+     *
+     * @param scoredVector the `ScoredVector` object to convert
+     */
     public ScoredVectorWithUnsignedIndices(ScoredVector scoredVector) {
         if (scoredVector == null) {
             this.score = 0F;
@@ -30,49 +71,101 @@ public class ScoredVectorWithUnsignedIndices {
         }
     }
 
+    /**
+     * Returns the score associated with the vector.
+     *
+     * @return the score
+     */
     public float getScore() {
         return score;
     }
 
+    /**
+     * Sets the score associated with the vector.
+     *
+     * @param score the new score
+     */
     public void setScore(float score) {
         this.score = score;
     }
 
+    /**
+     * Returns the identifier of the vector.
+     *
+     * @return the id
+     */
     public String getId() {
         return id;
     }
 
+    /**
+     * Sets the identifier of the vector.
+     *
+     * @param id the new id
+     */
     public void setId(String id) {
         this.id = id;
     }
 
+    /**
+     * Returns the dense vector values.
+     *
+     * @return the list of values
+     */
     public List<Float> getValuesList() {
         return values;
     }
 
+    /**
+     * Sets the dense vector values.
+     *
+     * @param values the new list of values
+     */
     public void setValues(List<Float> values) {
         this.values = values;
     }
 
+    /**
+     * Returns the metadata associated with the vector.
+     *
+     * @return the metadata
+     */
     public Struct getMetadata() {
         return metadata;
     }
 
+    /**
+     * Sets the metadata associated with the vector.
+     *
+     * @param metadata the new metadata
+     */
     public void setMetadata(Struct metadata) {
         this.metadata = metadata;
     }
 
+    /**
+     * Returns the sparse values associated with the vector, using unsigned 32-bit integer indices.
+     *
+     * @return the `SparseValuesWithUnsignedIndices` object
+     */
     public SparseValuesWithUnsignedIndices getSparseValuesWithUnsignedIndices() {
         return sparseValuesWithUnsignedIndices;
     }
 
+    /**
+     * Sets the sparse values associated with the vector, using unsigned 32-bit integer indices.
+     *
+     * @param sparseValuesWithUnsignedIndices the new `SparseValuesWithUnsignedIndices` object
+     */
     public void setSparseValuesWithUnsignedIndices(SparseValuesWithUnsignedIndices sparseValuesWithUnsignedIndices) {
         this.sparseValuesWithUnsignedIndices = sparseValuesWithUnsignedIndices;
     }
 
     /**
-     * Convert the given object to string with each line indented by 4 spaces
-     * (except the first line).
+     * Converts the given object to a string with each line indented by 4 spaces (except the first line).
+     *
+     * @param o the object to convert to a string
+     * @return the indented string representation of the object
      */
     private String toIndentedString(Object o) {
         if (o == null) {
