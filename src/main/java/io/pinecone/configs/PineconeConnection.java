@@ -107,6 +107,7 @@ public class PineconeConnection implements AutoCloseable {
 
     /**
      * Return the gRPC stub used for sending requests to Pinecone.
+     * @return The blocking stub
      */
     public VectorServiceGrpc.VectorServiceBlockingStub getBlockingStub() {
         return blockingStub;
@@ -114,6 +115,7 @@ public class PineconeConnection implements AutoCloseable {
 
     /**
      * Return the gRPC async stub to allow clients to do ListenableFuture-style rpc calls to Pinecone.
+     * @return The async stub
      */
     public VectorServiceGrpc.VectorServiceFutureStub getAsyncStub() {
         return asyncStub;
