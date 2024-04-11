@@ -16,8 +16,8 @@ import javax.net.ssl.SSLException;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Handles communication with a Pinecone service or router. One PineconeConnection can be shared
- * and used concurrently by multiple threads.
+ * The PineconeConnection class handles communication with a Pinecone service or router. One PineconeConnection
+ * can be shared and used concurrently by multiple threads.
  */
 public class PineconeConnection implements AutoCloseable {
 
@@ -28,13 +28,24 @@ public class PineconeConnection implements AutoCloseable {
     final ManagedChannel channel;
 
     /**
-     * The gRPC stub used for sending requests to Pinecone. Blocks until response. Access to this
-     * field is not thread-safe; modifications should be synchronized by callers.
+     * The gRPC stub used for sending requests to Pinecone. Blocks until response.
      */
     private VectorServiceGrpc.VectorServiceBlockingStub blockingStub;
 
+    /**
+     * The gRPC async stub to allow clients to do ListenableFuture-style rpc calls to Pinecone.
+     */
     private VectorServiceGrpc.VectorServiceFutureStub asyncStub;
 
+    /**
+     * Constructs a {@link PineconeConnection} instance with the specified {@link PineconeConfig}.
+     * If a custom gRPC ManagedChannel is provided in the {@link PineconeConfig}, it will be used.
+     * Otherwise, a new gRPC ManagedChannel will be built using the host specified in the {@link PineconeConfig}.
+     * <p>
+     *
+     * @param config The {@link PineconeConfig} containing configuration settings for the PineconeConnection.
+     * @throws PineconeValidationException If index name or host is not provided for data plane operations.
+     */
     public PineconeConnection(PineconeConfig config) {
         this.config = config;
         if (config.getCustomManagedChannel() != null) {
@@ -87,14 +98,23 @@ public class PineconeConnection implements AutoCloseable {
         }
     }
 
+    /**
+     * Returns the gRPC channel.
+     */
     public ManagedChannel getChannel() {
         return channel;
     }
 
+    /**
+     * Returns the gRPC stub used for sending requests to Pinecone.
+     */
     public VectorServiceGrpc.VectorServiceBlockingStub getBlockingStub() {
         return blockingStub;
     }
 
+    /**
+     * Get the gRPC async stub to allow clients to do ListenableFuture-style rpc calls to Pinecone.
+     */
     public VectorServiceGrpc.VectorServiceFutureStub getAsyncStub() {
         return asyncStub;
     }
