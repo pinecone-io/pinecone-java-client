@@ -110,7 +110,6 @@ javadoc {
     options.addStringOption('Xdoclint:none', '-quiet')
 }
 
-// Javadoc task
 task generateJavadoc(type: Javadoc) {
     source = sourceSets.main.allJava
     options.memberLevel = JavadocMemberLevel.PUBLIC
