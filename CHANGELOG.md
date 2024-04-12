@@ -2,7 +2,7 @@
 
 [comment]: <> (When bumping [pc:VERSION_LATEST_RELEASE] create a new entry below)
 ### Unreleased version
-### v0.1.0
+### v1.0.0
 - Remove vector_service.proto and replace it with the generated classes
 - Add data and control plane wrappers
 - Refactor configs and PineconeConnection
