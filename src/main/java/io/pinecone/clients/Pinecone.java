@@ -19,17 +19,21 @@ import java.util.concurrent.ConcurrentHashMap;
  * The Pinecone class is the main entry point for interacting with Pinecone via the Java SDK.
  * It is used to create, delete, and manage your indexes and collections.
  * <p>
- * Instantiating the Pinecone class requires you to leverage the {@link Pinecone.Builder} class to pass
- * an API key:
- * <pre>
- *     import io.pinecone.clients.Pinecone;
- *     import org.openapitools.client.model.ListResponse;
+ * To instantiate the Pinecone class, use the {@link Pinecone.Builder} class to pass
+ * an API key and any other optional configuration.
  *
- *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+ * <pre>{@code
+ *     import io.pinecone.clients.Pinecone;
+ *
+ *     Pinecone client = new Pinecone.Builder("PINECONE_API_KEY").build();
  *
  *     // Use the client to interact with Pinecone
- *     ListResponse indexes = client.listIndexes();
- * </pre>
+ *     client.describeIndex("YOUR-INDEX");
+ *
+ *     // Use the client to obtain an Index or AsyncIndex instance to upsert or query
+ *     Index index = client.getIndexConnection("YOUR-INDEX");
+ *     index.upsert(...);
+ * }</pre>
  */
 public class Pinecone {
 
@@ -44,20 +48,17 @@ public class Pinecone {
 
     /**
      * Creates a new serverless index with the specified parameters.
+     * <p>
+     * Example:
+     * <pre>{@code 
+     *     client.createServerlessIndex("YOUR-INDEX", "cosine", 1536, "aws", "us-west-2");
+     * }</pre>
      *
-     * <pre>
-     *     import io.pinecone.clients.Pinecone;
-     *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *
-     *     client.createServerlessIndex("my-index", "cosine", 1536, "aws", "us-west-2");
-     * </pre>
-     *
-     * @param indexName the name of the index to be created.
-     * @param metric the metric type for the index. Must be one of "cosine", "euclidean", or "dotproduct".
-     * @param dimension the number of dimensions for the index.
-     * @param cloud the cloud provider for the index.
-     * @param region the cloud region for the index.
+     * @param indexName The name of the index to be created.
+     * @param metric The metric type for the index. Must be one of "cosine", "euclidean", or "dotproduct".
+     * @param dimension The number of dimensions for the index.
+     * @param cloud The cloud provider for the index.
+     * @param region The cloud region for the index.
      * @return {@link IndexModel} representing the created serverless index.
      * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
      */
@@ -118,19 +119,16 @@ public class Pinecone {
 
     /**
      * Overload for creating a new pods index with environment and podType, the minimum required parameters.
+     * <p>
+     * Example:
+     * <pre>{@code 
+     *     client.createPodsIndex("YOUR-INDEX", 1536, "us-east4-gcp", "p1.x2");
+     * }</pre>
      *
-     * <pre>
-     *     import io.pinecone.clients.Pinecone;
-     *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *
-     *     client.createPodsIndex("my-index", 1536, "us-east4-gcp", "p1.x2");
-     * </pre>
-     *
-     * @param indexName the name of the index to be created.
-     * @param dimension the number of dimensions for the index.
-     * @param environment the cloud environment where you want the index to be hosted.
-     * @param podType the type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
+     * @param indexName The name of the index to be created.
+     * @param dimension The number of dimensions for the index.
+     * @param environment The cloud environment where you want the index to be hosted.
+     * @param podType The type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
      * @return {@link IndexModel} representing the created serverless index.
      * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
      */
@@ -140,20 +138,17 @@ public class Pinecone {
 
     /**
      * Overload for creating a new pods index with environment, podType, and metric.
+     * <p>
+     * Example:
+     * <pre>{@code 
+     *     client.createPodsIndex("YOUR-INDEX", 1536, "us-east4-gcp", "p1.x2", "cosine");
+     * }</pre>
      *
-     * <pre>
-     *     import io.pinecone.clients.Pinecone;
-     *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *
-     *     client.createPodsIndex("my-index", 1536, "us-east4-gcp", "p1.x2", "cosine");
-     * </pre>
-     *
-     * @param indexName the name of the index to be created.
-     * @param dimension the number of dimensions for the index.
-     * @param environment the cloud environment where you want the index to be hosted.
-     * @param podType the type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
-     * @param metric the metric type for the index. Must be one of "cosine", "euclidean", or "dotproduct".
+     * @param indexName The name of the index to be created.
+     * @param dimension The number of dimensions for the index.
+     * @param environment The cloud environment where you want the index to be hosted.
+     * @param podType The type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
+     * @param metric The metric type for the index. Must be one of "cosine", "euclidean", or "dotproduct".
      * @return {@link IndexModel} representing the created serverless index.
      * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
      */
@@ -164,23 +159,25 @@ public class Pinecone {
 
     /**
      * Overload for creating a new pods index with environment, podType, metric, and metadataConfig.
-     *
-     * <pre>
-     *     import io.pinecone.clients.Pinecone;
+     * <p>
+     * Example:
+     * <pre>{@code 
      *     import org.openapitools.client.model.CreateIndexRequestSpecPodMetadataConfig;
+     *     ...
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+     *     CreateIndexRequestSpecPodMetadataConfig metadataConfig =
+     *         new CreateIndexRequestSpecPodMetadataConfig()
+     *         .fields(Arrays.asList("genre", "year"));
      *
-     *     CreateIndexRequestSpecPodMetadataConfig metadataConfig = new CreateIndexRequestSpecPodMetadataConfig().fields(Arrays.asList("genre", "year"));
-     *     client.createPodsIndex("my-index", 1536, "us-east4-gcp", "p1.x2", "cosine", metadataConfig);
-     * </pre>
+     *     client.createPodsIndex("YOUR-INDEX", 1536, "us-east4-gcp", "p1.x2", "cosine", metadataConfig);
+     * }</pre>
      *
-     * @param indexName the name of the index to be created.
-     * @param dimension the number of dimensions for the index.
-     * @param environment the cloud environment where you want the index to be hosted.
-     * @param podType the type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
-     * @param metric the metric type for the index. Must be one of "cosine", "euclidean", or "dotproduct".
-     * @param metadataConfig the configuration for the behavior of Pinecone's internal metadata index. By default, all metadata is indexed;
+     * @param indexName The name of the index to be created.
+     * @param dimension The number of dimensions for the index.
+     * @param environment The cloud environment where you want the index to be hosted.
+     * @param podType The type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
+     * @param metric The metric type for the index. Must be one of "cosine", "euclidean", or "dotproduct".
+     * @param metadataConfig The configuration for the behavior of Pinecone's internal metadata index. By default, all metadata is indexed;
      *                       when metadataConfig is present, only specified metadata fields are indexed.
      * @return {@link IndexModel} representing the created serverless index.
      * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
@@ -193,21 +190,18 @@ public class Pinecone {
 
     /**
      * Overload for creating a new pods index with environment, podType, metric, and sourceCollection.
+     * <p>
+     * Example:
+     * <pre>{@code 
+     *     client.createPodsIndex("YOUR-INDEX", 1536, "us-east4-gcp", "p1.x2", "cosine", "my-collection");
+     * }</pre>
      *
-     * <pre>
-     *     import io.pinecone.clients.Pinecone;
-     *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *
-     *     client.createPodsIndex("my-index", 1536, "us-east4-gcp", "p1.x2", "cosine", "my-collection");
-     * </pre>
-     *
-     * @param indexName the name of the index to be created.
-     * @param dimension the number of dimensions for the index.
-     * @param environment the cloud environment where you want the index to be hosted.
-     * @param podType the type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
-     * @param metric the metric type for the index. Must be one of "cosine", "euclidean", or "dotproduct".
-     * @param sourceCollection the name of the collection to be used as the source for the index. Collections are snapshots of an index at a point in time.
+     * @param indexName The name of the index to be created.
+     * @param dimension The number of dimensions for the index.
+     * @param environment The cloud environment where you want the index to be hosted.
+     * @param podType The type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
+     * @param metric The metric type for the index. Must be one of "cosine", "euclidean", or "dotproduct".
+     * @param sourceCollection The name of the collection to be used as the source for the index. Collections are snapshots of an index at a point in time.
      * @return {@link IndexModel} representing the created serverless index.
      * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
      */
@@ -219,20 +213,17 @@ public class Pinecone {
 
     /**
      * Overload for creating a new pods index with environment, podType, and pods.
+     * <p>
+     * Example:
+     * <pre>{@code 
+     *     client.createPodsIndex("YOUR-INDEX", 1536, "us-east4-gcp", "p1.x2", "cosine", 6);
+     * }</pre>
      *
-     * <pre>
-     *     import io.pinecone.clients.Pinecone;
-     *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *
-     *     client.createPodsIndex("my-index", 1536, "us-east4-gcp", "p1.x2", "cosine", 6);
-     * </pre>
-     *
-     * @param indexName the name of the index to be created.
-     * @param dimension the number of dimensions for the index.
-     * @param environment the cloud environment where you want the index to be hosted.
-     * @param podType the type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
-     * @param pods the number of pods to be used in the index.
+     * @param indexName The name of the index to be created.
+     * @param dimension The number of dimensions for the index.
+     * @param environment The cloud environment where you want the index to be hosted.
+     * @param podType The type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
+     * @param pods The number of pods to be used in the index.
      * @return {@link IndexModel} representing the created serverless index.
      * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
      */
@@ -243,22 +234,23 @@ public class Pinecone {
 
     /**
      * Overload for creating a new pods index with environment, podType, pods, and metadataConfig.
-     *
-     * <pre>
-     *     import io.pinecone.clients.Pinecone;
+     * <p>
+     * Example:
+     * <pre>{@code 
      *     import org.openapitools.client.model.CreateIndexRequestSpecPodMetadataConfig;
+     *     ...
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+     *     CreateIndexRequestSpecPodMetadataConfig metadataConfig =
+     *         new CreateIndexRequestSpecPodMetadataConfig()
+     *         .fields(Arrays.asList("genre", "year"));
+     *     client.createPodsIndex("YOUR-INDEX", 1536, "us-east4-gcp", "p1.x2", "cosine", 6);
+     * }</pre>
      *
-     *     CreateIndexRequestSpecPodMetadataConfig metadataConfig = new CreateIndexRequestSpecPodMetadataConfig().fields(Arrays.asList("genre", "year"));
-     *     client.createPodsIndex("my-index", 1536, "us-east4-gcp", "p1.x2", "cosine", 6);
-     * </pre>
-     *
-     * @param indexName the name of the index to be created.
-     * @param dimension the number of dimensions for the index.
-     * @param environment the cloud environment where you want the index to be hosted.
-     * @param podType the type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
-     * @param pods the number of pods to be used in the index.
+     * @param indexName The name of the index to be created.
+     * @param dimension The number of dimensions for the index.
+     * @param environment The cloud environment where you want the index to be hosted.
+     * @param podType The type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
+     * @param pods The number of pods to be used in the index.
      * @return {@link IndexModel} representing the created serverless index.
      * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
      */
@@ -271,21 +263,18 @@ public class Pinecone {
 
     /**
      * Overload for creating a new pods index with environment, podType, replicas, and shards.
+     * <p>
+     * Example:
+     * <pre>{@code
+     *     client.createPodsIndex("YOUR-INDEX", 1536, "us-east4-gcp", "p1.x2", "cosine", 2, 2);
+     * }</pre>
      *
-     * <pre>
-     *     import io.pinecone.clients.Pinecone;
-     *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *
-     *     client.createPodsIndex("my-index", 1536, "us-east4-gcp", "p1.x2", "cosine", 2, 2);
-     * </pre>
-     *
-     * @param indexName the name of the index to be created.
-     * @param dimension the number of dimensions for the index.
-     * @param environment the cloud environment where you want the index to be hosted.
-     * @param podType the type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
-     * @param replicas the number of replicas. Replicas duplicate your index. They provide higher availability and throughput and can be scaled.
-     * @param shards the number of shards. Shards split your data across multiple pods so you can fit more data into an index.
+     * @param indexName The name of the index to be created.
+     * @param dimension The number of dimensions for the index.
+     * @param environment The cloud environment where you want the index to be hosted.
+     * @param podType The type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
+     * @param replicas The number of replicas. Replicas duplicate your index. They provide higher availability and throughput and can be scaled.
+     * @param shards The number of shards. Shards split your data across multiple pods so you can fit more data into an index.
      * @return {@link IndexModel} representing the created serverless index.
      * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
      */
@@ -297,23 +286,24 @@ public class Pinecone {
 
     /**
      * Overload for creating a new pods index with environment, podType, replicas, shards, and metadataConfig.
-     *
-     * <pre>
-     *     import io.pinecone.clients.Pinecone;
+     * <p>
+     * Example:
+     * <pre>{@code 
      *     import org.openapitools.client.model.CreateIndexRequestSpecPodMetadataConfig;
+     *     ...
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+     *     CreateIndexRequestSpecPodMetadataConfig metadataConfig =
+     *         new CreateIndexRequestSpecPodMetadataConfig()
+     *         .fields(Arrays.asList("genre", "year"));
+     *     client.createPodsIndex("YOUR-INDEX", 1536, "us-east4-gcp", "p1.x2", "cosine", 2, 2, metadataConfig);
+     * }</pre>
      *
-     *     CreateIndexRequestSpecPodMetadataConfig metadataConfig = new CreateIndexRequestSpecPodMetadataConfig().fields(Arrays.asList("genre", "year"));
-     *     client.createPodsIndex("my-index", 1536, "us-east4-gcp", "p1.x2", "cosine", 2, 2, metadataConfig);
-     * </pre>
-     *
-     * @param indexName the name of the index to be created.
-     * @param dimension the number of dimensions for the index.
-     * @param environment the cloud environment where you want the index to be hosted.
-     * @param podType the type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
-     * @param replicas the number of replicas. Replicas duplicate your index. They provide higher availability and throughput and can be scaled.
-     * @param shards the number of shards. Shards split your data across multiple pods so you can fit more data into an index.
+     * @param indexName The name of the index to be created.
+     * @param dimension The number of dimensions for the index.
+     * @param environment The cloud environment where you want the index to be hosted.
+     * @param podType The type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
+     * @param replicas The number of replicas. Replicas duplicate your index. They provide higher availability and throughput and can be scaled.
+     * @param shards The number of shards. Shards split your data across multiple pods so you can fit more data into an index.
      * @return {@link IndexModel} representing the created serverless index.
      * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
      */
@@ -327,28 +317,29 @@ public class Pinecone {
 
     /**
      * Creates a new pods index with the specified parameters.
-     *
-     * <pre>
-     *     import io.pinecone.clients.Pinecone;
+     * <p>
+     * Example:
+     * <pre>{@code 
      *     import org.openapitools.client.model.CreateIndexRequestSpecPodMetadataConfig;
+     *     ...
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+     *     CreateIndexRequestSpecPodMetadataConfig metadataConfig =
+     *         new CreateIndexRequestSpecPodMetadataConfig()
+     *         .fields(Arrays.asList("genre", "year"));
+     *     client.createPodsIndex("YOUR-INDEX", 1536, "us-east4-gcp", "p1.x2", "cosine", 2, 2, 4, null, null);
+     * }</pre>
      *
-     *     CreateIndexRequestSpecPodMetadataConfig metadataConfig = new CreateIndexRequestSpecPodMetadataConfig().fields(Arrays.asList("genre", "year"));
-     *     client.createPodsIndex("my-index", 1536, "us-east4-gcp", "p1.x2", "cosine", 2, 2, 4, null, null);
-     * </pre>
-     *
-     * @param indexName the name of the index to be created.
-     * @param dimension the number of dimensions for the index.
-     * @param environment the cloud environment where you want the index to be hosted.
-     * @param podType the type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
-     * @param metric the metric type for the index. Must be one of "cosine", "euclidean", or "dotproduct".
-     * @param replicas the number of replicas. Replicas duplicate your index. They provide higher availability and throughput and can be scaled.
-     * @param shards the number of shards. Shards split your data across multiple pods so you can fit more data into an index.
-     * @param pods the number of pods to be used in the index. This should be equal to shards x replicas.
-     * @param metadataConfig the configuration for the behavior of Pinecone's internal metadata index. By default, all metadata is indexed;
+     * @param indexName The name of the index to be created.
+     * @param dimension The number of dimensions for the index.
+     * @param environment The cloud environment where you want the index to be hosted.
+     * @param podType The type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
+     * @param metric The metric type for the index. Must be one of "cosine", "euclidean", or "dotproduct".
+     * @param replicas The number of replicas. Replicas duplicate your index. They provide higher availability and throughput and can be scaled.
+     * @param shards The number of shards. Shards split your data across multiple pods so you can fit more data into an index.
+     * @param pods The number of pods to be used in the index. This should be equal to shards x replicas.
+     * @param metadataConfig The configuration for the behavior of Pinecone's internal metadata index. By default, all metadata is indexed;
      *                       when metadataConfig is present, only specified metadata fields are indexed.
-     * @param sourceCollection the name of the collection to be used as the source for the index. Collections are snapshots of an index at a point in time.
+     * @param sourceCollection The name of the collection to be used as the source for the index. Collections are snapshots of an index at a point in time.
      * @return {@link IndexModel} representing the created serverless index.
      * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
      */
@@ -429,18 +420,16 @@ public class Pinecone {
 
     /**
      * Retrieves information about an existing index.
-     *
-     * <pre>
-     *     import io.pinecone.clients.Pinecone;
+     * <p>
+     * Example:
+     * <pre>{@code 
      *     import org.openapitools.client.model.IndexModel;
+     *     ...
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+     *     IndexModel indexModel = client.describeIndex("YOUR-INDEX");
+     * }</pre>
      *
-     *     IndexModel index = client.describeIndex("my-index");
-     *     System.out.println("Your index is hosted at: " + index.getHost());
-     * </pre>
-     *
-     * @param indexName the name of the index to describe.
+     * @param indexName The name of the index to describe.
      * @return {@link IndexModel} with the details of the index.
      * @throws PineconeException if an error occurs during the operation or the index does not exist.
      */
@@ -456,23 +445,22 @@ public class Pinecone {
 
     /**
      * Configures an existing pod-based index with new settings.
-     *
-     * <pre>
-     *     import io.pinecone.clients.Pinecone;
+     * <p>
+     * Example:
+     * <pre>{@code 
      *     import org.openapitools.client.model.IndexModel;
-     *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+     *     ...
      *
      *     // Make a configuration change
-     *     IndexModel index = client.configureIndex("my-index", "p1.x2", 4);
+     *     IndexModel indexModel = client.configureIndex("YOUR-INDEX", "p1.x2", 4);
      *
      *     // Call describeIndex to see the index status as the change is applied.
-     *     index = client.describeIndex("my-index");
-     * </pre>
+     *     indexModel = client.describeIndex("YOUR-INDEX");
+     * }</pre>
      *
-     * @param indexName the name of the index to configure.
-     * @param podType the new podType for the index. Can be null if not changing the pod type.
-     * @param replicas the desired number of replicas for the index, lowest value is 0. Can be null if not changing the number of replicas.
+     * @param indexName The name of the index to configure.
+     * @param podType The new podType for the index. Can be null if not changing the pod type.
+     * @param replicas The desired number of replicas for the index, lowest value is 0. Can be null if not changing the number of replicas.
      * @return {@link IndexModel} representing the configured index.
      * @throws PineconeException if an error occurs during the operation, the index does not exist, or if any of the arguments are invalid.
      */
@@ -512,18 +500,17 @@ public class Pinecone {
 
     /**
      * Overload for configureIndex to only change the number of replicas for an index.
-     *
-     * <pre>
-     *     import io.pinecone.clients.Pinecone;
+     * <p>
+     * Example:
+     * <pre>{@code 
      *     import org.openapitools.client.model.IndexModel;
+     *     ...
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+     *     IndexModel indexModel = client.configureIndex("YOUR-INDEX", 4);
+     * }</pre>
      *
-     *     IndexModel index = client.configureIndex("my-index", 4);
-     * </pre>
-     *
-     * @param indexName the name of the index.
-     * @param replicas the desired number of replicas for the index, lowest value is 0.
+     * @param indexName The name of the index.
+     * @param replicas The desired number of replicas for the index, lowest value is 0.
      * @return {@link IndexModel} of the configured index.
      * @throws PineconeException if an error occurs during the operation, the index does not exist, or if the number of replicas is invalid.
      */
@@ -533,18 +520,17 @@ public class Pinecone {
 
     /**
      * Overload for configureIndex to only change the podType of an index.
-     *
-     * <pre>
-     *     import io.pinecone.clients.Pinecone;d
+     * <p>
+     * Example:
+     * <pre>{@code 
      *     import org.openapitools.client.model.IndexModel;
+     *     ...
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+     *     IndexModel indexModel = client.configureIndex("YOUR-INDEX", "p1.x2");
+     * }</pre>
      *
-     *     IndexModel index = client.configureIndex("my-index", "p1.x2");
-     * </pre>
-     *
-     * @param indexName the name of the index.
-     * @param podType the new podType for the index.
+     * @param indexName The name of the index.
+     * @param podType The new podType for the index.
      * @return {@link IndexModel} of the configured index.
      * @throws PineconeException if an error occurs during the operation, the index does not exist, or if the podType is invalid.
      */
@@ -554,15 +540,14 @@ public class Pinecone {
 
     /**
      * Lists all indexes in your project, including the index name, dimension, metric, status, and spec.
-     *
-     * <pre>
-     *     import io.pinecone.clients.Pinecone;
+     * <p>
+     * Example:
+     * <pre>{@code 
      *     import org.openapitools.client.model.IndexList;
-     *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+     *     ...
      *
      *     IndexList indexes = client.listIndexes();
-     * </pre>
+     * }</pre>
      *
      * @return {@link IndexList} containing all indexes.
      * @throws PineconeException if an error occurs during the operation.
@@ -588,22 +573,21 @@ public class Pinecone {
      * You can check the status of the index by calling the describeIndex command.
      * With repeated polling of the describeIndex command, you will see the index transition to a
      * Terminating state before eventually resulting in a 404 after it has been removed.
-     *
-     * <pre>
-     *     import io.pinecone.clients.Pinecone;
+     * <p>
+     * Example:
+     * <pre>{@code 
      *     import org.openapitools.client.model.IndexModel;
-     *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+     *     ...
      *
      *     // Delete an index
-     *     client.deleteIndex("my-index");
+     *     client.deleteIndex("YOUR-INDEX");
      *
-     *     // Verify index status with describeIndex
-     *     IndexModel index = client.describeIndex("my-index");
-     *     System.out.println("Index status: " + index.getStatus().getState());
-     * </pre>
+     *     // Get index status with describeIndex
+     *     IndexModel indexModel = client.describeIndex("YOUR-INDEX");
+     *     indexModel.getStatus().getState();
+     * }</pre>
      *
-     * @param indexName the name of the index to delete.
+     * @param indexName The name of the index to delete.
      * @throws PineconeException if an error occurs during the deletion operation or the index does not exist.
      */
     public void deleteIndex(String indexName) throws PineconeException {
@@ -616,18 +600,17 @@ public class Pinecone {
 
     /**
      * Creates a new collection from a source index.
-     *
-     * <pre>
-     *     import io.pinecone.clients.Pinecone;
+     * <p>
+     * Example:
+     * <pre>{@code 
      *     import org.openapitools.client.model.CollectionModel;
-     *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+     *     ...
      *
      *     CollectionModel collection = client.createCollection("my-collection", "my-source-index");
-     * </pre>
+     * }</pre>
      *
-     * @param collectionName the name of the new collection.
-     * @param sourceIndex the name of the source index.
+     * @param collectionName The name of the new collection.
+     * @param sourceIndex The name of the source index.
      * @return {@link CollectionModel} representing the created collection.
      * @throws PineconeException if an error occurs during the operation, or the source collection is invalid.
      */
@@ -654,17 +637,17 @@ public class Pinecone {
 
     /**
      * Describes an existing collection.
-     *
-     * <pre>
+     * <p>
+     * Example:
+     * <pre>{@code 
      *     import io.pinecone.clients.Pinecone;
      *     import org.openapitools.client.model.CollectionModel;
-     *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+     *     ...
      *
      *     CollectionModel collection = client.describeCollection("my-collection");
-     * </pre>
+     * }</pre>
      *
-     * @param collectionName the name of the collection to describe.
+     * @param collectionName The name of the collection to describe.
      * @return {@link CollectionModel} with the description of the collection.
      * @throws PineconeException if an error occurs during the operation or the collection does not exist.
      */
@@ -680,15 +663,14 @@ public class Pinecone {
 
     /**
      * Lists all collections in the project.
-     *
-     * <pre>
-     *     import io.pinecone.clients.Pinecone;
+     * <p>
+     * Example:
+     * <pre>{@code 
      *     import org.openapitools.client.model.CollectionList;
-     *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+     *     ...
      *
      *     CollectionList collections = client.listCollections();
-     * </pre>
+     * }</pre>
      *
      * @return {@link CollectionList} containing all collections.
      * @throws PineconeException if an error occurs during the listing operation.
@@ -709,19 +691,16 @@ public class Pinecone {
      * Deleting a collection is an irreversible operation. All data in the collection will be lost.
      * This method tells Pinecone you would like to delete a collection, but it takes a few moments to complete the operation.
      * Use the describeCollection() method to confirm that the collection has been deleted.
-     *
-     * <pre>
-     *     import io.pinecone.clients.Pinecone;
-     *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *
+     * <p>
+     * Example:
+     * <pre>{@code 
      *     client.deleteCollection('my-collection');
      *
      *     // Verify collection status with describeCollection
      *     client.describeCollection('my-collection');
-     * </pre>
+     * }</pre>
      *
-     * @param collectionName the name of the collection to delete.
+     * @param collectionName The name of the collection to delete.
      * @throws PineconeException if an error occurs during the deletion operation or the collection does not exist.
      */
     public void deleteCollection(String collectionName) throws PineconeException {
@@ -736,17 +715,17 @@ public class Pinecone {
      * Retrieves a connection to a specific index for synchronous operations. This method initializes
      * and returns an {@link Index} object that represents a connection to an index and allowing for
      * synchronous operations against it.
-     *
-     * <pre>
-     *     import io.pinecone.clients.Pinecone;
+     * <p>
+     * Example:
+     * <pre>{@code 
      *     import io.pinecone.clients.Index;
+     *     ...
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *     Index index = client.getIndexConnection("my-index");
+     *     Index index = client.getIndexConnection("YOUR-INDEX");
      *
      *     // Use the index object to interact with the index
      *     index.describeIndexStats();
-     * </pre>
+     * }</pre>
      *
      * @param indexName The name of the index to connect to. Must not be null or empty.
      * @return An {@link Index} object representing the connection to the specified index.
@@ -766,17 +745,17 @@ public class Pinecone {
      * Retrieves a connection to a specific index for asynchronous operations. This method initializes
      * and returns an {@link AsyncIndex} object that represents a connection to an index and allowing for
      * synchronous operations against it.
-     *
-     * <pre>
-     *     import io.pinecone.clients.Pinecone;
+     * <p>
+     * Example:
+     * <pre>{@code 
      *     import io.pinecone.clients.AsyncIndex;
+     *     ...
      *
-     *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *     AsyncIndex asyncIndex = client.getAsyncIndexConnection("my-index");
+     *     AsyncIndex asyncIndex = client.getAsyncIndexConnection("YOUR-INDEX");
      *
      *     // Use the index object to interact with the index
      *     asyncIndex.describeIndexStats();
-     * </pre>
+     * }</pre>
      *
      * @param indexName The name of the index to connect to. Must not be null or empty.
      * @return An {@link AsyncIndex} object representing the connection to the specified index.
@@ -831,15 +810,11 @@ public class Pinecone {
         /**
          * Constructs a new {@link Builder} with the mandatory API key.
          *
-         * <pre>
+         * <pre>{@code
          *     import io.pinecone.clients.Pinecone;
-         *     import org.openapitools.client.model.IndexList;
          *
-         *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-         *
-         *     // Use the client to interact with Pinecone
-         *     IndexList indexes = client.listIndexes();
-         * </pre>
+         *     Pinecone client = new Pinecone.Builder("PINECONE_API_KEY").build();
+         * }</pre>
          *
          * @param apiKey The API key required for authenticating requests to Pinecone services.
          */
@@ -848,17 +823,22 @@ public class Pinecone {
         }
 
         /**
-         * Sets the source tag for the requests made by the Pinecone client.
+         * Sets the source tag to include with all requests made by the Pinecone client.
+         * <p>
+         * Source tag is an optional string identifier used to help Pinecone attribute API activity to our partners.
+         * For more info, see
+         * <a href="https://docs.pinecone.io/integrations/build-integration/attribute-api-activity">
+         *    https://docs.pinecone.io/integrations/build-integration/attribute-api-activity
+         * </a>
          *
-         * <pre>
-         *     import io.pinecone.clients.Pinecone;
-         *     import org.openapitools.client.model.IndexList;
+         * <pre>{@code
+         *     Pinecone client = new Pinecone.Builder("PINECONE_API_KEY")
+         *         .withSourceTag("YOUR_SOURCE_TAG")
+         *         .build();
          *
-         *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).withSourceTag("my-source-tag").build();
-         *
-         *     // The tag will be included as a header in all requests made by the client
-         *     IndexList indexes = client.listIndexes();
-         * </pre>
+         *     // The tag will be included in all requests made by the client, e.g.
+         *     client.listIndexes();
+         * }</pre>
          *
          * @param sourceTag The source tag to identify the origin of the requests.
          * @return This {@link Builder} instance for chaining method calls.
@@ -871,17 +851,17 @@ public class Pinecone {
         /**
          * Sets a custom OkHttpClient for the Pinecone client to use for making HTTP requests.
          *
-         * <pre>
-         *     import io.pinecone.clients.Pinecone;
-         *     import org.openapitools.client.model.IndexList;
-         *     import okhttp3.*;
+         * <pre>{@code
+         *     import okhttp3.OkHttpClient;
          *
          *     OkHttpClient myClient = new OkHttpClient();
-         *     Pinecone client = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).withOkHttpClient(myClient).build();
+         *     Pinecone client = new Pinecone.Builder("PINECONE_API_KEY")
+         *         .withOkHttpClient(myClient)
+         *         .build();
          *
          *     // Network requests will now be made using your custom OkHttpClient
-         *     IndexList indexes = client.listIndexes();
-         * </pre>
+         *     client.listIndexes();
+         * }</pre>
          *
          * @param okHttpClient The custom OkHttpClient to be used. Must not be null.
          * @return This {@link Builder} instance for chaining method calls.
