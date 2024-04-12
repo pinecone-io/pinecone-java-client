@@ -176,7 +176,7 @@ public class PineconeConfig {
     }
 
     private String buildUserAgent(String clientId) {
-        String userAgent = String.format("lang=java; %s=%s", clientId, "v0.8.0");
+        String userAgent = String.format("lang=java; %s=%s", clientId, "v1.0.0");
         if (this.getSourceTag() != null && !this.getSourceTag().isEmpty()) {
             userAgent += "; source_tag=" + this.getSourceTag();
         }
