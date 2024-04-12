@@ -4,24 +4,35 @@ This migration guide is specific to migrating from versions "**v0.8.x**" and bel
 
 ## Changes overview
 
-- Renamed `PineconeControlPlaneClient` to `Pinecone` and added overloaded methods so the users are not required to construct the request objects.
-- Added data plane wrappers `Index` and `AsyncIndex` that will eliminate the need of creating Java classes for request objects. `Index` class is for blocking stub while `AsyncIndex` is an async gRPC data plane operations.
-- Removed `PineconeClient` and `PineconeConnectionConfig`, and renamed `PineconeClientConfig` to `PineconeConfig` which allows the support to set customer gRPC managed channel for data plane operations along with setting source tag.
-- Addressed vulnerabilities by updating the following dependencies:
+- Renamed `PineconeControlPlaneClient` to `Pinecone` and added overloaded methods, so you are not required to 
+  construct request objects.
+- Added data plane wrappers `Index` and `AsyncIndex`, which will eliminate the need to create Java classes for request 
+  objects. The `Index` class is for blocking gRPC stub while `AsyncIndex` is an async gRPC class for data plane 
+  operations.
+- Removed `PineconeClient` and `PineconeConnectionConfig`, and renamed `PineconeClientConfig` to `PineconeConfig`.  
+  `PineconeConfig` supports setting custom gRPC-managed channels for data plane operations along with setting a source 
+  tag.
+- Updates to dependencies to address vulnerabilities:
     - io.grpc:grpc-protobuf: from 1.57.0 to 1.61.0
     - io.grpc:grpc-stub: from 1.57.0 to 1.61.0
     - io.grpc:grpc-netty: from 1.57.0 to 1.61.0
     - com.squareup.okhttp3:okhttp → from 4.10.0 to 4.12.0
-- Added the following model classes because the datatype for sparse indices in Pinecone db is `unsigned 32-bit integer` while the proto generated classes were accepting `int` which is `signed 32-bit integers` and before sending it to Pinecone db, it’ll convert the indices to `unsigned 32-bit integers`. The sparse indices will be now accepted as Java `long` instead of Java `int` with the input range of `unsigned 32-bit integer` [0, 2^32 - 1] and everything outside of this range will throw `PineconeValidationException`.
+- Added the following `model` classes to address the limitations of Java not having a native datatype for `unsigned 
+  32-bit 
+  integer`, which is the expected datatype of Pinecone's backend API. Sparse indices will now accept Java `long` 
+  (rather than `int`), with the input range of `[0, 2^32 - 1]`. Everything outside of this 
+  range will throw a `PineconeValidationException`:
     - QueryResponseWithUnsignedIndices.java
     - ScoredVectorWithUnsignedIndices.java
     - SparseValuesWithUnsignedIndices.java
     - VectorWithUnsignedIndices
-- Added read units as a part of queryResponse
+- Added [read units](https://docs.pinecone.io/guides/organizations/manage-cost/understanding-cost) as a part of 
+  `queryResponse`.
 
 ## Initialization
 
-The `PineconeControlPlaneClient` is renamed to `Pinecone` class and it now follows a builder pattern which allows to construct PineconeConfig object by default.
+The `PineconeControlPlaneClient` is now the `Pinecone` class. It follows a [Builder pattern](https://www.digitalocean.com/community/tutorials/builder-design-pattern-in-java), which builds a `PineconeConfig` object by 
+default.
 
 **Before: ≤ 0.8.1**
 
@@ -56,11 +67,10 @@ public class InitializeClientExample {
 
 ### Creating indexes
 
-In the new v1.0.0 client release, there is a lot more flexibility in how indexes are created. Users don’t have to construct the CreateIndexRequest object and can pass in the java native data types.
+There is now more flexibility in how indexes are created. You do not have to construct the `CreateIndexRequest`
+object and can instead now pass in Java native datatypes.
 
 #### Creating a pod index
-
-Prior to v0.8.1, you needed to pass a `CreateIndexRequestSpecPod` object with the `CreateIndexRequest` which needed to be constructed manually. After v1.0.0 you can pass simplified arguments directly to the `createPodsIndex()` function.
 
 **Before: ≤ 0.8.1**
 
@@ -116,8 +126,6 @@ pinecone.createPodsIndex(indexName,
 
 #### Creating a serverless index
 
-Prior to v0.8.1, you needed to pass a `ServerlessSpec` object with the `CreateIndexRequest` which needed to be constructed manually. After v1.0.0 you can pass simplified arguments directly to the `createServerlessIndex()` function.
-
 **Before: ≤ 0.8.1**
 
 ```java
@@ -167,40 +175,8 @@ pinecone.createServerlessIndex(indexName,
     region);
 ```
 
-### Listing indexes
-
-The `listIndexes` function is unchanged between the two versions.
-
-**Before: ≤ 0.8.1**
-
-```java
-import io.pinecone.PineconeControlPlaneClient;
-import org.openapitools.client.model.IndexList;
-...
-
-PineconeControlPlaneClient controlPlaneClient = 
-new PineconeControlPlaneClient("PINECONE_API_KEY");
-
-IndexxList indexes = controlPlaneClient.listIndexes();
-```
-
-**After: ≥ 1.0.0**
-
-```java
-import io.pinecone.clients.Pinecone;
-import org.openapitools.client.model.IndexList;
-...
-
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
-
-IndexList indexList = controlPlaneClient.listIndexes();
-```
-
 ### Configuring indexes
-
-Previously you needed to construct the `ConfigureIndexRequest` object and necessary `ConfigureIndexRequestSpec` objects. Now you can pass strings and an int to easily configure a pod index. 
-
-**Before: ≤ 0.8.1**
+. 
 
 ```java
 import io.pinecone.PineconeControlPlaneClient;
@@ -232,67 +208,10 @@ int newNumberOfReplicas = 7;
 pinecone.configureIndex(indexName, podType, newNumberOfReplicas);
 ```
 
-### Describing indexes
-
-The `describeIndex` function is unchanged between the two versions.
-
-**Before: ≤ 0.8.1**
-
-```java
-import io.pinecone.PineconeControlPlaneClient;
-import org.openapitools.client.model.IndexModel;
-...
-
-PineconeControlPlaneClient controlPlaneClient = 
-new PineconeControlPlaneClient("PINECONE_API_KEY");
-
-IndexModel index = controlPlaneClient.describeIndex("my-index");
-```
-
-**After: ≥ 1.0.0**
-
-```java
-import io.pinecone.clients.Pinecone;
-import org.openapitools.client.model.IndexModel;
-...
-
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
-
-IndexModel index = pinecone.describeIndexx("my-index");
-```
-
-### Deleting indexes
-
-The `deleteIndex` function is unchanged between the two versions.
-
-**Before: ≤ 0.8.1**
-
-```java
-import io.pinecone.PineconeControlPlaneClient;
-...
-
-PineconeControlPlaneClient controlPlaneClient = 
-new PineconeControlPlaneClient("PINECONE_API_KEY");
-
-controlPlaneClient.deleteIndex("my-index");
-```
-
-**After: ≥ 1.0.0**
-
-```java
-import io.pinecone.clients.Pinecone;
-...
-
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
-
-pinecone.deleteIndex("my-index");
-```
 
 ## Collections
 
 ### Creating collections
-
-Previously you needed to construct the `CreateCollectionRequest` object to pass to the function. Now you can pass two strings denoting the desired collection name and the index source.
 
 **Before: ≤ 0.8.1**
 
@@ -327,91 +246,6 @@ String collectionName = "example-collection";
 String sourceIndex = "an-index-you-want-a-static-copy-of";
 
 CollectionModel collectionModel = pinecone.createCollection(collectionName, sourceIndex);
-```
-
-### Listing collections
-
-The `listCollections` function is unchanged between the two versions.
-
-**Before: ≤ 0.8.1**
-
-```java
-import io.pinecone.PineconeControlPlaneClient;
-import org.openapitools.client.model.CollectionList;
-...
-
-PineconeControlPlaneClient controlPlaneClient = 
-new PineconeControlPlaneClient("PINECONE_API_KEY");
-
-CollectionList collections = controlPlaneClient.listCollections();
-```
-
-**After: ≥ 1.0.0**
-
-```java
-import io.pinecone.clients.Pinecone;
-import org.openapitools.client.model.CollectionList;
-...
-
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
-
-CollectionList collections = pinecone.listCollections();
-```
-
-### Describing collections
-
-The `describeCollection` function is unchanged between the two versions.
-
-**Before: ≤ 0.8.1**
-
-```java
-import io.pinecone.PineconeControlPlaneClient;
-import org.openapitools.client.model.CollectionModel;
-...
-
-PineconeControlPlaneClient controlPlaneClient = 
-new PineconeControlPlaneClient("PINECONE_API_KEY");
-
-CollectionModel collection = controlPlaneClient.describeCollection("my-collection");
-```
-
-**After: ≥ 1.0.0**
-
-```java
-import io.pinecone.clients.Pinecone;
-import org.openapitools.client.model.CollectionModel;
-...
-
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
-
-CollectionModel collection = pinecone.describeCollection("my-collection");
-```
-
-### Deleting collections
-
-The `deleteCollection` function is unchanged between the two versions.
-
-**Before: ≤ 0.8.1**
-
-```java
-import io.pinecone.PineconeControlPlaneClient;
-...
-
-PineconeControlPlaneClient controlPlaneClient = 
-new PineconeControlPlaneClient("PINECONE_API_KEY");
-
-controlPlaneClient.deleteCollection("my-collection");
-```
-
-**After: ≥ 1.0.0**
-
-```java
-import io.pinecone.clients.Pinecone;
-...
-
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
-
-pinecone.deleteCollection("my-collection");
 ```
 
 ## Data Plane operations
@@ -508,7 +342,7 @@ index.upsert(vectors, namespace);
 
 **Before: ≤ 0.8.0**
 
-A class for performing query data plane operations with blocking GRPC stub.
+A class for performing query data plane operations with blocking gRPC stub.
 
 ```java
 import io.pinecone.*;
@@ -547,7 +381,7 @@ QueryResponse queryResponse = blockingStub.query(queryByIdRequest);
 
 **After: ≥ 1.0.0**
 
-A class for performing query data plane operations with blocking GRPC stub.
+A class for performing query data plane operations with blocking gRPC stub.
 
 ```java
 import io.pinecone.clients.Index;
@@ -564,7 +398,7 @@ QueryResponseWithUnsignedIndices queryRespone = index.queryByVectorId(3, "v1", "
 
 **Before: ≤ 0.8.0**
 
-A class for performing fetch data plane operations with blocking GRPC stub.
+A class for performing fetch data plane operations with blocking gRPC stub.
 
 ```java
 import io.pinecone.*;
@@ -601,7 +435,7 @@ FetchResponse fetchResponse = blockingStub.fetch(fetchRequest);
 
 **After: ≥ 1.0.0**
 
-A class for performing fetch data plane operations with blocking GRPC stub.
+A class for performing fetch data plane operations with blocking gRPC stub.
 
 ```java
 import io.pinecone.clients.Index;
