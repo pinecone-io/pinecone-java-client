@@ -26,7 +26,7 @@ The `PineconeControlPlaneClient` is renamed to `Pinecone` class and it now follo
 **Before: ≤ 0.8.1**
 
 ```java
-import pinecone
+import io.pinecone.*;
 import io.pinecone.PineconeControlPlaneClient;
 import org.openapitools.client.model.*;
 
@@ -65,7 +65,7 @@ Prior to v0.8.1, you needed to pass a `CreateIndexRequestSpecPod` object with th
 **Before: ≤ 0.8.1**
 
 ```java
-import pinecone;
+import io.pinecone.*;
 import io.pinecone.PineconeControlPlaneClient;
 import org.openapitools.client.model.*;
 ...
