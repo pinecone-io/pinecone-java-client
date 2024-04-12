@@ -65,9 +65,7 @@ public class InitializeClientExample {
 
 ## Indexes
 
-### Creating indexes
-
-#### Creating a pod index
+### Creating a pod index
 
 **Before: ≤ 0.8.1**
 
@@ -121,7 +119,7 @@ pinecone.createPodsIndex(indexName,
 
 ```
 
-#### Creating a serverless index
+### Creating a serverless index
 
 **Before: ≤ 0.8.1**
 
@@ -172,7 +170,7 @@ pinecone.createServerlessIndex(indexName,
     region);
 ```
 
-### Configuring indexes
+## Configuring indexes
 
 ```java
 import io.pinecone.PineconeControlPlaneClient;
