@@ -9,10 +9,10 @@ This migration guide is specific to migrating from versions "**v0.8.x**" and bel
 - Added data plane wrappers `Index` and `AsyncIndex`, which will eliminate the need to create Java classes for request 
   objects. The `Index` class is for blocking gRPC stub while `AsyncIndex` is an async gRPC class for data plane 
   operations.
-- Removed `PineconeClient` and `PineconeConnectionConfig`, and renamed `PineconeClientConfig` to `PineconeConfig`.  
+- Removed `PineconeClient` and `PineconeConnectionConfig`, and renamed `PineconeClientConfig` to `PineconeConfig`. 
   `PineconeConfig` supports setting custom gRPC-managed channels for data plane operations along with setting a source 
   tag.
-- Updates to dependencies to address vulnerabilities:
+- Updated dependencies to address vulnerabilities:
     - io.grpc:grpc-protobuf: from 1.57.0 to 1.61.0
     - io.grpc:grpc-stub: from 1.57.0 to 1.61.0
     - io.grpc:grpc-netty: from 1.57.0 to 1.61.0
@@ -66,9 +66,6 @@ public class InitializeClientExample {
 ## Indexes
 
 ### Creating indexes
-
-There is now more flexibility in how indexes are created. You do not have to construct the `CreateIndexRequest`
-object and can instead now pass in Java native datatypes.
 
 #### Creating a pod index
 
@@ -176,7 +173,6 @@ pinecone.createServerlessIndex(indexName,
 ```
 
 ### Configuring indexes
-. 
 
 ```java
 import io.pinecone.PineconeControlPlaneClient;
