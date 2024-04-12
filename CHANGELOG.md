@@ -2,6 +2,12 @@
 
 [comment]: <> (When bumping [pc:VERSION_LATEST_RELEASE] create a new entry below)
 ### Unreleased version
+### v0.1.0
+- Remove vector_service.proto and replace it with the generated classes
+- Add data and control plane wrappers
+- Refactor configs and PineconeConnection
+- Add source tag
+
 ### v0.8.0
 - Add support for control plane operations for serverless indexes
 - Add support for collections for pod indexes
