@@ -202,8 +202,6 @@ Previously you needed to construct the `ConfigureIndexRequest` object and necess
 
 **Before: ≤ 0.8.1**
 
-**Before: ≤ 0.8.1**
-
 ```java
 import io.pinecone.PineconeControlPlaneClient;
 import org.openapitools.client.model.*;
