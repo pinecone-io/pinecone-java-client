@@ -269,10 +269,11 @@ Struct metadataStruct3 = Struct.newBuilder()
 .build();
 List<Struct> metadataStructList = Arrays.asList(metadataStruct1, metadataStruct2, metadataStruct3);
 
-// Call upsert data
+// Upsert data
 for (int i=0; i<metadataStructList.size(); i++) {
-vectors.add(buildUpsertVectorWithUnsignedIndices(upsertIds.get(i), values.get(i), sparseIndices.get(i), sparseValues.get(i), metadataStructList.get(i)));
+    vectors.add(buildUpsertVectorWithUnsignedIndices(upsertIds.get(i), values.get(i), sparseIndices.get(i), sparseValues.get(i), metadataStructList.get(i)));
 }
+UpsertResponse upsertResponse = index.upsert(vectors, "example-namespace");
 ```
 
 ## Query an index
