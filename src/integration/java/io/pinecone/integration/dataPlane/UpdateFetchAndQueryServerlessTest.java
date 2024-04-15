@@ -31,7 +31,7 @@ public class UpdateFetchAndQueryServerlessTest {
     private static final TestIndexResourcesManager indexManager = TestIndexResourcesManager.getInstance();
     private static Index index;
     private static AsyncIndex asyncIndex;
-    private static String namespace;
+    private static final String namespace = RandomStringBuilder.build("ns", 8);
     private static List<String> upsertIds;
     private static List<List<Float>> sparseValuesList;
     private static int dimension;
@@ -48,7 +48,6 @@ public class UpdateFetchAndQueryServerlessTest {
         // Upsert vectors only once
         int numOfVectors = 3;
         int numOfSparseVectors = 2;
-        namespace = RandomStringBuilder.build("ns", 8);
         upsertIds = getIdsList(numOfVectors);
         List<List<Long>> sparseIndicesList = getSparseIndicesList(numOfSparseVectors, dimension);
         sparseValuesList = getValuesListLists(numOfSparseVectors, dimension);

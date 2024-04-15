@@ -26,6 +26,7 @@ public class UpsertDescribeIndexStatsAndDeletePodTest {
     private static AsyncIndex asyncIndex;
     private static int dimension;
     private static final Struct nullFilterStruct = null;
+    private static final String namespace = RandomStringBuilder.build("ns", 8);
 
     @BeforeAll
     public static void setUp() throws IOException, InterruptedException {
@@ -43,7 +44,6 @@ public class UpsertDescribeIndexStatsAndDeletePodTest {
         Struct emptyFilterStruct = null;
         int numOfVectors = 3;
 
-        String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
         for (String id : upsertIds) {
             index.upsert(id,
@@ -100,7 +100,6 @@ public class UpsertDescribeIndexStatsAndDeletePodTest {
     @Test
     public void upsertVectorsAndDeleteByFilterSyncTest() throws InterruptedException {
         int numOfVectors = 3;
-        String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
 
         // Upsert vectors with required + optional and custom metadata parameters
@@ -151,7 +150,6 @@ public class UpsertDescribeIndexStatsAndDeletePodTest {
         // Upsert vectors with required parameters
         Struct emptyFilterStruct = null;
         int numOfVectors = 3;
-        String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
         for (String id : upsertIds) {
             asyncIndex.upsert(id,
@@ -208,7 +206,6 @@ public class UpsertDescribeIndexStatsAndDeletePodTest {
     @Test
     public void upsertVectorsAndDeleteByFilterFutureTest() throws InterruptedException, ExecutionException {
         int numOfVectors = 3;
-        String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
 
         // Upsert vectors with required + optional and custom metadata parameters

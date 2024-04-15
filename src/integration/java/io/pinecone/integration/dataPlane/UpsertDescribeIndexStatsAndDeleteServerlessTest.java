@@ -27,6 +27,7 @@ public class UpsertDescribeIndexStatsAndDeleteServerlessTest {
     private static Index index;
     private static AsyncIndex asyncIndex;
     private static int dimension;
+    private static final String namespace = RandomStringBuilder.build("ns", 8);
 
     @BeforeAll
     public static void setUp() throws IOException, InterruptedException {
@@ -50,7 +51,6 @@ public class UpsertDescribeIndexStatsAndDeleteServerlessTest {
         Struct emptyFilterStruct = null;
         int numOfVectors = 3;
 
-        String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
         for (String id : upsertIds) {
             index.upsert(id,
@@ -109,7 +109,6 @@ public class UpsertDescribeIndexStatsAndDeleteServerlessTest {
         // Upsert vectors with required parameters
         Struct emptyFilterStruct = null;
         int numOfVectors = 3;
-        String namespace = RandomStringBuilder.build("ns", 8);
         List<String> upsertIds = getIdsList(numOfVectors);
         for (String id : upsertIds) {
             asyncIndex.upsert(id,

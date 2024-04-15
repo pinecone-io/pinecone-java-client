@@ -26,6 +26,7 @@ public class UpsertAndQueryPodTest {
     private static Index indexClient;
     private static AsyncIndex asyncIndexClient;
     private static int dimension;
+    private static final String namespace = RandomStringBuilder.build("ns", 8);
     private static final Struct emptyFilterStruct = Struct.newBuilder().build();
 
     @BeforeAll
@@ -48,7 +49,6 @@ public class UpsertAndQueryPodTest {
         // upsert vectors with required + optional parameters
         List<String> upsertIds = getIdsList(numOfVectors);
         int topK = 5;
-        String namespace = RandomStringBuilder.build("ns", 8);
         List<Float> values = generateVectorValuesByDimension(dimension);
         List<Long> sparseIndices = generateSparseIndicesByDimension(dimension);
         List<Float> sparseValues = generateVectorValuesByDimension(dimension);
@@ -128,7 +128,6 @@ public class UpsertAndQueryPodTest {
         // upsert vectors with required + optional parameters
         List<String> upsertIds = getIdsList(numOfVectors);
         int topK = 5;
-        String namespace = RandomStringBuilder.build("ns", 8);
         List<Float> values = generateVectorValuesByDimension(dimension);
         List<Long> sparseIndices = generateSparseIndicesByDimension(dimension);
         List<Float> sparseValues = generateVectorValuesByDimension(dimension);

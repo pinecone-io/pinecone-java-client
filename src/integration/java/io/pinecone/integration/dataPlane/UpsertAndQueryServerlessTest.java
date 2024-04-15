@@ -30,6 +30,7 @@ public class UpsertAndQueryServerlessTest {
     private static Index index;
     private static AsyncIndex asyncIndex;
     private static int dimension;
+    private static final String namespace = RandomStringBuilder.build("ns", 8);
 
     @BeforeAll
     public static void setUp() throws InterruptedException {
@@ -59,7 +60,6 @@ public class UpsertAndQueryServerlessTest {
         // upsert vectors with required + optional parameters
         List<String> upsertIds = getIdsList(numOfVectors);
         int topK = 5;
-        String namespace = RandomStringBuilder.build("ns", 8);
         List<Float> values = generateVectorValuesByDimension(dimension);
         List<Long> sparseIndices = generateSparseIndicesByDimension(dimension);
         List<Float> sparseValues = generateVectorValuesByDimension(dimension);
@@ -151,7 +151,6 @@ public class UpsertAndQueryServerlessTest {
         // upsert vectors with required + optional parameters
         List<String> upsertIds = getIdsList(numOfVectors);
         int topK = 5;
-        String namespace = RandomStringBuilder.build("ns", 8);
         List<Float> values = generateVectorValuesByDimension(dimension);
         List<Long> sparseIndices = generateSparseIndicesByDimension(dimension);
         List<Float> sparseValues = generateVectorValuesByDimension(dimension);
