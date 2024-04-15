@@ -28,7 +28,7 @@ public class CollectionTest {
     private static final Pinecone pineconeClient = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
     private static final Logger logger = LoggerFactory.getLogger(CollectionTest.class);
     private static final ArrayList<String> indexesToCleanUp = new ArrayList<>();
-    private static final String indexMetric = IndexMetric.COSINE.toString();
+    private static final String indexMetric = indexManager.getMetric();
     private static final List<String> upsertIds = indexManager.getVectorIdsFromDefaultNamespace();
     private static final String environment = indexManager.getEnvironment();
     private static final int dimension = indexManager.getDimension();
@@ -113,10 +113,17 @@ public class CollectionTest {
 
     @Test
     public void testCreateIndexFromCollectionWithDiffMetric() throws InterruptedException {
-        // Note collection == 1 index
-        String metricForNewIndex = IndexMetric.DOTPRODUCT.toString();
+        // Use a different metric than the source index
+        String[] metrics = {IndexMetric.COSINE.toString(), IndexMetric.EUCLIDEAN.toString(), IndexMetric.DOTPRODUCT.toString()};
+        String targetMetric = IndexMetric.COSINE.toString();
+        for (String metric : metrics) {
+            if (!metric.equals(indexMetric)) {
+                targetMetric = metric;
+            }
+        }
+        
         String newIndexName = RandomStringBuilder.build("from-coll-with-diff-metric", 5);
-        pineconeClient.createPodsIndex(newIndexName, dimension, environment, "p1.x1", metricForNewIndex, collectionName);
+        pineconeClient.createPodsIndex(newIndexName, dimension, environment, "p1.x1", targetMetric, collectionName);
         indexesToCleanUp.add(newIndexName);
     }
 

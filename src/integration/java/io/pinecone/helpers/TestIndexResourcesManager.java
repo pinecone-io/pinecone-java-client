@@ -84,6 +84,8 @@ public class TestIndexResourcesManager {
         return dimension;
     }
 
+    public String getMetric() { return metric; };
+
     public String getEnvironment() {
         return environment;
     }
