@@ -142,10 +142,10 @@ public class TestIndexResourcesManager {
 
         String indexName = RandomStringBuilder.build("pod-index", 8);
 
-        podIndexModel = pineconeClient.createPodsIndex(indexName, dimension, environment, "p1.x1");
+        podIndexModel = pineconeClient.createPodsIndex(indexName, dimension, environment, "p1.x1", metric);
         waitUntilIndexIsReady(pineconeClient, indexName);
-        
-        // Explicitly wait after ready to avoid the "no healthy upstream" issue
+
+        // Additional sleep after index marked as ready to avoid "no healthy upstream" error
         Thread.sleep(30000);
         
         // Seed default vector IDs into default namespace
@@ -161,7 +161,7 @@ public class TestIndexResourcesManager {
         }
 
         String indexName = RandomStringBuilder.build("serverless-index", 8);
-
+        
         serverlessIndexModel = pineconeClient.createServerlessIndex(indexName, metric, dimension, cloud,
                 region);
         waitUntilIndexIsReady(pineconeClient, indexName);

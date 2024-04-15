@@ -121,7 +121,7 @@ public class CollectionTest {
                 targetMetric = metric;
             }
         }
-        
+
         String newIndexName = RandomStringBuilder.build("from-coll-with-diff-metric", 5);
         pineconeClient.createPodsIndex(newIndexName, dimension, environment, "p1.x1", targetMetric, collectionName);
         indexesToCleanUp.add(newIndexName);
