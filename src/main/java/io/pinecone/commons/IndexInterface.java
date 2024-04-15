@@ -25,7 +25,7 @@ import static io.pinecone.utils.SparseIndicesConverter.convertUnsigned32IntToSig
  * @param <X> The return type for delete operations.
  * @param <Y> The return type for describing index stats.
  */
-public interface IndexInterface<T, U, V, W, X, Y> extends AutoCloseable {
+public interface IndexInterface<T, U, V, W, X, Y, Z> extends AutoCloseable {
 
     /**
      * Validates and builds an upsert request with a single vector and optional namespace.
@@ -697,4 +697,23 @@ public interface IndexInterface<T, U, V, W, X, Y> extends AutoCloseable {
      * @return A generic type {@code Y} that contains the stats about the index.
      */
     Y describeIndexStats(Struct filter);
+
+//    TODO: Add docstrings
+//    TODO: Make one for just IDs in a namespace, no prefix?
+    Z list(String namespace);
+
+    Z list(String namespace, Integer limit);
+
+    Z list(String namespace, String prefix);
+
+    Z list(String namespace, String prefix, Integer limit);
+
+    Z list(String namespace, String prefix, String paginationToken);
+
+    Z list(String namespace, String prefix, String paginationToken, Integer limit);
+
+
+
+
+
 }

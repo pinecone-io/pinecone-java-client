@@ -31,7 +31,8 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
         ListenableFuture<FetchResponse>,
         ListenableFuture<UpdateResponse>,
         ListenableFuture<DeleteResponse>,
-        ListenableFuture<DescribeIndexStatsResponse>> {
+        ListenableFuture<DescribeIndexStatsResponse>,
+        ListenableFuture<ListResponse>>{
 
     private final PineconeConnection connection;
     private final VectorServiceGrpc.VectorServiceFutureStub asyncStub;
@@ -844,6 +845,71 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
         DescribeIndexStatsRequest describeIndexStatsRequest = validateDescribeIndexStatsRequest(filter);
 
         return asyncStub.describeIndexStats(describeIndexStatsRequest);
+    }
+
+    @Override
+    public ListenableFuture<ListResponse>  list(String prefix) {
+        validateListEndpointParameters(prefix, null, null, null, false, false, false);
+        ListRequest listRequest = ListRequest.newBuilder().setPrefix(prefix).setLimit(100).build();
+        return asyncStub.list(listRequest);
+    }
+
+    @Override
+    public ListenableFuture<ListResponse>  list(String prefix, Integer limit) {
+        validateListEndpointParameters(prefix, null, null, limit, false, false, true);
+
+        ListRequest listRequest = ListRequest.newBuilder().setPrefix(prefix).setLimit(limit).build();
+        return asyncStub.list(listRequest);
+    }
+
+    @Override
+    public ListenableFuture<ListResponse> list(String prefix, String namespace) {
+        validateListEndpointParameters(prefix, namespace, null, null, true, false, false);
+
+        ListRequest listRequest = ListRequest.newBuilder().setPrefix(prefix).setNamespace(namespace).
+                setLimit(100).build();
+        return asyncStub.list(listRequest);
+    }
+
+    @Override
+    public ListenableFuture<ListResponse>  list(String prefix, String namespace, Integer limit) {
+        validateListEndpointParameters(prefix, namespace, null, limit, true, false, true);
+
+        ListRequest listRequest = ListRequest.newBuilder().setPrefix(prefix).setNamespace(namespace).
+                setLimit(limit).build();
+        return asyncStub.list(listRequest);
+    }
+
+    @Override
+    public ListenableFuture<ListResponse>  list(String prefix, String namespace, String paginationToken) {
+        validateListEndpointParameters(prefix, namespace, paginationToken, null, true, true, false);
+
+        ListRequest listRequest = ListRequest.newBuilder().setPrefix(prefix).setNamespace(namespace).
+                setPaginationToken(paginationToken).setLimit(100).build();
+        return asyncStub.list(listRequest);
+    }
+
+    @Override
+    public ListenableFuture<ListResponse>  list(String prefix, String namespace, String paginationToken, Integer limit) {
+        validateListEndpointParameters(prefix, namespace, paginationToken, limit, true, true, true);
+        ListRequest listRequest = ListRequest.newBuilder().setPrefix(prefix).setNamespace(namespace).
+                setPaginationToken(paginationToken).setLimit(limit).build();
+        return asyncStub.list(listRequest);
+    }
+
+    public void validateListEndpointParameters(String prefix, String namespace, String paginationToken, Integer limit, boolean namespaceRequired, boolean paginationTokenRequired, boolean limitRequired) {
+        if (prefix == null || prefix.isEmpty()) {
+            throw new PineconeValidationException("Prefix cannot be null or empty");
+        }
+        if (namespaceRequired && (namespace == null || namespace.isEmpty())) {
+            throw new PineconeValidationException("Namespace cannot be null or empty");
+        }
+        if (paginationTokenRequired && (paginationToken == null || paginationToken.isEmpty())) {
+            throw new PineconeValidationException("Pagination token cannot be null or empty");
+        }
+        if (limitRequired && (limit == null || limit <= 0)) {
+            throw new PineconeValidationException("Limit must be a positive integer");
+        }
     }
 
     /**

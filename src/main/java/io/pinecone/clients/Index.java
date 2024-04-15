@@ -28,7 +28,8 @@ public class Index implements IndexInterface<UpsertResponse,
         FetchResponse,
         UpdateResponse,
         DeleteResponse,
-        DescribeIndexStatsResponse> {
+        DescribeIndexStatsResponse,
+        ListResponse> {
 
     private final PineconeConnection connection;
     private final String indexName;
@@ -778,6 +779,73 @@ public class Index implements IndexInterface<UpsertResponse,
 
         return blockingStub.describeIndexStats(describeIndexStatsRequest);
     }
+
+    @Override
+    public ListResponse list(String namespace) {
+        validateListEndpointParameters(namespace, null, null, null, false, false, false);
+        ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).setLimit(100).build();
+        return blockingStub.list(listRequest);
+    }
+
+    @Override
+    public ListResponse list(String namespace, Integer limit) {
+        validateListEndpointParameters(namespace, null, null, limit, false, false, true);
+
+        ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).setLimit(limit).build();
+        return blockingStub.list(listRequest);
+    }
+
+    @Override
+    public ListResponse list(String namespace, String prefix) {
+        validateListEndpointParameters(namespace, prefix, null, null, true, false, false);
+
+        ListRequest listRequest =
+                ListRequest.newBuilder().setNamespace(namespace).setPrefix(prefix).setLimit(100).build();
+        return blockingStub.list(listRequest);
+    }
+
+    @Override
+    public ListResponse list(String namespace, String prefix, Integer limit) {
+        validateListEndpointParameters(namespace, prefix, null, limit, true, false, true);
+
+        ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).setPrefix(prefix).
+                setLimit(limit).build();
+        return blockingStub.list(listRequest);
+    }
+
+    @Override
+    public ListResponse list(String namespace, String prefix, String paginationToken) {
+        validateListEndpointParameters(namespace, prefix, paginationToken, null, true, true, false);
+
+        ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).setPrefix(prefix).
+                setPaginationToken(paginationToken).setLimit(100).build();
+        return blockingStub.list(listRequest);
+    }
+
+    @Override
+    public ListResponse list(String namespace, String prefix, String paginationToken, Integer limit) {
+        validateListEndpointParameters(namespace, prefix, paginationToken, limit, true, true, true);
+        ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).setPrefix(prefix).
+                setPaginationToken(paginationToken).setLimit(limit).build();
+        return blockingStub.list(listRequest);
+    }
+
+    public static void validateListEndpointParameters(String namespace, String prefix, String paginationToken, Integer limit
+            , boolean prefixRequired, boolean paginationTokenRequired, boolean limitRequired) {
+        if (namespace == null || namespace.isEmpty()) {
+            throw new PineconeValidationException("Namespace cannot be null or empty");
+        }
+        if (prefixRequired && (prefix == null || prefix.isEmpty())) {
+            throw new PineconeValidationException("Prefix cannot be null or empty");
+        }
+        if (paginationTokenRequired && (paginationToken == null || paginationToken.isEmpty())) {
+            throw new PineconeValidationException("Pagination token cannot be null or empty");
+        }
+        if (limitRequired && (limit == null || limit <= 0)) {
+            throw new PineconeValidationException("Limit must be a positive integer");
+        }
+    }
+
 
     /**
      * {@inheritDoc}
