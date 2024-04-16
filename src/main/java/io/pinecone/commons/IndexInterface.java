@@ -698,22 +698,62 @@ public interface IndexInterface<T, U, V, W, X, Y, Z> extends AutoCloseable {
      */
     Y describeIndexStats(Struct filter);
 
-//    TODO: Add docstrings
-//    TODO: Make one for just IDs in a namespace, no prefix?
+    /**
+     * Retrieves up to 100 vector IDs from a given namespace.
+     *
+     * @param namespace The namespace that holds the vector IDs you want to retrieve.
+     * @return A generic type {@code Y} that contains vector IDs.
+     */
     Z list(String namespace);
 
+    /**
+     * Retrieves up to `n` vector IDs from a given namespace, where `limit` == `n`.
+     *
+     * @param namespace The namespace that holds the vector IDs you want to retrieve.
+     * @param limit The maximum number of vector IDs to retrieve.
+     * @return A generic type {@code Y} that contains vector IDs.
+     */
     Z list(String namespace, Integer limit);
 
+    /**
+     * Retrieves up to 100 vector IDs from a given namespace, filtered by a given prefix.
+     *
+     * @param namespace The namespace that holds the vector IDs you want to retrieve.
+     * @param prefix: The prefix to filter the vector IDs by.
+     * @return A generic type {@code Y} that contains vector IDs.
+     */
     Z list(String namespace, String prefix);
 
+    /**
+     * Retrieves up to `n` vector IDs from a given namespace, filtered by a given prefix, where `limit` == `n`.
+     *
+     * @param namespace The namespace that holds the vector IDs you want to retrieve.
+     * @param prefix The prefix to filter the vector IDs by.
+     * @param limit The maximum number of vector IDs to retrieve.
+     * @return A generic type {@code Y} that contains vector IDs.
+     */
     Z list(String namespace, String prefix, Integer limit);
 
+    /**
+     * Retrieves up to 100 vector IDs from a given namespace, filtered by a given prefix, targeted with a specific
+     * paginationToken.
+     *
+     * @param namespace The namespace that holds the vector IDs you want to retrieve.
+     * @param paginationToken The token to paginate through the list of vector IDs.
+     * @return A generic type {@code Y} that contains vector IDs.
+     */
     Z list(String namespace, String prefix, String paginationToken);
 
+    /**
+     * Retrieves up to `n` vector IDs from a given namespace, filtered by a given prefix, targeted with a specific
+     * paginationToken, where `limit` == `n`.
+     *
+     * @param namespace The namespace that holds the vector IDs you want to retrieve.
+     * @param prefix The prefix to filter the vector IDs by.
+     * @param paginationToken The token to paginate through the list of vector IDs.
+     * @param limit The maximum number of vector IDs to retrieve.
+     * @return A generic type {@code Y} that contains vector IDs.
+     */
     Z list(String namespace, String prefix, String paginationToken, Integer limit);
-
-
-
-
 
 }
