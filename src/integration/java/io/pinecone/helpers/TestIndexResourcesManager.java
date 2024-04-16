@@ -20,7 +20,7 @@ public class TestIndexResourcesManager {
     private static TestIndexResourcesManager instance;
     private static final String apiKey = System.getenv("PINECONE_API_KEY");
     private final int dimension = System.getenv("DIMENSION") == null
-            ? 4
+            ? 3
             : Integer.parseInt(System.getenv("DIMENSION"));
     private final String environment = System.getenv("PINECONE_ENVIRONMENT") == null
             ? "us-east4-gcp"
@@ -37,13 +37,17 @@ public class TestIndexResourcesManager {
     private Pinecone pineconeClient;
     private String podIndexName;
     private IndexModel podIndexModel;
-    private String serverlessIndexName;
+    private IndexModel serverlessIndexModel;
+    private  String serverlessIndexName;
     private String collectionName;
     private CollectionModel collectionModel;
-    private final List<String> podIndexVectorIds = Arrays.asList("id1", "id2", "id3");
+    private final List<String> vectorIds = Arrays.asList("id1", "id2", "cidddd3");
+    private final String namespace = "example-namespace";
+
 
     private TestIndexResourcesManager() {
         pineconeClient = new Pinecone.Builder(apiKey).build();
+
     }
 
     public static TestIndexResourcesManager getInstance() {
@@ -51,6 +55,10 @@ public class TestIndexResourcesManager {
             instance = new TestIndexResourcesManager();
         }
         return instance;
+    }
+
+    public  Index getIndexConnection() {
+        return this.getInstance().pineconeClient.getIndexConnection(this.serverlessIndexName);
     }
 
     public String getPodIndexName() throws InterruptedException, PineconeException {
@@ -73,13 +81,18 @@ public class TestIndexResourcesManager {
         return environment;
     }
 
-    public List<String> getPodIndexVectorIds() {
-        return podIndexVectorIds;
+    public List<String> getVectorIds() {
+        return vectorIds;
     }
 
     public IndexModel getPodIndexModel() throws InterruptedException {
         podIndexModel = pineconeClient.describeIndex(createOrGetPodIndex());
         return podIndexModel;
+    }
+
+    public IndexModel getServerlessIndexModel() throws InterruptedException {
+        serverlessIndexModel = pineconeClient.describeIndex(createOrGetServerlessIndex());
+        return serverlessIndexModel;
     }
 
     public CollectionModel getCollectionModel() throws InterruptedException {
@@ -115,7 +128,7 @@ public class TestIndexResourcesManager {
         Thread.sleep(30000);
 
         // Seed data
-        seedIndex(podIndexVectorIds, indexName);
+        seedIndex(vectorIds, indexName);
 
         this.podIndexName = indexName;
         return indexName;
@@ -128,9 +141,17 @@ public class TestIndexResourcesManager {
 
         String indexName = RandomStringBuilder.build("serverless-index", 8);
 
-        pineconeClient.createServerlessIndex(indexName, metric, dimension, cloud, region);
+        serverlessIndexModel = pineconeClient.createServerlessIndex(indexName, metric, dimension, cloud,
+                region);
+        waitUntilIndexIsReady(pineconeClient, indexName);
 
-        serverlessIndexName = indexName;
+        // Explicitly wait after ready to avoid the "no healthy upstream" issue
+        Thread.sleep(30000);
+
+        // Seed data
+        seedIndex(vectorIds, indexName);
+
+        this.serverlessIndexName = indexName;
         return indexName;
     }
 
@@ -168,7 +189,7 @@ public class TestIndexResourcesManager {
     private void seedIndex(List<String> vectorIds, String indexName) throws InterruptedException {
         // Build upsert request
         Index indexClient = pineconeClient.getIndexConnection(indexName);
-        indexClient.upsert(buildRequiredUpsertRequestByDimension(vectorIds, dimension), "");
+        indexClient.upsert(buildRequiredUpsertRequestByDimension(vectorIds, dimension), namespace);
 
         // Wait for record freshness
         DescribeIndexStatsResponse indexStats = indexClient.describeIndexStats();

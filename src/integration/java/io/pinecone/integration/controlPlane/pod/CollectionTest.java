@@ -29,7 +29,7 @@ public class CollectionTest {
     private static final Logger logger = LoggerFactory.getLogger(CollectionTest.class);
     private static final ArrayList<String> indexesToCleanUp = new ArrayList<>();
     private static final String indexMetric = IndexMetric.COSINE.toString();
-    private static final List<String> upsertIds = indexManager.getPodIndexVectorIds();
+    private static final List<String> upsertIds = indexManager.getVectorIds();
     private static final String environment = indexManager.getEnvironment();
     private static final int dimension = indexManager.getDimension();
     private static CollectionModel collection;
