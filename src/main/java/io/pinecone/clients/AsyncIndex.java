@@ -13,6 +13,8 @@ import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
 
 import java.util.List;
 
+import static io.pinecone.clients.Index.validateListEndpointParameters;
+
 /**
  * A client for interacting with a Pinecone index via GRPC asynchronously. Allows for upserting, querying, fetching, updating, and deleting vectors.
  * This class provides a direct interface to interact with a specific index, encapsulating network communication and request validation.
@@ -848,68 +850,48 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
     }
 
     @Override
-    public ListenableFuture<ListResponse>  list(String prefix) {
-        validateListEndpointParameters(prefix, null, null, null, false, false, false);
-        ListRequest listRequest = ListRequest.newBuilder().setPrefix(prefix).setLimit(100).build();
+    public ListenableFuture<ListResponse>  list(String namespace) {
+        validateListEndpointParameters(namespace, null, null, null, false, false, false);
+        ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).setLimit(100).build();
         return asyncStub.list(listRequest);
     }
 
     @Override
-    public ListenableFuture<ListResponse>  list(String prefix, Integer limit) {
-        validateListEndpointParameters(prefix, null, null, limit, false, false, true);
-
-        ListRequest listRequest = ListRequest.newBuilder().setPrefix(prefix).setLimit(limit).build();
+    public ListenableFuture<ListResponse>  list(String namespace, Integer limit) {
+        validateListEndpointParameters(namespace, null, null, limit, false, false, true);
+        ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).setLimit(limit).build();
         return asyncStub.list(listRequest);
     }
 
     @Override
-    public ListenableFuture<ListResponse> list(String prefix, String namespace) {
-        validateListEndpointParameters(prefix, namespace, null, null, true, false, false);
-
-        ListRequest listRequest = ListRequest.newBuilder().setPrefix(prefix).setNamespace(namespace).
-                setLimit(100).build();
+    public ListenableFuture<ListResponse> list(String namespace, String prefix) {
+        validateListEndpointParameters(namespace, prefix, null, null, true, false, false);
+        ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).setPrefix(prefix).setLimit(100).build();
         return asyncStub.list(listRequest);
     }
 
     @Override
-    public ListenableFuture<ListResponse>  list(String prefix, String namespace, Integer limit) {
-        validateListEndpointParameters(prefix, namespace, null, limit, true, false, true);
-
-        ListRequest listRequest = ListRequest.newBuilder().setPrefix(prefix).setNamespace(namespace).
+    public ListenableFuture<ListResponse>  list(String namespace, String prefix, Integer limit) {
+        validateListEndpointParameters(namespace, prefix, null, limit, true, false, true);
+        ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).setPrefix(prefix).
                 setLimit(limit).build();
         return asyncStub.list(listRequest);
     }
 
     @Override
-    public ListenableFuture<ListResponse>  list(String prefix, String namespace, String paginationToken) {
-        validateListEndpointParameters(prefix, namespace, paginationToken, null, true, true, false);
-
-        ListRequest listRequest = ListRequest.newBuilder().setPrefix(prefix).setNamespace(namespace).
+    public ListenableFuture<ListResponse>  list(String namespace, String prefix, String paginationToken) {
+        validateListEndpointParameters(namespace, prefix, paginationToken, null, true, true, false);
+        ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).setPrefix(prefix).
                 setPaginationToken(paginationToken).setLimit(100).build();
         return asyncStub.list(listRequest);
     }
 
     @Override
-    public ListenableFuture<ListResponse>  list(String prefix, String namespace, String paginationToken, Integer limit) {
-        validateListEndpointParameters(prefix, namespace, paginationToken, limit, true, true, true);
-        ListRequest listRequest = ListRequest.newBuilder().setPrefix(prefix).setNamespace(namespace).
+    public ListenableFuture<ListResponse>  list(String namespace, String prefix, String paginationToken, Integer limit) {
+        validateListEndpointParameters(namespace, prefix, paginationToken, limit, true, true, true);
+        ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).setPrefix(prefix).
                 setPaginationToken(paginationToken).setLimit(limit).build();
         return asyncStub.list(listRequest);
-    }
-
-    public void validateListEndpointParameters(String prefix, String namespace, String paginationToken, Integer limit, boolean namespaceRequired, boolean paginationTokenRequired, boolean limitRequired) {
-        if (prefix == null || prefix.isEmpty()) {
-            throw new PineconeValidationException("Prefix cannot be null or empty");
-        }
-        if (namespaceRequired && (namespace == null || namespace.isEmpty())) {
-            throw new PineconeValidationException("Namespace cannot be null or empty");
-        }
-        if (paginationTokenRequired && (paginationToken == null || paginationToken.isEmpty())) {
-            throw new PineconeValidationException("Pagination token cannot be null or empty");
-        }
-        if (limitRequired && (limit == null || limit <= 0)) {
-            throw new PineconeValidationException("Limit must be a positive integer");
-        }
     }
 
     /**

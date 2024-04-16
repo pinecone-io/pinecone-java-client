@@ -1,5 +1,6 @@
 package io.pinecone.helpers;
 
+import io.pinecone.clients.AsyncIndex;
 import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.exceptions.PineconeException;
@@ -19,6 +20,7 @@ public class TestIndexResourcesManager {
     private static final Logger logger = LoggerFactory.getLogger(IndexManager.class);
     private static TestIndexResourcesManager instance;
     private static final String apiKey = System.getenv("PINECONE_API_KEY");
+
     private final int dimension = System.getenv("DIMENSION") == null
             ? 3
             : Integer.parseInt(System.getenv("DIMENSION"));
@@ -57,8 +59,12 @@ public class TestIndexResourcesManager {
         return instance;
     }
 
-    public  Index getIndexConnection() {
+    public  Index getServerlessIndexConnection() {
         return this.getInstance().pineconeClient.getIndexConnection(this.serverlessIndexName);
+    }
+
+    public AsyncIndex getServerlessAsyncIndexConnection() {
+        return this.getInstance().pineconeClient.getAsyncIndexConnection(this.serverlessIndexName);
     }
 
     public String getPodIndexName() throws InterruptedException, PineconeException {

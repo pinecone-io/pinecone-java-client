@@ -790,7 +790,6 @@ public class Index implements IndexInterface<UpsertResponse,
     @Override
     public ListResponse list(String namespace, Integer limit) {
         validateListEndpointParameters(namespace, null, null, limit, false, false, true);
-
         ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).setLimit(limit).build();
         return blockingStub.list(listRequest);
     }
@@ -798,7 +797,6 @@ public class Index implements IndexInterface<UpsertResponse,
     @Override
     public ListResponse list(String namespace, String prefix) {
         validateListEndpointParameters(namespace, prefix, null, null, true, false, false);
-
         ListRequest listRequest =
                 ListRequest.newBuilder().setNamespace(namespace).setPrefix(prefix).setLimit(100).build();
         return blockingStub.list(listRequest);
@@ -816,7 +814,6 @@ public class Index implements IndexInterface<UpsertResponse,
     @Override
     public ListResponse list(String namespace, String prefix, String paginationToken) {
         validateListEndpointParameters(namespace, prefix, paginationToken, null, true, true, false);
-
         ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).setPrefix(prefix).
                 setPaginationToken(paginationToken).setLimit(100).build();
         return blockingStub.list(listRequest);
