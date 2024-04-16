@@ -780,6 +780,21 @@ public class Index implements IndexInterface<UpsertResponse,
         return blockingStub.describeIndexStats(describeIndexStatsRequest);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p> Example</p>
+     *  <pre>{@code
+     *      import io.pinecone.clients.Index;
+     *      import io.pinecone.clients.Pinecone;
+     *      import io.pinecone.proto.ListResponse;
+     *
+     *      Pinecone pc = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+     *      String indexName = "example-index";
+     *      Index index = pc.getIndexConnection(indexName);
+     *      ListResponse listResponse = index.list("example-namespace");
+     *      System.out.println(listResponse);
+     *  }</pre>
+     */
     @Override
     public ListResponse list(String namespace) {
         validateListEndpointParameters(namespace, null, null, null, false, false, false);
@@ -787,6 +802,21 @@ public class Index implements IndexInterface<UpsertResponse,
         return blockingStub.list(listRequest);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p> Example</p>
+     *  <pre>{@code
+     *      import io.pinecone.clients.Index;
+     *      import io.pinecone.clients.Pinecone;
+     *      import io.pinecone.proto.ListResponse;
+     *
+     *      Pinecone pc = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+     *      String indexName = "example-index";
+     *      Index index = pc.getIndexConnection(indexName);
+     *      ListResponse listResponse = index.list("example-namespace", 10);
+     *      System.out.println(listResponse);
+     *  }</pre>
+     */
     @Override
     public ListResponse list(String namespace, Integer limit) {
         validateListEndpointParameters(namespace, null, null, limit, false, false, true);
@@ -794,6 +824,21 @@ public class Index implements IndexInterface<UpsertResponse,
         return blockingStub.list(listRequest);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p> Example</p>
+     *  <pre>{@code
+     *      import io.pinecone.clients.Index;
+     *      import io.pinecone.clients.Pinecone;
+     *      import io.pinecone.proto.ListResponse;
+     *
+     *      Pinecone pc = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+     *      String indexName = "example-index";
+     *      Index index = pc.getIndexConnection(indexName);
+     *      ListResponse listResponse = index.list("example-namespace", "st-");
+     *      System.out.println(listResponse);
+     *  }</pre>
+     */
     @Override
     public ListResponse list(String namespace, String prefix) {
         validateListEndpointParameters(namespace, prefix, null, null, true, false, false);
@@ -802,6 +847,21 @@ public class Index implements IndexInterface<UpsertResponse,
         return blockingStub.list(listRequest);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p> Example</p>
+     *  <pre>{@code
+     *      import io.pinecone.clients.Index;
+     *      import io.pinecone.clients.Pinecone;
+     *      import io.pinecone.proto.ListResponse;
+     *
+     *      Pinecone pc = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+     *      String indexName = "example-index";
+     *      Index index = pc.getIndexConnection(indexName);
+     *      ListResponse listResponse = index.list("example-namespace", "st-", 10);
+     *      System.out.println(listResponse);
+     *  }</pre>
+     */
     @Override
     public ListResponse list(String namespace, String prefix, Integer limit) {
         validateListEndpointParameters(namespace, prefix, null, limit, true, false, true);
@@ -811,6 +871,21 @@ public class Index implements IndexInterface<UpsertResponse,
         return blockingStub.list(listRequest);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p> Example</p>
+     *  <pre>{@code
+     *      import io.pinecone.clients.Index;
+     *      import io.pinecone.clients.Pinecone;
+     *      import io.pinecone.proto.ListResponse;
+     *
+     *      Pinecone pc = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+     *      String indexName = "example-index";
+     *      Index index = pc.getIndexConnection(indexName);
+     *      ListResponse listResponse = index.list("example-namespace", "st-", "some-pagToken");
+     *      System.out.println(listResponse);
+     *  }</pre>
+     */
     @Override
     public ListResponse list(String namespace, String prefix, String paginationToken) {
         validateListEndpointParameters(namespace, prefix, paginationToken, null, true, true, false);
@@ -819,7 +894,38 @@ public class Index implements IndexInterface<UpsertResponse,
         return blockingStub.list(listRequest);
     }
 
-    @Override
+    /**
+     * Base method that retrieves a list of vector IDs from a specific namespace within an index.
+     *
+     * <p>The method internally constructs a {@link ListRequest} using the provided namespace
+     * and the provided limit, which cuts off the response after the specified number of IDs. It filters the
+     * retrieve IDs to match a provided prefix. It also can accept a pagination token to deterministically paginate
+     * through a list of vector IDs. It then makes a synchronous RPC call to fetch the list of vector IDs.</p>
+     *
+     * <p> Example</p>
+     *  <pre>{@code
+     *      import io.pinecone.clients.Index;
+     *      import io.pinecone.clients.Pinecone;
+     *      import io.pinecone.proto.ListResponse;
+     *
+     *      Pinecone pc = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+     *      String indexName = "example-index";
+     *      Index index = pc.getIndexConnection(indexName);
+     *      ListResponse listResponse = index.list("example-namespace", "st-", "some-pagToken", 10);
+     *      System.out.println(listResponse);
+     *  * }</pre>
+     *
+     * @param namespace The namespace that holds the vector IDs you want to retrieve. Cannot be {@code null} or empty.
+     * @param prefix The prefix with which vector IDs must start to be included in the response.
+     * @param paginationToken The token to paginate through the list of vector IDs.
+     * @param limit The maximum number of vector IDs you want to retrieve.
+     * @return {@link ListResponse} containing the list of vector IDs fetched from the specified namespace.
+     *         The response includes vector IDs up to 100 items.
+     * @throws IllegalArgumentException if the namespace parameter is {@code null} or empty, as validated
+     *         by {@link #validateListEndpointParameters}.
+     * @throws RuntimeException if there are issues processing the request or communicating with the server.
+     *         This includes network issues, server errors, or serialization issues with the request or response.
+     */
     public ListResponse list(String namespace, String prefix, String paginationToken, Integer limit) {
         validateListEndpointParameters(namespace, prefix, paginationToken, limit, true, true, true);
         ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).setPrefix(prefix).
@@ -827,6 +933,37 @@ public class Index implements IndexInterface<UpsertResponse,
         return blockingStub.list(listRequest);
     }
 
+
+    /**
+     * Validates the parameters for a list endpoint operation.
+     *
+     * <p>It throws a {@link PineconeValidationException} if any required validation fails.</p>
+     *
+     * <p>Example</p>
+     * <pre>{@code
+     *      try {
+     *          String namespace = "example-namespace";
+     *          String prefix = "example-prefix";
+     *          String paginationToken = "token123";
+     *          Integer limit = 50;
+     *
+     *           // Indicate which parameters are required
+     *          validateListEndpointParameters(namespace, prefix, paginationToken, limit, true, true, true);
+     *
+     *          } catch (PineconeValidationException e) {
+     *           System.err.println("Validation error: " + e.getMessage());
+     *          }
+     * }</pre>
+     *
+     * @param namespace The namespace parameter which cannot be null or empty.
+     * @param prefix The prefix parameter which is validated based on the {@code prefixRequired} flag.
+     * @param paginationToken The pagination token parameter which is validated based on the {@code paginationTokenRequired} flag.
+     * @param limit The limit for the number of items, validated to be a positive integer if {@code limitRequired} is true.
+     * @param prefixRequired Specifies if the prefix parameter is required and should be validated.
+     * @param paginationTokenRequired Specifies if the pagination token parameter is required and should be validated.
+     * @param limitRequired Specifies if the limit parameter is required and should be a positive integer.
+     * @throws PineconeValidationException if any parameter fails its validation check based on its requirements.
+     */
     public static void validateListEndpointParameters(String namespace, String prefix, String paginationToken, Integer limit
             , boolean prefixRequired, boolean paginationTokenRequired, boolean limitRequired) {
         if (namespace == null || namespace.isEmpty()) {
