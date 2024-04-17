@@ -701,7 +701,8 @@ public interface IndexInterface<T, U, V, W, X, Y, Z> extends AutoCloseable {
     /**
      * Validates the parameters for a list endpoint operation.
      *
-     * <p>It throws a {@link PineconeValidationException} if any required validation fails.</p>
+     * <p>It throws a {@link PineconeValidationException} if any required validation fails. The "...Required"
+     * parameters are to indicate which method signature is used.</p>
      *
      * <p>Example</p>
      * <pre>{@code
@@ -718,7 +719,7 @@ public interface IndexInterface<T, U, V, W, X, Y, Z> extends AutoCloseable {
      *           System.err.println("Validation error: " + e.getMessage());
      *          }
      * }</pre>
-     *
+     *:
      * @param namespace The namespace parameter which cannot be null or empty.
      * @param prefix The prefix parameter which is validated based on the {@code prefixRequired} flag.
      * @param paginationToken The pagination token parameter which is validated based on the {@code paginationTokenRequired} flag.
