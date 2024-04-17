@@ -6,13 +6,14 @@ import io.grpc.StatusRuntimeException;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.clients.Index;
 import io.pinecone.clients.AsyncIndex;
-import io.pinecone.exceptions.PineconeException;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.helpers.TestIndexResourcesManager;
 import io.pinecone.proto.*;
 import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
 import io.pinecone.unsigned_indices_model.ScoredVectorWithUnsignedIndices;
+import io.pinecone.unsigned_indices_model.SparseValuesWithUnsignedIndices;
+import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -25,13 +26,14 @@ import static io.pinecone.helpers.AssertRetry.assertWithRetry;
 import static io.pinecone.helpers.BuildUpsertRequest.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UpdateFetchAndQueryPodTest {
+public class  UpdateFetchAndQueryPodTest {
     private static final TestIndexResourcesManager indexManager = TestIndexResourcesManager.getInstance();
     private static Index index;
     private static AsyncIndex asyncIndex;
     private static final String namespace = RandomStringBuilder.build("ns", 8);
     private static List<String> upsertIds;
-    private static List<List<Float>> sparseValuesList;
+    private static List<String> sparseUpsertIds;
+    private static List<Float> sparseValuesList;
     private static int dimension;
 
     @BeforeAll
@@ -47,27 +49,28 @@ public class UpdateFetchAndQueryPodTest {
         int numOfVectors = 3;
         int numOfSparseVectors = 2;
         upsertIds = getIdsList(numOfVectors);
-        List<List<Long>> sparseIndicesList = getSparseIndicesList(numOfSparseVectors, dimension);
-        sparseValuesList = getValuesListLists(numOfSparseVectors, dimension);
+        sparseUpsertIds = getIdsList(numOfSparseVectors);
+        ArrayList<Long> sparseIndices = generateSparseIndicesByDimension(dimension);
+        sparseValuesList = generateVectorValuesByDimension(dimension);
+        List<VectorWithUnsignedIndices> vectorsToUpsert = new ArrayList<>(numOfVectors + numOfSparseVectors);
 
-        // upsert vectors with required + optional parameters
-        int sparseVectorCount = 0;
-        for (int i = sparseVectorCount; i < numOfSparseVectors; i++) {
-            index.upsert(upsertIds.get(i),
+        // upsert vectors with optional + required parameters
+        for (int i = 0; i < numOfSparseVectors; i++) {
+            VectorWithUnsignedIndices vector = new VectorWithUnsignedIndices(sparseUpsertIds.get(i),
                     generateVectorValuesByDimension(dimension),
-                    sparseIndicesList.get(i),
-                    sparseValuesList.get(i),
-                    generateMetadataStruct(i,i),
-                    namespace);
-            sparseVectorCount++;
+                    generateMetadataStruct(i, i),
+                    new SparseValuesWithUnsignedIndices(sparseIndices, sparseValuesList)
+            );
+            vectorsToUpsert.add(vector);
         }
 
-        for (int j = sparseVectorCount; j < numOfVectors; j++) {
-            index.upsert(
-                    upsertIds.get(j),
-                    generateVectorValuesByDimension(dimension),
-                    namespace);
+        for (int j = 0; j < numOfVectors; j++) {
+            VectorWithUnsignedIndices vector =
+            new VectorWithUnsignedIndices(upsertIds.get(j), generateVectorValuesByDimension(dimension));
+            vectorsToUpsert.add(vector);
         }
+
+        index.upsert(vectorsToUpsert, namespace);
     }
 
     @AfterAll
@@ -87,7 +90,7 @@ public class UpdateFetchAndQueryPodTest {
             }
         });
 
-        String idToUpdate = upsertIds.get(0);
+        String idToUpdate = sparseUpsertIds.get(0);
         List<Float> valuesToUpdate = Arrays.asList(201F, 202F, 203F, 204F);
         HashMap<String, List<String>> metadataMap = createAndGetMetadataMap();
         Struct metadataToUpdate = Struct.newBuilder()
@@ -112,26 +115,29 @@ public class UpdateFetchAndQueryPodTest {
                     null,
                     true,
                     true);
+            List<ScoredVectorWithUnsignedIndices> queryResults = queryResponse.getMatchesList();
+            ScoredVectorWithUnsignedIndices scoredVectorV1 = null;
 
-            ScoredVectorWithUnsignedIndices scoredVectorV1 = queryResponse.getMatches(0);
+            for (ScoredVectorWithUnsignedIndices vector : queryResults) {
+                if (idToUpdate.equals(vector.getId())) {
+                    scoredVectorV1 = vector;
+                }
+            }
+
             // Verify the correct vector id was updated
+            assertNotNull(scoredVectorV1);
             assertEquals(scoredVectorV1.getId(), idToUpdate);
 
             // Verify the updated values
-            List<Float> valuesList = new ArrayList<>(scoredVectorV1.getValuesList());
-            Collections.sort(valuesList);
-            Collections.sort(valuesToUpdate);
+            List<Float> valuesList = scoredVectorV1.getValuesList();
             assertEquals(valuesToUpdate, valuesList);
 
             // Verify the updated metadata
             assertEquals(scoredVectorV1.getMetadata(), metadataToUpdate);
 
             // Verify the initial sparse values set for upsert operation
-            List<Float> expectedSparseValues = new ArrayList<>(scoredVectorV1.getSparseValuesWithUnsignedIndices().getValuesList());
-            List<Float> actualSparseValues = new ArrayList<>(sparseValuesList.get(0));
-            Collections.sort(actualSparseValues);
-            Collections.sort(expectedSparseValues);
-
+            List<Float> expectedSparseValues = sparseValuesList;
+            List<Float> actualSparseValues = scoredVectorV1.getSparseValuesWithUnsignedIndices().getValuesList();
             assertEquals(expectedSparseValues, actualSparseValues);
         }, 3);
     }
@@ -170,34 +176,30 @@ public class UpdateFetchAndQueryPodTest {
     }
 
     @Test
-    public void queryWithFilersSyncTest() {
+    public void queryWithFiltersSyncTest() throws InterruptedException {
         String fieldToQuery = metadataFields[0];
         String valueToQuery = createAndGetMetadataMap().get(fieldToQuery).get(0);
 
-        try {
-            Struct filter = Struct.newBuilder()
-                    .putFields(metadataFields[0], Value.newBuilder()
-                            .setStructValue(Struct.newBuilder()
-                                    .putFields("$eq", Value.newBuilder()
-                                            .setStringValue(valueToQuery)
-                                            .build()))
-                            .build())
-                    .build();
+        Struct filter = Struct.newBuilder()
+                .putFields(metadataFields[0], Value.newBuilder()
+                        .setStructValue(Struct.newBuilder()
+                                .putFields("$eq", Value.newBuilder()
+                                        .setStringValue(valueToQuery)
+                                        .build()))
+                        .build())
+                .build();
 
-            assertWithRetry(() -> {
-                QueryResponseWithUnsignedIndices queryResponse = index.queryByVectorId(3,
-                        upsertIds.get(0),
-                        namespace,
-                        filter,
-                        true,
-                        true);
+        assertWithRetry(() -> {
+            QueryResponseWithUnsignedIndices queryResponse = index.queryByVectorId(3,
+                    upsertIds.get(0),
+                    namespace,
+                    filter,
+                    true,
+                    true);
 
-                // Verify the metadata field is correctly filtered in the query response
-                assert (queryResponse.getMatches(0).getMetadata().getFieldsMap().get(fieldToQuery).toString().contains(valueToQuery));
-            }, 3);
-        } catch (Exception e) {
-            throw new PineconeException(e.getLocalizedMessage());
-        }
+            // Verify the metadata field is correctly filtered in the query response
+            assert (queryResponse.getMatches(0).getMetadata().getFieldsMap().get(fieldToQuery).toString().contains(valueToQuery));
+        }, 3);
     }
 
     @Test
@@ -211,7 +213,7 @@ public class UpdateFetchAndQueryPodTest {
             }
         });
 
-        String idToUpdate = upsertIds.get(0);
+        String idToUpdate = sparseUpsertIds.get(0);
         List<Float> valuesToUpdate = Arrays.asList(301F, 302F, 303F, 304F);
         HashMap<String, List<String>> metadataMap = createAndGetMetadataMap();
         Struct metadataToUpdate = Struct.newBuilder()
@@ -237,24 +239,29 @@ public class UpdateFetchAndQueryPodTest {
                     true,
                     true).get();
 
-            ScoredVectorWithUnsignedIndices scoredVectorV1 = queryResponse.getMatches(0);
+            List<ScoredVectorWithUnsignedIndices> queryResults = queryResponse.getMatchesList();
+            ScoredVectorWithUnsignedIndices scoredVectorV1 = null;
+
+            for (ScoredVectorWithUnsignedIndices vector : queryResults) {
+                if (idToUpdate.equals(vector.getId())) {
+                    scoredVectorV1 = vector;
+                }
+            }
+
             // Verify the correct vector id was updated
+            assertNotNull(scoredVectorV1);
             assertEquals(scoredVectorV1.getId(), idToUpdate);
 
             // Verify the updated values
             List<Float> valuesList = new ArrayList<>(scoredVectorV1.getValuesList());
-            Collections.sort(valuesList);
-            Collections.sort(valuesToUpdate);
             assertEquals(valuesToUpdate, valuesList);
 
-            // Verify the updated metadata
+            // Verify the metadata was updated
             assertEquals(scoredVectorV1.getMetadata(), metadataToUpdate);
 
-            // Verify the initial sparse values set for upsert operation
-            List<Float> expectedSparseValues = new ArrayList<>(scoredVectorV1.getSparseValuesWithUnsignedIndices().getValuesList());
-            List<Float> actualSparseValues = new ArrayList<>(sparseValuesList.get(0));
-            Collections.sort(actualSparseValues);
-            Collections.sort(expectedSparseValues);
+            // Verify the initial sparse values set for upsert operation were not overwritten
+            List<Float> expectedSparseValues = sparseValuesList;
+            List<Float> actualSparseValues = scoredVectorV1.getSparseValuesWithUnsignedIndices().getValuesList();
             assertEquals(expectedSparseValues, actualSparseValues);
         }, 3);
     }
@@ -275,34 +282,40 @@ public class UpdateFetchAndQueryPodTest {
     }
 
     @Test
-    public void queryWithFilersFutureTest() throws ExecutionException, InterruptedException {
+    public void queryWithFiltersFutureTest() throws ExecutionException, InterruptedException {
         String fieldToQuery = metadataFields[0];
         String valueToQuery = createAndGetMetadataMap().get(fieldToQuery).get(0);
 
-        try {
-            Struct filter = Struct.newBuilder()
-                    .putFields(metadataFields[0], Value.newBuilder()
-                            .setStructValue(Struct.newBuilder()
-                                    .putFields("$eq", Value.newBuilder()
-                                            .setStringValue(valueToQuery)
-                                            .build()))
-                            .build())
-                    .build();
+        Struct filter = Struct.newBuilder()
+                .putFields(metadataFields[0], Value.newBuilder()
+                        .setStructValue(Struct.newBuilder()
+                                .putFields("$eq", Value.newBuilder()
+                                        .setStringValue(valueToQuery)
+                                        .build()))
+                        .build())
+                .build();
 
-            assertWithRetry(() -> {
-                QueryResponseWithUnsignedIndices queryResponse = asyncIndex.queryByVectorId(3,
-                        upsertIds.get(0),
-                        namespace,
-                        filter,
-                        true,
-                        true).get();
+        assertWithRetry(() -> {
+            QueryResponseWithUnsignedIndices queryResponse = asyncIndex.queryByVectorId(3,
+                    sparseUpsertIds.get(0),
+                    namespace,
+                    filter,
+                    true,
+                    true).get();
 
-                // Verify the metadata field is correctly filtered in the query response
-                assert (queryResponse.getMatches(0).getMetadata().getFieldsMap().get(fieldToQuery).toString().contains(valueToQuery));
-            }, 3);
-        } catch (Exception exception) {
-            throw exception;
-        }
+            List<ScoredVectorWithUnsignedIndices> queryResults = queryResponse.getMatchesList();
+            ScoredVectorWithUnsignedIndices scoredVectorV1 = null;
+
+            for (ScoredVectorWithUnsignedIndices vector : queryResults) {
+                if (sparseUpsertIds.get(0).equals(vector.getId())) {
+                    scoredVectorV1 = vector;
+                }
+            }
+
+            // Verify the metadata field is correctly filtered in the query response
+            assertNotNull(scoredVectorV1);
+            assert (scoredVectorV1.getMetadata().getFieldsMap().get(fieldToQuery).toString().contains(valueToQuery));
+        }, 3);
     }
 
     @Test

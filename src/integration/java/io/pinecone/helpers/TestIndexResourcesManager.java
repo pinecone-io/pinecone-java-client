@@ -4,7 +4,6 @@ import io.pinecone.clients.AsyncIndex;
 import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.exceptions.PineconeException;
-import io.pinecone.proto.DescribeIndexStatsResponse;
 import org.openapitools.client.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,11 +12,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import static io.pinecone.helpers.BuildUpsertRequest.buildRequiredUpsertRequestByDimension;
-import static io.pinecone.helpers.IndexManager.*;
+import static io.pinecone.helpers.TestUtilities.*;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class TestIndexResourcesManager {
-    private static final Logger logger = LoggerFactory.getLogger(IndexManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(TestUtilities.class);
     private static TestIndexResourcesManager instance;
     private static final String apiKey = System.getenv("PINECONE_API_KEY");
     private final int dimension = System.getenv("DIMENSION") == null

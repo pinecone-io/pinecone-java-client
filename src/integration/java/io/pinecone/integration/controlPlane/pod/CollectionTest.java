@@ -5,7 +5,6 @@ import io.pinecone.clients.Pinecone;
 import io.pinecone.exceptions.PineconeException;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.helpers.RandomStringBuilder;
-import io.pinecone.proto.DescribeIndexStatsResponse;
 import io.pinecone.proto.FetchResponse;
 import io.pinecone.helpers.TestIndexResourcesManager;
 
@@ -20,7 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 import static io.pinecone.helpers.AssertRetry.assertWithRetry;
-import static io.pinecone.helpers.IndexManager.*;
+import static io.pinecone.helpers.TestUtilities.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CollectionTest {

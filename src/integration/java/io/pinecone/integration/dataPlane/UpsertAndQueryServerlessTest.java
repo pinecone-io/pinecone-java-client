@@ -51,6 +51,7 @@ public class UpsertAndQueryServerlessTest {
     @Test
     public void upsertOptionalVectorsAndQueryIndexSyncTest() throws Exception {
         int numOfVectors = 5;
+        int topK = 5;
 
         Struct emptyFilterStruct = Struct.newBuilder().build();
         DescribeIndexStatsResponse describeIndexStatsResponse1 = index.describeIndexStats(emptyFilterStruct);
@@ -59,18 +60,18 @@ public class UpsertAndQueryServerlessTest {
 
         // upsert vectors with required + optional parameters
         List<String> upsertIds = getIdsList(numOfVectors);
-        int topK = 5;
         List<Float> values = generateVectorValuesByDimension(dimension);
         List<Long> sparseIndices = generateSparseIndicesByDimension(dimension);
         List<Float> sparseValues = generateVectorValuesByDimension(dimension);
         Struct metadataStruct = generateMetadataStruct();
 
-        List<VectorWithUnsignedIndices> vectors = new ArrayList<VectorWithUnsignedIndices>(numOfVectors);
+        List<VectorWithUnsignedIndices> vectorsToUpsert = new ArrayList<>(numOfVectors);
 
         for (String id : upsertIds) {
-            vectors.add(buildUpsertVectorWithUnsignedIndices(id, values, sparseIndices, sparseValues, metadataStruct));
+            vectorsToUpsert.add(buildUpsertVectorWithUnsignedIndices(id, values, sparseIndices, sparseValues, metadataStruct));
         }
-        index.upsert(vectors, namespace);
+
+        index.upsert(vectorsToUpsert, namespace);
 
         // Query by vector to verify
         assertWithRetry(() -> {
@@ -141,6 +142,7 @@ public class UpsertAndQueryServerlessTest {
     @Test
     public void upsertOptionalVectorsAndQueryIndexFutureTest() throws InterruptedException, ExecutionException {
         int numOfVectors = 5;
+        int topK = 5;
 
         Struct emptyFilterStruct = Struct.newBuilder().build();
 
@@ -150,17 +152,17 @@ public class UpsertAndQueryServerlessTest {
 
         // upsert vectors with required + optional parameters
         List<String> upsertIds = getIdsList(numOfVectors);
-        int topK = 5;
         List<Float> values = generateVectorValuesByDimension(dimension);
         List<Long> sparseIndices = generateSparseIndicesByDimension(dimension);
         List<Float> sparseValues = generateVectorValuesByDimension(dimension);
         Struct metadataStruct = generateMetadataStruct();
-        List<VectorWithUnsignedIndices> vectors = new ArrayList<VectorWithUnsignedIndices>(numOfVectors);
+
+        List<VectorWithUnsignedIndices> vectorsToUpsert = new ArrayList<>(numOfVectors);
 
         for (String id : upsertIds) {
-            vectors.add(buildUpsertVectorWithUnsignedIndices(id, values, sparseIndices, sparseValues, metadataStruct));
+            vectorsToUpsert.add(buildUpsertVectorWithUnsignedIndices(id, values, sparseIndices, sparseValues, metadataStruct));
         }
-        asyncIndex.upsert(vectors, namespace).get();
+        asyncIndex.upsert(vectorsToUpsert, namespace).get();
 
         // Query by vector to verify
         assertWithRetry(() -> {

@@ -39,15 +39,15 @@ public class BuildUpsertRequest {
     }
 
     public static ArrayList<Long> generateSparseIndicesByDimension(int dimension) {
-        ArrayList<Long> values = new ArrayList<>();
         Random random = new Random();
+        ArrayList<Long> indices = new ArrayList<>();
         long maxUnsignedInt = (1L << 32) - 1;
 
         for (int i = 0; i < dimension; i++) {
-            values.add(random.nextLong() & maxUnsignedInt);
+            indices.add(random.nextLong() & maxUnsignedInt);
         }
 
-        return values;
+        return indices;
     }
 
     public static Struct generateMetadataStruct() {

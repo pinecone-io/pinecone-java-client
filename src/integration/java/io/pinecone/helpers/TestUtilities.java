@@ -1,24 +1,28 @@
 package io.pinecone.helpers;
 
+import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
-import io.pinecone.exceptions.PineconeException;
+import io.pinecone.proto.DescribeIndexStatsResponse;
+import io.pinecone.proto.NamespaceSummary;
 import org.openapitools.client.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.*;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class IndexManager {
-    private static final Logger logger = LoggerFactory.getLogger(IndexManager.class);
+public class TestUtilities {
+    private static final Logger logger = LoggerFactory.getLogger(TestUtilities.class);
 
-    public static IndexModel waitUntilIndexIsReady(Pinecone pinecone, String indexName, Integer totalMsToWait) throws InterruptedException {
-        IndexModel index = pinecone.describeIndex(indexName);
+    public static IndexModel waitUntilIndexIsReady(Pinecone pineconeClient, String indexName, Integer totalMsToWait) throws InterruptedException {
+        IndexModel index = pineconeClient.describeIndex(indexName);
         int waitedTimeMs = 0;
         int intervalMs = 2000;
 
         while (index.getStatus().getState() != IndexModelStatus.StateEnum.READY) {
-            index = pinecone.describeIndex(indexName);
+            index = pineconeClient.describeIndex(indexName);
             if (waitedTimeMs >= totalMsToWait) {
                 logger.info("WARNING: Index " + indexName + " not ready after " + waitedTimeMs + "ms");
                 break;
@@ -35,12 +39,12 @@ public class IndexManager {
         return index;
     }
 
-    public static IndexModel waitUntilIndexIsReady(Pinecone pinecone, String indexName) throws InterruptedException {
-        return waitUntilIndexIsReady(pinecone, indexName, 200000);
+    public static IndexModel waitUntilIndexIsReady(Pinecone pineconeClient, String indexName) throws InterruptedException {
+        return waitUntilIndexIsReady(pineconeClient, indexName, 200000);
     }
 
-    public static CollectionModel createCollection(Pinecone pinecone, String collectionName, String indexName, boolean waitUntilReady) throws InterruptedException {
-        CollectionModel collection = pinecone.createCollection(collectionName, indexName);
+    public static CollectionModel createCollection(Pinecone pineconeClient, String collectionName, String indexName, boolean waitUntilReady) throws InterruptedException {
+        CollectionModel collection = pineconeClient.createCollection(collectionName, indexName);
 
         assertEquals(collection.getStatus(), CollectionModel.StatusEnum.INITIALIZING);
 
@@ -53,7 +57,7 @@ public class IndexManager {
                         "milliseconds...");
                 Thread.sleep(5000);
                 timeWaited += 5000;
-                collection = pinecone.describeCollection(collectionName);
+                collection = pineconeClient.describeCollection(collectionName);
                 collectionReady = collection.getStatus();
             }
 
