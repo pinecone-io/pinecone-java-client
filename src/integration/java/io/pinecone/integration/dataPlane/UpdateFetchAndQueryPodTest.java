@@ -88,7 +88,7 @@ public class  UpdateFetchAndQueryPodTest {
             for (String key : upsertIds) {
                 assert (fetchResponse.containsVectors(key));
             }
-        });
+        }, 3);
 
         String idToUpdate = sparseUpsertIds.get(0);
         List<Float> valuesToUpdate = Arrays.asList(201F, 202F, 203F, 204F);
@@ -211,7 +211,7 @@ public class  UpdateFetchAndQueryPodTest {
             for (String key : upsertIds) {
                 assert (fetchResponse.containsVectors(key));
             }
-        });
+        }, 3);
 
         String idToUpdate = sparseUpsertIds.get(0);
         List<Float> valuesToUpdate = Arrays.asList(301F, 302F, 303F, 304F);

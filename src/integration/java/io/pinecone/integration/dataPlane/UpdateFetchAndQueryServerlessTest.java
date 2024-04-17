@@ -146,7 +146,7 @@ public class UpdateFetchAndQueryServerlessTest {
             for (Float value : expectedSparseValues) {
                 assertTrue(actualSparseValues.contains(value));
             }
-        });
+        }, 3);
     }
 
     @Test
@@ -263,8 +263,6 @@ public class UpdateFetchAndQueryServerlessTest {
 
             // Verify the updated values
             List<Float> valuesList = scoredVectorV1.getValuesList();
-//            Collections.sort(valuesList);
-//            Collections.sort(valuesToUpdate);
             assertEquals(valuesToUpdate, valuesList);
 
             // Verify the updated metadata
@@ -277,7 +275,7 @@ public class UpdateFetchAndQueryServerlessTest {
             for (Float value : expectedSparseValues) {
                 assertTrue(actualSparseValues.contains(value));
             }
-        });
+        }, 3);
     }
 
     @Test

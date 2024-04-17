@@ -7,7 +7,6 @@ import io.pinecone.clients.Index;
 import io.pinecone.clients.AsyncIndex;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.helpers.TestIndexResourcesManager;
-import io.pinecone.helpers.TestUtilities;
 import io.pinecone.proto.*;
 import io.pinecone.unsigned_indices_model.SparseValuesWithUnsignedIndices;
 import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;

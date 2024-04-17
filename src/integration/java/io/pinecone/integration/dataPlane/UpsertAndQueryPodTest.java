@@ -104,7 +104,7 @@ public class UpsertAndQueryPodTest {
 
             // Verify the initial sparse values set for upsert operation
             assertEquals(scoredVectorV1.getSparseValuesWithUnsignedIndices().getValuesList(), sparseValues);
-        });
+        }, 3);
     }
 
     @Test
@@ -190,7 +190,7 @@ public class UpsertAndQueryPodTest {
 
             // Verify the initial sparse values set for upsert operation
             assertEquals(scoredVectorV1.getSparseValuesWithUnsignedIndices().getValuesList(), sparseValues);
-        });
+        }, 3);
     }
 
     @Test
