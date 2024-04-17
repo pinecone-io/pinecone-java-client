@@ -730,8 +730,9 @@ public interface IndexInterface<T, U, V, W, X, Y, Z> extends AutoCloseable {
      * @throws PineconeValidationException if any parameter fails its validation check based on its requirements.
      */
     default void validateListEndpointParameters(String namespace, String prefix, String paginationToken, Integer limit
-            , boolean prefixRequired, boolean paginationTokenRequired, boolean limitRequired) {
-        if (namespace == null || namespace.isEmpty()) {
+            ,boolean namespaceRequired , boolean prefixRequired, boolean paginationTokenRequired,
+                                                boolean limitRequired) {
+        if (namespaceRequired && (namespace == null || namespace.isEmpty())) {
             throw new PineconeValidationException("Namespace cannot be null or empty");
         }
         if (prefixRequired && (prefix == null || prefix.isEmpty())) {
@@ -744,6 +745,13 @@ public interface IndexInterface<T, U, V, W, X, Y, Z> extends AutoCloseable {
             throw new PineconeValidationException("Limit must be a positive integer");
         }
     }
+
+    /**
+     * Retrieves up to 100 vector IDs from an index.
+     *
+     * @return A generic type {@code Y} that contains vector IDs.
+     */
+    Z list();
 
     /**
      * Retrieves up to 100 vector IDs from a given namespace.

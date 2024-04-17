@@ -788,13 +788,32 @@ public class Index implements IndexInterface<UpsertResponse,
      *
      *     ...
      *
+     *     ListResponse listResponse = index.list();
+     *  }</pre>
+     */
+    @Override
+    public ListResponse list() {
+        validateListEndpointParameters(null, null, null, null, false, false, false, false);
+        ListRequest listRequest = ListRequest.newBuilder().build();
+        return blockingStub.list(listRequest);
+    }
+
+
+    /**
+     * {@inheritDoc}
+     * <p>Example</p>
+     *  <pre>{@code
+     *     import io.pinecone.proto.ListResponse;
+     *
+     *     ...
+     *
      *     ListResponse listResponse = index.list("example-namespace");
      *  }</pre>
      */
     @Override
     public ListResponse list(String namespace) {
-        validateListEndpointParameters(namespace, null, null, null, false, false, false);
-        ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).setLimit(100).build();
+        validateListEndpointParameters(namespace, null, null, null, true, false, false, false);
+        ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).build();
         return blockingStub.list(listRequest);
     }
 
@@ -811,7 +830,7 @@ public class Index implements IndexInterface<UpsertResponse,
      */
     @Override
     public ListResponse list(String namespace, Integer limit) {
-        validateListEndpointParameters(namespace, null, null, limit, false, false, true);
+        validateListEndpointParameters(namespace, null, null, limit, true, false, false, true);
         ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).setLimit(limit).build();
         return blockingStub.list(listRequest);
     }
@@ -829,9 +848,9 @@ public class Index implements IndexInterface<UpsertResponse,
      */
     @Override
     public ListResponse list(String namespace, String prefix) {
-        validateListEndpointParameters(namespace, prefix, null, null, true, false, false);
+        validateListEndpointParameters(namespace, prefix, null, null, true, true, false, false);
         ListRequest listRequest =
-                ListRequest.newBuilder().setNamespace(namespace).setPrefix(prefix).setLimit(100).build();
+                ListRequest.newBuilder().setNamespace(namespace).setPrefix(prefix).build();
         return blockingStub.list(listRequest);
     }
 
@@ -848,7 +867,7 @@ public class Index implements IndexInterface<UpsertResponse,
      */
     @Override
     public ListResponse list(String namespace, String prefix, Integer limit) {
-        validateListEndpointParameters(namespace, prefix, null, limit, true, false, true);
+        validateListEndpointParameters(namespace, prefix, null, limit, true, true, false, true);
 
         ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).setPrefix(prefix).
                 setLimit(limit).build();
@@ -868,9 +887,9 @@ public class Index implements IndexInterface<UpsertResponse,
      */
     @Override
     public ListResponse list(String namespace, String prefix, String paginationToken) {
-        validateListEndpointParameters(namespace, prefix, paginationToken, null, true, true, false);
+        validateListEndpointParameters(namespace, prefix, paginationToken, null, true, true, true, false);
         ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).setPrefix(prefix).
-                setPaginationToken(paginationToken).setLimit(100).build();
+                setPaginationToken(paginationToken).build();
         return blockingStub.list(listRequest);
     }
 
@@ -903,7 +922,7 @@ public class Index implements IndexInterface<UpsertResponse,
      *         This includes network issues, server errors, or serialization issues with the request or response.
      */
     public ListResponse list(String namespace, String prefix, String paginationToken, Integer limit) {
-        validateListEndpointParameters(namespace, prefix, paginationToken, limit, true, true, true);
+        validateListEndpointParameters(namespace, prefix, paginationToken, limit, true, true, true, true);
         ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).setPrefix(prefix).
                 setPaginationToken(paginationToken).setLimit(limit).build();
         return blockingStub.list(listRequest);
