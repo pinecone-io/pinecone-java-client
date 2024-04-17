@@ -13,7 +13,6 @@ import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
 
 import java.util.List;
 
-import static io.pinecone.clients.Index.validateListEndpointParameters;
 
 /**
  * A client for interacting with a Pinecone index via GRPC asynchronously. Allows for upserting, querying, fetching, updating, and deleting vectors.
@@ -853,16 +852,14 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      * {@inheritDoc}
      * <p>Example</p>
      *  <pre>{@code
-     *      import io.pinecone.clients.Index;
-     *      import io.pinecone.clients.Pinecone;
-     *      import io.pinecone.proto.ListResponse;
+     *     import io.pinecone.proto.ListResponse;
+     *     import com.google.common.util.concurrent.Futures;
+     *     import com.google.common.util.concurrent.ListenableFuture;
      *
-     *      Pinecone pc = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *      String indexName = "example-async-index";
-     *      AsyncIndex asyncIndex = pc.getAsyncIndexConnection(indexName);
+     *     ...
+     *
      *      ListenableFuture<ListResponse> futureResponse = asyncIndex.list("example-namespace");
      *      ListResponse asyncListResponse = Futures.getUnchecked(futureResponse);
-     *      System.out.println(asyncListResponse);
      *  }</pre>
      */
     @Override
@@ -876,16 +873,14 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      * {@inheritDoc}
      * <p>Example</p>
      *  <pre>{@code
-     *      import io.pinecone.clients.Index;
-     *      import io.pinecone.clients.Pinecone;
-     *      import io.pinecone.proto.ListResponse;
+     *     import io.pinecone.proto.ListResponse;
+     *     import com.google.common.util.concurrent.Futures;
+     *     import com.google.common.util.concurrent.ListenableFuture;
      *
-     *      Pinecone pc = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *      String indexName = "example-async-index";
-     *      AsyncIndex asyncIndex = pc.getAsyncIndexConnection(indexName);
+     *     ...
+     *
      *      ListenableFuture<ListResponse> futureResponse = asyncIndex.list("example-namespace", 10);
      *      ListResponse asyncListResponse = Futures.getUnchecked(futureResponse);
-     *      System.out.println(asyncListResponse);
      *  }</pre>
      */
     @Override
@@ -899,16 +894,14 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      * {@inheritDoc}
      * <p>Example</p>
      *  <pre>{@code
-     *      import io.pinecone.clients.Index;
-     *      import io.pinecone.clients.Pinecone;
-     *      import io.pinecone.proto.ListResponse;
+     *     import io.pinecone.proto.ListResponse;
+     *     import com.google.common.util.concurrent.Futures;
+     *     import com.google.common.util.concurrent.ListenableFuture;
      *
-     *      Pinecone pc = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-    *       String indexName = "example-async-index";
-     *      AsyncIndex asyncIndex = pc.getAsyncIndexConnection(indexName);
-     *      ListenableFuture<ListResponse> futureResponse = asyncIndex.list("example-namespace", "prefix-");
-     *      ListResponse asyncListResponse = Futures.getUnchecked(futureResponse);
-     *      System.out.println(asyncListResponse);
+     *     ...
+     *
+     *     ListenableFuture<ListResponse> futureResponse = asyncIndex.list("example-namespace", "prefix-");
+     *     ListResponse asyncListResponse = Futures.getUnchecked(futureResponse);
      *  }</pre>
      */
     @Override
@@ -922,16 +915,14 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      * {@inheritDoc}
      * <p>Example</p>
      *  <pre>{@code
-     *      import io.pinecone.clients.Index;
-     *      import io.pinecone.clients.Pinecone;
-     *      import io.pinecone.proto.ListResponse;
+     *     import io.pinecone.proto.ListResponse;
+     *     import com.google.common.util.concurrent.Futures;
+     *     import com.google.common.util.concurrent.ListenableFuture;
      *
-     *      Pinecone pc = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *      String indexName = "example-async-index";
-     *      AsyncIndex asyncIndex = pc.getAsyncIndexConnection(indexName);
-     *      ListenableFuture<ListResponse> futureResponse = asyncIndex.list("example-namespace", "prefix-", 10);
-     *      ListResponse asyncListResponse = Futures.getUnchecked(futureResponse);
-     *      System.out.println(asyncListResponse);
+     *     ...
+     *
+     *     ListenableFuture<ListResponse> futureResponse = asyncIndex.list("example-namespace", "prefix-", 10);
+     *     ListResponse asyncListResponse = Futures.getUnchecked(futureResponse);
      *  }</pre>
      */
     @Override
@@ -946,16 +937,14 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      * {@inheritDoc}
      * <p>Example</p>
      *  <pre>{@code
-     *      import io.pinecone.clients.Index;
-     *      import io.pinecone.clients.Pinecone;
-     *      import io.pinecone.proto.ListResponse;
+     *     import io.pinecone.proto.ListResponse;
+     *     import com.google.common.util.concurrent.Futures;
+     *     import com.google.common.util.concurrent.ListenableFuture;
      *
-     *      Pinecone pc = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-    *       String indexName = "example-async-index";
-     *      AsyncIndex asyncIndex = pc.getAsyncIndexConnection(indexName);
-     *      ListenableFuture<ListResponse> futureResponse = asyncIndex.list("example-namespace", "prefix-", "some-pagToken");
-     *      ListResponse asyncListResponse = Futures.getUnchecked(futureResponse);
-     *      System.out.println(asyncListResponse);
+     *     ...
+     *
+     *     ListenableFuture<ListResponse> futureResponse = asyncIndex.list("example-namespace", "prefix-", "some-pagToken");
+     *     ListResponse asyncListResponse = Futures.getUnchecked(futureResponse);
      *  }</pre>
      */
     @Override
@@ -976,16 +965,14 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      *
      * <p>Example</p>
      *  <pre>{@code
-     *      import io.pinecone.clients.Index;
-     *      import io.pinecone.clients.Pinecone;
-     *      import io.pinecone.proto.ListResponse;
+     *     import io.pinecone.proto.ListResponse;
+     *     import com.google.common.util.concurrent.Futures;
+     *     import com.google.common.util.concurrent.ListenableFuture;
      *
-     *      Pinecone pc = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-    *       String indexName = "example-async-index";
-     *      AsyncIndex asyncIndex = pc.getAsyncIndexConnection(indexName);
-     *      ListenableFuture<ListResponse> futureResponse = asyncIndex.list("example-namespace", "prefix-", "some-pagToken", 10);
-     *      ListResponse asyncListResponse = Futures.getUnchecked(futureResponse);
-     *      System.out.println(asyncListResponse);
+     *     ...
+     *
+     *     ListenableFuture<ListResponse> futureResponse = asyncIndex.list("example-namespace", "prefix-", "some-pagToken", 10);
+     *     ListResponse asyncListResponse = Futures.getUnchecked(futureResponse);
      *  * }</pre>
      *
      * @param namespace The namespace that holds the vector IDs you want to retrieve. Cannot be {@code null} or empty.

@@ -784,15 +784,11 @@ public class Index implements IndexInterface<UpsertResponse,
      * {@inheritDoc}
      * <p>Example</p>
      *  <pre>{@code
-     *      import io.pinecone.clients.Index;
-     *      import io.pinecone.clients.Pinecone;
-     *      import io.pinecone.proto.ListResponse;
+     *     import io.pinecone.proto.ListResponse;
      *
-     *      Pinecone pc = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *      String indexName = "example-index";
-     *      Index index = pc.getIndexConnection(indexName);
-     *      ListResponse listResponse = index.list("example-namespace");
-     *      System.out.println(listResponse);
+     *     ...
+     *
+     *     ListResponse listResponse = index.list("example-namespace");
      *  }</pre>
      */
     @Override
@@ -806,15 +802,11 @@ public class Index implements IndexInterface<UpsertResponse,
      * {@inheritDoc}
      * <p>Example</p>
      *  <pre>{@code
-     *      import io.pinecone.clients.Index;
-     *      import io.pinecone.clients.Pinecone;
-     *      import io.pinecone.proto.ListResponse;
+     *     import io.pinecone.proto.ListResponse;
      *
-     *      Pinecone pc = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *      String indexName = "example-index";
-     *      Index index = pc.getIndexConnection(indexName);
-     *      ListResponse listResponse = index.list("example-namespace", 10);
-     *      System.out.println(listResponse);
+     *     ...
+     *
+     *     ListResponse listResponse = index.list("example-namespace", 10);
      *  }</pre>
      */
     @Override
@@ -828,15 +820,11 @@ public class Index implements IndexInterface<UpsertResponse,
      * {@inheritDoc}
      * <p>Example</p>
      *  <pre>{@code
-     *      import io.pinecone.clients.Index;
-     *      import io.pinecone.clients.Pinecone;
-     *      import io.pinecone.proto.ListResponse;
+     *     import io.pinecone.proto.ListResponse;
      *
-     *      Pinecone pc = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *      String indexName = "example-index";
-     *      Index index = pc.getIndexConnection(indexName);
-     *      ListResponse listResponse = index.list("example-namespace", "st-");
-     *      System.out.println(listResponse);
+     *     ...
+     *
+     *     ListResponse listResponse = index.list("example-namespace", "st-");
      *  }</pre>
      */
     @Override
@@ -851,15 +839,11 @@ public class Index implements IndexInterface<UpsertResponse,
      * {@inheritDoc}
      * <p>Example</p>
      *  <pre>{@code
-     *      import io.pinecone.clients.Index;
-     *      import io.pinecone.clients.Pinecone;
-     *      import io.pinecone.proto.ListResponse;
+     *     import io.pinecone.proto.ListResponse;
      *
-     *      Pinecone pc = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *      String indexName = "example-index";
-     *      Index index = pc.getIndexConnection(indexName);
-     *      ListResponse listResponse = index.list("example-namespace", "st-", 10);
-     *      System.out.println(listResponse);
+     *     ...
+     *
+     *     ListResponse listResponse = index.list("example-namespace", "st-", 10);
      *  }</pre>
      */
     @Override
@@ -875,15 +859,11 @@ public class Index implements IndexInterface<UpsertResponse,
      * {@inheritDoc}
      * <p>Example</p>
      *  <pre>{@code
-     *      import io.pinecone.clients.Index;
-     *      import io.pinecone.clients.Pinecone;
-     *      import io.pinecone.proto.ListResponse;
+     *     import io.pinecone.proto.ListResponse;
      *
-     *      Pinecone pc = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *      String indexName = "example-index";
-     *      Index index = pc.getIndexConnection(indexName);
-     *      ListResponse listResponse = index.list("example-namespace", "st-", "some-pagToken");
-     *      System.out.println(listResponse);
+     *     ...
+     *
+     *     ListResponse listResponse = index.list("example-namespace", "st-", "some-pagToken");
      *  }</pre>
      */
     @Override
@@ -904,15 +884,11 @@ public class Index implements IndexInterface<UpsertResponse,
      *
      * <p>Example</p>
      *  <pre>{@code
-     *      import io.pinecone.clients.Index;
-     *      import io.pinecone.clients.Pinecone;
-     *      import io.pinecone.proto.ListResponse;
+     *     import io.pinecone.proto.ListResponse;
      *
-     *      Pinecone pc = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-     *      String indexName = "example-index";
-     *      Index index = pc.getIndexConnection(indexName);
-     *      ListResponse listResponse = index.list("example-namespace", "st-", "some-pagToken", 10);
-     *      System.out.println(listResponse);
+     *     ...
+     *
+     *     ListResponse listResponse = index.list("example-namespace", "st-", "some-pagToken", 10);
      *  * }</pre>
      *
      * @param namespace The namespace that holds the vector IDs you want to retrieve. Cannot be {@code null} or empty.
