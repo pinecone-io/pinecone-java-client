@@ -20,9 +20,8 @@ public class TestIndexResourcesManager {
     private static final Logger logger = LoggerFactory.getLogger(IndexManager.class);
     private static TestIndexResourcesManager instance;
     private static final String apiKey = System.getenv("PINECONE_API_KEY");
-
     private final int dimension = System.getenv("DIMENSION") == null
-            ? 3
+            ? 4
             : Integer.parseInt(System.getenv("DIMENSION"));
     private final String environment = System.getenv("PINECONE_ENVIRONMENT") == null
             ? "us-east4-gcp"
@@ -40,16 +39,15 @@ public class TestIndexResourcesManager {
     private String podIndexName;
     private IndexModel podIndexModel;
     private IndexModel serverlessIndexModel;
-    private  String serverlessIndexName;
+    private String serverlessIndexName;
     private String collectionName;
     private CollectionModel collectionModel;
-    private final List<String> vectorIds = Arrays.asList("id1", "id2", "cidddd3");
+    private final List<String> vectorIds = Arrays.asList("id1", "id2", "prefix-id3");
     private final String namespace = "example-namespace";
 
 
     private TestIndexResourcesManager() {
         pineconeClient = new Pinecone.Builder(apiKey).build();
-
     }
 
     public static TestIndexResourcesManager getInstance() {
