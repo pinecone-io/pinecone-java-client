@@ -256,7 +256,7 @@ public class UpdateFetchAndQueryServerlessTest {
                     scoredVectorV1 = vector;
                 }
             }
-            System.out.println("SCOREDVECTORV1: " + scoredVectorV1);
+
             // Verify the correct vector id was updated
             assertNotNull(scoredVectorV1);
             assertEquals(scoredVectorV1.getId(), idToUpdate);

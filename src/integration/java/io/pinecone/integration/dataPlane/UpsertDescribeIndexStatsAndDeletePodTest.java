@@ -60,7 +60,7 @@ public class UpsertDescribeIndexStatsAndDeletePodTest {
         assertWithRetry(() -> {
             // call describeIndexStats to get updated vector count
             DescribeIndexStatsResponse describeIndexStatsResponse = index.describeIndexStats();
-            System.out.println("ASSERT WITH RETRY 1");
+            
             // verify the updated vector count
             assertEquals(describeIndexStatsResponse.getNamespacesMap().get(namespace).getVectorCount(), namespaceVectorCount);
         }, 3);
