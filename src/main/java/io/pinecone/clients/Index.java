@@ -782,7 +782,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p> Example</p>
+     * <p>Example</p>
      *  <pre>{@code
      *      import io.pinecone.clients.Index;
      *      import io.pinecone.clients.Pinecone;
@@ -804,7 +804,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p> Example</p>
+     * <p>Example</p>
      *  <pre>{@code
      *      import io.pinecone.clients.Index;
      *      import io.pinecone.clients.Pinecone;
@@ -826,7 +826,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p> Example</p>
+     * <p>Example</p>
      *  <pre>{@code
      *      import io.pinecone.clients.Index;
      *      import io.pinecone.clients.Pinecone;
@@ -849,7 +849,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p> Example</p>
+     * <p>Example</p>
      *  <pre>{@code
      *      import io.pinecone.clients.Index;
      *      import io.pinecone.clients.Pinecone;
@@ -873,7 +873,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p> Example</p>
+     * <p>Example</p>
      *  <pre>{@code
      *      import io.pinecone.clients.Index;
      *      import io.pinecone.clients.Pinecone;
@@ -902,7 +902,7 @@ public class Index implements IndexInterface<UpsertResponse,
      * retrieve IDs to match a provided prefix. It also can accept a pagination token to deterministically paginate
      * through a list of vector IDs. It then makes a synchronous RPC call to fetch the list of vector IDs.</p>
      *
-     * <p> Example</p>
+     * <p>Example</p>
      *  <pre>{@code
      *      import io.pinecone.clients.Index;
      *      import io.pinecone.clients.Pinecone;
@@ -931,53 +931,6 @@ public class Index implements IndexInterface<UpsertResponse,
         ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).setPrefix(prefix).
                 setPaginationToken(paginationToken).setLimit(limit).build();
         return blockingStub.list(listRequest);
-    }
-
-
-    /**
-     * Validates the parameters for a list endpoint operation.
-     *
-     * <p>It throws a {@link PineconeValidationException} if any required validation fails.</p>
-     *
-     * <p>Example</p>
-     * <pre>{@code
-     *      try {
-     *          String namespace = "example-namespace";
-     *          String prefix = "example-prefix";
-     *          String paginationToken = "token123";
-     *          Integer limit = 50;
-     *
-     *           // Indicate which parameters are required
-     *          validateListEndpointParameters(namespace, prefix, paginationToken, limit, true, true, true);
-     *
-     *          } catch (PineconeValidationException e) {
-     *           System.err.println("Validation error: " + e.getMessage());
-     *          }
-     * }</pre>
-     *
-     * @param namespace The namespace parameter which cannot be null or empty.
-     * @param prefix The prefix parameter which is validated based on the {@code prefixRequired} flag.
-     * @param paginationToken The pagination token parameter which is validated based on the {@code paginationTokenRequired} flag.
-     * @param limit The limit for the number of items, validated to be a positive integer if {@code limitRequired} is true.
-     * @param prefixRequired Specifies if the prefix parameter is required and should be validated.
-     * @param paginationTokenRequired Specifies if the pagination token parameter is required and should be validated.
-     * @param limitRequired Specifies if the limit parameter is required and should be a positive integer.
-     * @throws PineconeValidationException if any parameter fails its validation check based on its requirements.
-     */
-    public static void validateListEndpointParameters(String namespace, String prefix, String paginationToken, Integer limit
-            , boolean prefixRequired, boolean paginationTokenRequired, boolean limitRequired) {
-        if (namespace == null || namespace.isEmpty()) {
-            throw new PineconeValidationException("Namespace cannot be null or empty");
-        }
-        if (prefixRequired && (prefix == null || prefix.isEmpty())) {
-            throw new PineconeValidationException("Prefix cannot be null or empty");
-        }
-        if (paginationTokenRequired && (paginationToken == null || paginationToken.isEmpty())) {
-            throw new PineconeValidationException("Pagination token cannot be null or empty");
-        }
-        if (limitRequired && (limit == null || limit <= 0)) {
-            throw new PineconeValidationException("Limit must be a positive integer");
-        }
     }
 
 
