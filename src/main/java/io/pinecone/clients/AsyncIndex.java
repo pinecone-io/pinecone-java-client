@@ -849,20 +849,68 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
         return asyncStub.describeIndexStats(describeIndexStatsRequest);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>Example</p>
+     *  <pre>{@code
+     *      import io.pinecone.clients.Index;
+     *      import io.pinecone.clients.Pinecone;
+     *      import io.pinecone.proto.ListResponse;
+     *
+     *      Pinecone pc = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+     *      String indexName = "example-async-index";
+     *      AsyncIndex asyncIndex = pc.getAsyncIndexConnection(indexName);
+     *      ListenableFuture<ListResponse> futureResponse = asyncIndex.list("example-namespace");
+     *      ListResponse asyncListResponse = Futures.getUnchecked(futureResponse);
+     *      System.out.println(asyncListResponse);
+     *  }</pre>
+     */
     @Override
-    public ListenableFuture<ListResponse>  list(String namespace) {
+    public ListenableFuture<ListResponse> list(String namespace) {
         validateListEndpointParameters(namespace, null, null, null, false, false, false);
         ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).setLimit(100).build();
         return asyncStub.list(listRequest);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>Example</p>
+     *  <pre>{@code
+     *      import io.pinecone.clients.Index;
+     *      import io.pinecone.clients.Pinecone;
+     *      import io.pinecone.proto.ListResponse;
+     *
+     *      Pinecone pc = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+     *      String indexName = "example-async-index";
+     *      AsyncIndex asyncIndex = pc.getAsyncIndexConnection(indexName);
+     *      ListenableFuture<ListResponse> futureResponse = asyncIndex.list("example-namespace", 10);
+     *      ListResponse asyncListResponse = Futures.getUnchecked(futureResponse);
+     *      System.out.println(asyncListResponse);
+     *  }</pre>
+     */
     @Override
-    public ListenableFuture<ListResponse>  list(String namespace, Integer limit) {
+    public ListenableFuture<ListResponse> list(String namespace, Integer limit) {
         validateListEndpointParameters(namespace, null, null, limit, false, false, true);
         ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).setLimit(limit).build();
         return asyncStub.list(listRequest);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>Example</p>
+     *  <pre>{@code
+     *      import io.pinecone.clients.Index;
+     *      import io.pinecone.clients.Pinecone;
+     *      import io.pinecone.proto.ListResponse;
+     *
+     *      Pinecone pc = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+    *       String indexName = "example-async-index";
+     *      AsyncIndex asyncIndex = pc.getAsyncIndexConnection(indexName);
+     *      ListenableFuture<ListResponse> futureResponse = asyncIndex.list("example-namespace", "prefix-");
+     *      ListResponse asyncListResponse = Futures.getUnchecked(futureResponse);
+     *      System.out.println(asyncListResponse);
+     *  }</pre>
+     */
     @Override
     public ListenableFuture<ListResponse> list(String namespace, String prefix) {
         validateListEndpointParameters(namespace, prefix, null, null, true, false, false);
@@ -870,24 +918,89 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
         return asyncStub.list(listRequest);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>Example</p>
+     *  <pre>{@code
+     *      import io.pinecone.clients.Index;
+     *      import io.pinecone.clients.Pinecone;
+     *      import io.pinecone.proto.ListResponse;
+     *
+     *      Pinecone pc = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+     *      String indexName = "example-async-index";
+     *      AsyncIndex asyncIndex = pc.getAsyncIndexConnection(indexName);
+     *      ListenableFuture<ListResponse> futureResponse = asyncIndex.list("example-namespace", "prefix-", 10);
+     *      ListResponse asyncListResponse = Futures.getUnchecked(futureResponse);
+     *      System.out.println(asyncListResponse);
+     *  }</pre>
+     */
     @Override
-    public ListenableFuture<ListResponse>  list(String namespace, String prefix, Integer limit) {
+    public ListenableFuture<ListResponse> list(String namespace, String prefix, Integer limit) {
         validateListEndpointParameters(namespace, prefix, null, limit, true, false, true);
         ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).setPrefix(prefix).
                 setLimit(limit).build();
         return asyncStub.list(listRequest);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>Example</p>
+     *  <pre>{@code
+     *      import io.pinecone.clients.Index;
+     *      import io.pinecone.clients.Pinecone;
+     *      import io.pinecone.proto.ListResponse;
+     *
+     *      Pinecone pc = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+    *       String indexName = "example-async-index";
+     *      AsyncIndex asyncIndex = pc.getAsyncIndexConnection(indexName);
+     *      ListenableFuture<ListResponse> futureResponse = asyncIndex.list("example-namespace", "prefix-", "some-pagToken");
+     *      ListResponse asyncListResponse = Futures.getUnchecked(futureResponse);
+     *      System.out.println(asyncListResponse);
+     *  }</pre>
+     */
     @Override
-    public ListenableFuture<ListResponse>  list(String namespace, String prefix, String paginationToken) {
+    public ListenableFuture<ListResponse> list(String namespace, String prefix, String paginationToken) {
         validateListEndpointParameters(namespace, prefix, paginationToken, null, true, true, false);
         ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).setPrefix(prefix).
                 setPaginationToken(paginationToken).setLimit(100).build();
         return asyncStub.list(listRequest);
     }
 
+    /**
+     * Base method that retrieves a list of vector IDs from a specific namespace within an index.
+     *
+     * <p>The method internally constructs a {@link ListRequest} using the provided namespace
+     * and the provided limit, which cuts off the response after the specified number of IDs. It filters the
+     * retrieve IDs to match a provided prefix. It also can accept a pagination token to deterministically paginate
+     * through a list of vector IDs. It then makes a synchronous RPC call to fetch the list of vector IDs.</p>
+     *
+     * <p>Example</p>
+     *  <pre>{@code
+     *      import io.pinecone.clients.Index;
+     *      import io.pinecone.clients.Pinecone;
+     *      import io.pinecone.proto.ListResponse;
+     *
+     *      Pinecone pc = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+    *       String indexName = "example-async-index";
+     *      AsyncIndex asyncIndex = pc.getAsyncIndexConnection(indexName);
+     *      ListenableFuture<ListResponse> futureResponse = asyncIndex.list("example-namespace", "prefix-", "some-pagToken", 10);
+     *      ListResponse asyncListResponse = Futures.getUnchecked(futureResponse);
+     *      System.out.println(asyncListResponse);
+     *  * }</pre>
+     *
+     * @param namespace The namespace that holds the vector IDs you want to retrieve. Cannot be {@code null} or empty.
+     * @param prefix The prefix with which vector IDs must start to be included in the response.
+     * @param paginationToken The token to paginate through the list of vector IDs.
+     * @param limit The maximum number of vector IDs you want to retrieve.
+     * @return {@link ListResponse} containing the list of vector IDs fetched from the specified namespace.
+     *         The response includes vector IDs up to 100 items.
+     * @throws IllegalArgumentException if the namespace parameter is {@code null} or empty, as validated
+     *         by {@link #validateListEndpointParameters}.
+     * @throws RuntimeException if there are issues processing the request or communicating with the server.
+     *         This includes network issues, server errors, or serialization issues with the request or response.
+     */
     @Override
-    public ListenableFuture<ListResponse>  list(String namespace, String prefix, String paginationToken, Integer limit) {
+    public ListenableFuture<ListResponse> list(String namespace, String prefix, String paginationToken, Integer limit) {
         validateListEndpointParameters(namespace, prefix, paginationToken, limit, true, true, true);
         ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).setPrefix(prefix).
                 setPaginationToken(paginationToken).setLimit(limit).build();
