@@ -81,8 +81,13 @@ public class TestIndexResourcesManager {
         return dimension;
     }
 
+
     public String getEnvironment() {
         return environment;
+    }
+
+    public String getNamespace() {
+        return this.namespace;
     }
 
     public List<String> getVectorIds() {
@@ -104,9 +109,6 @@ public class TestIndexResourcesManager {
         return collectionModel;
     }
 
-    public String getNamespace() {
-        return this.namespace;
-    }
 
     public void cleanupResources() {
         if (podIndexName != null) {
