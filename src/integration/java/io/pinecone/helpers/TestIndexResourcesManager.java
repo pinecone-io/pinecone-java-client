@@ -43,7 +43,8 @@ public class TestIndexResourcesManager {
     private String collectionName;
     private CollectionModel collectionModel;
     private final List<String> vectorIds = Arrays.asList("id1", "id2", "prefix-id3");
-    private final String namespace = "example-namespace";
+    private final String customNamespace = "example-namespace";
+    private final String defaultNamespace = "";
 
 
     private TestIndexResourcesManager() {
@@ -86,8 +87,12 @@ public class TestIndexResourcesManager {
         return environment;
     }
 
-    public String getNamespace() {
-        return this.namespace;
+    public String getCustomNamespace() {
+        return this.customNamespace;
+    }
+
+    public String getDefaultNamespace() {
+        return this.defaultNamespace;
     }
 
     public List<String> getVectorIds() {
@@ -199,7 +204,12 @@ public class TestIndexResourcesManager {
     private void seedIndex(List<String> vectorIds, String indexName) throws InterruptedException {
         // Build upsert request
         Index indexClient = pineconeClient.getIndexConnection(indexName);
-        indexClient.upsert(buildRequiredUpsertRequestByDimension(vectorIds, dimension), namespace);
+
+        // Upsert vectors into both custom and default namespaces
+        List<String> namespaces = Arrays.asList(customNamespace, defaultNamespace);
+        for (String namespace : namespaces) {
+            indexClient.upsert(buildRequiredUpsertRequestByDimension(vectorIds, dimension), namespace);
+        }
 
         // Wait for record freshness
         DescribeIndexStatsResponse indexStats = indexClient.describeIndexStats();
