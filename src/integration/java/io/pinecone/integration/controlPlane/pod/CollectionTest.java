@@ -110,7 +110,7 @@ public class CollectionTest {
                 assertEquals(describeResponse.getTotalVectorCount(), 3);
 
                 // Verify the vectors from the collection -> new index can be fetched
-                FetchResponse fetchedVectors = indexClient.fetch(upsertIds, "");
+                FetchResponse fetchedVectors = indexClient.fetch(upsertIds, "example-namespace");
                 for (String key : upsertIds) {
                     assertTrue(fetchedVectors.containsVectors(key));
                 }
