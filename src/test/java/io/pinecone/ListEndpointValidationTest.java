@@ -35,11 +35,8 @@ public class ListEndpointValidationTest {
         index = new Index(connectionMock, indexName);
     }
 
-    // TODO: write one for no args
-    // TODO: write ones for async
-
     @Test
-    public void testValidateSyncListNamespace() throws IOException {
+    public void testValidateListNamespace() throws IOException {
         PineconeValidationException thrownNullNamespace = assertThrows(PineconeValidationException.class, () -> {
             index.validateListEndpointParameters(null, null, null, null, true, true, true, true);
         });
@@ -49,11 +46,10 @@ public class ListEndpointValidationTest {
             index.validateListEndpointParameters("", null, null, null, true, true, true, true);
         });
         assertEquals("Namespace cannot be null or empty", thrownEmptyNamespace.getMessage());
-
     }
 
     @Test
-    public void testValidateSyncListPrefix() throws IOException {
+    public void testValidateListPrefix() throws IOException {
         PineconeValidationException thrownNullPrefix = assertThrows(PineconeValidationException.class, () -> {
             index.validateListEndpointParameters("test-namespace", null, null, null, true, true, true, true);
         });
@@ -69,7 +65,7 @@ public class ListEndpointValidationTest {
     }
 
     @Test
-    public void testValidateSyncListPagToken() throws IOException {
+    public void testValidateListPagToken() throws IOException {
         PineconeValidationException thrownNullPagToken = assertThrows(PineconeValidationException.class, () -> {
             index.validateListEndpointParameters("test-namespace", "", null, null, false, false, true, true);
         });
@@ -85,7 +81,7 @@ public class ListEndpointValidationTest {
     }
 
     @Test
-    public void testValidateSyncListLimit() throws IOException {
+    public void testValidateListLimit() throws IOException {
         PineconeValidationException thrownNegativeLimit = assertThrows(PineconeValidationException.class, () -> {
             index.validateListEndpointParameters("test-namespace", "", "", -1, false, false, false, true);
         });
