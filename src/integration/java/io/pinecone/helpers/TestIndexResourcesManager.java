@@ -104,6 +104,10 @@ public class TestIndexResourcesManager {
         return collectionModel;
     }
 
+    public String getNamespace() {
+        return this.namespace;
+    }
+
     public void cleanupResources() {
         if (podIndexName != null) {
             pineconeClient.deleteIndex(podIndexName);

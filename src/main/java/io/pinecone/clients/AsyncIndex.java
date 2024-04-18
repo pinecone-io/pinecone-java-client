@@ -939,7 +939,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
     /**
      * {@inheritDoc}
      *
-     * <p>Example>
+     * <p>Example
      *  <pre>{@code
      *     import io.pinecone.proto.ListResponse;
      *     import com.google.common.util.concurrent.Futures;

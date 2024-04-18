@@ -24,6 +24,7 @@ import static io.pinecone.utils.SparseIndicesConverter.convertUnsigned32IntToSig
  * @param <W> The return type for update operations.
  * @param <X> The return type for delete operations.
  * @param <Y> The return type for describing index stats.
+ * @param <Z> The return type for listing vector IDs.
  */
 public interface IndexInterface<T, U, V, W, X, Y, Z> extends AutoCloseable {
 

@@ -35,12 +35,14 @@ public class CollectionTest {
     private static CollectionModel collection;
     private static String indexName;
     private static String collectionName;
+    private static String namespace;
 
     @BeforeAll
     public static void setUp() throws InterruptedException {
         indexName = indexManager.getPodIndexName();
         collectionName = indexManager.getCollectionName();
         collection = indexManager.getCollectionModel();
+        namespace = indexManager.getNamespace();
     }
 
     @AfterAll
@@ -110,7 +112,7 @@ public class CollectionTest {
                 assertEquals(describeResponse.getTotalVectorCount(), 3);
 
                 // Verify the vectors from the collection -> new index can be fetched
-                FetchResponse fetchedVectors = indexClient.fetch(upsertIds, "example-namespace");
+                FetchResponse fetchedVectors = indexClient.fetch(upsertIds, namespace);
                 for (String key : upsertIds) {
                     assertTrue(fetchedVectors.containsVectors(key));
                 }
