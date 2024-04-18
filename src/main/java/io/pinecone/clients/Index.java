@@ -782,7 +782,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p>Example</p>
+     * <p> Example:
      *  <pre>{@code
      *     import io.pinecone.proto.ListResponse;
      *
@@ -801,7 +801,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p>Example</p>
+     * <p>Example:
      *  <pre>{@code
      *     import io.pinecone.proto.ListResponse;
      *
@@ -819,7 +819,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p>Example</p>
+     * <p>Example:
      *  <pre>{@code
      *     import io.pinecone.proto.ListResponse;
      *
@@ -837,7 +837,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p>Example</p>
+     * <p>Example:
      *  <pre>{@code
      *     import io.pinecone.proto.ListResponse;
      *
@@ -856,7 +856,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p>Example</p>
+     * <p> Example:
      *  <pre>{@code
      *     import io.pinecone.proto.ListResponse;
      *
@@ -876,7 +876,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * {@inheritDoc}
-     * <p>Example</p>
+     * <p>Example:
      *  <pre>{@code
      *     import io.pinecone.proto.ListResponse;
      *
@@ -894,30 +894,28 @@ public class Index implements IndexInterface<UpsertResponse,
     }
 
     /**
-     * Base method that retrieves a list of vector IDs from a specific namespace within an index.
+     * <p>Base method that retrieves a list of vector IDs from a specific namespace within an index.
      *
      * <p>The method internally constructs a {@link ListRequest} using the provided namespace
      * and the provided limit, which cuts off the response after the specified number of IDs. It filters the
      * retrieve IDs to match a provided prefix. It also can accept a pagination token to deterministically paginate
-     * through a list of vector IDs. It then makes a synchronous RPC call to fetch the list of vector IDs.</p>
+     * through a list of vector IDs. It then makes a synchronous RPC call to fetch the list of vector IDs.
      *
-     * <p>Example</p>
+     * <p>Example:
      *  <pre>{@code
      *     import io.pinecone.proto.ListResponse;
      *
      *     ...
      *
      *     ListResponse listResponse = index.list("example-namespace", "st-", "some-pagToken", 10);
-     *  * }</pre>
-     *
-     * @param namespace The namespace that holds the vector IDs you want to retrieve. Cannot be {@code null} or empty.
+     *   }</pre>
+     * @param namespace The namespace that holds the vector IDs you want to retrieve. If namespace is not specified,
+     *                  the default namespace is used.
      * @param prefix The prefix with which vector IDs must start to be included in the response.
      * @param paginationToken The token to paginate through the list of vector IDs.
      * @param limit The maximum number of vector IDs you want to retrieve.
      * @return {@link ListResponse} containing the list of vector IDs fetched from the specified namespace.
-     *         The response includes vector IDs up to 100 items.
-     * @throws IllegalArgumentException if the namespace parameter is {@code null} or empty, as validated
-     *         by {@link #validateListEndpointParameters}.
+     *         The response includes vector IDs up to {@code 100} items.
      * @throws RuntimeException if there are issues processing the request or communicating with the server.
      *         This includes network issues, server errors, or serialization issues with the request or response.
      */

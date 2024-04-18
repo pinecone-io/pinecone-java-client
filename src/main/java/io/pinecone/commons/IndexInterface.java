@@ -699,12 +699,12 @@ public interface IndexInterface<T, U, V, W, X, Y, Z> extends AutoCloseable {
     Y describeIndexStats(Struct filter);
 
     /**
-     * Validates the parameters for a list endpoint operation.
+     * <p>Validates the parameters for a list endpoint operation.
      *
-     * <p>It throws a {@link PineconeValidationException} if any required validation fails. The "...Required"
-     * parameters are to indicate which method signature is used.</p>
+     * <p>It throws a {@link PineconeValidationException} if any required validation fails. The {@code "...Required"}
+     * parameters indicate which method signature is used.
      *
-     * <p>Example</p>
+     * <p>Example
      * <pre>{@code
      *      try {
      *          String namespace = "example-namespace";
@@ -720,17 +720,18 @@ public interface IndexInterface<T, U, V, W, X, Y, Z> extends AutoCloseable {
      *          }
      * }</pre>
      *:
-     * @param namespace The namespace parameter which cannot be null or empty.
+     * @param namespace The namespace parameter which is validated based on the {@code namespaceRequired} flag.
      * @param prefix The prefix parameter which is validated based on the {@code prefixRequired} flag.
      * @param paginationToken The pagination token parameter which is validated based on the {@code paginationTokenRequired} flag.
      * @param limit The limit for the number of items, validated to be a positive integer if {@code limitRequired} is true.
+     * @param namespaceRequired Specifies if the namespace parameter is required and should be validated.
      * @param prefixRequired Specifies if the prefix parameter is required and should be validated.
      * @param paginationTokenRequired Specifies if the pagination token parameter is required and should be validated.
      * @param limitRequired Specifies if the limit parameter is required and should be a positive integer.
      * @throws PineconeValidationException if any parameter fails its validation check based on its requirements.
      */
     default void validateListEndpointParameters(String namespace, String prefix, String paginationToken, Integer limit
-            ,boolean namespaceRequired , boolean prefixRequired, boolean paginationTokenRequired,
+            , boolean namespaceRequired, boolean prefixRequired, boolean paginationTokenRequired,
                                                 boolean limitRequired) {
         if (namespaceRequired && (namespace == null || namespace.isEmpty())) {
             throw new PineconeValidationException("Namespace cannot be null or empty");
@@ -747,14 +748,14 @@ public interface IndexInterface<T, U, V, W, X, Y, Z> extends AutoCloseable {
     }
 
     /**
-     * Retrieves up to 100 vector IDs from an index.
+     * Retrieves up to {@code 100} vector IDs from an index from the default namespace.
      *
      * @return A generic type {@code Y} that contains vector IDs.
      */
     Z list();
 
     /**
-     * Retrieves up to 100 vector IDs from a given namespace.
+     * Retrieves up to {@code 100} vector IDs from a given namespace.
      *
      * @param namespace The namespace that holds the vector IDs you want to retrieve.
      * @return A generic type {@code Y} that contains vector IDs.
@@ -762,7 +763,7 @@ public interface IndexInterface<T, U, V, W, X, Y, Z> extends AutoCloseable {
     Z list(String namespace);
 
     /**
-     * Retrieves up to `n` vector IDs from a given namespace, where `limit` == `n`.
+     * Retrieves up to {@code n} vector IDs from a given namespace, where {@code limit} == {@code n}.
      *
      * @param namespace The namespace that holds the vector IDs you want to retrieve.
      * @param limit The maximum number of vector IDs to retrieve.
@@ -771,7 +772,7 @@ public interface IndexInterface<T, U, V, W, X, Y, Z> extends AutoCloseable {
     Z list(String namespace, Integer limit);
 
     /**
-     * Retrieves up to 100 vector IDs from a given namespace, filtered by a given prefix.
+     * Retrieves up to {@code 100} vector IDs from a given namespace, filtered by a given prefix.
      *
      * @param namespace The namespace that holds the vector IDs you want to retrieve.
      * @param prefix: The prefix to filter the vector IDs by.
@@ -780,7 +781,7 @@ public interface IndexInterface<T, U, V, W, X, Y, Z> extends AutoCloseable {
     Z list(String namespace, String prefix);
 
     /**
-     * Retrieves up to `n` vector IDs from a given namespace, filtered by a given prefix, where `limit` == `n`.
+     * Retrieves up to {@code n} vector IDs from a given namespace, filtered by a given prefix, where {@code limit}` == {@code n}.
      *
      * @param namespace The namespace that holds the vector IDs you want to retrieve.
      * @param prefix The prefix to filter the vector IDs by.
@@ -790,7 +791,8 @@ public interface IndexInterface<T, U, V, W, X, Y, Z> extends AutoCloseable {
     Z list(String namespace, String prefix, Integer limit);
 
     /**
-     * Retrieves up to 100 vector IDs from a given namespace, filtered by a given prefix, targeted with a specific
+     * Retrieves up to {@code 100} vector IDs from a given namespace, filtered by a given prefix, targeted with a
+     * specific
      * paginationToken.
      *
      * @param namespace The namespace that holds the vector IDs you want to retrieve.
@@ -800,8 +802,8 @@ public interface IndexInterface<T, U, V, W, X, Y, Z> extends AutoCloseable {
     Z list(String namespace, String prefix, String paginationToken);
 
     /**
-     * Retrieves up to `n` vector IDs from a given namespace, filtered by a given prefix, targeted with a specific
-     * paginationToken, where `limit` == `n`.
+     * Retrieves up to {@code n} vector IDs from a given namespace, filtered by a given prefix, targeted with a specific
+     * paginationToken, where {@code limit} == {@code n}.
      *
      * @param namespace The namespace that holds the vector IDs you want to retrieve.
      * @param prefix The prefix to filter the vector IDs by.
