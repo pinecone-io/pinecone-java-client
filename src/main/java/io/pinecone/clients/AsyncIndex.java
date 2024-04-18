@@ -851,7 +851,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
     /**
      * {@inheritDoc}
      *
-     * <p>Example
+     * <p>Example:
      *  <pre>{@code
      *     import io.pinecone.proto.ListResponse;
      *     import com.google.common.util.concurrent.Futures;
@@ -873,7 +873,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
     /**
      * {@inheritDoc}
      *
-     * <p>Example
+     * <p>Example:
      *  <pre>{@code
      *     import io.pinecone.proto.ListResponse;
      *     import com.google.common.util.concurrent.Futures;
@@ -895,7 +895,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
     /**
      * {@inheritDoc}
      *
-     * <p>Example
+     * <p>Example:
      *  <pre>{@code
      *     import io.pinecone.proto.ListResponse;
      *     import com.google.common.util.concurrent.Futures;
@@ -917,7 +917,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
     /**
      * {@inheritDoc}
      *
-     * <p>Example
+     * <p>Example:
      *  <pre>{@code
      *     import io.pinecone.proto.ListResponse;
      *     import com.google.common.util.concurrent.Futures;
@@ -939,7 +939,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
     /**
      * {@inheritDoc}
      *
-     * <p>Example
+     * <p>Example:
      *  <pre>{@code
      *     import io.pinecone.proto.ListResponse;
      *     import com.google.common.util.concurrent.Futures;
@@ -962,7 +962,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
     /**
      * {@inheritDoc}
      *
-     * <p>Example
+     * <p>Example:
      *  <pre>{@code
      *     import io.pinecone.proto.ListResponse;
      *     import com.google.common.util.concurrent.Futures;
@@ -990,7 +990,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      * retrieve IDs to match a provided prefix. It also can accept a pagination token to deterministically paginate
      * through a list of vector IDs. It then makes a synchronous RPC call to fetch the list of vector IDs.</p>
      *
-     * <p>Example
+     * <p>Example:
      *  <pre>{@code
      *     import io.pinecone.proto.ListResponse;
      *     import com.google.common.util.concurrent.Futures;
