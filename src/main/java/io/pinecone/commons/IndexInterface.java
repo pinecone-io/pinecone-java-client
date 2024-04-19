@@ -770,7 +770,7 @@ public interface IndexInterface<T, U, V, W, X, Y, Z> extends AutoCloseable {
      * @param limit The maximum number of vector IDs to retrieve.
      * @return A generic type {@code Y} that contains vector IDs.
      */
-    Z list(String namespace, Integer limit);
+    Z list(String namespace, int limit);
 
     /**
      * Retrieves up to {@code 100} vector IDs from a given namespace, filtered by a given prefix.
@@ -789,7 +789,7 @@ public interface IndexInterface<T, U, V, W, X, Y, Z> extends AutoCloseable {
      * @param limit The maximum number of vector IDs to retrieve.
      * @return A generic type {@code Y} that contains vector IDs.
      */
-    Z list(String namespace, String prefix, Integer limit);
+    Z list(String namespace, String prefix, int limit);
 
     /**
      * Retrieves up to {@code 100} vector IDs from a given namespace, filtered by a given prefix, targeted with a
@@ -812,6 +812,6 @@ public interface IndexInterface<T, U, V, W, X, Y, Z> extends AutoCloseable {
      * @param limit The maximum number of vector IDs to retrieve.
      * @return A generic type {@code Y} that contains vector IDs.
      */
-    Z list(String namespace, String prefix, String paginationToken, Integer limit);
+    Z list(String namespace, String prefix, String paginationToken, int limit);
 
 }
