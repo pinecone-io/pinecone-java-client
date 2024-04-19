@@ -29,7 +29,7 @@ public class CollectionTest {
     private static final Logger logger = LoggerFactory.getLogger(CollectionTest.class);
     private static final ArrayList<String> indexesToCleanUp = new ArrayList<>();
     private static final String indexMetric = IndexMetric.COSINE.toString();
-    private static final List<String> upsertIds = indexManager.getVectorIds();
+    private static final List<String> upsertIds = indexManager.getVectorIdsFromDefaultNamespace();
     private static final String environment = indexManager.getEnvironment();
     private static final int dimension = indexManager.getDimension();
     private static CollectionModel collection;
@@ -79,7 +79,7 @@ public class CollectionTest {
 
         assertEquals(collection.getStatus(), CollectionModel.StatusEnum.READY);
         assertEquals(collection.getDimension(), dimension);
-        assertEquals(collection.getVectorCount(), 6);
+        assertEquals(collection.getVectorCount(), 8);
         assertNotEquals(collection.getVectorCount(), null);
         assertTrue(collection.getSize() > 0);
 
@@ -109,7 +109,7 @@ public class CollectionTest {
                 DescribeIndexStatsResponse describeResponse = indexClient.describeIndexStats();
 
                 // Verify stats reflect the vectors in the collection
-                assertEquals(describeResponse.getTotalVectorCount(), 6);
+                assertEquals(describeResponse.getTotalVectorCount(), 8);
 
                 // Verify the vectors from the collection -> new index can be fetched
                 FetchResponse fetchedVectors = indexClient.fetch(upsertIds, namespace);
