@@ -731,9 +731,9 @@ public interface IndexInterface<T, U, V, W, X, Y, Z> extends AutoCloseable {
      * @param limitRequired Specifies if the limit parameter is required and should be a positive integer.
      * @throws PineconeValidationException if any parameter fails its validation check based on its requirements.
      */
-    default void validateListEndpointParameters(String namespace, String prefix, String paginationToken, Integer limit
-            , boolean namespaceRequired, boolean prefixRequired, boolean paginationTokenRequired,
-                                                boolean limitRequired) {
+    default void validateListEndpointParameters(String namespace, String prefix, String paginationToken,
+                                                Integer limit, boolean namespaceRequired, boolean prefixRequired,
+                                                boolean paginationTokenRequired, boolean limitRequired) {
         if (namespaceRequired && (namespace == null || namespace.isEmpty())) {
             throw new PineconeValidationException("Namespace cannot be null or empty");
         }
