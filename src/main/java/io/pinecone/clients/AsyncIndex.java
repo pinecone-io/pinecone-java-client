@@ -908,7 +908,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      *  }</pre>
      */
     @Override
-    public ListenableFuture<ListResponse> list(String namespace, Integer limit) {
+    public ListenableFuture<ListResponse> list(String namespace, int limit) {
         validateListEndpointParameters(namespace, null, null, limit, true, false, false, true);
         ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).setLimit(limit).build();
         return asyncStub.list(listRequest);
@@ -952,7 +952,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      *  }</pre>
      */
     @Override
-    public ListenableFuture<ListResponse> list(String namespace, String prefix, Integer limit) {
+    public ListenableFuture<ListResponse> list(String namespace, String prefix, int limit) {
         validateListEndpointParameters(namespace, prefix, null, limit, true, true, false, true);
         ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).setPrefix(prefix).
                 setLimit(limit).build();
@@ -1013,7 +1013,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      *         This includes network issues, server errors, or serialization issues with the request or response.
      */
     @Override
-    public ListenableFuture<ListResponse> list(String namespace, String prefix, String paginationToken, Integer limit) {
+    public ListenableFuture<ListResponse> list(String namespace, String prefix, String paginationToken, int limit) {
         validateListEndpointParameters(namespace, prefix, paginationToken, limit, true, true, true, true);
         ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).setPrefix(prefix).
                 setPaginationToken(paginationToken).setLimit(limit).build();
