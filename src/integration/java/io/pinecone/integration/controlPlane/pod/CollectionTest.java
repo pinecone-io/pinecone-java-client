@@ -42,7 +42,7 @@ public class CollectionTest {
         indexName = indexManager.getPodIndexName();
         collectionName = indexManager.getCollectionName();
         collection = indexManager.getCollectionModel();
-        namespace = indexManager.getCustomNamespace();
+        namespace = indexManager.getDefaultNamespace();
     }
 
     @AfterAll
@@ -79,7 +79,7 @@ public class CollectionTest {
 
         assertEquals(collection.getStatus(), CollectionModel.StatusEnum.READY);
         assertEquals(collection.getDimension(), dimension);
-        assertEquals(collection.getVectorCount(), 8);
+        assertEquals(collection.getVectorCount(), 4);
         assertNotEquals(collection.getVectorCount(), null);
         assertTrue(collection.getSize() > 0);
 
@@ -109,7 +109,7 @@ public class CollectionTest {
                 DescribeIndexStatsResponse describeResponse = indexClient.describeIndexStats();
 
                 // Verify stats reflect the vectors in the collection
-                assertEquals(describeResponse.getTotalVectorCount(), 8);
+                assertEquals(describeResponse.getTotalVectorCount(), 4);
 
                 // Verify the vectors from the collection -> new index can be fetched
                 FetchResponse fetchedVectors = indexClient.fetch(upsertIds, namespace);

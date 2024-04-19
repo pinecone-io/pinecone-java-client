@@ -147,7 +147,7 @@ public class TestIndexResourcesManager {
         Thread.sleep(30000);
 
         // Seed default vector IDs into default namespace
-        seedDefaultNamespace(indexName);
+        seedIndex(vectorIdsForDefaultNamespace, indexName, defaultNamespace);
 
         this.podIndexName = indexName;
         return indexName;
@@ -169,8 +169,8 @@ public class TestIndexResourcesManager {
 
         // Seed default vector IDs into default namespace, seed custom vector IDs into custom namespace; all in
         // same index
-        seedDefaultNamespace(indexName);
-        seedCustomNamespace(indexName);
+        seedIndex(vectorIdsForDefaultNamespace, indexName, defaultNamespace);
+        seedIndex(vectorIdsForCustomNamespace, indexName, customNamespace);
 
         this.serverlessIndexName = indexName;
         return indexName;
@@ -207,37 +207,13 @@ public class TestIndexResourcesManager {
         return collectionName;
     }
 
-    private void seedDefaultNamespace(String indexName) throws InterruptedException {
+    private void seedIndex(List<String> vectorIds, String indexName, String namespace) throws InterruptedException {
         // Build upsert request
         Index indexClient = pineconeClient.getIndexConnection(indexName);
-
-        // Upsert vectors into both default namespace
-        indexClient.upsert(buildRequiredUpsertRequestByDimension(vectorIdsForDefaultNamespace, dimension), defaultNamespace);
+        indexClient.upsert(buildRequiredUpsertRequestByDimension(vectorIds, dimension), namespace);
 
         // Wait for record freshness
         DescribeIndexStatsResponse indexStats = indexClient.describeIndexStats();
-
-        int totalTimeWaitedForVectors = 0;
-        while (indexStats.getTotalVectorCount() == 0 || totalTimeWaitedForVectors <= 60000) {
-            Thread.sleep(2000);
-            totalTimeWaitedForVectors += 2000;
-            indexStats = indexClient.describeIndexStats();
-        }
-        if (indexStats.getTotalVectorCount() == 0 && totalTimeWaitedForVectors >= 60000) {
-            throw new PineconeException("Failed to seed index " + indexName + "with vectors");
-        }
-    }
-
-    private void seedCustomNamespace(String indexName) throws InterruptedException {
-        // Build upsert request
-        Index indexClient = pineconeClient.getIndexConnection(indexName);
-
-        // Upsert vectors into both custom namespace
-        indexClient.upsert(buildRequiredUpsertRequestByDimension(vectorIdsForCustomNamespace, dimension), customNamespace);
-
-        // Wait for record freshness
-        DescribeIndexStatsResponse indexStats = indexClient.describeIndexStats();
-
         int totalTimeWaitedForVectors = 0;
         while (indexStats.getTotalVectorCount() == 0 || totalTimeWaitedForVectors <= 60000) {
             Thread.sleep(2000);
