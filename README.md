@@ -327,6 +327,26 @@ List<String> ids = Arrays.asList("v1", "v2", "v3");
 FetchResponse fetchResponse = index.fetch(ids, "example-namespace");
 ```
 
+## List vector IDs
+The following example lists up to 100 vector IDs from a Pinecone index.
+
+This method accepts optional parameters for `namespace`, `prefix`, `limit`, and `paginationToken`. 
+
+The following 
+demonstrates how to use the `list` endpoint to get vector IDs from a specific `namespace`, filtered by a given `prefix`.
+
+```java
+import io.pinecone.clients.Index;
+import io.pinecone.clients.Pinecone;
+import io.pinecone.proto.ListResponse;
+
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+String indexName = "example-index";
+Index index = pinecone.getIndexConnection(indexName);
+ListResponse listResponse = index.list("example-namespace", "prefix-");
+```
+
+
 ## Update vectors
 
 The following example updates vectors by ID.

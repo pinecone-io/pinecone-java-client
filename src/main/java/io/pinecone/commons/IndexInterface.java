@@ -24,8 +24,9 @@ import static io.pinecone.utils.SparseIndicesConverter.convertUnsigned32IntToSig
  * @param <W> The return type for update operations.
  * @param <X> The return type for delete operations.
  * @param <Y> The return type for describing index stats.
+ * @param <Z> The return type for listing vector IDs.
  */
-public interface IndexInterface<T, U, V, W, X, Y> extends AutoCloseable {
+public interface IndexInterface<T, U, V, W, X, Y, Z> extends AutoCloseable {
 
     /**
      * Validates and builds an upsert request with a single vector and optional namespace.
@@ -697,4 +698,120 @@ public interface IndexInterface<T, U, V, W, X, Y> extends AutoCloseable {
      * @return A generic type {@code Y} that contains the stats about the index.
      */
     Y describeIndexStats(Struct filter);
+
+    /**
+     * <p>Validates the parameters for a list endpoint operation.
+     *
+     * <p>It throws a {@link PineconeValidationException} if any required validation fails. The {@code "...Required"}
+     * parameters indicate which method signature is used.
+     *
+     * <p>Example
+     * <pre>{@code
+     *      try {
+     *          String namespace = "example-namespace";
+     *          String prefix = "example-prefix";
+     *          String paginationToken = "token123";
+     *          Integer limit = 50;
+     *
+     *           // Indicate which parameters are required
+     *          validateListEndpointParameters(namespace, prefix, paginationToken, limit, true, true, true);
+     *
+     *          } catch (PineconeValidationException e) {
+     *           System.err.println("Validation error: " + e.getMessage());
+     *          }
+     * }</pre>
+     *:
+     * @param namespace The namespace parameter which is validated based on the {@code namespaceRequired} flag.
+     * @param prefix The prefix parameter which is validated based on the {@code prefixRequired} flag.
+     * @param paginationToken The pagination token parameter which is validated based on the {@code paginationTokenRequired} flag.
+     * @param limit The limit for the number of items, validated to be a positive integer if {@code limitRequired} is true.
+     * @param namespaceRequired Specifies if the namespace parameter is required and should be validated.
+     * @param prefixRequired Specifies if the prefix parameter is required and should be validated.
+     * @param paginationTokenRequired Specifies if the pagination token parameter is required and should be validated.
+     * @param limitRequired Specifies if the limit parameter is required and should be a positive integer.
+     * @throws PineconeValidationException if any parameter fails its validation check based on its requirements.
+     */
+    default void validateListEndpointParameters(String namespace, String prefix, String paginationToken,
+                                                Integer limit, boolean namespaceRequired, boolean prefixRequired,
+                                                boolean paginationTokenRequired, boolean limitRequired) {
+        if (namespaceRequired && (namespace == null || namespace.isEmpty())) {
+            throw new PineconeValidationException("Namespace cannot be null or empty");
+        }
+        if (prefixRequired && (prefix == null || prefix.isEmpty())) {
+            throw new PineconeValidationException("Prefix cannot be null or empty");
+        }
+        if (paginationTokenRequired && (paginationToken == null || paginationToken.isEmpty())) {
+            throw new PineconeValidationException("Pagination token cannot be null or empty");
+        }
+        if (limitRequired && (limit == null || limit <= 0)) {
+            throw new PineconeValidationException("Limit must be a positive integer");
+        }
+    }
+
+    /**
+     * Retrieves up to {@code 100} vector IDs from an index from the default namespace.
+     *
+     * @return A generic type {@code Y} that contains vector IDs.
+     */
+    Z list();
+
+    /**
+     * Retrieves up to {@code 100} vector IDs from a given namespace.
+     *
+     * @param namespace The namespace that holds the vector IDs you want to retrieve.
+     * @return A generic type {@code Y} that contains vector IDs.
+     */
+    Z list(String namespace);
+
+    /**
+     * Retrieves up to {@code n} vector IDs from a given namespace, where {@code limit} == {@code n}.
+     *
+     * @param namespace The namespace that holds the vector IDs you want to retrieve.
+     * @param limit The maximum number of vector IDs to retrieve.
+     * @return A generic type {@code Y} that contains vector IDs.
+     */
+    Z list(String namespace, int limit);
+
+    /**
+     * Retrieves up to {@code 100} vector IDs from a given namespace, filtered by a given prefix.
+     *
+     * @param namespace The namespace that holds the vector IDs you want to retrieve.
+     * @param prefix: The prefix to filter the vector IDs by.
+     * @return A generic type {@code Y} that contains vector IDs.
+     */
+    Z list(String namespace, String prefix);
+
+    /**
+     * Retrieves up to {@code n} vector IDs from a given namespace, filtered by a given prefix, where {@code limit}` == {@code n}.
+     *
+     * @param namespace The namespace that holds the vector IDs you want to retrieve.
+     * @param prefix The prefix to filter the vector IDs by.
+     * @param limit The maximum number of vector IDs to retrieve.
+     * @return A generic type {@code Y} that contains vector IDs.
+     */
+    Z list(String namespace, String prefix, int limit);
+
+    /**
+     * Retrieves up to {@code 100} vector IDs from a given namespace, filtered by a given prefix, targeted with a
+     * specific
+     * paginationToken.
+     *
+     * @param namespace The namespace that holds the vector IDs you want to retrieve.
+     * @param paginationToken The token to paginate through the list of vector IDs.
+     * @return A generic type {@code Y} that contains vector IDs.
+     */
+    Z list(String namespace, String prefix, String paginationToken);
+
+    /**
+     * Retrieves up to {@code n} vector IDs from a given namespace, filtered by a given prefix, targeted with a specific
+     * paginationToken, where {@code limit} == {@code n}.
+     *
+     * @param namespace The namespace that holds the vector IDs you want to retrieve.
+     * @param prefix The prefix to filter the vector IDs by.
+     * @param paginationToken The token to paginate through the list of vector IDs.
+     * @param limit The maximum number of vector IDs to retrieve.
+     * @return A generic type {@code Y} that contains vector IDs.
+     */
+    Z list(String namespace, String prefix, String paginationToken, int limit);
+
 }

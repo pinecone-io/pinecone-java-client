@@ -1,5 +1,6 @@
 package io.pinecone.helpers;
 
+import io.pinecone.clients.AsyncIndex;
 import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.exceptions.PineconeException;
@@ -37,10 +38,16 @@ public class TestIndexResourcesManager {
     private Pinecone pineconeClient;
     private String podIndexName;
     private IndexModel podIndexModel;
+    private IndexModel serverlessIndexModel;
     private String serverlessIndexName;
     private String collectionName;
     private CollectionModel collectionModel;
-    private final List<String> podIndexVectorIds = Arrays.asList("id1", "id2", "id3");
+    private final List<String> vectorIdsForDefaultNamespace = Arrays.asList("def-id1", "def-id2", "def-prefix-id3", "def-prefix-id4");
+    private final List<String> vectorIdsForCustomNamespace = Arrays.asList("cus-id1", "cus-id2", "cus-prefix-id3", "cus" +
+            "-prefix-id4");
+    private final String customNamespace = "example-namespace";
+    private final String defaultNamespace = "";
+
 
     private TestIndexResourcesManager() {
         pineconeClient = new Pinecone.Builder(apiKey).build();
@@ -51,6 +58,14 @@ public class TestIndexResourcesManager {
             instance = new TestIndexResourcesManager();
         }
         return instance;
+    }
+
+    public  Index getServerlessIndexConnection() {
+        return getInstance().pineconeClient.getIndexConnection(this.serverlessIndexName);
+    }
+
+    public AsyncIndex getServerlessAsyncIndexConnection() {
+        return getInstance().pineconeClient.getAsyncIndexConnection(this.serverlessIndexName);
     }
 
     public String getPodIndexName() throws InterruptedException, PineconeException {
@@ -73,13 +88,30 @@ public class TestIndexResourcesManager {
         return environment;
     }
 
-    public List<String> getPodIndexVectorIds() {
-        return podIndexVectorIds;
+    public String getCustomNamespace() {
+        return customNamespace;
+    }
+
+    public String getDefaultNamespace() {
+        return defaultNamespace;
+    }
+
+    public List<String> getVectorIdsFromDefaultNamespace() {
+        return vectorIdsForDefaultNamespace;
+    }
+
+    public List<String> getVectorIdsFromCustomNamespace() {
+        return vectorIdsForCustomNamespace;
     }
 
     public IndexModel getPodIndexModel() throws InterruptedException {
         podIndexModel = pineconeClient.describeIndex(createOrGetPodIndex());
         return podIndexModel;
+    }
+
+    public IndexModel getServerlessIndexModel() throws InterruptedException {
+        serverlessIndexModel = pineconeClient.describeIndex(createOrGetServerlessIndex());
+        return serverlessIndexModel;
     }
 
     public CollectionModel getCollectionModel() throws InterruptedException {
@@ -114,8 +146,8 @@ public class TestIndexResourcesManager {
         // Explicitly wait after ready to avoid the "no healthy upstream" issue
         Thread.sleep(30000);
 
-        // Seed data
-        seedIndex(podIndexVectorIds, indexName);
+        // Seed default vector IDs into default namespace
+        seedIndex(vectorIdsForDefaultNamespace, indexName, defaultNamespace);
 
         this.podIndexName = indexName;
         return indexName;
@@ -128,9 +160,19 @@ public class TestIndexResourcesManager {
 
         String indexName = RandomStringBuilder.build("serverless-index", 8);
 
-        pineconeClient.createServerlessIndex(indexName, metric, dimension, cloud, region);
+        serverlessIndexModel = pineconeClient.createServerlessIndex(indexName, metric, dimension, cloud,
+                region);
+        waitUntilIndexIsReady(pineconeClient, indexName);
 
-        serverlessIndexName = indexName;
+        // Explicitly wait after ready to avoid the "no healthy upstream" issue
+        Thread.sleep(30000);
+
+        // Seed default vector IDs into default namespace, seed custom vector IDs into custom namespace; all in
+        // same index
+        seedIndex(vectorIdsForDefaultNamespace, indexName, defaultNamespace);
+        seedIndex(vectorIdsForCustomNamespace, indexName, customNamespace);
+
+        this.serverlessIndexName = indexName;
         return indexName;
     }
 
@@ -165,14 +207,13 @@ public class TestIndexResourcesManager {
         return collectionName;
     }
 
-    private void seedIndex(List<String> vectorIds, String indexName) throws InterruptedException {
+    private void seedIndex(List<String> vectorIds, String indexName, String namespace) throws InterruptedException {
         // Build upsert request
         Index indexClient = pineconeClient.getIndexConnection(indexName);
-        indexClient.upsert(buildRequiredUpsertRequestByDimension(vectorIds, dimension), "");
+        indexClient.upsert(buildRequiredUpsertRequestByDimension(vectorIds, dimension), namespace);
 
         // Wait for record freshness
         DescribeIndexStatsResponse indexStats = indexClient.describeIndexStats();
-
         int totalTimeWaitedForVectors = 0;
         while (indexStats.getTotalVectorCount() == 0 || totalTimeWaitedForVectors <= 60000) {
             Thread.sleep(2000);
