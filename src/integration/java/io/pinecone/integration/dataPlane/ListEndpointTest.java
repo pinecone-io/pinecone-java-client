@@ -4,7 +4,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import io.pinecone.clients.AsyncIndex;
 import io.pinecone.clients.Index;
-import io.pinecone.helpers.TestIndexResourcesManager;
+import io.pinecone.helpers.TestResourcesManager;
 import io.pinecone.proto.ListResponse;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 
 public class ListEndpointTest {
-    private static final TestIndexResourcesManager indexManager = TestIndexResourcesManager.getInstance();
+    private static final TestResourcesManager indexManager = TestResourcesManager.getInstance();
     private static Index indexConnection;
     private static AsyncIndex asyncIndexConnection;
     private static String customNamespace;

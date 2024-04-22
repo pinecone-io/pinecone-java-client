@@ -4,7 +4,7 @@ import io.pinecone.clients.Pinecone;
 import io.pinecone.exceptions.PineconeBadRequestException;
 import io.pinecone.exceptions.PineconeNotFoundException;
 import io.pinecone.exceptions.PineconeValidationException;
-import io.pinecone.helpers.TestIndexResourcesManager;
+import io.pinecone.helpers.TestResourcesManager;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.model.*;
@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class CreateDescribeListAndDeleteIndexTest {
 
-    private static final TestIndexResourcesManager indexManager = TestIndexResourcesManager.getInstance();
+    private static final TestResourcesManager indexManager = TestResourcesManager.getInstance();
     // Serverless currently has limited availability in specific regions, hard-code us-west-2 for now
     private static final Pinecone controlPlaneClient = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
     private static String indexName;

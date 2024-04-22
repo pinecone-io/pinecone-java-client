@@ -6,7 +6,7 @@ import io.pinecone.clients.AsyncIndex;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.helpers.RandomStringBuilder;
-import io.pinecone.helpers.TestIndexResourcesManager;
+import io.pinecone.helpers.TestResourcesManager;
 import io.pinecone.proto.*;
 import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
 import io.pinecone.unsigned_indices_model.ScoredVectorWithUnsignedIndices;
@@ -24,8 +24,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class UpsertAndQueryPodTest {
-    private static final TestIndexResourcesManager indexManager = TestIndexResourcesManager.getInstance();
-    private static String indexName;
+    private static final TestResourcesManager indexManager = TestResourcesManager.getInstance();
     private static Index indexClient;
     private static AsyncIndex asyncIndexClient;
     private static int dimension;
@@ -34,12 +33,9 @@ public class UpsertAndQueryPodTest {
 
     @BeforeAll
     public static void setUp() throws IOException, InterruptedException {
-        Pinecone pineconeClient = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-
-        indexName = indexManager.getPodIndexName();
         dimension = indexManager.getDimension();
-        indexClient = pineconeClient.getIndexConnection(indexName);
-        asyncIndexClient = pineconeClient.getAsyncIndexConnection(indexName);
+        indexClient = indexManager.getPodIndexConnection();
+        asyncIndexClient = indexManager.getPodAsyncIndexConnection();
     }
 
     @Test

@@ -6,7 +6,7 @@ import io.pinecone.exceptions.PineconeException;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.FetchResponse;
-import io.pinecone.helpers.TestIndexResourcesManager;
+import io.pinecone.helpers.TestResourcesManager;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -23,11 +23,11 @@ import static io.pinecone.helpers.TestUtilities.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CollectionTest {
-    private static final TestIndexResourcesManager indexManager = TestIndexResourcesManager.getInstance();
+    private static final TestResourcesManager indexManager = TestResourcesManager.getInstance();
     private static final Pinecone pineconeClient = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
     private static final Logger logger = LoggerFactory.getLogger(CollectionTest.class);
     private static final ArrayList<String> indexesToCleanUp = new ArrayList<>();
-    private static final String indexMetric = indexManager.getMetric();
+    private static final String sourceIndexMetric = indexManager.getMetric();
     private static final List<String> upsertIds = indexManager.getVectorIdsFromDefaultNamespace();
     private static final String environment = indexManager.getEnvironment();
     private static final int dimension = indexManager.getDimension();
@@ -82,7 +82,7 @@ public class CollectionTest {
         String newIndexName = RandomStringBuilder.build("from-coll", 5);
         logger.info("Creating index " + newIndexName + " from collection " + collectionName);
 
-        pineconeClient.createPodsIndex(newIndexName, dimension, environment, "p1.x1", indexMetric, collectionName);
+        pineconeClient.createPodsIndex(newIndexName, dimension, environment, "p1.x1", sourceIndexMetric, collectionName);
         indexesToCleanUp.add(newIndexName);
 
         logger.info("Index " + newIndexName + " created from collection " + collectionName + ". Waiting until index is ready.");
@@ -113,10 +113,14 @@ public class CollectionTest {
     @Test
     public void testCreateIndexFromCollectionWithDiffMetric() throws InterruptedException {
         // Use a different metric than the source index
-        String[] metrics = {IndexMetric.COSINE.toString(), IndexMetric.EUCLIDEAN.toString(), IndexMetric.DOTPRODUCT.toString()};
+        String[] metrics = {
+                IndexMetric.COSINE.toString(),
+                IndexMetric.EUCLIDEAN.toString(),
+                IndexMetric.DOTPRODUCT.toString()
+        };
         String targetMetric = IndexMetric.COSINE.toString();
         for (String metric : metrics) {
-            if (!metric.equals(indexMetric)) {
+            if (!metric.equals(sourceIndexMetric)) {
                 targetMetric = metric;
             }
         }
@@ -176,7 +180,7 @@ public class CollectionTest {
     @Test
     public void testIndexFromNonExistentCollection() {
         try {
-            pineconeClient.createPodsIndex(RandomStringBuilder.build("from-nonexistent-coll", 8), dimension, environment, "p1.x1", indexMetric, "non-existent-collection");
+            pineconeClient.createPodsIndex(RandomStringBuilder.build("from-nonexistent-coll", 8), dimension, environment, "p1.x1", sourceIndexMetric, "non-existent-collection");
             fail("Expected to throw PineconeException");
         } catch (PineconeException expected) {
             assertTrue(expected.getMessage().contains("non-existent-collection not found"));
@@ -203,7 +207,7 @@ public class CollectionTest {
             environments.remove(collection.getEnvironment());
             String mismatchedEnv = environments.get(new Random().nextInt(environments.size()));
 
-            pineconeClient.createPodsIndex(RandomStringBuilder.build("from-coll", 8), dimension, mismatchedEnv, "p1.x1", indexMetric, collectionName);
+            pineconeClient.createPodsIndex(RandomStringBuilder.build("from-coll", 8), dimension, mismatchedEnv, "p1.x1", sourceIndexMetric, collectionName);
 
             fail("Expected to throw PineconeException");
         } catch (PineconeException expected) {
@@ -215,7 +219,7 @@ public class CollectionTest {
     @Disabled("Bug reported in #global-cps")
     public void testCreateIndexWithMismatchedDimension() {
         try {
-            pineconeClient.createPodsIndex(RandomStringBuilder.build("from-coll", 8), dimension + 1, environment, "p1.x1", indexMetric, collectionName);
+            pineconeClient.createPodsIndex(RandomStringBuilder.build("from-coll", 8), dimension + 1, environment, "p1.x1", sourceIndexMetric, collectionName);
 
             fail("Expected to throw PineconeException");
         } catch (PineconeException expected) {
@@ -228,7 +232,7 @@ public class CollectionTest {
         String notReadyIndexName = RandomStringBuilder.build("from-coll", 8);
         String newCollectionName = RandomStringBuilder.build("coll-", 8);
         try {
-            pineconeClient.createPodsIndex(notReadyIndexName, dimension, environment, "p1.x1", indexMetric, collectionName);
+            pineconeClient.createPodsIndex(notReadyIndexName, dimension, environment, "p1.x1", sourceIndexMetric, collectionName);
             indexesToCleanUp.add(notReadyIndexName);
             createCollection(pineconeClient, newCollectionName, notReadyIndexName, false);
 

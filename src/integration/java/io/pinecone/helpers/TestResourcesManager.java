@@ -16,9 +16,9 @@ import static io.pinecone.helpers.BuildUpsertRequest.buildRequiredUpsertRequestB
 import static io.pinecone.helpers.TestUtilities.*;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class TestIndexResourcesManager {
+public class TestResourcesManager {
     private static final Logger logger = LoggerFactory.getLogger(TestUtilities.class);
-    private static TestIndexResourcesManager instance;
+    private static TestResourcesManager instance;
     private static final String apiKey = System.getenv("PINECONE_API_KEY");
     private final int dimension = System.getenv("DIMENSION") == null
             ? 4
@@ -49,23 +49,35 @@ public class TestIndexResourcesManager {
     private final String defaultNamespace = "";
 
 
-    private TestIndexResourcesManager() {
+    private TestResourcesManager() {
         pineconeClient = new Pinecone.Builder(apiKey).build();
     }
 
-    public static TestIndexResourcesManager getInstance() {
+    public static TestResourcesManager getInstance() {
         if (instance == null) {
-            instance = new TestIndexResourcesManager();
+            instance = new TestResourcesManager();
         }
         return instance;
     }
 
-    public  Index getServerlessIndexConnection() {
-        return getInstance().pineconeClient.getIndexConnection(this.serverlessIndexName);
+    public  Index getServerlessIndexConnection() throws InterruptedException {
+        // If the index name is null, create the index first
+        return getInstance().pineconeClient.getIndexConnection(createOrGetServerlessIndex());
     }
 
-    public AsyncIndex getServerlessAsyncIndexConnection() {
-        return getInstance().pineconeClient.getAsyncIndexConnection(this.serverlessIndexName);
+    public AsyncIndex getServerlessAsyncIndexConnection() throws InterruptedException {
+        // If the index name is null, create the index first
+        return getInstance().pineconeClient.getAsyncIndexConnection(createOrGetServerlessIndex());
+    }
+
+    public  Index getPodIndexConnection() throws InterruptedException {
+        // If the index name is null, create the index first
+        return getInstance().pineconeClient.getIndexConnection(createOrGetPodIndex());
+    }
+
+    public AsyncIndex getPodAsyncIndexConnection() throws InterruptedException {
+        // If the index name is null, create the index first
+        return getInstance().pineconeClient.getAsyncIndexConnection(createOrGetPodIndex());
     }
 
     public String getPodIndexName() throws InterruptedException, PineconeException {

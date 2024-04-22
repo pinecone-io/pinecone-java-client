@@ -6,7 +6,7 @@ import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.helpers.RandomStringBuilder;
-import io.pinecone.helpers.TestIndexResourcesManager;
+import io.pinecone.helpers.TestResourcesManager;
 import io.pinecone.proto.DescribeIndexStatsResponse;
 import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
 import io.pinecone.unsigned_indices_model.ScoredVectorWithUnsignedIndices;
@@ -26,7 +26,7 @@ import static io.pinecone.helpers.BuildUpsertRequest.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UpsertAndQueryServerlessTest {
-    private static final TestIndexResourcesManager indexManager = TestIndexResourcesManager.getInstance();
+    private static final TestResourcesManager indexManager = TestResourcesManager.getInstance();
     private static Index index;
     private static AsyncIndex asyncIndex;
     private static int dimension;
@@ -34,12 +34,9 @@ public class UpsertAndQueryServerlessTest {
 
     @BeforeAll
     public static void setUp() throws InterruptedException {
-        Pinecone pineconeClient = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-
-        String indexName = indexManager.getServerlessIndexName();
         dimension = indexManager.getDimension();
-        index = pineconeClient.getIndexConnection(indexName);
-        asyncIndex = pineconeClient.getAsyncIndexConnection(indexName);
+        index = indexManager.getServerlessIndexConnection();
+        asyncIndex = indexManager.getServerlessAsyncIndexConnection();
     }
 
     @AfterAll

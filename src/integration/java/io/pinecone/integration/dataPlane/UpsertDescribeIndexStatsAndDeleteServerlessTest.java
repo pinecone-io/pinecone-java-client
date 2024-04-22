@@ -5,7 +5,7 @@ import io.pinecone.clients.AsyncIndex;
 import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.helpers.RandomStringBuilder;
-import io.pinecone.helpers.TestIndexResourcesManager;
+import io.pinecone.helpers.TestResourcesManager;
 import io.pinecone.proto.DescribeIndexStatsResponse;
 import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
 import org.junit.jupiter.api.AfterAll;
@@ -22,21 +22,18 @@ import static io.pinecone.helpers.BuildUpsertRequest.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class UpsertDescribeIndexStatsAndDeleteServerlessTest {
-    private static final TestIndexResourcesManager indexManager = TestIndexResourcesManager.getInstance();
-    private static Pinecone pineconeClient = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+    private static final TestResourcesManager indexManager = TestResourcesManager.getInstance();
     private static Index index;
     private static AsyncIndex asyncIndex;
-    private static String indexName;
     private static int dimension;
     private static final String namespace = RandomStringBuilder.build("ns", 8);
     private static int namespaceVectorCount = 0;
 
     @BeforeAll
     public static void setUp() throws IOException, InterruptedException {
-        indexName = indexManager.getServerlessIndexName();
         dimension = indexManager.getDimension();
-        index = pineconeClient.getIndexConnection(indexName);
-        asyncIndex = pineconeClient.getAsyncIndexConnection(indexName);
+        index = indexManager.getServerlessIndexConnection();
+        asyncIndex = indexManager.getServerlessAsyncIndexConnection();
     }
 
     @AfterAll

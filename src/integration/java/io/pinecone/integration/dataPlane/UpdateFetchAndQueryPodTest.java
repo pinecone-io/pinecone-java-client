@@ -8,7 +8,7 @@ import io.pinecone.clients.Index;
 import io.pinecone.clients.AsyncIndex;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.helpers.RandomStringBuilder;
-import io.pinecone.helpers.TestIndexResourcesManager;
+import io.pinecone.helpers.TestResourcesManager;
 import io.pinecone.proto.*;
 import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
 import io.pinecone.unsigned_indices_model.ScoredVectorWithUnsignedIndices;
@@ -27,7 +27,7 @@ import static io.pinecone.helpers.BuildUpsertRequest.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class  UpdateFetchAndQueryPodTest {
-    private static final TestIndexResourcesManager indexManager = TestIndexResourcesManager.getInstance();
+    private static final TestResourcesManager indexManager = TestResourcesManager.getInstance();
     private static Index index;
     private static AsyncIndex asyncIndex;
     private static final String namespace = RandomStringBuilder.build("ns", 8);
@@ -38,12 +38,9 @@ public class  UpdateFetchAndQueryPodTest {
 
     @BeforeAll
     public static void setUp() throws IOException, InterruptedException {
-        Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-
-        String indexName = indexManager.getPodIndexName();
         dimension = indexManager.getDimension();
-        index = pinecone.getIndexConnection(indexName);
-        asyncIndex = pinecone.getAsyncIndexConnection(indexName);
+        index = indexManager.getPodIndexConnection();
+        asyncIndex = indexManager.getPodAsyncIndexConnection();
 
         // Upsert vectors only once
         int numOfVectors = 3;
