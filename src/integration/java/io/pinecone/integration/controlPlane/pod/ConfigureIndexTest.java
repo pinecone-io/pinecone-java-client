@@ -25,7 +25,7 @@ public class ConfigureIndexTest {
 
     @BeforeAll
     public static void setUp() throws InterruptedException {
-        indexName = indexManager.getPodIndexName();
+        indexName = indexManager.getOrCreatePodIndex();
     }
 
     private static void waitUntilIndexStateIsReady(String indexName) throws InterruptedException {

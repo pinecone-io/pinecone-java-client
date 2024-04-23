@@ -38,9 +38,9 @@ public class CollectionTest {
 
     @BeforeAll
     public static void setUp() throws InterruptedException {
-        indexName = indexManager.getPodIndexName();
-        collectionName = indexManager.getCollectionName();
-        collection = indexManager.getCollectionModel();
+        indexName = indexManager.getOrCreatePodIndex();
+        collectionName = indexManager.getOrCreateCollection();
+        collection = indexManager.getOrCreateCollectionModel();
         namespace = indexManager.getDefaultNamespace();
     }
 

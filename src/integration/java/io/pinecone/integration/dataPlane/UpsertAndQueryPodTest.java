@@ -3,7 +3,6 @@ package io.pinecone.integration.dataPlane;
 import com.google.protobuf.Struct;
 import io.pinecone.clients.Index;
 import io.pinecone.clients.AsyncIndex;
-import io.pinecone.clients.Pinecone;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.helpers.TestResourcesManager;
@@ -34,8 +33,8 @@ public class UpsertAndQueryPodTest {
     @BeforeAll
     public static void setUp() throws IOException, InterruptedException {
         dimension = indexManager.getDimension();
-        indexClient = indexManager.getPodIndexConnection();
-        asyncIndexClient = indexManager.getPodAsyncIndexConnection();
+        indexClient = indexManager.getOrCreatePodIndexConnection();
+        asyncIndexClient = indexManager.getOrCreatePodAsyncIndexConnection();
     }
 
     @Test

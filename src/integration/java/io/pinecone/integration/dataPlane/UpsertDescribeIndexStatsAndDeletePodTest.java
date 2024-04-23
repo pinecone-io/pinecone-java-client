@@ -2,7 +2,6 @@ package io.pinecone.integration.dataPlane;
 
 import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
-import io.pinecone.clients.Pinecone;
 import io.pinecone.clients.Index;
 import io.pinecone.clients.AsyncIndex;
 import io.pinecone.helpers.RandomStringBuilder;
@@ -34,8 +33,8 @@ public class UpsertDescribeIndexStatsAndDeletePodTest {
     @BeforeAll
     public static void setUp() throws IOException, InterruptedException {
         dimension = indexManager.getDimension();
-        index = indexManager.getPodIndexConnection();
-        asyncIndex = indexManager.getPodAsyncIndexConnection();
+        index = indexManager.getOrCreatePodIndexConnection();
+        asyncIndex = indexManager.getOrCreatePodAsyncIndexConnection();
     }
 
     @Test

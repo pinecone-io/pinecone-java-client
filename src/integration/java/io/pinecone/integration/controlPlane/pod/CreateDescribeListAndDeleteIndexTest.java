@@ -20,9 +20,9 @@ public class CreateDescribeListAndDeleteIndexTest {
 
     @BeforeAll
     public static void setUp() throws InterruptedException {
-        indexName = indexManager.getPodIndexName();
+        indexName = indexManager.getOrCreatePodIndex();
         indexDimension = indexManager.getDimension();
-        IndexModel podIndex = indexManager.getPodIndexModel();
+        IndexModel podIndex = indexManager.getOrCreatePodIndexModel();
         indexPodType = podIndex.getSpec().getPod().getPodType();
     }
 

@@ -16,14 +16,13 @@ import static org.junit.jupiter.api.Assertions.*;
 public class CreateDescribeListAndDeleteIndexTest {
 
     private static final TestResourcesManager indexManager = TestResourcesManager.getInstance();
-    // Serverless currently has limited availability in specific regions, hard-code us-west-2 for now
     private static final Pinecone controlPlaneClient = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
     private static String indexName;
     private static int dimension;
 
     @BeforeAll
     public static void setUp() throws InterruptedException {
-        indexName = indexManager.getServerlessIndexName();
+        indexName = indexManager.getOrCreateServerlessIndex();
         dimension = indexManager.getDimension();
     }
 

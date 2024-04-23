@@ -16,6 +16,29 @@ import static io.pinecone.helpers.BuildUpsertRequest.buildRequiredUpsertRequestB
 import static io.pinecone.helpers.TestUtilities.*;
 import static org.junit.jupiter.api.Assertions.fail;
 
+/**
+ * TestResourcesManager is a singleton class that manages the creation and cleanup of shared integration test
+ * resources such as indexes and collections. It provides utility methods that allow tests to get or create shared resources
+ * and configuration values for indexes and collections such as dimension, metric, and pre-seeded vectors.
+ * <p>
+ * The singleton is designed to only spin up index and collection resources as needed, so there's flexibility when running
+ * a limited number of tests or files, and we don't need to wait for all indexes or collections to be ready. For cleanup,
+ * {@code TestResourcesManager.getInstance().cleanupResources()} is called from {@link io.pinecone.CleanupAllTestResourcesListener}
+ * which is run at the end of all junit tests.
+ * <p>
+ * To use the singleton in tests, call {@code TestResourcesManager.getInstance()} to get the instance of the singleton, then request
+ * index and or collection resources as needed. Resources will be created if they don't exist, and shared if they've been created by a
+ * previous test.
+ * <p>
+ * Example:
+ * <pre>{@code
+ *     import io.pinecone.helpers.TestResourcesManager;
+ *     ...
+ *     TestResourcesManager testResourcesManager = TestResourcesManager.getInstance();
+ *     // get or create a shared serverless index
+ *     IndexModel index = testResourcesManager.getOrCreateServerlessIndexModel();
+ * }</pre>
+ */
 public class TestResourcesManager {
     private static final Logger logger = LoggerFactory.getLogger(TestUtilities.class);
     private static TestResourcesManager instance;
@@ -53,6 +76,11 @@ public class TestResourcesManager {
         pineconeClient = new Pinecone.Builder(apiKey).build();
     }
 
+    /**
+     * Gets the instance of the TestResourcesManager singleton.
+     *
+     * @return the {@link TestResourcesManager} instance.
+     */
     public static TestResourcesManager getInstance() {
         if (instance == null) {
             instance = new TestResourcesManager();
@@ -60,79 +88,170 @@ public class TestResourcesManager {
         return instance;
     }
 
-    public  Index getServerlessIndexConnection() throws InterruptedException {
-        // If the index name is null, create the index first
-        return getInstance().pineconeClient.getIndexConnection(createOrGetServerlessIndex());
-    }
-
-    public AsyncIndex getServerlessAsyncIndexConnection() throws InterruptedException {
-        // If the index name is null, create the index first
-        return getInstance().pineconeClient.getAsyncIndexConnection(createOrGetServerlessIndex());
-    }
-
-    public  Index getPodIndexConnection() throws InterruptedException {
-        // If the index name is null, create the index first
-        return getInstance().pineconeClient.getIndexConnection(createOrGetPodIndex());
-    }
-
-    public AsyncIndex getPodAsyncIndexConnection() throws InterruptedException {
-        // If the index name is null, create the index first
-        return getInstance().pineconeClient.getAsyncIndexConnection(createOrGetPodIndex());
-    }
-
-    public String getPodIndexName() throws InterruptedException, PineconeException {
-        return createOrGetPodIndex();
-    }
-
-    public String getServerlessIndexName() throws InterruptedException, PineconeException {
-        return createOrGetServerlessIndex();
-    }
-
-    public String getCollectionName() throws InterruptedException {
-        return createOrGetCollection();
-    }
-
+    /**
+     * Gets the dimension of the indexes created by the manager. Can be configured with the DIMENSION environment variable.
+     * Defaults to 4.
+     *
+     * @return the dimension of the indexes created by the manager.
+     */
     public int getDimension() {
         return dimension;
     }
 
-    public String getMetric() { return metric; };
+    /**
+     * Gets the metric of the indexes created by the manager. Can be configured with the METRIC environment variable.
+     * Defaults to dotproduct to allow for testing of sparse vectors.
+     *
+     * @return the metric of the indexes created by the manager.
+     */
+    public String getMetric() {
+        return metric;
+    };
 
+    /**
+     * Gets the environment that pod indexes are created in. Can be configured with the PINECONE_ENVIRONMENT environment variable.
+     * Defaults to us-east4-gcp.
+     *
+     * @return the environment of the pod index created by the manager.
+     */
     public String getEnvironment() {
+
         return environment;
     }
 
+    /**
+     * Gets the region that serverless indexes are created in. Can be configured with the REGION environment variable.
+     * Defaults to us-west-2.
+     *
+     * @return the region of the serverless index created by the manager.
+     */
+    public String getRegion() {
+        return region;
+    }
+
+    /**
+     * Gets the cloud that serverless indexes are created in. Can be configured with the CLOUD environment variable.
+     * Defaults to aws.
+     *
+     * @return the cloud of the serverless index created by the manager.
+     */
+    public String getCloud() {
+        return cloud;
+    }
+
+    /**
+     * Gets the custom namespace used to seed indexes. Equals "example-namespace".
+     *
+     * @return the custom namespace.
+     */
     public String getCustomNamespace() {
         return customNamespace;
     }
 
+    /**
+     * Gets the default namespace used to seed indexes. Equals "".
+     *
+     * @return the default namespace.
+     */
     public String getDefaultNamespace() {
         return defaultNamespace;
     }
 
+    /**
+     * Gets the vector ids seeded into the default namespace "".
+     *
+     * @return a list of the vector ids seeded into the default namespace.
+     */
     public List<String> getVectorIdsFromDefaultNamespace() {
         return vectorIdsForDefaultNamespace;
     }
 
+    /**
+     * Gets the vector ids seeded into the custom namespace "example-namespace".
+     *
+     * @return a list of the vector ids seeded into the custom namespace.
+     */
     public List<String> getVectorIdsFromCustomNamespace() {
         return vectorIdsForCustomNamespace;
     }
 
-    public IndexModel getPodIndexModel() throws InterruptedException {
-        podIndexModel = pineconeClient.describeIndex(createOrGetPodIndex());
+    /**
+     * Gets an index connection to the serverless index created by the manager.
+     * Creates the index before connecting if it doesn't exist.
+     *
+     * @return a {@link Index} connection to the serverless index.
+     */
+    public  Index getOrCreateServerlessIndexConnection() throws InterruptedException {
+        return getInstance().pineconeClient.getIndexConnection(getOrCreateServerlessIndex());
+    }
+
+    /**
+     * Gets an asynchronous index connection to the serverless index created by the manager.
+     * Creates the index before connecting if it doesn't exist.
+     *
+     * @return a {@link AsyncIndex} connection to the serverless index.
+     */
+    public AsyncIndex getOrCreateServerlessAsyncIndexConnection() throws InterruptedException {
+        return getInstance().pineconeClient.getAsyncIndexConnection(getOrCreateServerlessIndex());
+    }
+
+    /**
+     * Gets an index connection to the pod index created by the manager.
+     * Creates the index before connecting if it doesn't exist.
+     *
+     * @return a {@link Index} connection to the pod index.
+     */
+    public  Index getOrCreatePodIndexConnection() throws InterruptedException {
+        return getInstance().pineconeClient.getIndexConnection(getOrCreatePodIndex());
+    }
+
+    /**
+     * Gets an asynchronous index connection to the pod index created by the manager.
+     * Creates the index before connecting if it doesn't exist.
+     *
+     * @return a {@link AsyncIndex} connection to the pod index.
+     */
+    public AsyncIndex getOrCreatePodAsyncIndexConnection() throws InterruptedException {
+        return getInstance().pineconeClient.getAsyncIndexConnection(getOrCreatePodIndex());
+    }
+
+    /**
+     * Gets the pod index model by calling describeIndex.
+     * Creates the index before calling describeIndex if it doesn't exist.
+     *
+     * @return the {@link IndexModel} of the pod index.
+     */
+    public IndexModel getOrCreatePodIndexModel() throws InterruptedException {
+        podIndexModel = pineconeClient.describeIndex(getOrCreatePodIndex());
         return podIndexModel;
     }
 
-    public IndexModel getServerlessIndexModel() throws InterruptedException {
-        serverlessIndexModel = pineconeClient.describeIndex(createOrGetServerlessIndex());
+    /**
+     * Gets the serverless index model by calling describeIndex.
+     * Creates the index before calling describeIndex if it doesn't exist.
+     *
+     * @return the {@link IndexModel} of the serverless index.
+     */
+    public IndexModel getOrCreateServerlessIndexModel() throws InterruptedException {
+        serverlessIndexModel = pineconeClient.describeIndex(getOrCreateServerlessIndex());
         return serverlessIndexModel;
     }
 
-    public CollectionModel getCollectionModel() throws InterruptedException {
-        collectionModel = pineconeClient.describeCollection(createOrGetCollection());
+    /**
+     * Gets the collection model by calling describeCollection
+     * Creates the index before calling describeIndex if it doesn't exist.
+     *
+     * @return the {@link CollectionModel} of the serverless index.
+     */
+    public CollectionModel getOrCreateCollectionModel() throws InterruptedException {
+        collectionModel = pineconeClient.describeCollection(getOrCreateCollection());
         return collectionModel;
     }
 
+    /**
+     * Cleans up any resources that have been created by the manager. Called in {@link io.pinecone.CleanupAllTestResourcesListener}
+     * after all tests have finished running.
+     */
     public void cleanupResources() {
         if (podIndexName != null) {
             pineconeClient.deleteIndex(podIndexName);
@@ -147,7 +266,17 @@ public class TestResourcesManager {
         }
     }
 
-    private String createOrGetPodIndex() throws InterruptedException, PineconeException {
+    /**
+     * Gets or creates a pod index. If the pod index has already been created, the method will return the existing index's
+     * name. If the pod index has not been created, the method will create a new pod index with a randomized name. The values
+     * that have been set for dimension, environment, podType, and metric will be used. The index will be initially
+     * seeded with vectors in the default namespace.
+     *
+     * @return the name of the pod index.
+     * @throws InterruptedException if the thread is interrupted while waiting for the index to be ready.
+     * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
+     */
+    public String getOrCreatePodIndex() throws InterruptedException, PineconeException {
         if (podIndexName != null) {
             return podIndexName;
         }
@@ -167,7 +296,17 @@ public class TestResourcesManager {
         return indexName;
     }
 
-    private String createOrGetServerlessIndex() throws InterruptedException, PineconeException {
+    /**
+     * Gets or creates a serverless index. If the serverless index has already been created, the method will return the existing index's
+     * name. If the serverless index has not been created, the method will create a new serverless index with a randomized name. The values
+     * that have been set for metric, dimension, cloud, and region will be used. The index will be initially seeded with vectors in
+     * the default and custom namespaces.
+     *
+     * @return the name of the serverless index.
+     * @throws InterruptedException if the thread is interrupted while waiting for the index to be ready.
+     * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
+     */
+    public String getOrCreateServerlessIndex() throws InterruptedException, PineconeException {
         if (this.serverlessIndexName != null) {
             return this.serverlessIndexName;
         }
@@ -190,13 +329,21 @@ public class TestResourcesManager {
         return indexName;
     }
 
-    private String createOrGetCollection() throws InterruptedException {
+    /**
+     * Gets or creates a collection. If the pod index has been created, it will be used to create the collection. If the pod
+     * index has not been created, it will be created first. The collection will be created with a randomized name.
+     *
+     * @return the name of the collection.
+     * @throws InterruptedException if the thread is interrupted while waiting for the collection to be ready.
+     * @throws PineconeException if the API encounters an error during collection creation.
+     */
+    public String getOrCreateCollection() throws InterruptedException, PineconeException {
         if (collectionName != null) {
             return collectionName;
         }
 
         // Create index if not exists
-        String sourceIndexName = createOrGetPodIndex();
+        String sourceIndexName = getOrCreatePodIndex();
 
         // Create collection
         collectionName = RandomStringBuilder.build("collection", 8);

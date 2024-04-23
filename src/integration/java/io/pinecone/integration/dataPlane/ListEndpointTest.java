@@ -21,9 +21,9 @@ public class ListEndpointTest {
 
     @BeforeAll
     public static void setUp() throws InterruptedException {
-        indexManager.getServerlessIndexName(); // creates serverless index
-        indexConnection = indexManager.getServerlessIndexConnection();
-        asyncIndexConnection = indexManager.getServerlessAsyncIndexConnection();
+        indexManager.getOrCreateServerlessIndex();
+        indexConnection = indexManager.getOrCreateServerlessIndexConnection();
+        asyncIndexConnection = indexManager.getOrCreateServerlessAsyncIndexConnection();
         customNamespace = indexManager.getCustomNamespace();
     }
 
