@@ -4,7 +4,7 @@ import io.pinecone.clients.Pinecone;
 import io.pinecone.exceptions.PineconeBadRequestException;
 import io.pinecone.exceptions.PineconeForbiddenException;
 import io.pinecone.exceptions.PineconeNotFoundException;
-import io.pinecone.helpers.TestIndexResourcesManager;
+import io.pinecone.helpers.TestResourcesManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -19,13 +19,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ConfigureIndexTest {
     private static final Logger logger = LoggerFactory.getLogger(ConfigureIndexTest.class);
-    private static final TestIndexResourcesManager indexManager = TestIndexResourcesManager.getInstance();
+    private static final TestResourcesManager indexManager = TestResourcesManager.getInstance();
     private static final Pinecone controlPlaneClient = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
     private static String indexName;
 
     @BeforeAll
     public static void setUp() throws InterruptedException {
-        indexName = indexManager.getPodIndexName();
+        indexName = indexManager.getOrCreatePodIndex();
     }
 
     private static void waitUntilIndexStateIsReady(String indexName) throws InterruptedException {
@@ -36,7 +36,7 @@ public class ConfigureIndexTest {
         while (index.getStatus().getState() != IndexModelStatus.StateEnum.READY && timeWaited <= timeToWaitMs) {
             Thread.sleep(2000);
             timeWaited += 2000;
-            logger.info("waited 2000ms for index to upgrade, time left: " + timeToWaitMs);
+            logger.info("waited 2000ms for index to upgrade, time waited: " + timeWaited);
             index = controlPlaneClient.describeIndex(indexName);
         }
         if (!index.getStatus().getReady()) {
@@ -127,7 +127,5 @@ public class ConfigureIndexTest {
             assertNotNull(podSpec);
             assertEquals(podSpec.getPodType(), "p1.x2");
         });
-
-        waitUntilIndexStateIsReady(indexName);
     }
 }

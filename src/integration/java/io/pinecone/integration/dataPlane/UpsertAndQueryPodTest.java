@@ -3,65 +3,66 @@ package io.pinecone.integration.dataPlane;
 import com.google.protobuf.Struct;
 import io.pinecone.clients.Index;
 import io.pinecone.clients.AsyncIndex;
-import io.pinecone.clients.Pinecone;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.helpers.RandomStringBuilder;
+import io.pinecone.helpers.TestResourcesManager;
 import io.pinecone.proto.*;
 import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
 import io.pinecone.unsigned_indices_model.ScoredVectorWithUnsignedIndices;
+import io.pinecone.unsigned_indices_model.SparseValuesWithUnsignedIndices;
+import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
 import org.junit.jupiter.api.*;
-import org.openapitools.client.model.IndexModelSpec;
 
 import static io.pinecone.helpers.BuildUpsertRequest.*;
-import static io.pinecone.helpers.IndexManager.createIndexIfNotExistsDataPlane;
 import static io.pinecone.helpers.AssertRetry.assertWithRetry;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
-import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class UpsertAndQueryPodTest {
-    private static Pinecone pineconeClient;
-    private static String indexName;
+    private static final TestResourcesManager indexManager = TestResourcesManager.getInstance();
     private static Index indexClient;
     private static AsyncIndex asyncIndexClient;
-    private static final int dimension = 3;
+    private static int dimension;
+    private static final String namespace = RandomStringBuilder.build("ns", 8);
     private static final Struct emptyFilterStruct = Struct.newBuilder().build();
 
     @BeforeAll
     public static void setUp() throws IOException, InterruptedException {
-        AbstractMap.SimpleEntry<String, Pinecone> indexAndClient = createIndexIfNotExistsDataPlane(dimension, IndexModelSpec.SERIALIZED_NAME_POD);
-        indexName = indexAndClient.getKey();
-        pineconeClient = indexAndClient.getValue();
-        indexClient = pineconeClient.getIndexConnection(indexName);
-        asyncIndexClient = pineconeClient.getAsyncIndexConnection(indexName);
+        dimension = indexManager.getDimension();
+        indexClient = indexManager.getOrCreatePodIndexConnection();
+        asyncIndexClient = indexManager.getOrCreatePodAsyncIndexConnection();
     }
 
     @Test
     public void upsertOptionalVectorsAndQueryIndexSyncTest() throws InterruptedException {
         int numOfVectors = 5;
+        int topK = 5;
+
         DescribeIndexStatsResponse describeIndexStatsResponse1 = indexClient.describeIndexStats(emptyFilterStruct);
         // Confirm the starting state by verifying the dimension of the index
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
 
         // upsert vectors with required + optional parameters
         List<String> upsertIds = getIdsList(numOfVectors);
-        int topK = 5;
-        String namespace = RandomStringBuilder.build("ns", 8);
         List<Float> values = generateVectorValuesByDimension(dimension);
         List<Long> sparseIndices = generateSparseIndicesByDimension(dimension);
         List<Float> sparseValues = generateVectorValuesByDimension(dimension);
         Struct metadataStruct = generateMetadataStruct();
+        List<VectorWithUnsignedIndices> vectorsToUpsert = new ArrayList<>(numOfVectors);
+
         for (String id : upsertIds) {
-            UpsertResponse upsertResponse = indexClient.upsert(id,
+            VectorWithUnsignedIndices vector = new VectorWithUnsignedIndices(id,
                     values,
-                    sparseIndices,
-                    sparseValues,
                     metadataStruct,
-                    namespace);
+                    new SparseValuesWithUnsignedIndices(sparseIndices, sparseValues));
+            vectorsToUpsert.add(vector);
         }
+
+        indexClient.upsert(vectorsToUpsert, namespace);
 
         // Query by vector to verify
         assertWithRetry(() -> {
@@ -98,7 +99,7 @@ public class UpsertAndQueryPodTest {
 
             // Verify the initial sparse values set for upsert operation
             assertEquals(scoredVectorV1.getSparseValuesWithUnsignedIndices().getValuesList(), sparseValues);
-        });
+        }, 3);
     }
 
     @Test
@@ -122,26 +123,29 @@ public class UpsertAndQueryPodTest {
     @Test
     public void upsertOptionalVectorsAndQueryIndexFutureTest() throws InterruptedException, ExecutionException {
         int numOfVectors = 5;
+        int topK = 5;
+
         DescribeIndexStatsResponse describeIndexStatsResponse1 = asyncIndexClient.describeIndexStats(emptyFilterStruct).get();
         // Confirm the starting state by verifying the dimension of the index
         assertEquals(describeIndexStatsResponse1.getDimension(), dimension);
 
         // upsert vectors with required + optional parameters
         List<String> upsertIds = getIdsList(numOfVectors);
-        int topK = 5;
-        String namespace = RandomStringBuilder.build("ns", 8);
         List<Float> values = generateVectorValuesByDimension(dimension);
         List<Long> sparseIndices = generateSparseIndicesByDimension(dimension);
         List<Float> sparseValues = generateVectorValuesByDimension(dimension);
         Struct metadataStruct = generateMetadataStruct();
+        List<VectorWithUnsignedIndices> vectorsToUpsert = new ArrayList<>(numOfVectors);
+
         for (String id : upsertIds) {
-            UpsertResponse upsertResponse = asyncIndexClient.upsert(id,
+            VectorWithUnsignedIndices vector = new VectorWithUnsignedIndices(id,
                     values,
-                    sparseIndices,
-                    sparseValues,
                     metadataStruct,
-                    namespace).get();
+                    new SparseValuesWithUnsignedIndices(sparseIndices, sparseValues));
+            vectorsToUpsert.add(vector);
         }
+
+        asyncIndexClient.upsert(vectorsToUpsert, namespace).get();
 
         // Query by vector to verify
         assertWithRetry(() -> {
@@ -181,7 +185,7 @@ public class UpsertAndQueryPodTest {
 
             // Verify the initial sparse values set for upsert operation
             assertEquals(scoredVectorV1.getSparseValuesWithUnsignedIndices().getValuesList(), sparseValues);
-        });
+        }, 3);
     }
 
     @Test

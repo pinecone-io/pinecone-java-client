@@ -3,7 +3,7 @@ package io.pinecone.integration.controlPlane.pod;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.exceptions.PineconeBadRequestException;
 import io.pinecone.helpers.RandomStringBuilder;
-import io.pinecone.helpers.TestIndexResourcesManager;
+import io.pinecone.helpers.TestResourcesManager;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.model.*;
@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class CreateDescribeListAndDeleteIndexTest {
 
-    private static final TestIndexResourcesManager indexManager = TestIndexResourcesManager.getInstance();
+    private static final TestResourcesManager indexManager = TestResourcesManager.getInstance();
     private static Pinecone controlPlaneClient = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
     private static String indexName;
     private static int indexDimension;
@@ -20,9 +20,9 @@ public class CreateDescribeListAndDeleteIndexTest {
 
     @BeforeAll
     public static void setUp() throws InterruptedException {
-        indexName = indexManager.getPodIndexName();
+        indexName = indexManager.getOrCreatePodIndex();
         indexDimension = indexManager.getDimension();
-        IndexModel podIndex = indexManager.getPodIndexModel();
+        IndexModel podIndex = indexManager.getOrCreatePodIndexModel();
         indexPodType = podIndex.getSpec().getPod().getPodType();
     }
 
@@ -33,7 +33,7 @@ public class CreateDescribeListAndDeleteIndexTest {
         assertNotNull(indexModel);
         assertEquals(indexDimension, indexModel.getDimension());
         assertEquals(indexName, indexModel.getName());
-        assertEquals(IndexMetric.COSINE, indexModel.getMetric());
+        assertEquals(IndexMetric.DOTPRODUCT, indexModel.getMetric());
         assertNotNull(indexModel.getSpec().getPod());
         assertEquals(indexPodType, indexModel.getSpec().getPod().getPodType());
 
