@@ -1,0 +1,27 @@
+name: 'Build client documentation'
+description: 'Generates client documentation using Javadoc'
+inputs:
+  java-version:
+    description: 'The Java version to use'
+    required: false
+    default: '8'
+  gradle-version:
+    description: 'The Gradle version to use'
+    required: false
+    default: '6.8'
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: ${{ inputs.java-version }}
+    - name: Setup Gradle
+      uses: gradle/setup-gradle@v3
+      with:
+        gradle-version: ${{ inputs.java-version }}
+    - name: Build Javadoc documentation
+      shell: bash
+      run: | 
+        gradle generateJavadoc

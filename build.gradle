@@ -110,7 +110,7 @@ javadoc {
     options.addStringOption('Xdoclint:none', '-quiet')
 }
 
-task generateJavadoc(type: Javadoc) {
+tasks.register('generateJavadoc', Javadoc) {
     source = sourceSets.main.allJava
     options.memberLevel = JavadocMemberLevel.PUBLIC
     destinationDir = file("${projectDir}/docs")
