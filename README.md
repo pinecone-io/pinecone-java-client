@@ -328,9 +328,10 @@ FetchResponse fetchResponse = index.fetch(ids, "example-namespace");
 ```
 
 ## List vector IDs
-The following example lists up to 100 vector IDs from a Pinecone index.
+The `list` endpoint returns a list of vector IDs (up to 100) from a Pinecone index.
 
-This method accepts optional parameters for `namespace`, `prefix`, `limit`, and `paginationToken`. 
+You can build your `list` request by calling the public `setter` methods in `ListRequestBuilder` class. Build 
+options include a `namespace`, a `prefix`, a `limit`, and a `paginationToken`. 
 
 The following 
 demonstrates how to use the `list` endpoint to get vector IDs from a specific `namespace`, filtered by a given `prefix`.
@@ -343,9 +344,35 @@ import io.pinecone.proto.ListResponse;
 Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
 String indexName = "example-index";
 Index index = pinecone.getIndexConnection(indexName);
-ListResponse listResponse = index.list("example-namespace", "prefix-");
+ListResponse listResponse = index.list().setNamespace("some-namespace").setPrefix("some-prefix-").build();
 ```
 
+To hit the `list` endpoint asynchronously, you must set up a `ListenableFuture`, e.g.: 
+
+```java
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+
+import com.google.common.util.concurrent.ListenableFuture;
+
+import io.pinecone.clients.AsyncIndex;
+import io.pinecone.clients.Pinecone;
+import io.pinecone.proto.ListResponse;
+
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+String indexName = "example-index";
+AsyncIndex index = pinecone.getAsyncIndexConnection(indexName);
+
+ListenableFuture<ListResponse> futureResponse = index.list().setNamespace("some-namespace").setPrefix("some-prefix-").build();
+
+futureResponse.addListener(() -> {
+    try {
+        ListResponse response = futureResponse.get();
+    } catch (InterruptedException | ExecutionException e) {
+        e.printStackTrace();
+    }
+    }, Executors.newSingleThreadExecutor());
+```
 
 ## Update vectors
 

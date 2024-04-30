@@ -29,7 +29,7 @@ public class Index implements IndexInterface<UpsertResponse,
         UpdateResponse,
         DeleteResponse,
         DescribeIndexStatsResponse,
-        ListResponse> {
+        Index.ListRequestBuilder> {
 
     private final PineconeConnection connection;
     private final String indexName;
@@ -781,151 +781,107 @@ public class Index implements IndexInterface<UpsertResponse,
     }
 
     /**
-     * {@inheritDoc}
-     * <p> Example:
-     *  <pre>{@code
-     *     import io.pinecone.proto.ListResponse;
-     *
-     *     ...
-     *
-     *     ListResponse listResponse = index.list();
-     *  }</pre>
-     */
-    @Override
-    public ListResponse list() {
-        validateListEndpointParameters(null, null, null, null, false, false, false, false);
-        ListRequest listRequest = ListRequest.newBuilder().build();
-        return blockingStub.list(listRequest);
-    }
-
-
-    /**
-     * {@inheritDoc}
-     * <p>Example:
-     *  <pre>{@code
-     *     import io.pinecone.proto.ListResponse;
-     *
-     *     ...
-     *
-     *     ListResponse listResponse = index.list("example-namespace");
-     *  }</pre>
-     */
-    @Override
-    public ListResponse list(String namespace) {
-        validateListEndpointParameters(namespace, null, null, null, true, false, false, false);
-        ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).build();
-        return blockingStub.list(listRequest);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>Example:
-     *  <pre>{@code
-     *     import io.pinecone.proto.ListResponse;
-     *
-     *     ...
-     *
-     *     ListResponse listResponse = index.list("example-namespace", 10);
-     *  }</pre>
-     */
-    @Override
-    public ListResponse list(String namespace, int limit) {
-        validateListEndpointParameters(namespace, null, null, limit, true, false, false, true);
-        ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).setLimit(limit).build();
-        return blockingStub.list(listRequest);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>Example:
-     *  <pre>{@code
-     *     import io.pinecone.proto.ListResponse;
-     *
-     *     ...
-     *
-     *     ListResponse listResponse = index.list("example-namespace", "st-");
-     *  }</pre>
-     */
-    @Override
-    public ListResponse list(String namespace, String prefix) {
-        validateListEndpointParameters(namespace, prefix, null, null, true, true, false, false);
-        ListRequest listRequest =
-                ListRequest.newBuilder().setNamespace(namespace).setPrefix(prefix).build();
-        return blockingStub.list(listRequest);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p> Example:
-     *  <pre>{@code
-     *     import io.pinecone.proto.ListResponse;
-     *
-     *     ...
-     *
-     *     ListResponse listResponse = index.list("example-namespace", "st-", 10);
-     *  }</pre>
-     */
-    @Override
-    public ListResponse list(String namespace, String prefix, int limit) {
-        validateListEndpointParameters(namespace, prefix, null, limit, true, true, false, true);
-
-        ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).setPrefix(prefix).
-                setLimit(limit).build();
-        return blockingStub.list(listRequest);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>Example:
-     *  <pre>{@code
-     *     import io.pinecone.proto.ListResponse;
-     *
-     *     ...
-     *
-     *     ListResponse listResponse = index.list("example-namespace", "st-", "some-pagToken");
-     *  }</pre>
-     */
-    @Override
-    public ListResponse list(String namespace, String prefix, String paginationToken) {
-        validateListEndpointParameters(namespace, prefix, paginationToken, null, true, true, true, false);
-        ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).setPrefix(prefix).
-                setPaginationToken(paginationToken).build();
-        return blockingStub.list(listRequest);
-    }
-
-    /**
-     * <p>Base method that retrieves a list of vector IDs from a specific namespace within an index.
-     *
-     * <p>The method internally constructs a {@link ListRequest} using the provided namespace
-     * and the provided limit, which cuts off the response after the specified number of IDs. It filters the
-     * retrieve IDs to match a provided prefix. It also can accept a pagination token to deterministically paginate
-     * through a list of vector IDs. It then makes a synchronous RPC call to fetch the list of vector IDs.
+     * <p>Wrapper method around the {@link Index.ListRequestBuilder} class, which builds a {@link ListRequest} object
+     * to send to the list endpoint in order to retrieve vector IDs back from an index.</p>
      *
      * <p>Example:
      *  <pre>{@code
-     *     import io.pinecone.proto.ListResponse;
+     *  import io.pinecone.proto.ListResponse;
      *
-     *     ...
+     *  ...
      *
-     *     ListResponse listResponse = index.list("example-namespace", "st-", "some-pagToken", 10);
-     *   }</pre>
-     * @param namespace The namespace that holds the vector IDs you want to retrieve. If namespace is not specified,
-     *                  the default namespace is used.
-     * @param prefix The prefix with which vector IDs must start to be included in the response.
-     * @param paginationToken The token to paginate through the list of vector IDs.
-     * @param limit The maximum number of vector IDs you want to retrieve.
-     * @return {@link ListResponse} containing the list of vector IDs fetched from the specified namespace.
-     *         The response includes vector IDs up to {@code 100} items.
-     * @throws RuntimeException if there are issues processing the request or communicating with the server.
-     *         This includes network issues, server errors, or serialization issues with the request or response.
+     * ListResponse listResponse = indexConnection.list().setNamespace("some-namespace").setPrefix("some-prefix-").build();
+     *
+     * }</pre>
+     *
+     * @return The {@link Index.ListRequestBuilder } object.
      */
-    public ListResponse list(String namespace, String prefix, String paginationToken, int limit) {
-        validateListEndpointParameters(namespace, prefix, paginationToken, limit, true, true, true, true);
-        ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).setPrefix(prefix).
-                setPaginationToken(paginationToken).setLimit(limit).build();
-        return blockingStub.list(listRequest);
+    public ListRequestBuilder list() {
+        return new ListRequestBuilder();
     }
 
+    /**
+     * A builder class for constructing a {@link ListRequest} object to send to the list endpoint in order to retrieve
+     * vector IDs back from an index.
+     *
+     * <p>Example:
+     *  <pre>{@code
+     *  import io.pinecone.proto.ListResponse;
+     *
+     *  ...
+     *
+     *  ListResponse listResponse = ListRequestBuilder().setNamespace("some-namespace").setPrefix("some-prefix-").build();
+     *
+     *  }</pre>
+     */
+    public class ListRequestBuilder {
+        private String namespace;
+        private String prefix;
+        private String paginationToken;
+        private Integer limit;
+
+        /**
+         * Sets the namespace to retrieve vector IDs from.
+         * @param namespace The namespace to retrieve vector IDs from.
+         * @return The {@link Index.ListRequestBuilder} object.
+         */
+        public ListRequestBuilder setNamespace(String namespace) {
+            this.namespace = namespace;
+            return this;
+        }
+
+        /**
+         * Sets the prefix to filter vector IDs by.
+         * @param prefix The prefix to filter vector IDs by.
+         * @return The {@link Index.ListRequestBuilder} object.
+         */
+        public ListRequestBuilder setPrefix(String prefix) {
+            this.prefix = prefix;
+            return this;
+        }
+
+        /**
+         * Sets the pagination token to retrieve the next page of vector IDs.
+         * @param paginationToken The pagination token to retrieve the next page of vector IDs.
+         * @return The {@link Index.ListRequestBuilder} object.
+         */
+        public ListRequestBuilder setPaginationToken(String paginationToken) {
+            this.paginationToken = paginationToken;
+            return this;
+        }
+
+        /**
+         * Sets the limit of vector IDs to retrieve.
+         * @param limit The limit of vector IDs to retrieve.
+         * @return The {@link Index.ListRequestBuilder} object.
+         */
+        public ListRequestBuilder setLimit(Integer limit) {
+            this.limit = limit;
+            return this;
+        }
+
+        /**
+         * Builds the {@link ListRequest} object to send to the list endpoint in order to retrieve vector IDs back
+         * from an index.
+         *
+         * @return The {@link ListResponse} object containing the vector IDs.
+         */
+        public ListResponse build() {
+            // Logic to validate parameters
+            validateListEndpointParameters(namespace, prefix, paginationToken, limit,
+                    namespace != null, prefix != null, paginationToken != null, limit != null);
+
+            // Build and execute the list request
+            ListRequest.Builder builder = ListRequest.newBuilder();
+            if (namespace != null) builder.setNamespace(namespace);
+            if (prefix != null) builder.setPrefix(prefix);
+            if (paginationToken != null) builder.setPaginationToken(paginationToken);
+            if (limit != null) builder.setLimit(limit);
+            ListRequest listRequest = builder.build();
+            return blockingStub.list(listRequest);
+        }
+
+    }
 
     /**
      * {@inheritDoc}
