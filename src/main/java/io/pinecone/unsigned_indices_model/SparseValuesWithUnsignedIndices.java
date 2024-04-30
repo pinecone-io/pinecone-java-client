@@ -123,4 +123,31 @@ public class SparseValuesWithUnsignedIndices {
         sb.append("}");
         return sb.toString();
     }
+
+    public int getSerializedSize() {
+        int size = 0;
+        {
+            int dataSize = 0;
+            for (int i = 0; i < indicesWithUnsigned32Int.size(); i++) {
+                dataSize += com.google.protobuf.CodedOutputStream
+                        .computeInt64SizeNoTag(indicesWithUnsigned32Int.get(i));
+            }
+            size += dataSize;
+            if (!getIndicesWithUnsigned32IntList().isEmpty()) {
+                size += 1;
+                size += com.google.protobuf.CodedOutputStream
+                        .computeInt32SizeNoTag(dataSize);
+            }
+        }
+        {
+            int dataSize = 4 * getValuesList().size();
+            size += dataSize;
+            if (!getValuesList().isEmpty()) {
+                size += 1;
+                size += com.google.protobuf.CodedOutputStream
+                        .computeInt32SizeNoTag(dataSize);
+            }
+        }
+        return size;
+    }
 }

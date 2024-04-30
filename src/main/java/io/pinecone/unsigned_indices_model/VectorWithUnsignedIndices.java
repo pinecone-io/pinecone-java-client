@@ -1,8 +1,12 @@
 package io.pinecone.unsigned_indices_model;
 
 import com.google.protobuf.Struct;
+import com.google.protobuf.CodedOutputStream;
 
 import java.util.List;
+
+import static com.google.protobuf.CodedOutputStream.computeTagSize;
+import static com.google.protobuf.CodedOutputStream.computeUInt32SizeNoTag;
 
 /**
  * This class represents a vector with sparse values, where the indices of the sparse values are represented
@@ -141,5 +145,30 @@ public class VectorWithUnsignedIndices {
      */
     public void setSparseValuesWithUnsignedIndices(SparseValuesWithUnsignedIndices sparseValuesWithUnsignedIndices) {
         this.sparseValuesWithUnsignedIndices = sparseValuesWithUnsignedIndices;
+    }
+
+    public int getSerializedSize() {
+        int size = 0;
+        if (id != null && !id.isEmpty()) {
+            size += CodedOutputStream.computeStringSize(1, id);
+        }
+        if (values != null && !values.isEmpty()) {
+            int dataSize = 0;
+            dataSize = 4 * getValuesList().size();
+            size += dataSize;
+            if (!getValuesList().isEmpty()) {
+                size += 1;
+                size += com.google.protobuf.CodedOutputStream
+                        .computeInt32SizeNoTag(dataSize);
+            }
+        }
+        if (metadata != null) {
+            size += CodedOutputStream.computeMessageSize(3, metadata);
+        }
+        if (sparseValuesWithUnsignedIndices != null) {
+            int fieldLength = sparseValuesWithUnsignedIndices.getSerializedSize();
+            size += computeTagSize(4) + computeUInt32SizeNoTag(fieldLength) + fieldLength;
+        }
+        return size;
     }
 }
