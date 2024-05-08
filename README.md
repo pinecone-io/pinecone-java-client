@@ -88,10 +88,8 @@ You can use the Java SDK to create two types of indexes: [serverless indexes](ht
 [pod-based indexes](https://docs.pinecone.io/guides/indexes/understanding-indexes#pod-based-indexes) (recommended for high-throughput use cases).
 
 ### Create a serverless index
-
-> [!WARNING]  
-> Serverless indexes are in **public preview** and are available only on AWS in the
-> `us-east-1` and `us-west-2` regions. Check the [current limitations](https://docs.pinecone.io/docs/limits#serverless-index-limitations) and test thoroughly before using it in production.
+The following is an example of creating a serverless index in the `us-west-2` region of AWS. For more information on 
+serverless and regional availability, see [Understanding indexes](https://docs.pinecone.io/guides/indexes/understanding-indexes#serverless-indexes).
 
 ```java
 import io.pinecone.clients.Pinecone;
