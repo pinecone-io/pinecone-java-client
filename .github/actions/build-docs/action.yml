@@ -18,7 +18,7 @@ runs:
         distribution: temurin
         java-version: ${{ inputs.java-version }}
     - name: Setup Gradle
-      uses: gradle/setup-gradle@v3
+      uses: gradle/actions/setup-gradle@v3
       with:
         gradle-version: ${{ inputs.java-version }}
     - name: Build Javadoc documentation
