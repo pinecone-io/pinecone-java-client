@@ -2,6 +2,9 @@
 
 [comment]: <> (When bumping [pc:VERSION_LATEST_RELEASE] create a new entry below)
 ### Unreleased version
+### v1.1.0
+- Add list vectors endpoint
+
 ### v1.0.0
 - Remove vector_service.proto and replace it with the generated classes
 - Add data and control plane wrappers

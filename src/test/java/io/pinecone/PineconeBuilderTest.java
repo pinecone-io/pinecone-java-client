@@ -79,7 +79,7 @@ public class PineconeBuilderTest {
 
         assertEquals(expectedIndex, index);
         verify(mockClient, times(1)).newCall(requestCaptor.capture());
-        assertEquals("lang=java; pineconeClientVersion=v1.0.0", requestCaptor.getValue().header("User-Agent"));
+        assertEquals("lang=java; pineconeClientVersion=v1.1.0", requestCaptor.getValue().header("User-Agent"));
     }
 
     @Test
@@ -105,6 +105,6 @@ public class PineconeBuilderTest {
 
         assertEquals(expectedIndex, index);
         verify(mockClient, times(1)).newCall(requestCaptor.capture());
-        assertEquals("lang=java; pineconeClientVersion=v1.0.0; source_tag=testsourcetag", requestCaptor.getValue().header("User-Agent"));
+        assertEquals("lang=java; pineconeClientVersion=v1.1.0; source_tag=testsourcetag", requestCaptor.getValue().header("User-Agent"));
     }
 }
