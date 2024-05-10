@@ -791,7 +791,7 @@ public class Pinecone {
         int statusCode = apiException.getCode();
         String responseBody = apiException.getResponseBody();
         FailedRequestInfo failedRequestInfo = new FailedRequestInfo(statusCode, responseBody);
-        HttpErrorMapper.mapHttpStatusError(failedRequestInfo);
+        HttpErrorMapper.mapHttpStatusError(failedRequestInfo, apiException);
     }
 
 
