@@ -830,7 +830,7 @@ public class Index implements IndexInterface<UpsertResponse,
      */
     @Override
     public ListResponse list(String namespace, int limit, String paginationToken) {
-        validateListEndpointParameters(namespace, null, paginationToken, null, true, false, true, true);
+        validateListEndpointParameters(namespace, null, paginationToken, limit, true, false, true, true);
         ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).setLimit(limit).setPaginationToken(paginationToken).build();
         return blockingStub.list(listRequest);
     }
