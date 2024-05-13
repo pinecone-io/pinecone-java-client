@@ -764,6 +764,17 @@ public interface IndexInterface<T, U, V, W, X, Y, Z> extends AutoCloseable {
     Z list(String namespace);
 
     /**
+     * Retrieves up to {@code n} vector IDs from a given namespace, targeted with a specific
+     * paginationToken, where {@code limit} == {@code n}.
+     *
+     * @param namespace The namespace that holds the vector IDs you want to retrieve.
+     * @param limit The maximum number of vector IDs to retrieve.
+     * @param paginationToken The token to paginate through the list of vector IDs.
+     * @return A generic type {@code Y} that contains vector IDs.
+     */
+    Z list(String namespace, int limit, String paginationToken);
+
+    /**
      * Retrieves up to {@code n} vector IDs from a given namespace, where {@code limit} == {@code n}.
      *
      * @param namespace The namespace that holds the vector IDs you want to retrieve.
