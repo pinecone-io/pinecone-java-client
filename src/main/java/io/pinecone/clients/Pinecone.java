@@ -925,12 +925,8 @@ public class Pinecone {
         public Pinecone build() {
             PineconeConfig clientConfig = new PineconeConfig(apiKey);
             clientConfig.setSourceTag(sourceTag);
-            if (managedChannel != null) {
-                clientConfig.setCustomManagedChannel(managedChannel);
-            }
-            if (host != null) {
-                clientConfig.setHost(host);
-            }
+            clientConfig.setCustomManagedChannel(managedChannel);
+            clientConfig.setHost(host);
             clientConfig.validate();
 
             ApiClient apiClient = new ApiClient(okHttpClient);
