@@ -1,5 +1,6 @@
 package io.pinecone.clients;
 
+import io.grpc.ManagedChannel;
 import io.pinecone.configs.PineconeConfig;
 import io.pinecone.configs.PineconeConnection;
 import io.pinecone.exceptions.FailedRequestInfo;
@@ -41,7 +42,7 @@ public class Pinecone {
     private final ManageIndexesApi manageIndexesApi;
     private final PineconeConfig config;
 
-    Pinecone(PineconeConfig config, ManageIndexesApi manageIndexesApi) {
+    public Pinecone(PineconeConfig config, ManageIndexesApi manageIndexesApi) {
         this.config = config;
         this.manageIndexesApi = manageIndexesApi;
     }
@@ -806,6 +807,8 @@ public class Pinecone {
         // Optional fields
         private String sourceTag;
         private OkHttpClient okHttpClient = new OkHttpClient();
+        private ManagedChannel managedChannel;
+        private String host;
 
         /**
          * Constructs a new {@link Builder} with the mandatory API key.
@@ -849,6 +852,45 @@ public class Pinecone {
         }
 
         /**
+         * Sets the managed channel for requests made by the Pinecone client.
+         * <p>
+         * ManagedChannel tag is an optional custom gRPC channel used for performing data plane operations.
+         *
+         * <pre>{@code
+         *     Pinecone client = new Pinecone.Builder("PINECONE_API_KEY")
+         *         .withManagedChannel(managedChannel)
+         *         .build();
+         * }</pre>
+         *
+         * @param managedChannel The gRPC managed channel used for performing data plane operations.
+         * @return This {@link Builder} instance for chaining method calls.
+         */
+        public Builder withManagedChannel(ManagedChannel managedChannel) {
+            this.managedChannel = managedChannel;
+            return this;
+        }
+
+        /**
+         * Sets the hosts for requests made by the Pinecone client.
+         * <p>
+         * Host is an optional string identifier targeting a Pinecone endpoint used for gRPC client operations.
+         *
+         * <pre>{@code
+         *     Pinecone client = new Pinecone.Builder("PINECONE_API_KEY")
+         *         .withHost("PINECONE_HOST")
+         *         .build();
+         * }</pre>
+         *
+         * @param host The string identifier targeting a Pinecone client endpoint
+         * @return This {@link Builder} instance for chaining method calls.
+         */
+        public Builder withHost(String host) {
+            this.host = host;
+            return this;
+        }
+
+
+        /**
          * Sets a custom OkHttpClient for the Pinecone client to use for making HTTP requests.
          *
          * <pre>{@code
@@ -883,6 +925,12 @@ public class Pinecone {
         public Pinecone build() {
             PineconeConfig clientConfig = new PineconeConfig(apiKey);
             clientConfig.setSourceTag(sourceTag);
+            if (managedChannel != null) {
+                clientConfig.setCustomManagedChannel(managedChannel);
+            }
+            if (host != null) {
+                clientConfig.setHost(host);
+            }
             clientConfig.validate();
 
             ApiClient apiClient = new ApiClient(okHttpClient);
