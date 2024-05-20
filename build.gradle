@@ -112,6 +112,8 @@ javadoc {
 
 tasks.register('generateJavadoc', Javadoc) {
     source = sourceSets.main.allJava
+    classpath += configurations.runtimeClasspath
+    options.addStringOption('tag', 'http.response.details:a:Http Response Details')
     options.memberLevel = JavadocMemberLevel.PUBLIC
     destinationDir = file("${projectDir}/docs")
 }
