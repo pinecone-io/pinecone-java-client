@@ -8,6 +8,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PineconeConfigTest {
 
+    private static final String pineconeClientVersion = "v1.2.0";
+
     @Test
     public void testValidateWithNullApiKey() {
         try {
@@ -28,26 +30,26 @@ public class PineconeConfigTest {
     @Test
     public void testGetUserAgent() {
         PineconeConfig config = new PineconeConfig("testApiKey");
-        assertEquals(config.getUserAgent(), "lang=java; pineconeClientVersion=v1.1.0");
+        assertEquals(config.getUserAgent(), "lang=java; pineconeClientVersion=" + pineconeClientVersion);
     }
 
     @Test
     public void testGetUserAgentGrpc() {
         PineconeConfig config = new PineconeConfig("testApiKey");
-        assertEquals(config.getUserAgentGrpc(), "lang=java; pineconeClientVersion[grpc]=v1.1.0");
+        assertEquals(config.getUserAgentGrpc(), "lang=java; pineconeClientVersion[grpc]=" + pineconeClientVersion);
     }
     @Test
     public void testGetUserAgentWithSourceTag() {
         PineconeConfig config = new PineconeConfig("testApiKey");
         config.setSourceTag("testSourceTag");
-        assertEquals(config.getUserAgent(), "lang=java; pineconeClientVersion=v1.1.0; source_tag=testsourcetag");
+        assertEquals(config.getUserAgent(), "lang=java; pineconeClientVersion=" + pineconeClientVersion + "; source_tag=testsourcetag");
     }
 
     @Test
     public void testGetUserAgentGrpcWithSourceTag() {
         PineconeConfig config = new PineconeConfig("testApiKey");
         config.setSourceTag("testSourceTag");
-        assertEquals(config.getUserAgentGrpc(), "lang=java; pineconeClientVersion[grpc]=v1.1.0; source_tag=testsourcetag");
+        assertEquals(config.getUserAgentGrpc(), "lang=java; pineconeClientVersion[grpc]=" + pineconeClientVersion + "; source_tag=testsourcetag");
     }
 
     @Test
