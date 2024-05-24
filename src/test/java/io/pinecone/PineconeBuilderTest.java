@@ -18,6 +18,7 @@ import static org.mockito.Mockito.*;
 
 public class PineconeBuilderTest {
     private static final Gson gson = new Gson();
+    private static final String pineconeClientVersion = "v1.1.1";
 
     private static AbstractMap.SimpleEntry<Call, OkHttpClient> buildMockCallAndClient(ResponseBody response) throws IOException {
         Response mockResponse = new Response.Builder()
@@ -79,7 +80,7 @@ public class PineconeBuilderTest {
 
         assertEquals(expectedIndex, index);
         verify(mockClient, times(1)).newCall(requestCaptor.capture());
-        assertEquals("lang=java; pineconeClientVersion=v1.1.0", requestCaptor.getValue().header("User-Agent"));
+        assertEquals("lang=java; pineconeClientVersion=" + pineconeClientVersion, requestCaptor.getValue().header("User-Agent"));
     }
 
     @Test
@@ -105,6 +106,6 @@ public class PineconeBuilderTest {
 
         assertEquals(expectedIndex, index);
         verify(mockClient, times(1)).newCall(requestCaptor.capture());
-        assertEquals("lang=java; pineconeClientVersion=v1.1.0; source_tag=testsourcetag", requestCaptor.getValue().header("User-Agent"));
+        assertEquals("lang=java; pineconeClientVersion=" + pineconeClientVersion + "; source_tag=testsourcetag", requestCaptor.getValue().header("User-Agent"));
     }
 }

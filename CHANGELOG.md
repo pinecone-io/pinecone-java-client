@@ -2,6 +2,9 @@
 
 [comment]: <> (When bumping [pc:VERSION_LATEST_RELEASE] create a new entry below)
 ### Unreleased version
+### 1.1.1
+- Add exception cause
+
 ### v1.1.0
 - Add list vectors endpoint
 
