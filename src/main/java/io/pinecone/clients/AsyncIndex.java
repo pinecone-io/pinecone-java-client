@@ -894,6 +894,25 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * {@inheritDoc}
+     * <p>Example:
+     *  <pre>{@code
+     *     import io.pinecone.proto.ListResponse;
+     *
+     *     ...
+     *
+     *     ListenableFuture<ListResponse> futureResponse = asyncIndex.list("example-namespace", 10, "some-pagToken");
+     *     ListResponse asyncListResponse = Futures.getUnchecked(futureResponse);
+     *  }</pre>
+     */
+    @Override
+    public ListenableFuture<ListResponse> list(String namespace, int limit, String paginationToken) {
+        validateListEndpointParameters(namespace, null, paginationToken, limit, true, false, true, true);
+        ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).setLimit(limit).setPaginationToken(paginationToken).build();
+        return asyncStub.list(listRequest);
+    }
+
+    /**
+     * {@inheritDoc}
      *
      * <p>Example:
      *  <pre>{@code
