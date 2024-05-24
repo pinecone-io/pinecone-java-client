@@ -18,7 +18,7 @@ import static org.mockito.Mockito.*;
 
 public class PineconeBuilderTest {
     private static final Gson gson = new Gson();
-    private static final String pineconeClientVersion = "v1.1.1";
+    private static final String pineconeClientVersion = "v1.2.0";
 
     private static AbstractMap.SimpleEntry<Call, OkHttpClient> buildMockCallAndClient(ResponseBody response) throws IOException {
         Response mockResponse = new Response.Builder()
