@@ -1,24 +1,27 @@
 package io.pinecone.exceptions;
 
+import org.openapitools.client.ApiException;
+
 public class HttpErrorMapper {
 
-    public static void mapHttpStatusError(FailedRequestInfo failedRequestInfo) throws PineconeException {
+    public static void mapHttpStatusError(FailedRequestInfo failedRequestInfo,
+                                          ApiException apiException) throws PineconeException {
         int statusCode = failedRequestInfo.getStatus();
         switch (statusCode) {
             case 400:
-                throw new PineconeBadRequestException(failedRequestInfo.getMessage());
+                throw new PineconeBadRequestException(failedRequestInfo.getMessage(), apiException);
             case 401:
-                throw new PineconeAuthorizationException(failedRequestInfo.getMessage());
+                throw new PineconeAuthorizationException(failedRequestInfo.getMessage(), apiException);
             case 403:
-                throw new PineconeForbiddenException(failedRequestInfo.getMessage());
+                throw new PineconeForbiddenException(failedRequestInfo.getMessage(), apiException);
             case 404:
-                throw new PineconeNotFoundException(failedRequestInfo.getMessage());
+                throw new PineconeNotFoundException(failedRequestInfo.getMessage(), apiException);
             case 409:
-                throw new PineconeAlreadyExistsException(failedRequestInfo.getMessage());
+                throw new PineconeAlreadyExistsException(failedRequestInfo.getMessage(), apiException);
             case 500:
-                throw new PineconeInternalServerException(failedRequestInfo.getMessage());
+                throw new PineconeInternalServerException(failedRequestInfo.getMessage(), apiException);
             default:
-                throw new PineconeUnmappedHttpException(failedRequestInfo.getMessage());
+                throw new PineconeUnmappedHttpException(failedRequestInfo.getMessage(), apiException);
         }
     }
 }
