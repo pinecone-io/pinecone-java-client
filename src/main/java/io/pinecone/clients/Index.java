@@ -825,6 +825,24 @@ public class Index implements IndexInterface<UpsertResponse,
      *
      *     ...
      *
+     *     ListResponse listResponse = index.list("example-namespace", 10, "some-pagToken");
+     *  }</pre>
+     */
+    @Override
+    public ListResponse list(String namespace, int limit, String paginationToken) {
+        validateListEndpointParameters(namespace, null, paginationToken, limit, true, false, true, true);
+        ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).setLimit(limit).setPaginationToken(paginationToken).build();
+        return blockingStub.list(listRequest);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>Example:
+     *  <pre>{@code
+     *     import io.pinecone.proto.ListResponse;
+     *
+     *     ...
+     *
      *     ListResponse listResponse = index.list("example-namespace", 10);
      *  }</pre>
      */
