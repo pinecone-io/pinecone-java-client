@@ -161,6 +161,13 @@ task relocateShadowJar(type: ConfigureShadowRelocation) {
 
 tasks.shadowJar.dependsOn tasks.relocateShadowJar
 
+// Shadow META-INF directory
+import com.github.jengelman.gradle.plugins.shadow.transformers.ServiceFileTransformer
+
+shadowJar {
+    transform(ServiceFileTransformer)
+}
+
 publishing {
     publications {
         pineconeClientMaven(MavenPublication) {
