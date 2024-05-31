@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PineconeConfigTest {
 
-    private static final String pineconeClientVersion = "v1.2.0";
+    private static final String pineconeClientVersion = "v1.2.1";
 
     @Test
     public void testValidateWithNullApiKey() {
