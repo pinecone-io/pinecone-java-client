@@ -2,6 +2,9 @@
 
 [comment]: <> (When bumping [pc:VERSION_LATEST_RELEASE] create a new entry below)
 ### Unreleased version
+### 1.2.1
+- Fix uber jar
+
 ### 1.2.0
 - Add list with pagination and limit but without prefix
 - Add exception cause 
