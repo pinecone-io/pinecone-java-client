@@ -891,7 +891,7 @@ public class Pinecone {
          * <pre>{@code
          *
          * String proxyHost = System.getenv("PROXY_HOST");
-         * String proxyPort = System.getenv("PROXY_PORT");
+         * int proxyPort = Integer.parseInt(System.getenv("PROXY_PORT"));
          * Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY")
          *     .withControlPlaneProxy(proxyHost, proxyPort)
          *     .build();
@@ -924,7 +924,7 @@ public class Pinecone {
          * <pre>{@code
          *
          * String proxyHost = System.getenv("PROXY_HOST");
-         * String proxyPort = System.getenv("PROXY_PORT");
+         * int proxyPort = Integer.parseInt(System.getenv("PROXY_PORT"));
          * Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY")
          *     .withDataPlaneProxy(proxyHost, proxyPort)
          *     .build();
