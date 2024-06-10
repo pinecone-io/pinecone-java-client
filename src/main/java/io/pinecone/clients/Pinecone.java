@@ -2,6 +2,7 @@ package io.pinecone.clients;
 
 import io.pinecone.configs.PineconeConfig;
 import io.pinecone.configs.PineconeConnection;
+import io.pinecone.configs.ProxyConfig;
 import io.pinecone.exceptions.FailedRequestInfo;
 import io.pinecone.exceptions.HttpErrorMapper;
 import io.pinecone.exceptions.PineconeException;
@@ -12,6 +13,8 @@ import org.openapitools.client.ApiException;
 import org.openapitools.client.api.ManageIndexesApi;
 import org.openapitools.client.model.*;
 
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -794,7 +797,6 @@ public class Pinecone {
         HttpErrorMapper.mapHttpStatusError(failedRequestInfo, apiException);
     }
 
-
     /**
      * A builder class for creating a {@link Pinecone} instance. This builder allows for configuring a {@link Pinecone}
      * instance with custom parameters including an API key, a source tag, and a custom OkHttpClient.
@@ -805,7 +807,11 @@ public class Pinecone {
 
         // Optional fields
         private String sourceTag;
-        private OkHttpClient okHttpClient = new OkHttpClient();
+        private ProxyConfig controlPlaneProxyConfig;
+        private ProxyConfig dataPlaneProxyConfig;
+        private final OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient.Builder();
+        private OkHttpClient customOkHttpClient = new OkHttpClient();
+        private boolean isCustomOkHttpClient = false;
 
         /**
          * Constructs a new {@link Builder} with the mandatory API key.
@@ -867,7 +873,73 @@ public class Pinecone {
          * @return This {@link Builder} instance for chaining method calls.
          */
         public Builder withOkHttpClient(OkHttpClient okHttpClient) {
-            this.okHttpClient = okHttpClient;
+            this.customOkHttpClient = okHttpClient;
+            isCustomOkHttpClient = true;
+            return this;
+        }
+
+        /**
+         * Sets a proxy for the Pinecone client to use for control plane requests.
+         * <p>
+         * When a proxy is configured using this method, all control plane requests made by the Pinecone client will be routed
+         * through the specified proxy server.
+         * <p>
+         * It's important to note that both proxyHost and proxyPort parameters should be provided to establish
+         * the connection to the proxy server.
+         * <p>
+         * Example usage:
+         * <pre>{@code
+         *
+         * String proxyHost = System.getenv("PROXY_HOST");
+         * String proxyPort = System.getenv("PROXY_PORT");
+         * Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY")
+         *     .withControlPlaneProxy(proxyHost, proxyPort)
+         *     .build();
+         *
+         * // Network requests for control plane operations will now be made using the specified proxy.
+         * pinecone.listIndexes();
+         * }</pre>
+         *
+         * @param proxyHost The hostname or IP address of the proxy server. Must not be null.
+         * @param proxyPort The port number of the proxy server. Must not be null.
+         * @return This {@link Builder} instance for chaining method calls.
+         */
+        public Builder withControlPlaneProxy(String proxyHost, int proxyPort) {
+            this.controlPlaneProxyConfig = new ProxyConfig(proxyHost, proxyPort);
+            Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort));
+            okHttpClientBuilder.proxy(proxy);
+            return this;
+        }
+
+        /**
+         * Sets a proxy for the Pinecone client to use for data plane requests.
+         * <p>
+         * When a proxy is configured using this method, all data plane requests made by the Pinecone client will be routed
+         * through the specified proxy server.
+         * <p>
+         * It's important to note that both the proxyHost and proxyPort parameters should be provided to establish
+         * the connection to the proxy server.
+         * <p>
+         * Example usage:
+         * <pre>{@code
+         *
+         * String proxyHost = System.getenv("PROXY_HOST");
+         * String proxyPort = System.getenv("PROXY_PORT");
+         * Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY")
+         *     .withDataPlaneProxy(proxyHost, proxyPort)
+         *     .build();
+         *
+         * // Network requests for data plane operations will now be made using the specified proxy.
+         * Index index = pinecone.getIndexConnection("PINECONE_INDEX");
+         * index.describeIndexStats();
+         * }</pre>
+         *
+         * @param proxyHost The hostname or IP address of the proxy server. Must not be null.
+         * @param proxyPort The port number of the proxy server. Must not be null.
+         * @return This {@link Builder} instance for chaining method calls.
+         */
+        public Builder withDataPlaneProxy(String proxyHost, int proxyPort) {
+            this.dataPlaneProxyConfig = new ProxyConfig(proxyHost, proxyPort);
             return this;
         }
 
@@ -881,13 +953,12 @@ public class Pinecone {
          * @return A new {@link Pinecone} instance configured based on the builder parameters.
          */
         public Pinecone build() {
-            PineconeConfig clientConfig = new PineconeConfig(apiKey);
-            clientConfig.setSourceTag(sourceTag);
-            clientConfig.validate();
+            PineconeConfig config = new PineconeConfig(apiKey, sourceTag, controlPlaneProxyConfig, dataPlaneProxyConfig);
+            config.validate();
 
-            ApiClient apiClient = new ApiClient(okHttpClient);
-            apiClient.setApiKey(clientConfig.getApiKey());
-            apiClient.setUserAgent(clientConfig.getUserAgent());
+            ApiClient apiClient = (isCustomOkHttpClient) ? new ApiClient(customOkHttpClient) : new ApiClient(okHttpClientBuilder.build());
+            apiClient.setApiKey(config.getApiKey());
+            apiClient.setUserAgent(config.getUserAgent());
 
             if (Boolean.parseBoolean(System.getenv("PINECONE_DEBUG"))) {
                 apiClient.setDebugging(true);
@@ -896,7 +967,7 @@ public class Pinecone {
             ManageIndexesApi manageIndexesApi = new ManageIndexesApi();
             manageIndexesApi.setApiClient(apiClient);
 
-            return new Pinecone(clientConfig, manageIndexesApi);
+            return new Pinecone(config, manageIndexesApi);
         }
     }
 }

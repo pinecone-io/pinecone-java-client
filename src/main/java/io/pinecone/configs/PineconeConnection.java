@@ -1,7 +1,9 @@
 package io.pinecone.configs;
 
+import io.grpc.HttpConnectProxiedSocketAddress;
 import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
+import io.grpc.ProxyDetector;
 import io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.NegotiationType;
 import io.grpc.netty.NettyChannelBuilder;
@@ -13,6 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.SSLException;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -145,7 +149,7 @@ public class PineconeConnection implements AutoCloseable {
                 channel.getState(false), channel);
     }
 
-    public static ManagedChannel buildChannel(String host) {
+    private ManagedChannel buildChannel(String host) {
         String endpoint = formatEndpoint(host);
         NettyChannelBuilder builder = NettyChannelBuilder.forTarget(endpoint);
 
@@ -153,6 +157,19 @@ public class PineconeConnection implements AutoCloseable {
             builder = builder.overrideAuthority(endpoint)
                     .negotiationType(NegotiationType.TLS)
                     .sslContext(GrpcSslContexts.forClient().build());
+
+            if(config.getDataPlaneProxyConfig() != null) {
+                ProxyConfig proxyConfig = config.getDataPlaneProxyConfig();
+                ProxyDetector proxyDetector = (targetServerAddress) -> {
+                    SocketAddress proxyAddress = new InetSocketAddress(proxyConfig.getHost(), proxyConfig.getPort());
+
+                    return HttpConnectProxiedSocketAddress.newBuilder()
+                            .setTargetAddress((InetSocketAddress) targetServerAddress)
+                            .setProxyAddress(proxyAddress)
+                            .build();
+                };
+                builder.proxyDetector(proxyDetector);
+            }
         } catch (SSLException e) {
             throw new PineconeException("SSL error opening gRPC channel", e);
         }
