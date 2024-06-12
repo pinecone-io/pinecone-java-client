@@ -807,8 +807,7 @@ public class Pinecone {
 
         // Optional fields
         private String sourceTag;
-        private ProxyConfig controlPlaneProxyConfig;
-        private ProxyConfig dataPlaneProxyConfig;
+        private ProxyConfig proxyConfig;
         private final OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient.Builder();
         private OkHttpClient customOkHttpClient = new OkHttpClient();
         private boolean isCustomOkHttpClient = false;
@@ -909,8 +908,7 @@ public class Pinecone {
          * @return This {@link Builder} instance for chaining method calls.
          */
         public Builder withProxy(String proxyHost, int proxyPort) {
-            this.controlPlaneProxyConfig = new ProxyConfig(proxyHost, proxyPort);
-            this.dataPlaneProxyConfig = new ProxyConfig(proxyHost, proxyPort);
+            this.proxyConfig = new ProxyConfig(proxyHost, proxyPort);
             Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort));
             okHttpClientBuilder.proxy(proxy);
             return this;
@@ -926,7 +924,7 @@ public class Pinecone {
          * @return A new {@link Pinecone} instance configured based on the builder parameters.
          */
         public Pinecone build() {
-            PineconeConfig config = new PineconeConfig(apiKey, sourceTag, controlPlaneProxyConfig, dataPlaneProxyConfig);
+            PineconeConfig config = new PineconeConfig(apiKey, sourceTag, proxyConfig);
             config.validate();
 
             ApiClient apiClient = (isCustomOkHttpClient) ? new ApiClient(customOkHttpClient) : new ApiClient(okHttpClientBuilder.build());

@@ -158,16 +158,8 @@ public class PineconeConnection implements AutoCloseable {
                     .negotiationType(NegotiationType.TLS)
                     .sslContext(GrpcSslContexts.forClient().build());
 
-            if(config.getDataPlaneProxyConfig() != null) {
-                ProxyConfig proxyConfig = config.getDataPlaneProxyConfig();
-                ProxyDetector proxyDetector = (targetServerAddress) -> {
-                    SocketAddress proxyAddress = new InetSocketAddress(proxyConfig.getHost(), proxyConfig.getPort());
-
-                    return HttpConnectProxiedSocketAddress.newBuilder()
-                            .setTargetAddress((InetSocketAddress) targetServerAddress)
-                            .setProxyAddress(proxyAddress)
-                            .build();
-                };
+            if(config.getProxyConfig() != null) {
+                ProxyDetector proxyDetector = getProxyDetector();
                 builder.proxyDetector(proxyDetector);
             }
         } catch (SSLException e) {
@@ -175,6 +167,18 @@ public class PineconeConnection implements AutoCloseable {
         }
 
         return builder.build();
+    }
+
+    private ProxyDetector getProxyDetector() {
+        ProxyConfig proxyConfig = config.getProxyConfig();
+        return (targetServerAddress) -> {
+            SocketAddress proxyAddress = new InetSocketAddress(proxyConfig.getHost(), proxyConfig.getPort());
+
+            return HttpConnectProxiedSocketAddress.newBuilder()
+                    .setTargetAddress((InetSocketAddress) targetServerAddress)
+                    .setProxyAddress(proxyAddress)
+                    .build();
+        };
     }
 
     private static Metadata assembleMetadata(PineconeConfig config) {

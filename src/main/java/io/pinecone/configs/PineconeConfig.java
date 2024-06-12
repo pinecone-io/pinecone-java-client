@@ -6,7 +6,7 @@ import io.pinecone.exceptions.PineconeConfigurationException;
 /**
  * The {@link PineconeConfig} class is responsible for managing the configuration settings
  * required to interact with the Pinecone API. It provides methods to set and retrieve
- * the necessary API key, host, source tag, controlPlaneProxyConfig, dataPlaneProxyConfig, and custom managed channel.
+ * the necessary API key, host, source tag, proxyConfig, and custom managed channel.
  * <pre>{@code
  *
  *     import io.grpc.ManagedChannel;
@@ -48,8 +48,7 @@ public class PineconeConfig {
     // Optional fields
     private String host;
     private String sourceTag;
-    private ProxyConfig controlPlaneProxyConfig;
-    private ProxyConfig dataPlaneProxyConfig;
+    private ProxyConfig proxyConfig;
     private ManagedChannel customManagedChannel;
 
     /**
@@ -69,7 +68,7 @@ public class PineconeConfig {
      */
     public PineconeConfig(String apiKey, String sourceTag) {
         // ToDo: add a test for null proxyConfig
-        this(apiKey, sourceTag, null, null);
+        this(apiKey, sourceTag, null);
     }
 
     /**
@@ -78,14 +77,12 @@ public class PineconeConfig {
      *
      * @param apiKey                    The API key required to authenticate with the Pinecone API.
      * @param sourceTag                 An optional source tag to be included in the user agent.
-     * @param controlPlaneProxyConfig   The proxy configuration for control plane requests. Can be null if not set.
-     * @param dataPlaneProxyConfig      The proxy configuration for data plane requests. Can be null if not set.
+     * @param proxyConfig   The proxy configuration for control and data plane requests. Can be null if not set.
      */
-    public PineconeConfig(String apiKey, String sourceTag, ProxyConfig controlPlaneProxyConfig, ProxyConfig dataPlaneProxyConfig) {
+    public PineconeConfig(String apiKey, String sourceTag, ProxyConfig proxyConfig) {
         this.apiKey = apiKey;
         this.sourceTag = sourceTag;
-        this.controlPlaneProxyConfig = controlPlaneProxyConfig;
-        this.dataPlaneProxyConfig = dataPlaneProxyConfig;
+        this.proxyConfig = proxyConfig;
     }
 
     /**
@@ -143,39 +140,21 @@ public class PineconeConfig {
     }
 
     /**
-     * Returns the proxy configuration for control plane requests.
+     * Returns the proxy configuration for control and data plane requests.
      *
-     * @return The proxy configuration for control plane requests, or null if not set.
+     * @return The proxy configuration for control and data plane requests, or null if not set.
      */
-    public ProxyConfig getControlPlaneProxyConfig() {
-        return controlPlaneProxyConfig;
+    public ProxyConfig getProxyConfig() {
+        return proxyConfig;
     }
 
     /**
-     * Sets the proxy configuration for control plane requests.
+     * Sets the proxy configuration for control and data plane requests.
      *
-     * @param controlPlaneProxyConfig The new proxy configuration for control plane requests.
+     * @param proxyConfig The new proxy configuration for control and data plane requests.
      */
-    public void setControlPlaneProxyConfig(ProxyConfig controlPlaneProxyConfig) {
-        this.controlPlaneProxyConfig = controlPlaneProxyConfig;
-    }
-
-    /**
-     * Returns the proxy configuration for data plane requests.
-     *
-     * @return The proxy configuration for data plane requests, or null if not set.
-     */
-    public ProxyConfig getDataPlaneProxyConfig() {
-        return dataPlaneProxyConfig;
-    }
-
-    /**
-     * Sets the proxy configuration for data plane requests.
-     *
-     * @param dataPlaneProxyConfig The new proxy configuration for data plane requests.
-     */
-    public void setDataPlaneProxyConfig(ProxyConfig dataPlaneProxyConfig) {
-        this.dataPlaneProxyConfig = dataPlaneProxyConfig;
+    public void setProxyConfig(ProxyConfig proxyConfig) {
+        this.proxyConfig = proxyConfig;
     }
 
     /**
@@ -213,12 +192,8 @@ public class PineconeConfig {
             throw new PineconeConfigurationException("The API key is required and must not be empty or null");
 
         // proxyConfig is set to null by default indicating the user is not interested in configuring the proxy
-        if(controlPlaneProxyConfig != null) {
-            controlPlaneProxyConfig.validate();
-        }
-
-        if(dataPlaneProxyConfig != null) {
-            dataPlaneProxyConfig.validate();
+        if(proxyConfig != null) {
+            proxyConfig.validate();
         }
     }
 
