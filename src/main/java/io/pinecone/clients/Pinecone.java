@@ -879,10 +879,10 @@ public class Pinecone {
         }
 
         /**
-         * Sets a proxy for the Pinecone client to use for control plane requests.
+         * Sets a proxy for the Pinecone client to use for control and data plane requests.
          * <p>
-         * When a proxy is configured using this method, all control plane requests made by the Pinecone client will be routed
-         * through the specified proxy server.
+         * When a proxy is configured using this method, all control and data plane requests made by the Pinecone client
+         * will be routed through the specified proxy server.
          * <p>
          * It's important to note that both proxyHost and proxyPort parameters should be provided to establish
          * the connection to the proxy server.
@@ -893,41 +893,11 @@ public class Pinecone {
          * String proxyHost = System.getenv("PROXY_HOST");
          * int proxyPort = Integer.parseInt(System.getenv("PROXY_PORT"));
          * Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY")
-         *     .withControlPlaneProxy(proxyHost, proxyPort)
+         *     .withProxy(proxyHost, proxyPort)
          *     .build();
          *
          * // Network requests for control plane operations will now be made using the specified proxy.
          * pinecone.listIndexes();
-         * }</pre>
-         *
-         * @param proxyHost The hostname or IP address of the proxy server. Must not be null.
-         * @param proxyPort The port number of the proxy server. Must not be null.
-         * @return This {@link Builder} instance for chaining method calls.
-         */
-        public Builder withControlPlaneProxy(String proxyHost, int proxyPort) {
-            this.controlPlaneProxyConfig = new ProxyConfig(proxyHost, proxyPort);
-            Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort));
-            okHttpClientBuilder.proxy(proxy);
-            return this;
-        }
-
-        /**
-         * Sets a proxy for the Pinecone client to use for data plane requests.
-         * <p>
-         * When a proxy is configured using this method, all data plane requests made by the Pinecone client will be routed
-         * through the specified proxy server.
-         * <p>
-         * It's important to note that both the proxyHost and proxyPort parameters should be provided to establish
-         * the connection to the proxy server.
-         * <p>
-         * Example usage:
-         * <pre>{@code
-         *
-         * String proxyHost = System.getenv("PROXY_HOST");
-         * int proxyPort = Integer.parseInt(System.getenv("PROXY_PORT"));
-         * Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY")
-         *     .withDataPlaneProxy(proxyHost, proxyPort)
-         *     .build();
          *
          * // Network requests for data plane operations will now be made using the specified proxy.
          * Index index = pinecone.getIndexConnection("PINECONE_INDEX");
@@ -938,8 +908,11 @@ public class Pinecone {
          * @param proxyPort The port number of the proxy server. Must not be null.
          * @return This {@link Builder} instance for chaining method calls.
          */
-        public Builder withDataPlaneProxy(String proxyHost, int proxyPort) {
+        public Builder withProxy(String proxyHost, int proxyPort) {
+            this.controlPlaneProxyConfig = new ProxyConfig(proxyHost, proxyPort);
             this.dataPlaneProxyConfig = new ProxyConfig(proxyHost, proxyPort);
+            Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort));
+            okHttpClientBuilder.proxy(proxy);
             return this;
         }
 
