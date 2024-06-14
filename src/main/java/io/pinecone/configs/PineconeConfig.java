@@ -67,7 +67,6 @@ public class PineconeConfig {
      * @param sourceTag An optional source tag to be included in the user agent.
      */
     public PineconeConfig(String apiKey, String sourceTag) {
-        // ToDo: add a test for null proxyConfig
         this(apiKey, sourceTag, null);
     }
 
@@ -75,9 +74,9 @@ public class PineconeConfig {
      * Constructs a {@link PineconeConfig} instance with the specified API key, source tag, control plane proxy
      * configuration, and data plane proxy configuration.
      *
-     * @param apiKey                    The API key required to authenticate with the Pinecone API.
-     * @param sourceTag                 An optional source tag to be included in the user agent.
-     * @param proxyConfig   The proxy configuration for control and data plane requests. Can be null if not set.
+     * @param apiKey The API key required to authenticate with the Pinecone API.
+     * @param sourceTag An optional source tag to be included in the user agent.
+     * @param proxyConfig The proxy configuration for control and data plane requests. Can be null if not set.
      */
     public PineconeConfig(String apiKey, String sourceTag, ProxyConfig proxyConfig) {
         this.apiKey = apiKey;
