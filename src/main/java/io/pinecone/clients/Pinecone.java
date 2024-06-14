@@ -49,6 +49,10 @@ public class Pinecone {
         this.manageIndexesApi = manageIndexesApi;
     }
 
+    public PineconeConfig getConfig() {
+        return config;
+    }
+
     /**
      * Creates a new serverless index with the specified parameters.
      * <p>

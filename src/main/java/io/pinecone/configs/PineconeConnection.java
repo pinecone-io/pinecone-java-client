@@ -107,21 +107,6 @@ public class PineconeConnection implements AutoCloseable {
     }
 
     /**
-     * Close the connection and release all resources. A PineconeConnection's underlying gRPC components use resources
-     * like threads and TCP connections. To prevent leaking these resources the connection should be closed when it
-     * will no longer be used. If it may be used again leave it running.
-     */
-    @Override
-    public void close() {
-        try {
-            logger.debug("closing channel");
-            channel.shutdownNow().awaitTermination(5, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            logger.warn("Channel shutdown interrupted before termination confirmed");
-        }
-    }
-
-    /**
      * Returns the gRPC channel.
      */
     public ManagedChannel getChannel() {
@@ -193,6 +178,21 @@ public class PineconeConnection implements AutoCloseable {
             return host.replaceFirst("https?://", "");
         } else {
             throw new PineconeValidationException("Index host cannot be null or empty");
+        }
+    }
+
+    /**
+     * Close the connection and release all resources. A PineconeConnection's underlying gRPC components use resources
+     * like threads and TCP connections. To prevent leaking these resources the connection should be closed when it
+     * will no longer be used. If it may be used again leave it running.
+     */
+    @Override
+    public void close() {
+        try {
+            logger.debug("closing channel");
+            channel.shutdownNow().awaitTermination(5, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            logger.warn("Channel shutdown interrupted before termination confirmed");
         }
     }
 }
