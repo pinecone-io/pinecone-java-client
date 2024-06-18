@@ -3,6 +3,7 @@ package io.pinecone.clients;
 import io.pinecone.configs.PineconeConfig;
 import io.pinecone.configs.ProxyConfig;
 import io.pinecone.exceptions.PineconeConfigurationException;
+import okhttp3.OkHttpClient;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -67,5 +68,20 @@ public class PineconeProxyTest {
         PineconeConfig config = pinecone.getConfig();
         assertEquals(proxyHost, config.getProxyConfig().getHost());
         assertEquals(proxyPort, config.getProxyConfig().getPort());
+    }
+
+    @Test
+    public void testBothCustomOkHttpClientAndProxySet() {
+        String apiKey = "test-api-key";
+        OkHttpClient customOkHttpClient = new OkHttpClient();
+        String proxyHost = "proxy.example.com";
+        int proxyPort = 8080;
+
+        Pinecone.Builder builder = new Pinecone.Builder(apiKey)
+                .withOkHttpClient(customOkHttpClient)
+                .withProxy(proxyHost, proxyPort);
+
+        Exception exception = assertThrows(PineconeConfigurationException.class, builder::build);
+        assertEquals("Invalid configuration: Both Custom OkHttpClient and Proxy are set. Please configure only one of these options.", exception.getMessage());
     }
 }
