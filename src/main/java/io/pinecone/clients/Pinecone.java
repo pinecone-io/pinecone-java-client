@@ -809,7 +809,6 @@ public class Pinecone {
         // Optional fields
         private String sourceTag;
         private ProxyConfig proxyConfig;
-        private OkHttpClient.Builder okHttpClientBuilder;
         private OkHttpClient customOkHttpClient;
         private boolean isProxyConfigured = false;
         private boolean isCustomOkHttpClient = false;
@@ -911,8 +910,6 @@ public class Pinecone {
          */
         public Builder withProxy(String proxyHost, int proxyPort) {
             this.proxyConfig = new ProxyConfig(proxyHost, proxyPort);
-            Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort));
-            okHttpClientBuilder = new OkHttpClient.Builder().proxy(proxy);
             isProxyConfigured = true;
             return this;
         }
@@ -928,10 +925,18 @@ public class Pinecone {
          */
         public Pinecone build() {
             PineconeConfig config = new PineconeConfig(apiKey, sourceTag, proxyConfig);
-
-            if(isProxyConfigured && isCustomOkHttpClient)
-                throw new PineconeConfigurationException("Invalid configuration: Both Custom OkHttpClient and Proxy are set. Please configure only one of these options.");
             config.validate();
+
+            if(isProxyConfigured && isCustomOkHttpClient) {
+                throw new PineconeConfigurationException("Invalid configuration: Both Custom OkHttpClient and Proxy are set. Please configure only one of these options.");
+            }
+
+            OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient.Builder();
+
+            if(isProxyConfigured) {
+                Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyConfig.getHost(), proxyConfig.getPort()));
+                okHttpClientBuilder.proxy(proxy);
+            }
 
             ApiClient apiClient = (isCustomOkHttpClient) ? new ApiClient(customOkHttpClient) : new ApiClient(okHttpClientBuilder.build());
             apiClient.setApiKey(config.getApiKey());
