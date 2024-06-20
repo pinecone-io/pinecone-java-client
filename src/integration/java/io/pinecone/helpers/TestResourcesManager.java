@@ -58,7 +58,7 @@ public class TestResourcesManager {
     private static final String region = System.getenv("REGION") == null
             ? "us-west-2"
             : System.getenv("REGION");
-    private Pinecone pineconeClient;
+    private final Pinecone pineconeClient;
     private String podIndexName;
     private IndexModel podIndexModel;
     private IndexModel serverlessIndexModel;
@@ -73,7 +73,10 @@ public class TestResourcesManager {
 
 
     private TestResourcesManager() {
-        pineconeClient = new Pinecone.Builder(apiKey).build();
+        pineconeClient = new Pinecone
+                .Builder(apiKey)
+                .withSourceTag("pinecone_test")
+                .build();
     }
 
     /**
