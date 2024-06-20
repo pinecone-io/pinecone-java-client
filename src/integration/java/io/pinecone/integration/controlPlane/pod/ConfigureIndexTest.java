@@ -20,7 +20,10 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ConfigureIndexTest {
     private static final Logger logger = LoggerFactory.getLogger(ConfigureIndexTest.class);
     private static final TestResourcesManager indexManager = TestResourcesManager.getInstance();
-    private static final Pinecone controlPlaneClient = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+    private static final Pinecone controlPlaneClient = new Pinecone
+            .Builder(System.getenv("PINECONE_API_KEY"))
+            .withSourceTag("pinecone_test")
+            .build();
     private static String indexName;
 
     @BeforeAll
