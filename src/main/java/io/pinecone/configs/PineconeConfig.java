@@ -6,7 +6,7 @@ import io.pinecone.exceptions.PineconeConfigurationException;
 /**
  * The {@link PineconeConfig} class is responsible for managing the configuration settings
  * required to interact with the Pinecone API. It provides methods to set and retrieve
- * the necessary API key, host, source tag, and custom managed channel.
+ * the necessary API key, host, source tag, proxyConfig, and custom managed channel.
  * <pre>{@code
  *
  *     import io.grpc.ManagedChannel;
@@ -48,6 +48,7 @@ public class PineconeConfig {
     // Optional fields
     private String host;
     private String sourceTag;
+    private ProxyConfig proxyConfig;
     private ManagedChannel customManagedChannel;
 
     /**
@@ -66,8 +67,21 @@ public class PineconeConfig {
      * @param sourceTag An optional source tag to be included in the user agent.
      */
     public PineconeConfig(String apiKey, String sourceTag) {
+        this(apiKey, sourceTag, null);
+    }
+
+    /**
+     * Constructs a {@link PineconeConfig} instance with the specified API key, source tag, control plane proxy
+     * configuration, and data plane proxy configuration.
+     *
+     * @param apiKey The API key required to authenticate with the Pinecone API.
+     * @param sourceTag An optional source tag to be included in the user agent.
+     * @param proxyConfig The proxy configuration for control and data plane requests. Can be null if not set.
+     */
+    public PineconeConfig(String apiKey, String sourceTag, ProxyConfig proxyConfig) {
         this.apiKey = apiKey;
         this.sourceTag = sourceTag;
+        this.proxyConfig = proxyConfig;
     }
 
     /**
@@ -125,6 +139,24 @@ public class PineconeConfig {
     }
 
     /**
+     * Returns the proxy configuration for control and data plane requests.
+     *
+     * @return The proxy configuration for control and data plane requests, or null if not set.
+     */
+    public ProxyConfig getProxyConfig() {
+        return proxyConfig;
+    }
+
+    /**
+     * Sets the proxy configuration for control and data plane requests.
+     *
+     * @param proxyConfig The new proxy configuration for control and data plane requests.
+     */
+    public void setProxyConfig(ProxyConfig proxyConfig) {
+        this.proxyConfig = proxyConfig;
+    }
+
+    /**
      * Returns the custom gRPC managed channel.
      *
      * @return The custom gRPC managed channel.
@@ -148,13 +180,20 @@ public class PineconeConfig {
     }
 
     /**
-     * Validates the configuration, ensuring that the API key is not null or empty.
+     * Validates the configuration settings of the Pinecone client.
+     * This method ensures that the API key is not null or empty, and validates the proxy configurations if set.
+     * Throws a PineconeConfigurationException if the API key is null or empty, or if any of the proxy configurations are invalid.
      *
-     * @throws PineconeConfigurationException if the API key is null or empty.
+     * @throws PineconeConfigurationException If the API key is null or empty, or if any of the proxy configurations are invalid.
      */
     public void validate() {
         if (apiKey == null || apiKey.isEmpty())
             throw new PineconeConfigurationException("The API key is required and must not be empty or null");
+
+        // proxyConfig is set to null by default indicating the user is not interested in configuring the proxy
+        if(proxyConfig != null) {
+            proxyConfig.validate();
+        }
     }
 
     /**
