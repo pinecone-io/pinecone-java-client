@@ -810,8 +810,6 @@ public class Pinecone {
         private String sourceTag;
         private ProxyConfig proxyConfig;
         private OkHttpClient customOkHttpClient;
-        private boolean isProxyConfigured = false;
-        private boolean isCustomOkHttpClient = false;
 
         /**
          * Constructs a new {@link Builder} with the mandatory API key.
@@ -874,7 +872,6 @@ public class Pinecone {
          */
         public Builder withOkHttpClient(OkHttpClient okHttpClient) {
             this.customOkHttpClient = okHttpClient;
-            isCustomOkHttpClient = true;
             return this;
         }
 
@@ -910,7 +907,6 @@ public class Pinecone {
          */
         public Builder withProxy(String proxyHost, int proxyPort) {
             this.proxyConfig = new ProxyConfig(proxyHost, proxyPort);
-            isProxyConfigured = true;
             return this;
         }
 
@@ -927,18 +923,11 @@ public class Pinecone {
             PineconeConfig config = new PineconeConfig(apiKey, sourceTag, proxyConfig);
             config.validate();
 
-            if(isProxyConfigured && isCustomOkHttpClient) {
+            if (proxyConfig != null && customOkHttpClient != null) {
                 throw new PineconeConfigurationException("Invalid configuration: Both Custom OkHttpClient and Proxy are set. Please configure only one of these options.");
             }
 
-            OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient.Builder();
-
-            if(isProxyConfigured) {
-                Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyConfig.getHost(), proxyConfig.getPort()));
-                okHttpClientBuilder.proxy(proxy);
-            }
-
-            ApiClient apiClient = (isCustomOkHttpClient) ? new ApiClient(customOkHttpClient) : new ApiClient(okHttpClientBuilder.build());
+            ApiClient apiClient = (customOkHttpClient != null) ? new ApiClient(customOkHttpClient) : new ApiClient(buildOkHttpClient());
             apiClient.setApiKey(config.getApiKey());
             apiClient.setUserAgent(config.getUserAgent());
 
@@ -950,6 +939,15 @@ public class Pinecone {
             manageIndexesApi.setApiClient(apiClient);
 
             return new Pinecone(config, manageIndexesApi);
+        }
+
+        private OkHttpClient buildOkHttpClient() {
+            OkHttpClient.Builder builder = new OkHttpClient.Builder();
+            if(proxyConfig != null) {
+                Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyConfig.getHost(), proxyConfig.getPort()));
+                builder.proxy(proxy);
+            }
+            return builder.build();
         }
     }
 }
