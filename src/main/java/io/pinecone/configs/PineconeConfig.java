@@ -202,20 +202,11 @@ public class PineconeConfig {
      * @return The user agent string.
      */
     public String getUserAgent() {
-        return buildUserAgent("pineconeClientVersion");
+        return buildUserAgent();
     }
 
-    /**
-     * Builds the user agent string for the Pinecone client's gRPC requests.
-     *
-     * @return The user agent string for gRPC requests.
-     */
-    public String getUserAgentGrpc() {
-        return buildUserAgent("pineconeClientVersion[grpc]");
-    }
-
-    private String buildUserAgent(String clientId) {
-        String userAgent = String.format("lang=java; %s=%s", clientId, "v1.2.1");
+    private String buildUserAgent() {
+        String userAgent = String.format("lang=java; %s=%s", "pineconeClientVersion", "v1.2.1");
         if (this.getSourceTag() != null && !this.getSourceTag().isEmpty()) {
             userAgent += "; source_tag=" + this.getSourceTag();
         }
