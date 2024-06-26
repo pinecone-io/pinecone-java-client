@@ -34,22 +34,10 @@ public class PineconeConfigTest {
     }
 
     @Test
-    public void testGetUserAgentGrpc() {
-        PineconeConfig config = new PineconeConfig("testApiKey");
-        assertEquals(config.getUserAgentGrpc(), "lang=java; pineconeClientVersion[grpc]=" + pineconeClientVersion);
-    }
-    @Test
     public void testGetUserAgentWithSourceTag() {
         PineconeConfig config = new PineconeConfig("testApiKey");
         config.setSourceTag("testSourceTag");
         assertEquals(config.getUserAgent(), "lang=java; pineconeClientVersion=" + pineconeClientVersion + "; source_tag=testsourcetag");
-    }
-
-    @Test
-    public void testGetUserAgentGrpcWithSourceTag() {
-        PineconeConfig config = new PineconeConfig("testApiKey");
-        config.setSourceTag("testSourceTag");
-        assertEquals(config.getUserAgentGrpc(), "lang=java; pineconeClientVersion[grpc]=" + pineconeClientVersion + "; source_tag=testsourcetag");
     }
 
     @Test

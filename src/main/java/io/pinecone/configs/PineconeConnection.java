@@ -77,7 +77,7 @@ public class PineconeConnection implements AutoCloseable {
             if (config.getHost() == null || config.getHost().isEmpty()) {
                 throw new PineconeValidationException("Index-name or host is required for data plane operations");
             }
-            channel = buildChannel(config.getHost());
+            channel = buildChannel();
         }
         initialize();
     }
@@ -134,14 +134,15 @@ public class PineconeConnection implements AutoCloseable {
                 channel.getState(false), channel);
     }
 
-    private ManagedChannel buildChannel(String host) {
-        String endpoint = formatEndpoint(host);
+    private ManagedChannel buildChannel() {
+        String endpoint = formatEndpoint(config.getHost());
         NettyChannelBuilder builder = NettyChannelBuilder.forTarget(endpoint);
 
         try {
             builder = builder.overrideAuthority(endpoint)
                     .negotiationType(NegotiationType.TLS)
-                    .sslContext(GrpcSslContexts.forClient().build());
+                    .sslContext(GrpcSslContexts.forClient().build())
+                    .userAgent(config.getUserAgent());
 
             if(config.getProxyConfig() != null) {
                 ProxyDetector proxyDetector = getProxyDetector();
@@ -169,7 +170,6 @@ public class PineconeConnection implements AutoCloseable {
     private static Metadata assembleMetadata(PineconeConfig config) {
         Metadata metadata = new Metadata();
         metadata.put(Metadata.Key.of("api-key", Metadata.ASCII_STRING_MARSHALLER), config.getApiKey());
-        metadata.put(Metadata.Key.of("User-Agent", Metadata.ASCII_STRING_MARSHALLER), config.getUserAgentGrpc());
         return metadata;
     }
 
