@@ -3,6 +3,8 @@ package io.pinecone.configs;
 import io.grpc.ManagedChannel;
 import io.pinecone.exceptions.PineconeConfigurationException;
 
+import static io.pinecone.commons.Constants.pineconeClientVersion;
+
 /**
  * The {@link PineconeConfig} class is responsible for managing the configuration settings
  * required to interact with the Pinecone API. It provides methods to set and retrieve
@@ -206,7 +208,7 @@ public class PineconeConfig {
     }
 
     private String buildUserAgent() {
-        String userAgent = String.format("lang=java; %s=%s", "pineconeClientVersion", "v1.2.1");
+        String userAgent = String.format("lang=java; %s=%s", "pineconeClientVersion", pineconeClientVersion);
         if (this.getSourceTag() != null && !this.getSourceTag().isEmpty()) {
             userAgent += "; source_tag=" + this.getSourceTag();
         }

@@ -4,11 +4,10 @@ import io.pinecone.configs.PineconeConfig;
 import io.pinecone.exceptions.PineconeConfigurationException;
 import org.junit.jupiter.api.Test;
 
+import static io.pinecone.commons.Constants.pineconeClientVersion;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PineconeConfigTest {
-
-    private static final String pineconeClientVersion = "v1.2.1";
 
     @Test
     public void testValidateWithNullApiKey() {
