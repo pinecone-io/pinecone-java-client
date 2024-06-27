@@ -13,12 +13,12 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.AbstractMap;
 
+import static io.pinecone.commons.Constants.pineconeClientVersion;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class PineconeBuilderTest {
     private static final Gson gson = new Gson();
-    private static final String pineconeClientVersion = "v1.2.1";
 
     private static AbstractMap.SimpleEntry<Call, OkHttpClient> buildMockCallAndClient(ResponseBody response) throws IOException {
         Response mockResponse = new Response.Builder()
