@@ -2,6 +2,10 @@
 
 [comment]: <> (When bumping [pc:VERSION_LATEST_RELEASE] create a new entry below)
 ### Unreleased version
+### 1.2.2
+- Add support for proxy configuration
+- Fix user-agent for grpc
+
 ### 1.2.1
 - Fix uber jar
 
