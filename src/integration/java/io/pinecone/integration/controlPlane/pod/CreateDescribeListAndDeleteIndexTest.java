@@ -36,7 +36,7 @@ public class CreateDescribeListAndDeleteIndexTest {
         assertNotNull(indexModel);
         assertEquals(indexDimension, indexModel.getDimension());
         assertEquals(indexName, indexModel.getName());
-        assertEquals(IndexMetric.DOTPRODUCT, indexModel.getMetric());
+        assertEquals(IndexModel.MetricEnum.DOTPRODUCT, indexModel.getMetric());
         assertNotNull(indexModel.getSpec().getPod());
         assertEquals(indexPodType, indexModel.getSpec().getPod().getPodType());
 
@@ -63,7 +63,7 @@ public class CreateDescribeListAndDeleteIndexTest {
         assertEquals(podType, podsIndex.getSpec().getPod().getPodType());
 
         // Confirm defaults are put in by the backend when not supplied by the user
-        assertEquals(IndexMetric.COSINE, podsIndex.getMetric());
+        assertEquals(IndexModel.MetricEnum.COSINE, podsIndex.getMetric());
         assertEquals(1, podsIndex.getSpec().getPod().getPods());
         assertEquals(1, podsIndex.getSpec().getPod().getReplicas());
         assertEquals(1, podsIndex.getSpec().getPod().getShards());

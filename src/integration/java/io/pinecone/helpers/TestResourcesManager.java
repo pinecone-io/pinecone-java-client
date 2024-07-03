@@ -50,8 +50,8 @@ public class TestResourcesManager {
             ? "us-east4-gcp"
             : System.getenv("PINECONE_ENVIRONMENT");
     private static final String metric = System.getenv("METRIC") == null
-            ? IndexMetric.DOTPRODUCT.toString()
-            : IndexMetric.valueOf(System.getenv("METRIC")).toString();
+            ? IndexModel.MetricEnum.DOTPRODUCT.toString()
+            : IndexModel.MetricEnum.valueOf(System.getenv("METRIC")).toString();
     private static final String cloud = System.getenv("CLOUD") == null
             ? ServerlessSpec.CloudEnum.AWS.toString()
             : System.getenv("CLOUD");
