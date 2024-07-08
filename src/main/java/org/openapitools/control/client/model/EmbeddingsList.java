@@ -53,7 +53,7 @@ import org.openapitools.control.client.JSON;
 /**
  * Embeddings generated for the input
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-07-02T21:35:57.874831Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-07-08T21:08:32.278360Z[Etc/UTC]")
 public class EmbeddingsList {
   public static final String SERIALIZED_NAME_MODEL = "model";
   @SerializedName(SERIALIZED_NAME_MODEL)

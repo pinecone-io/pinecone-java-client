@@ -49,7 +49,7 @@ import org.openapitools.control.client.JSON;
 /**
  * Detailed information about the error that occurred.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-07-02T21:35:57.874831Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-07-08T21:08:32.278360Z[Etc/UTC]")
 public class ListIndexes401ResponseError {
   /**
    * Gets or Sets code
