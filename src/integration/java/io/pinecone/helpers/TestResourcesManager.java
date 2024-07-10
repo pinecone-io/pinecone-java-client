@@ -5,7 +5,7 @@ import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.exceptions.PineconeException;
 import io.pinecone.proto.DescribeIndexStatsResponse;
-import org.openapitools.client.model.*;
+import org.openapitools.control.client.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,8 +50,8 @@ public class TestResourcesManager {
             ? "us-east4-gcp"
             : System.getenv("PINECONE_ENVIRONMENT");
     private static final String metric = System.getenv("METRIC") == null
-            ? IndexMetric.DOTPRODUCT.toString()
-            : IndexMetric.valueOf(System.getenv("METRIC")).toString();
+            ? IndexModel.MetricEnum.DOTPRODUCT.toString()
+            : IndexModel.MetricEnum.valueOf(System.getenv("METRIC")).toString();
     private static final String cloud = System.getenv("CLOUD") == null
             ? ServerlessSpec.CloudEnum.AWS.toString()
             : System.getenv("CLOUD");

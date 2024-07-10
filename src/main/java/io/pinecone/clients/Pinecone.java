@@ -5,10 +5,11 @@ import io.pinecone.configs.PineconeConnection;
 import io.pinecone.configs.ProxyConfig;
 import io.pinecone.exceptions.*;
 import okhttp3.OkHttpClient;
-import org.openapitools.client.ApiClient;
-import org.openapitools.client.ApiException;
-import org.openapitools.client.api.ManageIndexesApi;
-import org.openapitools.client.model.*;
+import org.openapitools.control.client.ApiClient;
+import org.openapitools.control.client.ApiException;
+import org.openapitools.control.client.Configuration;
+import org.openapitools.control.client.api.ManageIndexesApi;
+import org.openapitools.control.client.model.*;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -73,12 +74,12 @@ public class Pinecone {
         }
 
         if (metric == null || metric.isEmpty()) {
-            throw new PineconeValidationException("Metric cannot be null or empty. Must be one of " + Arrays.toString(IndexMetric.values()));
+            throw new PineconeValidationException("Metric cannot be null or empty. Must be one of " + Arrays.toString(CreateIndexRequest.MetricEnum.values()));
         }
         try {
-            IndexMetric.fromValue(metric.toLowerCase());
+            CreateIndexRequest.MetricEnum.fromValue(metric.toLowerCase());
         } catch (IllegalArgumentException e) {
-            throw new PineconeValidationException("Metric cannot be null or empty. Must be one of " + Arrays.toString(IndexMetric.values()));
+            throw new PineconeValidationException("Metric cannot be null or empty. Must be one of " + Arrays.toString(CreateIndexRequest.MetricEnum.values()));
         }
 
         if (dimension < 1) {
@@ -99,13 +100,13 @@ public class Pinecone {
         }
 
         // Convert user string for "metric" arg into IndexMetric
-        IndexMetric userMetric = IndexMetric.fromValue(metric.toLowerCase());
+        CreateIndexRequest.MetricEnum userMetric = CreateIndexRequest.MetricEnum.fromValue(metric.toLowerCase());
 
         // Convert user string for "cloud" arg into ServerlessSpec.CloudEnum
         ServerlessSpec.CloudEnum cloudProvider = ServerlessSpec.CloudEnum.fromValue(cloud.toLowerCase());
 
         ServerlessSpec serverlessSpec = new ServerlessSpec().cloud(cloudProvider).region(region);
-        CreateIndexRequestSpec createServerlessIndexRequestSpec = new CreateIndexRequestSpec().serverless(serverlessSpec);
+        IndexSpec createServerlessIndexRequestSpec = new IndexSpec().serverless(serverlessSpec);
 
         IndexModel indexModel = null;
 
@@ -166,11 +167,11 @@ public class Pinecone {
      * <p>
      * Example:
      * <pre>{@code 
-     *     import org.openapitools.client.model.CreateIndexRequestSpecPodMetadataConfig;
+     *     import org.openapitools.control.client.model.PodSpecMetadataConfig;
      *     ...
      *
-     *     CreateIndexRequestSpecPodMetadataConfig metadataConfig =
-     *         new CreateIndexRequestSpecPodMetadataConfig()
+     *     PodSpecMetadataConfig metadataConfig =
+     *         new PodSpecMetadataConfig()
      *         .fields(Arrays.asList("genre", "year"));
      *
      *     client.createPodsIndex("YOUR-INDEX", 1536, "us-east4-gcp", "p1.x2", "cosine", metadataConfig);
@@ -187,7 +188,7 @@ public class Pinecone {
      * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
      */
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
-                                      String podType, String metric, CreateIndexRequestSpecPodMetadataConfig metadataConfig) {
+                                      String podType, String metric, PodSpecMetadataConfig metadataConfig) {
         return createPodsIndex(indexName, dimension, environment, podType, metric, null, null, null, metadataConfig,
                 null);
     }
@@ -241,11 +242,11 @@ public class Pinecone {
      * <p>
      * Example:
      * <pre>{@code 
-     *     import org.openapitools.client.model.CreateIndexRequestSpecPodMetadataConfig;
+     *     import org.openapitools.control.client.model.PodSpecMetadataConfig;
      *     ...
      *
-     *     CreateIndexRequestSpecPodMetadataConfig metadataConfig =
-     *         new CreateIndexRequestSpecPodMetadataConfig()
+     *     PodSpecMetadataConfig metadataConfig =
+     *         new PodSpecMetadataConfig()
      *         .fields(Arrays.asList("genre", "year"));
      *     client.createPodsIndex("YOUR-INDEX", 1536, "us-east4-gcp", "p1.x2", "cosine", 6);
      * }</pre>
@@ -260,7 +261,7 @@ public class Pinecone {
      */
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String podType, Integer pods,
-                                      CreateIndexRequestSpecPodMetadataConfig metadataConfig) {
+                                      PodSpecMetadataConfig metadataConfig) {
         return createPodsIndex(indexName, dimension, environment, podType, null, null, null, pods, metadataConfig,
                 null);
     }
@@ -293,11 +294,11 @@ public class Pinecone {
      * <p>
      * Example:
      * <pre>{@code 
-     *     import org.openapitools.client.model.CreateIndexRequestSpecPodMetadataConfig;
+     *     import org.openapitools.control.client.model.PodSpecMetadataConfig;
      *     ...
      *
-     *     CreateIndexRequestSpecPodMetadataConfig metadataConfig =
-     *         new CreateIndexRequestSpecPodMetadataConfig()
+     *     PodSpecMetadataConfig metadataConfig =
+     *         new PodSpecMetadataConfig()
      *         .fields(Arrays.asList("genre", "year"));
      *     client.createPodsIndex("YOUR-INDEX", 1536, "us-east4-gcp", "p1.x2", "cosine", 2, 2, metadataConfig);
      * }</pre>
@@ -313,7 +314,7 @@ public class Pinecone {
      */
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String podType, Integer replicas,
-                                      Integer shards, CreateIndexRequestSpecPodMetadataConfig metadataConfig) {
+                                      Integer shards, PodSpecMetadataConfig metadataConfig) {
         return createPodsIndex(indexName, dimension, environment, podType, null, replicas, shards, null,
                 metadataConfig,
                 null);
@@ -324,11 +325,11 @@ public class Pinecone {
      * <p>
      * Example:
      * <pre>{@code 
-     *     import org.openapitools.client.model.CreateIndexRequestSpecPodMetadataConfig;
+     *     import org.openapitools.control.client.model.PodSpecMetadataConfig;
      *     ...
      *
-     *     CreateIndexRequestSpecPodMetadataConfig metadataConfig =
-     *         new CreateIndexRequestSpecPodMetadataConfig()
+     *     PodSpecMetadataConfig metadataConfig =
+     *         new PodSpecMetadataConfig()
      *         .fields(Arrays.asList("genre", "year"));
      *     client.createPodsIndex("YOUR-INDEX", 1536, "us-east4-gcp", "p1.x2", "cosine", 2, 2, 4, null, null);
      * }</pre>
@@ -350,21 +351,21 @@ public class Pinecone {
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String podType, String metric,
                                       Integer replicas, Integer shards, Integer pods,
-                                      CreateIndexRequestSpecPodMetadataConfig metadataConfig, String sourceCollection) throws PineconeException {
+                                      PodSpecMetadataConfig metadataConfig, String sourceCollection) throws PineconeException {
         validatePodIndexParams(indexName, dimension, environment, podType, metric, replicas, shards, pods);
 
-        CreateIndexRequestSpecPod podSpec = new CreateIndexRequestSpecPod().environment(environment)
+        PodSpec podSpec = new PodSpec().environment(environment)
                 .podType(podType)
                 .replicas(replicas)
                 .shards(shards)
                 .pods(pods)
                 .metadataConfig(metadataConfig)
                 .sourceCollection(sourceCollection);
-        CreateIndexRequestSpec createIndexRequestSpec = new CreateIndexRequestSpec().pod(podSpec);
+        IndexSpec createIndexRequestSpec = new IndexSpec().pod(podSpec);
         CreateIndexRequest createIndexRequest = new CreateIndexRequest()
                 .name(indexName)
                 .dimension(dimension)
-                .metric(metric != null ? IndexMetric.fromValue(metric) : IndexMetric.COSINE)
+                .metric(metric != null ? CreateIndexRequest.MetricEnum.fromValue(metric) : CreateIndexRequest.MetricEnum.COSINE)
                 .spec(createIndexRequestSpec);
 
         IndexModel indexModel = null;
@@ -402,7 +403,7 @@ public class Pinecone {
         }
 
         if (metric != null && metric.isEmpty()) {
-            throw new PineconeValidationException("Metric cannot be null or empty. Must be one of " + Arrays.toString(IndexMetric.values()));
+            throw new PineconeValidationException("Metric cannot be null or empty. Must be one of " + Arrays.toString(IndexModel.MetricEnum.values()));
         }
 
         if (replicas != null && replicas < 1) {
@@ -427,7 +428,7 @@ public class Pinecone {
      * <p>
      * Example:
      * <pre>{@code 
-     *     import org.openapitools.client.model.IndexModel;
+     *     import org.openapitools.control.client.model.IndexModel;
      *     ...
      *
      *     IndexModel indexModel = client.describeIndex("YOUR-INDEX");
@@ -452,7 +453,7 @@ public class Pinecone {
      * <p>
      * Example:
      * <pre>{@code 
-     *     import org.openapitools.client.model.IndexModel;
+     *     import org.openapitools.control.client.model.IndexModel;
      *     ...
      *
      *     // Make a configuration change
@@ -507,7 +508,7 @@ public class Pinecone {
      * <p>
      * Example:
      * <pre>{@code 
-     *     import org.openapitools.client.model.IndexModel;
+     *     import org.openapitools.control.client.model.IndexModel;
      *     ...
      *
      *     IndexModel indexModel = client.configureIndex("YOUR-INDEX", 4);
@@ -527,7 +528,7 @@ public class Pinecone {
      * <p>
      * Example:
      * <pre>{@code 
-     *     import org.openapitools.client.model.IndexModel;
+     *     import org.openapitools.control.client.model.IndexModel;
      *     ...
      *
      *     IndexModel indexModel = client.configureIndex("YOUR-INDEX", "p1.x2");
@@ -547,7 +548,7 @@ public class Pinecone {
      * <p>
      * Example:
      * <pre>{@code 
-     *     import org.openapitools.client.model.IndexList;
+     *     import org.openapitools.control.client.model.IndexList;
      *     ...
      *
      *     IndexList indexes = client.listIndexes();
@@ -580,7 +581,7 @@ public class Pinecone {
      * <p>
      * Example:
      * <pre>{@code 
-     *     import org.openapitools.client.model.IndexModel;
+     *     import org.openapitools.control.client.model.IndexModel;
      *     ...
      *
      *     // Delete an index
@@ -607,7 +608,7 @@ public class Pinecone {
      * <p>
      * Example:
      * <pre>{@code 
-     *     import org.openapitools.client.model.CollectionModel;
+     *     import org.openapitools.control.client.model.CollectionModel;
      *     ...
      *
      *     CollectionModel collection = client.createCollection("my-collection", "my-source-index");
@@ -645,7 +646,7 @@ public class Pinecone {
      * Example:
      * <pre>{@code 
      *     import io.pinecone.clients.Pinecone;
-     *     import org.openapitools.client.model.CollectionModel;
+     *     import org.openapitools.control.client.model.CollectionModel;
      *     ...
      *
      *     CollectionModel collection = client.describeCollection("my-collection");
@@ -670,7 +671,7 @@ public class Pinecone {
      * <p>
      * Example:
      * <pre>{@code 
-     *     import org.openapitools.client.model.CollectionList;
+     *     import org.openapitools.control.client.model.CollectionList;
      *     ...
      *
      *     CollectionList collections = client.listCollections();
@@ -930,6 +931,7 @@ public class Pinecone {
             ApiClient apiClient = (customOkHttpClient != null) ? new ApiClient(customOkHttpClient) : new ApiClient(buildOkHttpClient());
             apiClient.setApiKey(config.getApiKey());
             apiClient.setUserAgent(config.getUserAgent());
+            apiClient.addDefaultHeader("X-Pinecone-Api-Version", Configuration.VERSION);
 
             if (Boolean.parseBoolean(System.getenv("PINECONE_DEBUG"))) {
                 apiClient.setDebugging(true);

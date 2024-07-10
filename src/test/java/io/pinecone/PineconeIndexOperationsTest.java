@@ -6,7 +6,7 @@ import io.pinecone.exceptions.PineconeValidationException;
 import okhttp3.*;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.openapitools.client.model.*;
+import org.openapitools.control.client.model.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -77,15 +77,15 @@ public class PineconeIndexOperationsTest {
 
         PineconeValidationException thrownEmptyMetric = assertThrows(PineconeValidationException.class,
                 () -> client.createServerlessIndex("testServerlessIndex", "", 3, "aws", "us-west-2"));
-        assertEquals("Metric cannot be null or empty. Must be one of " + Arrays.toString(IndexMetric.values()), thrownEmptyMetric.getMessage());
+        assertEquals("Metric cannot be null or empty. Must be one of " + Arrays.toString(IndexModel.MetricEnum.values()), thrownEmptyMetric.getMessage());
 
         PineconeValidationException thrownInvalidMetric = assertThrows(PineconeValidationException.class,
                 () -> client.createServerlessIndex("testServerlessIndex", "blah", 3, "aws", "us-west-2"));
-        assertEquals(String.format("Metric cannot be null or empty. Must be one of " + Arrays.toString(IndexMetric.values())), thrownInvalidMetric.getMessage());
+        assertEquals(String.format("Metric cannot be null or empty. Must be one of " + Arrays.toString(IndexModel.MetricEnum.values())), thrownInvalidMetric.getMessage());
 
         PineconeValidationException thrownNullMetric = assertThrows(PineconeValidationException.class,
                 () -> client.createServerlessIndex("testServerlessIndex", null, 3, "aws", "us-west-2"));
-        assertEquals("Metric cannot be null or empty. Must be one of " + Arrays.toString(IndexMetric.values()),
+        assertEquals("Metric cannot be null or empty. Must be one of " + Arrays.toString(IndexModel.MetricEnum.values()),
                 thrownNullMetric.getMessage());
 
         PineconeValidationException thrownNegativeDimension = assertThrows(PineconeValidationException.class,
@@ -143,7 +143,7 @@ public class PineconeIndexOperationsTest {
                 2,
                 1,
                 2,
-                new CreateIndexRequestSpecPodMetadataConfig(),
+                new PodSpecMetadataConfig(),
                 "some-source-collection");
 
         ArgumentCaptor<Request> requestCaptor = ArgumentCaptor.forClass(Request.class);
@@ -213,7 +213,7 @@ public class PineconeIndexOperationsTest {
                 () -> Pinecone.validatePodIndexParams("test-index", 3, "some-environment", "p1.x1", "", null,
                         null,
                         null));
-        assertEquals("Metric cannot be null or empty. Must be one of " + Arrays.toString(IndexMetric.values()), thrownEmptyMetric.getMessage());
+        assertEquals("Metric cannot be null or empty. Must be one of " + Arrays.toString(IndexModel.MetricEnum.values()), thrownEmptyMetric.getMessage());
 
         // Replicas
         PineconeValidationException thrownNegativeReplicas = assertThrows(PineconeValidationException.class,

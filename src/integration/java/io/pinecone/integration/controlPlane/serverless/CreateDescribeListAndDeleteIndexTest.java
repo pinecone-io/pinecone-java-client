@@ -7,7 +7,7 @@ import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.helpers.TestResourcesManager;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.openapitools.client.model.*;
+import org.openapitools.control.client.model.*;
 
 import java.util.Arrays;
 
@@ -36,7 +36,7 @@ public class CreateDescribeListAndDeleteIndexTest {
         assertNotNull(indexModel);
         assertEquals(dimension, indexModel.getDimension());
         assertEquals(indexName, indexModel.getName());
-        assertEquals(IndexMetric.DOTPRODUCT, indexModel.getMetric());
+        assertEquals(IndexModel.MetricEnum.DOTPRODUCT, indexModel.getMetric());
         assertNotNull(indexModel.getSpec().getServerless());
 
         // List the index

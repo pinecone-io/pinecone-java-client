@@ -3,8 +3,9 @@ package org.openapitools.client;
 import okhttp3.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.openapitools.client.api.ManageIndexesApi;
-import org.openapitools.client.model.*;
+import org.openapitools.control.client.api.ManageIndexesApi;
+import org.openapitools.control.client.model.*;
+import org.openapitools.control.client.ApiClient;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -79,8 +80,8 @@ public class JsonParsingTest {
         CreateIndexRequest createIndexRequest = new CreateIndexRequest();
         createIndexRequest.setName("test-index");
         createIndexRequest.setDimension(1536);
-        createIndexRequest.setMetric(IndexMetric.COSINE);
-        createIndexRequest.setSpec(new CreateIndexRequestSpec());
+        createIndexRequest.setMetric(CreateIndexRequest.MetricEnum.COSINE);
+        createIndexRequest.setSpec(new IndexSpec());
         IndexModel indexModel = api.createIndex(createIndexRequest);
 
         assertEquals("serverless-index", indexModel.getName());
@@ -95,8 +96,8 @@ public class JsonParsingTest {
         CreateIndexRequest createIndexRequest = new CreateIndexRequest();
         createIndexRequest.setName("test-index");
         createIndexRequest.setDimension(1536);
-        createIndexRequest.setMetric(IndexMetric.COSINE);
-        createIndexRequest.setSpec(new CreateIndexRequestSpec());
+        createIndexRequest.setMetric(CreateIndexRequest.MetricEnum.COSINE);
+        createIndexRequest.setSpec(new IndexSpec());
         IndexModel indexModel = api.createIndex(createIndexRequest);
 
         assertEquals("serverless-index", indexModel.getName());
