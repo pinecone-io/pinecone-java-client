@@ -48,7 +48,7 @@ public class CreateDescribeListAndDeleteIndexTest {
     @Test
     public void createServerlessIndexWithInvalidName() {
         try {
-            controlPlaneClient.createServerlessIndex("Invalid-name", "cosine", 3, "aws", "us-west-2");
+            controlPlaneClient.createServerlessIndex("Invalid-name", "cosine", 3, "aws", "us-west-2", DeletionProtection.DISABLED);
 
             fail("Expected to throw PineconeBadRequestException");
         } catch (PineconeBadRequestException expected) {
@@ -59,7 +59,7 @@ public class CreateDescribeListAndDeleteIndexTest {
     @Test
     public void createServerlessIndexWithInvalidDimension() {
         try {
-            controlPlaneClient.createServerlessIndex("serverless-test-index", "cosine", -3, "aws", "us-west-2");
+            controlPlaneClient.createServerlessIndex("serverless-test-index", "cosine", -3, "aws", "us-west-2", DeletionProtection.DISABLED);
             fail("Expected to throw PineconeValidationException");
         } catch (PineconeValidationException expected) {
             assertTrue(expected.getLocalizedMessage().contains("Dimension must be greater than 0"));
@@ -69,7 +69,7 @@ public class CreateDescribeListAndDeleteIndexTest {
     @Test
     public void createServerlessIndexWithInvalidCloud() {
         try {
-            controlPlaneClient.createServerlessIndex("serverless-test-index", "cosine", 3, "blah", "us-west-2");
+            controlPlaneClient.createServerlessIndex("serverless-test-index", "cosine", 3, "blah", "us-west-2", DeletionProtection.DISABLED);
             fail("Expected to throw PineconeValidationException");
         } catch (PineconeValidationException expected) {
             assertTrue(expected.getLocalizedMessage().contains("Cloud cannot be null or empty. Must be one of " + Arrays.toString(ServerlessSpec.CloudEnum.values())));
@@ -79,7 +79,7 @@ public class CreateDescribeListAndDeleteIndexTest {
     @Test
     public void createServerlessIndexWithInvalidRegion() {
         try {
-            controlPlaneClient.createServerlessIndex("serverless-test-index", "cosine", 3, "aws", "invalid-region");
+            controlPlaneClient.createServerlessIndex("serverless-test-index", "cosine", 3, "aws", "invalid-region", DeletionProtection.DISABLED);
             fail("Expected to throw PineconeNotFoundException");
         } catch (PineconeNotFoundException expected) {
             assertTrue(expected.getLocalizedMessage().contains("Resource cloud: aws region: invalid-region not found"));
