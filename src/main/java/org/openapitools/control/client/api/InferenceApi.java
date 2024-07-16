@@ -29,7 +29,7 @@ import java.io.IOException;
 
 import org.openapitools.control.client.model.EmbedRequest;
 import org.openapitools.control.client.model.EmbeddingsList;
-import org.openapitools.control.client.model.ListIndexes401Response;
+import org.openapitools.control.client.model.ErrorResponse;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;

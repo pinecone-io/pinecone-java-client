@@ -50,7 +50,7 @@ import org.openapitools.control.client.JSON;
 /**
  * Configuration needed to deploy a pod-based index.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-07-08T21:08:32.278360Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-07-16T15:28:37.412995Z[Etc/UTC]")
 public class PodSpec {
   public static final String SERIALIZED_NAME_ENVIRONMENT = "environment";
   @SerializedName(SERIALIZED_NAME_ENVIRONMENT)
@@ -115,7 +115,7 @@ public class PodSpec {
    * minimum: 1
    * @return replicas
   **/
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   public Integer getReplicas() {
     return replicas;
   }
@@ -137,7 +137,7 @@ public class PodSpec {
    * minimum: 1
    * @return shards
   **/
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   public Integer getShards() {
     return shards;
   }
@@ -347,6 +347,8 @@ public class PodSpec {
     // a set of required properties/fields (JSON key names)
     openapiRequiredFields = new HashSet<String>();
     openapiRequiredFields.add("environment");
+    openapiRequiredFields.add("replicas");
+    openapiRequiredFields.add("shards");
     openapiRequiredFields.add("pod_type");
     openapiRequiredFields.add("pods");
   }

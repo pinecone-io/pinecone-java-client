@@ -21,6 +21,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.util.Arrays;
+import org.openapitools.control.client.model.ErrorResponseError;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -47,164 +48,60 @@ import java.util.Set;
 import org.openapitools.control.client.JSON;
 
 /**
- * Detailed information about the error that occurred.
+ * The response shape used for all error responses.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-07-08T21:08:32.278360Z[Etc/UTC]")
-public class ListIndexes401ResponseError {
-  /**
-   * Gets or Sets code
-   */
-  @JsonAdapter(CodeEnum.Adapter.class)
-  public enum CodeEnum {
-    OK("OK"),
-    
-    UNKNOWN("UNKNOWN"),
-    
-    INVALID_ARGUMENT("INVALID_ARGUMENT"),
-    
-    DEADLINE_EXCEEDED("DEADLINE_EXCEEDED"),
-    
-    QUOTA_EXCEEDED("QUOTA_EXCEEDED"),
-    
-    NOT_FOUND("NOT_FOUND"),
-    
-    ALREADY_EXISTS("ALREADY_EXISTS"),
-    
-    PERMISSION_DENIED("PERMISSION_DENIED"),
-    
-    UNAUTHENTICATED("UNAUTHENTICATED"),
-    
-    RESOURCE_EXHAUSTED("RESOURCE_EXHAUSTED"),
-    
-    FAILED_PRECONDITION("FAILED_PRECONDITION"),
-    
-    ABORTED("ABORTED"),
-    
-    OUT_OF_RANGE("OUT_OF_RANGE"),
-    
-    UNIMPLEMENTED("UNIMPLEMENTED"),
-    
-    INTERNAL("INTERNAL"),
-    
-    UNAVAILABLE("UNAVAILABLE"),
-    
-    DATA_LOSS("DATA_LOSS"),
-    
-    FORBIDDEN("FORBIDDEN");
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-07-16T15:28:37.412995Z[Etc/UTC]")
+public class ErrorResponse {
+  public static final String SERIALIZED_NAME_STATUS = "status";
+  @SerializedName(SERIALIZED_NAME_STATUS)
+  private Integer status;
 
-    private String value;
+  public static final String SERIALIZED_NAME_ERROR = "error";
+  @SerializedName(SERIALIZED_NAME_ERROR)
+  private ErrorResponseError error;
 
-    CodeEnum(String value) {
-      this.value = value;
-    }
-
-    public String getValue() {
-      return value;
-    }
-
-    @Override
-    public String toString() {
-      return String.valueOf(value);
-    }
-
-    public static CodeEnum fromValue(String value) {
-      for (CodeEnum b : CodeEnum.values()) {
-        if (b.value.equals(value)) {
-          return b;
-        }
-      }
-      throw new IllegalArgumentException("Unexpected value '" + value + "'");
-    }
-
-    public static class Adapter extends TypeAdapter<CodeEnum> {
-      @Override
-      public void write(final JsonWriter jsonWriter, final CodeEnum enumeration) throws IOException {
-        jsonWriter.value(enumeration.getValue());
-      }
-
-      @Override
-      public CodeEnum read(final JsonReader jsonReader) throws IOException {
-        String value =  jsonReader.nextString();
-        return CodeEnum.fromValue(value);
-      }
-    }
+  public ErrorResponse() {
   }
 
-  public static final String SERIALIZED_NAME_CODE = "code";
-  @SerializedName(SERIALIZED_NAME_CODE)
-  private CodeEnum code;
-
-  public static final String SERIALIZED_NAME_MESSAGE = "message";
-  @SerializedName(SERIALIZED_NAME_MESSAGE)
-  private String message;
-
-  public static final String SERIALIZED_NAME_DETAILS = "details";
-  @SerializedName(SERIALIZED_NAME_DETAILS)
-  private Object details;
-
-  public ListIndexes401ResponseError() {
-  }
-
-  public ListIndexes401ResponseError code(CodeEnum code) {
+  public ErrorResponse status(Integer status) {
     
-    this.code = code;
+    this.status = status;
     return this;
   }
 
    /**
-   * Get code
-   * @return code
+   * The HTTP status code of the error.
+   * @return status
   **/
   @javax.annotation.Nonnull
-  public CodeEnum getCode() {
-    return code;
+  public Integer getStatus() {
+    return status;
   }
 
 
-  public void setCode(CodeEnum code) {
-    this.code = code;
+  public void setStatus(Integer status) {
+    this.status = status;
   }
 
 
-  public ListIndexes401ResponseError message(String message) {
+  public ErrorResponse error(ErrorResponseError error) {
     
-    this.message = message;
+    this.error = error;
     return this;
   }
 
    /**
-   * Get message
-   * @return message
+   * Get error
+   * @return error
   **/
   @javax.annotation.Nonnull
-  public String getMessage() {
-    return message;
+  public ErrorResponseError getError() {
+    return error;
   }
 
 
-  public void setMessage(String message) {
-    this.message = message;
-  }
-
-
-  public ListIndexes401ResponseError details(Object details) {
-    
-    this.details = details;
-    return this;
-  }
-
-   /**
-   * Additional information about the error. This field is not guaranteed to be present.
-   * @return details
-  **/
-  @javax.annotation.Nullable
-  public Object getDetails() {
-    return details;
-  }
-
-
-  public void setDetails(Object details) {
-    this.details = details;
+  public void setError(ErrorResponseError error) {
+    this.error = error;
   }
 
   /**
@@ -220,9 +117,9 @@ public class ListIndexes401ResponseError {
    *
    * @param key name of the property
    * @param value value of the property
-   * @return the ListIndexes401ResponseError instance itself
+   * @return the ErrorResponse instance itself
    */
-  public ListIndexes401ResponseError putAdditionalProperty(String key, Object value) {
+  public ErrorResponse putAdditionalProperty(String key, Object value) {
     if (this.additionalProperties == null) {
         this.additionalProperties = new HashMap<String, Object>();
     }
@@ -261,25 +158,23 @@ public class ListIndexes401ResponseError {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    ListIndexes401ResponseError listIndexes401ResponseError = (ListIndexes401ResponseError) o;
-    return Objects.equals(this.code, listIndexes401ResponseError.code) &&
-        Objects.equals(this.message, listIndexes401ResponseError.message) &&
-        Objects.equals(this.details, listIndexes401ResponseError.details)&&
-        Objects.equals(this.additionalProperties, listIndexes401ResponseError.additionalProperties);
+    ErrorResponse errorResponse = (ErrorResponse) o;
+    return Objects.equals(this.status, errorResponse.status) &&
+        Objects.equals(this.error, errorResponse.error)&&
+        Objects.equals(this.additionalProperties, errorResponse.additionalProperties);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(code, message, details, additionalProperties);
+    return Objects.hash(status, error, additionalProperties);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class ListIndexes401ResponseError {\n");
-    sb.append("    code: ").append(toIndentedString(code)).append("\n");
-    sb.append("    message: ").append(toIndentedString(message)).append("\n");
-    sb.append("    details: ").append(toIndentedString(details)).append("\n");
+    sb.append("class ErrorResponse {\n");
+    sb.append("    status: ").append(toIndentedString(status)).append("\n");
+    sb.append("    error: ").append(toIndentedString(error)).append("\n");
     sb.append("    additionalProperties: ").append(toIndentedString(additionalProperties)).append("\n");
     sb.append("}");
     return sb.toString();
@@ -303,58 +198,53 @@ public class ListIndexes401ResponseError {
   static {
     // a set of all properties/fields (JSON key names)
     openapiFields = new HashSet<String>();
-    openapiFields.add("code");
-    openapiFields.add("message");
-    openapiFields.add("details");
+    openapiFields.add("status");
+    openapiFields.add("error");
 
     // a set of required properties/fields (JSON key names)
     openapiRequiredFields = new HashSet<String>();
-    openapiRequiredFields.add("code");
-    openapiRequiredFields.add("message");
+    openapiRequiredFields.add("status");
+    openapiRequiredFields.add("error");
   }
 
  /**
   * Validates the JSON Element and throws an exception if issues found
   *
   * @param jsonElement JSON Element
-  * @throws IOException if the JSON Element is invalid with respect to ListIndexes401ResponseError
+  * @throws IOException if the JSON Element is invalid with respect to ErrorResponse
   */
   public static void validateJsonElement(JsonElement jsonElement) throws IOException {
       if (jsonElement == null) {
-        if (!ListIndexes401ResponseError.openapiRequiredFields.isEmpty()) { // has required fields but JSON element is null
-          throw new IllegalArgumentException(String.format("The required field(s) %s in ListIndexes401ResponseError is not found in the empty JSON string", ListIndexes401ResponseError.openapiRequiredFields.toString()));
+        if (!ErrorResponse.openapiRequiredFields.isEmpty()) { // has required fields but JSON element is null
+          throw new IllegalArgumentException(String.format("The required field(s) %s in ErrorResponse is not found in the empty JSON string", ErrorResponse.openapiRequiredFields.toString()));
         }
       }
 
       // check to make sure all required properties/fields are present in the JSON string
-      for (String requiredField : ListIndexes401ResponseError.openapiRequiredFields) {
+      for (String requiredField : ErrorResponse.openapiRequiredFields) {
         if (jsonElement.getAsJsonObject().get(requiredField) == null) {
           throw new IllegalArgumentException(String.format("The required field `%s` is not found in the JSON string: %s", requiredField, jsonElement.toString()));
         }
       }
         JsonObject jsonObj = jsonElement.getAsJsonObject();
-      if (!jsonObj.get("code").isJsonPrimitive()) {
-        throw new IllegalArgumentException(String.format("Expected the field `code` to be a primitive type in the JSON string but got `%s`", jsonObj.get("code").toString()));
-      }
-      if (!jsonObj.get("message").isJsonPrimitive()) {
-        throw new IllegalArgumentException(String.format("Expected the field `message` to be a primitive type in the JSON string but got `%s`", jsonObj.get("message").toString()));
-      }
+      // validate the required field `error`
+      ErrorResponseError.validateJsonElement(jsonObj.get("error"));
   }
 
   public static class CustomTypeAdapterFactory implements TypeAdapterFactory {
     @SuppressWarnings("unchecked")
     @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-       if (!ListIndexes401ResponseError.class.isAssignableFrom(type.getRawType())) {
-         return null; // this class only serializes 'ListIndexes401ResponseError' and its subtypes
+       if (!ErrorResponse.class.isAssignableFrom(type.getRawType())) {
+         return null; // this class only serializes 'ErrorResponse' and its subtypes
        }
        final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
-       final TypeAdapter<ListIndexes401ResponseError> thisAdapter
-                        = gson.getDelegateAdapter(this, TypeToken.get(ListIndexes401ResponseError.class));
+       final TypeAdapter<ErrorResponse> thisAdapter
+                        = gson.getDelegateAdapter(this, TypeToken.get(ErrorResponse.class));
 
-       return (TypeAdapter<T>) new TypeAdapter<ListIndexes401ResponseError>() {
+       return (TypeAdapter<T>) new TypeAdapter<ErrorResponse>() {
            @Override
-           public void write(JsonWriter out, ListIndexes401ResponseError value) throws IOException {
+           public void write(JsonWriter out, ErrorResponse value) throws IOException {
              JsonObject obj = thisAdapter.toJsonTree(value).getAsJsonObject();
              obj.remove("additionalProperties");
              // serialize additional properties
@@ -377,12 +267,12 @@ public class ListIndexes401ResponseError {
            }
 
            @Override
-           public ListIndexes401ResponseError read(JsonReader in) throws IOException {
+           public ErrorResponse read(JsonReader in) throws IOException {
              JsonElement jsonElement = elementAdapter.read(in);
              validateJsonElement(jsonElement);
              JsonObject jsonObj = jsonElement.getAsJsonObject();
              // store additional fields in the deserialized instance
-             ListIndexes401ResponseError instance = thisAdapter.fromJsonTree(jsonObj);
+             ErrorResponse instance = thisAdapter.fromJsonTree(jsonObj);
              for (Map.Entry<String, JsonElement> entry : jsonObj.entrySet()) {
                if (!openapiFields.contains(entry.getKey())) {
                  if (entry.getValue().isJsonPrimitive()) { // primitive type
@@ -409,18 +299,18 @@ public class ListIndexes401ResponseError {
   }
 
  /**
-  * Create an instance of ListIndexes401ResponseError given an JSON string
+  * Create an instance of ErrorResponse given an JSON string
   *
   * @param jsonString JSON string
-  * @return An instance of ListIndexes401ResponseError
-  * @throws IOException if the JSON string is invalid with respect to ListIndexes401ResponseError
+  * @return An instance of ErrorResponse
+  * @throws IOException if the JSON string is invalid with respect to ErrorResponse
   */
-  public static ListIndexes401ResponseError fromJson(String jsonString) throws IOException {
-    return JSON.getGson().fromJson(jsonString, ListIndexes401ResponseError.class);
+  public static ErrorResponse fromJson(String jsonString) throws IOException {
+    return JSON.getGson().fromJson(jsonString, ErrorResponse.class);
   }
 
  /**
-  * Convert an instance of ListIndexes401ResponseError to an JSON string
+  * Convert an instance of ErrorResponse to an JSON string
   *
   * @return JSON string
   */

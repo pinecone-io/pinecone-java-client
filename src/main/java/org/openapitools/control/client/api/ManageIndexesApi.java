@@ -32,9 +32,9 @@ import org.openapitools.control.client.model.CollectionModel;
 import org.openapitools.control.client.model.ConfigureIndexRequest;
 import org.openapitools.control.client.model.CreateCollectionRequest;
 import org.openapitools.control.client.model.CreateIndexRequest;
+import org.openapitools.control.client.model.ErrorResponse;
 import org.openapitools.control.client.model.IndexList;
 import org.openapitools.control.client.model.IndexModel;
-import org.openapitools.control.client.model.ListIndexes401Response;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -82,7 +82,7 @@ public class ManageIndexesApi {
     /**
      * Build call for configureIndex
      * @param indexName The name of the index to configure. (required)
-     * @param configureIndexRequest The desired pod type and replica configuration for the index. (required)
+     * @param configureIndexRequest The desired pod size and replica configuration for the index. (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
      * @throws ApiException If fail to serialize the request body object
@@ -162,9 +162,9 @@ public class ManageIndexesApi {
 
     /**
      * Configure an index
-     * This operation specifies the pod type and number of replicas for an index. It applies to pod-based indexes only. Serverless indexes scale automatically based on usage.
+     * This operation configures the pod size and number of replicas for a pod-based index.  It is not possible to change the pod type of an index. However, you can create a collection from an index and then [create a new index with a different pod type](http://docs.pinecone.io/guides/indexes/create-an-index#create-an-index-from-a-collection) from the collection.
      * @param indexName The name of the index to configure. (required)
-     * @param configureIndexRequest The desired pod type and replica configuration for the index. (required)
+     * @param configureIndexRequest The desired pod size and replica configuration for the index. (required)
      * @return IndexModel
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
@@ -186,9 +186,9 @@ public class ManageIndexesApi {
 
     /**
      * Configure an index
-     * This operation specifies the pod type and number of replicas for an index. It applies to pod-based indexes only. Serverless indexes scale automatically based on usage.
+     * This operation configures the pod size and number of replicas for a pod-based index.  It is not possible to change the pod type of an index. However, you can create a collection from an index and then [create a new index with a different pod type](http://docs.pinecone.io/guides/indexes/create-an-index#create-an-index-from-a-collection) from the collection.
      * @param indexName The name of the index to configure. (required)
-     * @param configureIndexRequest The desired pod type and replica configuration for the index. (required)
+     * @param configureIndexRequest The desired pod size and replica configuration for the index. (required)
      * @return ApiResponse&lt;IndexModel&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
@@ -211,9 +211,9 @@ public class ManageIndexesApi {
 
     /**
      * Configure an index (asynchronously)
-     * This operation specifies the pod type and number of replicas for an index. It applies to pod-based indexes only. Serverless indexes scale automatically based on usage.
+     * This operation configures the pod size and number of replicas for a pod-based index.  It is not possible to change the pod type of an index. However, you can create a collection from an index and then [create a new index with a different pod type](http://docs.pinecone.io/guides/indexes/create-an-index#create-an-index-from-a-collection) from the collection.
      * @param indexName The name of the index to configure. (required)
-     * @param configureIndexRequest The desired pod type and replica configuration for the index. (required)
+     * @param configureIndexRequest The desired pod size and replica configuration for the index. (required)
      * @param _callback The callback to be executed when the API call finishes
      * @return The request call
      * @throws ApiException If fail to process the API call, e.g. serializing the request body object

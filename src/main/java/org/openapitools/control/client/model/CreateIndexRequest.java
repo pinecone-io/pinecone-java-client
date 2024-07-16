@@ -21,6 +21,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.util.Arrays;
+import org.openapitools.control.client.model.DeletionProtection;
 import org.openapitools.control.client.model.IndexSpec;
 
 import com.google.gson.Gson;
@@ -50,7 +51,7 @@ import org.openapitools.control.client.JSON;
 /**
  * The configuration needed to create a Pinecone index.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-07-08T21:08:32.278360Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-07-16T15:28:37.412995Z[Etc/UTC]")
 public class CreateIndexRequest {
   public static final String SERIALIZED_NAME_NAME = "name";
   @SerializedName(SERIALIZED_NAME_NAME)
@@ -112,6 +113,10 @@ public class CreateIndexRequest {
   public static final String SERIALIZED_NAME_METRIC = "metric";
   @SerializedName(SERIALIZED_NAME_METRIC)
   private MetricEnum metric = MetricEnum.COSINE;
+
+  public static final String SERIALIZED_NAME_DELETION_PROTECTION = "deletion_protection";
+  @SerializedName(SERIALIZED_NAME_DELETION_PROTECTION)
+  private DeletionProtection deletionProtection = DeletionProtection.DISABLED;
 
   public static final String SERIALIZED_NAME_SPEC = "spec";
   @SerializedName(SERIALIZED_NAME_SPEC)
@@ -182,6 +187,27 @@ public class CreateIndexRequest {
 
   public void setMetric(MetricEnum metric) {
     this.metric = metric;
+  }
+
+
+  public CreateIndexRequest deletionProtection(DeletionProtection deletionProtection) {
+    
+    this.deletionProtection = deletionProtection;
+    return this;
+  }
+
+   /**
+   * Get deletionProtection
+   * @return deletionProtection
+  **/
+  @javax.annotation.Nullable
+  public DeletionProtection getDeletionProtection() {
+    return deletionProtection;
+  }
+
+
+  public void setDeletionProtection(DeletionProtection deletionProtection) {
+    this.deletionProtection = deletionProtection;
   }
 
 
@@ -263,13 +289,14 @@ public class CreateIndexRequest {
     return Objects.equals(this.name, createIndexRequest.name) &&
         Objects.equals(this.dimension, createIndexRequest.dimension) &&
         Objects.equals(this.metric, createIndexRequest.metric) &&
+        Objects.equals(this.deletionProtection, createIndexRequest.deletionProtection) &&
         Objects.equals(this.spec, createIndexRequest.spec)&&
         Objects.equals(this.additionalProperties, createIndexRequest.additionalProperties);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, dimension, metric, spec, additionalProperties);
+    return Objects.hash(name, dimension, metric, deletionProtection, spec, additionalProperties);
   }
 
   @Override
@@ -279,6 +306,7 @@ public class CreateIndexRequest {
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
     sb.append("    dimension: ").append(toIndentedString(dimension)).append("\n");
     sb.append("    metric: ").append(toIndentedString(metric)).append("\n");
+    sb.append("    deletionProtection: ").append(toIndentedString(deletionProtection)).append("\n");
     sb.append("    spec: ").append(toIndentedString(spec)).append("\n");
     sb.append("    additionalProperties: ").append(toIndentedString(additionalProperties)).append("\n");
     sb.append("}");
@@ -306,6 +334,7 @@ public class CreateIndexRequest {
     openapiFields.add("name");
     openapiFields.add("dimension");
     openapiFields.add("metric");
+    openapiFields.add("deletion_protection");
     openapiFields.add("spec");
 
     // a set of required properties/fields (JSON key names)

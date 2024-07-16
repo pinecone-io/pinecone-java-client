@@ -51,7 +51,7 @@ import org.openapitools.control.client.JSON;
 /**
  * Configuration for the behavior of Pinecone&#39;s internal metadata index. By default, all metadata is indexed; when &#x60;metadata_config&#x60; is present, only specified metadata fields are indexed. These configurations are only valid for use with pod-based indexes.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-07-08T21:08:32.278360Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-07-16T15:28:37.412995Z[Etc/UTC]")
 public class PodSpecMetadataConfig {
   public static final String SERIALIZED_NAME_INDEXED = "indexed";
   @SerializedName(SERIALIZED_NAME_INDEXED)
