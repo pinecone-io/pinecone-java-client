@@ -149,11 +149,11 @@ public class Pinecone {
     }
 
     /**
-     * Overload for creating a new pods index with environment and podType, the minimum required parameters.
+     * Overload for creating a new pods index with environment, podType, and deletion protection.
      * <p>
      * Example:
      * <pre>{@code
-     *     client.createPodsIndex("YOUR-INDEX", 1536, "us-east4-gcp", "p1.x2");
+     *     client.createPodsIndex("YOUR-INDEX", 1536, "us-east4-gcp", "p1.x2", DeletionProtection.ENABLED);
      * }</pre>
      *
      * @param indexName The name of the index to be created.
@@ -514,10 +514,6 @@ public class Pinecone {
             throw new PineconeValidationException("indexName cannot be null or empty");
         }
 
-        if (podType == null && replicas == null) {
-            throw new PineconeValidationException("Must provide either podType or replicas");
-        }
-
         // If you pass a # replicas, but they're < 1, throw an exception
         if (replicas != null) {
             if (replicas < 1) {
@@ -544,7 +540,7 @@ public class Pinecone {
     }
 
     /**
-     * Overload for configureIndex to only change the number of replicas for an index.
+     * Overload for configureIndex to only change the number of replicas and deletion protection for an index.
      * <p>
      * Example:
      * <pre>{@code 
@@ -577,12 +573,31 @@ public class Pinecone {
      *
      * @param indexName The name of the index.
      * @param podType The new podType for the index.
+     * @return {@link IndexModel} of the configured index.
+     * @throws PineconeException if an error occurs during the operation, the index does not exist, or if the podType is invalid.
+     */
+    public IndexModel configurePodsIndex(String indexName, String podType) throws PineconeException {
+        return configurePodsIndex(indexName, podType, null, DeletionProtection.DISABLED);
+    }
+
+    /**
+     * Overload for configureIndex to only change the deletion protection of an index.
+     * <p>
+     * Example:
+     * <pre>{@code
+     *     import org.openapitools.control.client.model.IndexModel;
+     *     ...
+     *
+     *     IndexModel indexModel = client.configureIndex("YOUR-INDEX", DeletionProtection.ENABLED);
+     * }</pre>
+     *
+     * @param indexName The name of the index.
      * @param deletionProtection Enable or disable deletion protection for the index.
      * @return {@link IndexModel} of the configured index.
      * @throws PineconeException if an error occurs during the operation, the index does not exist, or if the podType is invalid.
      */
-    public IndexModel configurePodsIndex(String indexName, String podType, DeletionProtection deletionProtection) throws PineconeException {
-        return configurePodsIndex(indexName, podType, null, deletionProtection);
+    public IndexModel configurePodsIndex(String indexName, DeletionProtection deletionProtection) throws PineconeException {
+        return configurePodsIndex(indexName, null, null, deletionProtection);
     }
 
     /**

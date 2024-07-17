@@ -22,7 +22,7 @@ public class DeletionProtectionTest {
         DeletionProtection deletionProtection = indexModel.getDeletionProtection();
         Assertions.assertEquals(deletionProtection, DeletionProtection.ENABLED);
         // Configure index to disable deletionProtection
-        controlPlaneClient.configurePodsIndex(indexName, "p1.x1", DeletionProtection.DISABLED);
+        controlPlaneClient.configurePodsIndex(indexName, DeletionProtection.DISABLED);
         // Delete index
         controlPlaneClient.deleteIndex(indexName);
     }
@@ -36,12 +36,12 @@ public class DeletionProtectionTest {
         DeletionProtection deletionProtection = indexModel.getDeletionProtection();
         Assertions.assertEquals(deletionProtection, DeletionProtection.DISABLED);
         // Configure index to enable deletionProtection
-        controlPlaneClient.configurePodsIndex(indexName, "p1.x1", DeletionProtection.ENABLED);
+        controlPlaneClient.configurePodsIndex(indexName, DeletionProtection.ENABLED);
         indexModel = controlPlaneClient.describeIndex(indexName);
         deletionProtection = indexModel.getDeletionProtection();
         Assertions.assertEquals(deletionProtection, DeletionProtection.ENABLED);
         // Configure index to disable deletionProtection
-        controlPlaneClient.configurePodsIndex(indexName, "p1.x1", DeletionProtection.DISABLED);
+        controlPlaneClient.configurePodsIndex(indexName, DeletionProtection.DISABLED);
         // Delete index
         controlPlaneClient.deleteIndex(indexName);
     }
