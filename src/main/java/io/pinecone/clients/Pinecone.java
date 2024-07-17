@@ -56,7 +56,7 @@ public class Pinecone {
      * <p>
      * Example:
      * <pre>{@code 
-     *     client.createServerlessIndex("YOUR-INDEX", "cosine", 1536, "aws", "us-west-2");
+     *     client.createServerlessIndex("YOUR-INDEX", "cosine", 1536, "aws", "us-west-2", DeletionProtection.ENABLED);
      * }</pre>
      *
      * @param indexName The name of the index to be created.
@@ -367,7 +367,7 @@ public class Pinecone {
      *     PodSpecMetadataConfig metadataConfig =
      *         new PodSpecMetadataConfig()
      *         .fields(Arrays.asList("genre", "year"));
-     *     client.createPodsIndex("YOUR-INDEX", 1536, "us-east4-gcp", "p1.x2", "cosine", 2, 2, 4, null, null);
+     *     client.createPodsIndex("YOUR-INDEX", 1536, "us-east4-gcp", "p1.x2", "cosine", 2, 2, 4, null, null, DeletionProtection.DISABLED);
      * }</pre>
      *
      * @param indexName The name of the index to be created.
@@ -496,7 +496,7 @@ public class Pinecone {
      *     ...
      *
      *     // Make a configuration change
-     *     IndexModel indexModel = client.configurePodsIndex("YOUR-INDEX", "p1.x2", 4);
+     *     IndexModel indexModel = client.configurePodsIndex("YOUR-INDEX", "p1.x2", 4, DeletionProtection.ENABLED);
      *
      *     // Call describeIndex to see the index status as the change is applied.
      *     indexModel = client.describeIndex("YOUR-INDEX");
@@ -540,14 +540,14 @@ public class Pinecone {
     }
 
     /**
-     * Overload for configureIndex to only change the number of replicas and deletion protection for an index.
+     * Overload for configurePodsIndex to change the number of replicas and deletion protection for an index.
      * <p>
      * Example:
      * <pre>{@code 
      *     import org.openapitools.control.client.model.IndexModel;
      *     ...
      *
-     *     IndexModel indexModel = client.configurePodsIndex("YOUR-INDEX", 4);
+     *     IndexModel indexModel = client.configurePodsIndex("YOUR-INDEX", 4, DeletionProtection.ENABLED);
      * }</pre>
      *
      * @param indexName The name of the index.
@@ -561,7 +561,7 @@ public class Pinecone {
     }
 
     /**
-     * Overload for configureIndex to only change the podType of an index.
+     * Overload for configurePodsIndex to only change the podType of an index.
      * <p>
      * Example:
      * <pre>{@code 
@@ -577,11 +577,12 @@ public class Pinecone {
      * @throws PineconeException if an error occurs during the operation, the index does not exist, or if the podType is invalid.
      */
     public IndexModel configurePodsIndex(String indexName, String podType) throws PineconeException {
-        return configurePodsIndex(indexName, podType, null, DeletionProtection.DISABLED);
+        DeletionProtection deletionProtection = describeIndex(indexName).getDeletionProtection();
+        return configurePodsIndex(indexName, podType, null, deletionProtection);
     }
 
     /**
-     * Overload for configureIndex to only change the deletion protection of an index.
+     * Overload for configurePodsIndex to only change the deletion protection of an index.
      * <p>
      * Example:
      * <pre>{@code
