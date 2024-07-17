@@ -496,7 +496,7 @@ public class Pinecone {
      *     ...
      *
      *     // Make a configuration change
-     *     IndexModel indexModel = client.configureIndex("YOUR-INDEX", "p1.x2", 4);
+     *     IndexModel indexModel = client.configurePodsIndex("YOUR-INDEX", "p1.x2", 4);
      *
      *     // Call describeIndex to see the index status as the change is applied.
      *     indexModel = client.describeIndex("YOUR-INDEX");
@@ -547,7 +547,7 @@ public class Pinecone {
      *     import org.openapitools.control.client.model.IndexModel;
      *     ...
      *
-     *     IndexModel indexModel = client.configureIndex("YOUR-INDEX", 4);
+     *     IndexModel indexModel = client.configurePodsIndex("YOUR-INDEX", 4);
      * }</pre>
      *
      * @param indexName The name of the index.
@@ -568,7 +568,7 @@ public class Pinecone {
      *     import org.openapitools.control.client.model.IndexModel;
      *     ...
      *
-     *     IndexModel indexModel = client.configureIndex("YOUR-INDEX", "p1.x2");
+     *     IndexModel indexModel = client.configurePodsIndex("YOUR-INDEX", "p1.x2");
      * }</pre>
      *
      * @param indexName The name of the index.
@@ -588,7 +588,7 @@ public class Pinecone {
      *     import org.openapitools.control.client.model.IndexModel;
      *     ...
      *
-     *     IndexModel indexModel = client.configureIndex("YOUR-INDEX", DeletionProtection.ENABLED);
+     *     IndexModel indexModel = client.configurePodsIndex("YOUR-INDEX", DeletionProtection.ENABLED);
      * }</pre>
      *
      * @param indexName The name of the index.
@@ -609,7 +609,7 @@ public class Pinecone {
      *     ...
      *
      *     // Make a configuration change
-     *     IndexModel indexModel = client.configureIndex("YOUR-INDEX", DeletionProtection.ENABLED);
+     *     IndexModel indexModel = client.configureServerlessIndex("YOUR-INDEX", DeletionProtection.ENABLED);
      *
      *     // Call describeIndex to see the index status as the change is applied.
      *     indexModel = client.describeIndex("YOUR-INDEX");
