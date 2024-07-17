@@ -104,7 +104,7 @@ public class CreateServerlessIndexExample {
         String cloud = "aws";
         String region = "us-west-2";
 
-        IndexModel indexModel = pinecone.createServerlessIndex(indexName, similarityMetric, dimension, cloud, region);
+        IndexModel indexModel = pinecone.createServerlessIndex(indexName, similarityMetric, dimension, cloud, region, DeletionProtection.ENABLED);
     }
 }
 ```
@@ -183,7 +183,33 @@ String indexName = "example-index";
 String podType = "p1.x1";
 int newNumberOfReplicas = 7;
         
-pinecone.configureIndex(indexName, podType, newNumberOfReplicas);
+pinecone.configurePodsIndex(indexName, podType, newNumberOfReplicas);
+```
+
+## Enable deletion protection for pod index
+
+The following example enables deletion protection of a pod-based index.
+
+```java
+import io.pinecone.clients.Pinecone;
+...
+        
+Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+
+pinecone.configurePodsIndex(indexName, DeletionProtection.ENABLED);
+```
+
+## Enable deletion protection for serverless index
+
+The following example enables deletion protection of a serverless index.
+
+```java
+import io.pinecone.clients.Pinecone;
+...
+        
+Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+
+pinecone.configureServerlessIndex(indexName, DeletionProtection.ENABLED);
 ```
 
 ## Describe index statistics
@@ -205,10 +231,6 @@ DescribeIndexStatsResponse indexStatsResponse = index.describeIndexStats();
 
 Operations related to the indexing, deleting, and querying of vectors are called [data plane](https://docs.pinecone.io/reference/api/introduction#data-plane) 
 operations.
-
-
-
-
 
 The following example upserts vectors to `example-index`.
 
