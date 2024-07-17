@@ -329,25 +329,25 @@ public class PineconeIndexOperationsTest {
         OkHttpClient mockClient = mock(OkHttpClient.class);
         when(mockClient.newCall(any(Request.class))).thenReturn(mockCall);
         Pinecone client = new Pinecone.Builder("testAPiKey").withOkHttpClient(mockClient).build();
-        IndexModel configuredIndex = client.configureIndex("testPodIndex", 3, DeletionProtection.DISABLED);
+        IndexModel configuredIndex = client.configurePodsIndex("testPodIndex", 3, DeletionProtection.DISABLED);
 
         verify(mockCall, times(1)).execute();
         assertEquals(expectedConfiguredIndex, configuredIndex);
 
         // Test for empty string for index name
         PineconeValidationException thrownEmptyIndexName = assertThrows(PineconeValidationException.class,
-                () -> client.configureIndex("",
+                () -> client.configurePodsIndex("",
                         3, DeletionProtection.DISABLED));
         assertEquals("indexName cannot be null or empty", thrownEmptyIndexName.getMessage());
 
         // Test for null as index name
-        PineconeValidationException thrownNullIndexName = assertThrows(PineconeValidationException.class, () -> client.configureIndex(null,
+        PineconeValidationException thrownNullIndexName = assertThrows(PineconeValidationException.class, () -> client.configurePodsIndex(null,
                 3, DeletionProtection.DISABLED));
         assertEquals("indexName cannot be null or empty", thrownNullIndexName.getMessage());
 
         // Test for invalid number of replicas
         PineconeValidationException thrownZeroReplicas = assertThrows(PineconeValidationException.class,
-                () -> client.configureIndex("testPodIndex", 0, DeletionProtection.DISABLED));
+                () -> client.configurePodsIndex("testPodIndex", 0, DeletionProtection.DISABLED));
         assertEquals("Number of replicas must be >= 1", thrownZeroReplicas.getMessage());
     }
 

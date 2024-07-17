@@ -56,7 +56,7 @@ public class ConfigureIndexTest {
     @Test
     public void configureIndexWithInvalidIndexName() {
         try {
-            controlPlaneClient.configureIndex("non-existent-index", 3, DeletionProtection.DISABLED);
+            controlPlaneClient.configurePodsIndex("non-existent-index", 3, DeletionProtection.DISABLED);
 
             fail("Expected to throw PineconeNotFoundException");
         } catch (PineconeNotFoundException expected) {
@@ -67,7 +67,7 @@ public class ConfigureIndexTest {
     @Test
     public void configureIndexExceedingQuota() {
         try {
-            controlPlaneClient.configureIndex(indexName, 600, DeletionProtection.DISABLED);
+            controlPlaneClient.configurePodsIndex(indexName, 30, DeletionProtection.DISABLED);
             fail("Expected to throw PineconeForbiddenException");
         } catch (PineconeForbiddenException expected) {
             assertTrue(expected.getLocalizedMessage().contains("reached the max pods allowed"));
@@ -82,7 +82,7 @@ public class ConfigureIndexTest {
 
         // Verify the scaled up replicas
         assertWithRetry(() -> {
-            controlPlaneClient.configureIndex(indexName, 3, DeletionProtection.DISABLED);
+            controlPlaneClient.configurePodsIndex(indexName, 3, DeletionProtection.DISABLED);
             PodSpec podSpec = controlPlaneClient.describeIndex(indexName).getSpec().getPod();
             assertNotNull(podSpec);
             assertEquals(podSpec.getReplicas(), 3);
@@ -92,7 +92,7 @@ public class ConfigureIndexTest {
 
         // Verify replicas were scaled down
         assertWithRetry(() -> {
-            controlPlaneClient.configureIndex(indexName, 1, DeletionProtection.DISABLED);
+            controlPlaneClient.configurePodsIndex(indexName, 1, DeletionProtection.DISABLED);
             PodSpec podSpec = controlPlaneClient.describeIndex(indexName).getSpec().getPod();
             assertNotNull(podSpec);
             assertEquals(podSpec.getReplicas(), 1);
@@ -108,7 +108,7 @@ public class ConfigureIndexTest {
             assertEquals(1, indexModel.getSpec().getPod().getReplicas());
 
             // Try to change the base pod type
-            controlPlaneClient.configureIndex(indexName, "p2.x2", DeletionProtection.DISABLED);
+            controlPlaneClient.configurePodsIndex(indexName, "p2.x2", DeletionProtection.DISABLED);
 
             fail("Expected to throw PineconeBadRequestException");
         } catch (PineconeBadRequestException expected) {
@@ -126,7 +126,7 @@ public class ConfigureIndexTest {
         // Change the pod type to a larger one
         // Get the index description to verify the new pod type
         assertWithRetry(() -> {
-            controlPlaneClient.configureIndex(indexName, "p1.x2", DeletionProtection.DISABLED);
+            controlPlaneClient.configurePodsIndex(indexName, "p1.x2", DeletionProtection.DISABLED);
             PodSpec podSpec = controlPlaneClient.describeIndex(indexName).getSpec().getPod();
             assertNotNull(podSpec);
             assertEquals(podSpec.getPodType(), "p1.x2");

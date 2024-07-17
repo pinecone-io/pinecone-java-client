@@ -23,4 +23,23 @@ public class DeletionProtectionTest {
         DeletionProtection deletionProtection = indexModel.getDeletionProtection();
         Assertions.assertEquals(deletionProtection, DeletionProtection.ENABLED);
     }
+
+    @Test
+    public void createPodIndexWithDeletionProtectionDisabled() {
+        String indexName = RandomStringBuilder.build("create-pod", 8);
+        // Create serverless index with deletion protection disabled
+        controlPlaneClient.createServerlessIndex(indexName, "cosine", 3, "aws", "us-west-2", DeletionProtection.DISABLED);
+        IndexModel indexModel = controlPlaneClient.describeIndex(indexName);
+        DeletionProtection deletionProtection = indexModel.getDeletionProtection();
+        Assertions.assertEquals(deletionProtection, DeletionProtection.DISABLED);
+        // Configure index to enable deletionProtection
+        controlPlaneClient.configureServerlessIndex(indexName, DeletionProtection.ENABLED);
+        indexModel = controlPlaneClient.describeIndex(indexName);
+        deletionProtection = indexModel.getDeletionProtection();
+        Assertions.assertEquals(deletionProtection, DeletionProtection.ENABLED);
+        // Configure index to disable deletionProtection
+        controlPlaneClient.configureServerlessIndex(indexName, DeletionProtection.DISABLED);
+        // Delete index
+        controlPlaneClient.deleteIndex(indexName);
+    }
 }
