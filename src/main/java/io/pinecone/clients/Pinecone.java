@@ -56,7 +56,7 @@ public class Pinecone {
      * <p>
      * Example:
      * <pre>{@code 
-     *     client.createServerlessIndex("YOUR-INDEX", "cosine", 1536, "aws", "us-west-2");
+     *     client.createServerlessIndex("YOUR-INDEX", "cosine", 1536, "aws", "us-west-2", DeletionProtection.ENABLED);
      * }</pre>
      *
      * @param indexName The name of the index to be created.
@@ -64,11 +64,16 @@ public class Pinecone {
      * @param dimension The number of dimensions for the index.
      * @param cloud The cloud provider for the index.
      * @param region The cloud region for the index.
+     * @param deletionProtection Enable or disable deletion protection for the index.
      * @return {@link IndexModel} representing the created serverless index.
      * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
      */
-    public IndexModel createServerlessIndex(String indexName, String metric, int dimension, String cloud,
-                                            String region) throws PineconeException {
+    public IndexModel createServerlessIndex(String indexName,
+                                            String metric,
+                                            int dimension,
+                                            String cloud,
+                                            String region,
+                                            DeletionProtection deletionProtection) throws PineconeException {
         if (indexName == null || indexName.isEmpty()) {
             throw new PineconeValidationException("Index name cannot be null or empty");
         }
@@ -115,7 +120,8 @@ public class Pinecone {
                     .name(indexName)
                     .metric(userMetric)
                     .dimension(dimension)
-                    .spec(createServerlessIndexRequestSpec));
+                    .spec(createServerlessIndexRequestSpec)
+                    .deletionProtection(deletionProtection));
         } catch (ApiException apiException) {
             handleApiException(apiException);
         }
@@ -138,7 +144,33 @@ public class Pinecone {
      * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
      */
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment, String podType) {
-        return createPodsIndex(indexName, dimension, environment, podType, null, null, null, null, null, null);
+        return createPodsIndex(indexName, dimension, environment, podType, null, null, null,
+                null, null, null, DeletionProtection.DISABLED);
+    }
+
+    /**
+     * Overload for creating a new pods index with environment, podType, and deletion protection.
+     * <p>
+     * Example:
+     * <pre>{@code
+     *     client.createPodsIndex("YOUR-INDEX", 1536, "us-east4-gcp", "p1.x2", DeletionProtection.ENABLED);
+     * }</pre>
+     *
+     * @param indexName The name of the index to be created.
+     * @param dimension The number of dimensions for the index.
+     * @param environment The cloud environment where you want the index to be hosted.
+     * @param podType The type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
+     * @param deletionProtection Enable or disable deletion protection for the index.
+     * @return {@link IndexModel} representing the created serverless index.
+     * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
+     */
+    public IndexModel createPodsIndex(String indexName,
+                                      Integer dimension,
+                                      String environment,
+                                      String podType,
+                                      DeletionProtection deletionProtection) {
+        return createPodsIndex(indexName, dimension, environment, podType, null, null, null,
+                null, null, null, deletionProtection);
     }
 
     /**
@@ -159,7 +191,8 @@ public class Pinecone {
      */
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String podType, String metric) {
-        return createPodsIndex(indexName, dimension, environment, podType, metric, null, null, null, null, null);
+        return createPodsIndex(indexName, dimension, environment, podType, metric, null, null,
+                null, null, null, DeletionProtection.DISABLED);
     }
 
     /**
@@ -189,8 +222,8 @@ public class Pinecone {
      */
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String podType, String metric, PodSpecMetadataConfig metadataConfig) {
-        return createPodsIndex(indexName, dimension, environment, podType, metric, null, null, null, metadataConfig,
-                null);
+        return createPodsIndex(indexName, dimension, environment, podType, metric, null, null, null,
+                metadataConfig,null, DeletionProtection.DISABLED);
     }
 
     /**
@@ -213,7 +246,7 @@ public class Pinecone {
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String podType, String metric, String sourceCollection) {
         return createPodsIndex(indexName, dimension, environment, podType, metric, null, null, null, null,
-                sourceCollection);
+                sourceCollection, DeletionProtection.DISABLED);
     }
 
     /**
@@ -234,7 +267,8 @@ public class Pinecone {
      */
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String podType, Integer pods) {
-        return createPodsIndex(indexName, dimension, environment, podType, null, null, null, pods, null, null);
+        return createPodsIndex(indexName, dimension, environment, podType, null, null, null, pods,
+                null, null, DeletionProtection.DISABLED);
     }
 
     /**
@@ -263,7 +297,7 @@ public class Pinecone {
                                       String podType, Integer pods,
                                       PodSpecMetadataConfig metadataConfig) {
         return createPodsIndex(indexName, dimension, environment, podType, null, null, null, pods, metadataConfig,
-                null);
+                null, DeletionProtection.DISABLED);
     }
 
     /**
@@ -286,7 +320,8 @@ public class Pinecone {
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String podType, Integer replicas,
                                       Integer shards) {
-        return createPodsIndex(indexName, dimension, environment, podType, null, replicas, shards, null, null, null);
+        return createPodsIndex(indexName, dimension, environment, podType, null, replicas, shards, null,
+                null, null, DeletionProtection.DISABLED);
     }
 
     /**
@@ -315,9 +350,10 @@ public class Pinecone {
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String podType, Integer replicas,
                                       Integer shards, PodSpecMetadataConfig metadataConfig) {
-        return createPodsIndex(indexName, dimension, environment, podType, null, replicas, shards, null,
-                metadataConfig,
-                null);
+        return createPodsIndex(indexName, dimension, environment,
+                podType, null, replicas,
+                shards, null, metadataConfig,
+                null, DeletionProtection.DISABLED);
     }
 
     /**
@@ -331,7 +367,7 @@ public class Pinecone {
      *     PodSpecMetadataConfig metadataConfig =
      *         new PodSpecMetadataConfig()
      *         .fields(Arrays.asList("genre", "year"));
-     *     client.createPodsIndex("YOUR-INDEX", 1536, "us-east4-gcp", "p1.x2", "cosine", 2, 2, 4, null, null);
+     *     client.createPodsIndex("YOUR-INDEX", 1536, "us-east4-gcp", "p1.x2", "cosine", 2, 2, 4, null, null, DeletionProtection.DISABLED);
      * }</pre>
      *
      * @param indexName The name of the index to be created.
@@ -345,13 +381,15 @@ public class Pinecone {
      * @param metadataConfig The configuration for the behavior of Pinecone's internal metadata index. By default, all metadata is indexed;
      *                       when metadataConfig is present, only specified metadata fields are indexed.
      * @param sourceCollection The name of the collection to be used as the source for the index. Collections are snapshots of an index at a point in time.
+     * @param deletionProtection Enable or disable deletion protection for the index.
      * @return {@link IndexModel} representing the created serverless index.
      * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
      */
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String podType, String metric,
                                       Integer replicas, Integer shards, Integer pods,
-                                      PodSpecMetadataConfig metadataConfig, String sourceCollection) throws PineconeException {
+                                      PodSpecMetadataConfig metadataConfig, String sourceCollection,
+                                      DeletionProtection deletionProtection) throws PineconeException {
         validatePodIndexParams(indexName, dimension, environment, podType, metric, replicas, shards, pods);
 
         PodSpec podSpec = new PodSpec().environment(environment)
@@ -366,7 +404,8 @@ public class Pinecone {
                 .name(indexName)
                 .dimension(dimension)
                 .metric(metric != null ? CreateIndexRequest.MetricEnum.fromValue(metric) : CreateIndexRequest.MetricEnum.COSINE)
-                .spec(createIndexRequestSpec);
+                .spec(createIndexRequestSpec)
+                .deletionProtection(deletionProtection);
 
         IndexModel indexModel = null;
         try {
@@ -457,7 +496,7 @@ public class Pinecone {
      *     ...
      *
      *     // Make a configuration change
-     *     IndexModel indexModel = client.configureIndex("YOUR-INDEX", "p1.x2", 4);
+     *     IndexModel indexModel = client.configurePodsIndex("YOUR-INDEX", "p1.x2", 4, DeletionProtection.ENABLED);
      *
      *     // Call describeIndex to see the index status as the change is applied.
      *     indexModel = client.describeIndex("YOUR-INDEX");
@@ -466,16 +505,13 @@ public class Pinecone {
      * @param indexName The name of the index to configure.
      * @param podType The new podType for the index. Can be null if not changing the pod type.
      * @param replicas The desired number of replicas for the index, lowest value is 0. Can be null if not changing the number of replicas.
+     * @param deletionProtection Enable or disable deletion protection for the index.
      * @return {@link IndexModel} representing the configured index.
      * @throws PineconeException if an error occurs during the operation, the index does not exist, or if any of the arguments are invalid.
      */
-    public IndexModel configureIndex(String indexName, String podType, Integer replicas) throws PineconeException {
+    public IndexModel configurePodsIndex(String indexName, String podType, Integer replicas, DeletionProtection deletionProtection) throws PineconeException {
         if (indexName == null || indexName.isEmpty()) {
             throw new PineconeValidationException("indexName cannot be null or empty");
-        }
-
-        if (podType == null && replicas == null) {
-            throw new PineconeValidationException("Must provide either podType or replicas");
         }
 
         // If you pass a # replicas, but they're < 1, throw an exception
@@ -492,7 +528,7 @@ public class Pinecone {
                                 .replicas(replicas)
                                 .podType(podType)
                         )
-                );
+                ).deletionProtection(deletionProtection);
 
         IndexModel indexModel = null;
         try {
@@ -504,34 +540,35 @@ public class Pinecone {
     }
 
     /**
-     * Overload for configureIndex to only change the number of replicas for an index.
+     * Overload for configurePodsIndex to change the number of replicas and deletion protection for an index.
      * <p>
      * Example:
      * <pre>{@code 
      *     import org.openapitools.control.client.model.IndexModel;
      *     ...
      *
-     *     IndexModel indexModel = client.configureIndex("YOUR-INDEX", 4);
+     *     IndexModel indexModel = client.configurePodsIndex("YOUR-INDEX", 4, DeletionProtection.ENABLED);
      * }</pre>
      *
      * @param indexName The name of the index.
      * @param replicas The desired number of replicas for the index, lowest value is 0.
+     * @param deletionProtection Enable or disable deletion protection for the index.
      * @return {@link IndexModel} of the configured index.
      * @throws PineconeException if an error occurs during the operation, the index does not exist, or if the number of replicas is invalid.
      */
-    public IndexModel configureIndex(String indexName, Integer replicas) throws PineconeException {
-        return configureIndex(indexName, null, replicas);
+    public IndexModel configurePodsIndex(String indexName, Integer replicas, DeletionProtection deletionProtection) throws PineconeException {
+        return configurePodsIndex(indexName, null, replicas, deletionProtection);
     }
 
     /**
-     * Overload for configureIndex to only change the podType of an index.
+     * Overload for configurePodsIndex to only change the podType of an index.
      * <p>
      * Example:
      * <pre>{@code 
      *     import org.openapitools.control.client.model.IndexModel;
      *     ...
      *
-     *     IndexModel indexModel = client.configureIndex("YOUR-INDEX", "p1.x2");
+     *     IndexModel indexModel = client.configurePodsIndex("YOUR-INDEX", "p1.x2");
      * }</pre>
      *
      * @param indexName The name of the index.
@@ -539,8 +576,66 @@ public class Pinecone {
      * @return {@link IndexModel} of the configured index.
      * @throws PineconeException if an error occurs during the operation, the index does not exist, or if the podType is invalid.
      */
-    public IndexModel configureIndex(String indexName, String podType) throws PineconeException {
-        return configureIndex(indexName, podType, null);
+    public IndexModel configurePodsIndex(String indexName, String podType) throws PineconeException {
+        DeletionProtection deletionProtection = describeIndex(indexName).getDeletionProtection();
+        return configurePodsIndex(indexName, podType, null, deletionProtection);
+    }
+
+    /**
+     * Overload for configurePodsIndex to only change the deletion protection of an index.
+     * <p>
+     * Example:
+     * <pre>{@code
+     *     import org.openapitools.control.client.model.IndexModel;
+     *     ...
+     *
+     *     IndexModel indexModel = client.configurePodsIndex("YOUR-INDEX", DeletionProtection.ENABLED);
+     * }</pre>
+     *
+     * @param indexName The name of the index.
+     * @param deletionProtection Enable or disable deletion protection for the index.
+     * @return {@link IndexModel} of the configured index.
+     * @throws PineconeException if an error occurs during the operation, the index does not exist, or if the podType is invalid.
+     */
+    public IndexModel configurePodsIndex(String indexName, DeletionProtection deletionProtection) throws PineconeException {
+        return configurePodsIndex(indexName, null, null, deletionProtection);
+    }
+
+    /**
+     * Configures an existing serverless index with deletion protection.
+     * <p>
+     * Example:
+     * <pre>{@code
+     *     import org.openapitools.control.client.model.IndexModel;
+     *     ...
+     *
+     *     // Make a configuration change
+     *     IndexModel indexModel = client.configureServerlessIndex("YOUR-INDEX", DeletionProtection.ENABLED);
+     *
+     *     // Call describeIndex to see the index status as the change is applied.
+     *     indexModel = client.describeIndex("YOUR-INDEX");
+     * }</pre>
+     *
+     * @param indexName The name of the index to configure.
+     * @param deletionProtection Enable or disable deletion protection for the index.
+     * @return {@link IndexModel} representing the configured index.
+     * @throws PineconeException if an error occurs during the operation, the index does not exist, or if any of the arguments are invalid.
+     */
+    public IndexModel configureServerlessIndex(String indexName, DeletionProtection deletionProtection) throws PineconeException {
+        if (indexName == null || indexName.isEmpty()) {
+            throw new PineconeValidationException("indexName cannot be null or empty");
+        }
+
+        // Build ConfigureIndexRequest object
+        ConfigureIndexRequest configureIndexRequest = new ConfigureIndexRequest().deletionProtection(deletionProtection);
+
+        IndexModel indexModel = null;
+        try {
+            indexModel = manageIndexesApi.configureIndex(indexName, configureIndexRequest);
+        } catch (ApiException apiException) {
+            handleApiException(apiException);
+        }
+        return indexModel;
     }
 
     /**

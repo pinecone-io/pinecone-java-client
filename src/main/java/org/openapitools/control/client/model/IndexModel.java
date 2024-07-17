@@ -21,6 +21,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.util.Arrays;
+import org.openapitools.control.client.model.DeletionProtection;
 import org.openapitools.control.client.model.IndexModelSpec;
 import org.openapitools.control.client.model.IndexModelStatus;
 
@@ -51,7 +52,7 @@ import org.openapitools.control.client.JSON;
 /**
  * The IndexModel describes the configuration and status of a Pinecone index.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-07-08T21:08:32.278360Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-07-16T15:28:37.412995Z[Etc/UTC]")
 public class IndexModel {
   public static final String SERIALIZED_NAME_NAME = "name";
   @SerializedName(SERIALIZED_NAME_NAME)
@@ -117,6 +118,10 @@ public class IndexModel {
   public static final String SERIALIZED_NAME_HOST = "host";
   @SerializedName(SERIALIZED_NAME_HOST)
   private String host;
+
+  public static final String SERIALIZED_NAME_DELETION_PROTECTION = "deletion_protection";
+  @SerializedName(SERIALIZED_NAME_DELETION_PROTECTION)
+  private DeletionProtection deletionProtection = DeletionProtection.DISABLED;
 
   public static final String SERIALIZED_NAME_SPEC = "spec";
   @SerializedName(SERIALIZED_NAME_SPEC)
@@ -212,6 +217,27 @@ public class IndexModel {
 
   public void setHost(String host) {
     this.host = host;
+  }
+
+
+  public IndexModel deletionProtection(DeletionProtection deletionProtection) {
+    
+    this.deletionProtection = deletionProtection;
+    return this;
+  }
+
+   /**
+   * Get deletionProtection
+   * @return deletionProtection
+  **/
+  @javax.annotation.Nullable
+  public DeletionProtection getDeletionProtection() {
+    return deletionProtection;
+  }
+
+
+  public void setDeletionProtection(DeletionProtection deletionProtection) {
+    this.deletionProtection = deletionProtection;
   }
 
 
@@ -315,6 +341,7 @@ public class IndexModel {
         Objects.equals(this.dimension, indexModel.dimension) &&
         Objects.equals(this.metric, indexModel.metric) &&
         Objects.equals(this.host, indexModel.host) &&
+        Objects.equals(this.deletionProtection, indexModel.deletionProtection) &&
         Objects.equals(this.spec, indexModel.spec) &&
         Objects.equals(this.status, indexModel.status)&&
         Objects.equals(this.additionalProperties, indexModel.additionalProperties);
@@ -322,7 +349,7 @@ public class IndexModel {
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, dimension, metric, host, spec, status, additionalProperties);
+    return Objects.hash(name, dimension, metric, host, deletionProtection, spec, status, additionalProperties);
   }
 
   @Override
@@ -333,6 +360,7 @@ public class IndexModel {
     sb.append("    dimension: ").append(toIndentedString(dimension)).append("\n");
     sb.append("    metric: ").append(toIndentedString(metric)).append("\n");
     sb.append("    host: ").append(toIndentedString(host)).append("\n");
+    sb.append("    deletionProtection: ").append(toIndentedString(deletionProtection)).append("\n");
     sb.append("    spec: ").append(toIndentedString(spec)).append("\n");
     sb.append("    status: ").append(toIndentedString(status)).append("\n");
     sb.append("    additionalProperties: ").append(toIndentedString(additionalProperties)).append("\n");
@@ -362,6 +390,7 @@ public class IndexModel {
     openapiFields.add("dimension");
     openapiFields.add("metric");
     openapiFields.add("host");
+    openapiFields.add("deletion_protection");
     openapiFields.add("spec");
     openapiFields.add("status");
 

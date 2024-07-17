@@ -49,10 +49,10 @@ import org.openapitools.control.client.JSON;
 /**
  * Configuration needed to deploy a serverless index.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-07-08T21:08:32.278360Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-07-16T15:28:37.412995Z[Etc/UTC]")
 public class ServerlessSpec {
   /**
-   * The public cloud where you would like your index hosted. Serverless indexes can be hosted only in AWS at this time.
+   * The public cloud where you would like your index hosted.
    */
   @JsonAdapter(CloudEnum.Adapter.class)
   public enum CloudEnum {
@@ -118,7 +118,7 @@ public class ServerlessSpec {
   }
 
    /**
-   * The public cloud where you would like your index hosted. Serverless indexes can be hosted only in AWS at this time.
+   * The public cloud where you would like your index hosted.
    * @return cloud
   **/
   @javax.annotation.Nonnull
@@ -139,7 +139,7 @@ public class ServerlessSpec {
   }
 
    /**
-   * The region where you would like your index to be created.  Serverless indexes can be created only in the us-east-1,us-west-2, and eu-west-1 regions of AWS at this time.
+   * The region where you would like your index to be created. 
    * @return region
   **/
   @javax.annotation.Nonnull

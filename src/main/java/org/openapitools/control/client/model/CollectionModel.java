@@ -49,7 +49,7 @@ import org.openapitools.control.client.JSON;
 /**
  * The CollectionModel describes the configuration and status of a Pinecone collection.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-07-08T21:08:32.278360Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-07-16T15:28:37.412995Z[Etc/UTC]")
 public class CollectionModel {
   public static final String SERIALIZED_NAME_NAME = "name";
   @SerializedName(SERIALIZED_NAME_NAME)

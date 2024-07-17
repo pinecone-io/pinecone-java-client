@@ -22,6 +22,7 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.util.Arrays;
 import org.openapitools.control.client.model.ConfigureIndexRequestSpec;
+import org.openapitools.control.client.model.DeletionProtection;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -50,11 +51,15 @@ import org.openapitools.control.client.JSON;
 /**
  * Configuration used to scale an index.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-07-08T21:08:32.278360Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-07-16T15:28:37.412995Z[Etc/UTC]")
 public class ConfigureIndexRequest {
   public static final String SERIALIZED_NAME_SPEC = "spec";
   @SerializedName(SERIALIZED_NAME_SPEC)
   private ConfigureIndexRequestSpec spec;
+
+  public static final String SERIALIZED_NAME_DELETION_PROTECTION = "deletion_protection";
+  @SerializedName(SERIALIZED_NAME_DELETION_PROTECTION)
+  private DeletionProtection deletionProtection = DeletionProtection.DISABLED;
 
   public ConfigureIndexRequest() {
   }
@@ -69,7 +74,7 @@ public class ConfigureIndexRequest {
    * Get spec
    * @return spec
   **/
-  @javax.annotation.Nonnull
+  @javax.annotation.Nullable
   public ConfigureIndexRequestSpec getSpec() {
     return spec;
   }
@@ -77,6 +82,27 @@ public class ConfigureIndexRequest {
 
   public void setSpec(ConfigureIndexRequestSpec spec) {
     this.spec = spec;
+  }
+
+
+  public ConfigureIndexRequest deletionProtection(DeletionProtection deletionProtection) {
+    
+    this.deletionProtection = deletionProtection;
+    return this;
+  }
+
+   /**
+   * Get deletionProtection
+   * @return deletionProtection
+  **/
+  @javax.annotation.Nullable
+  public DeletionProtection getDeletionProtection() {
+    return deletionProtection;
+  }
+
+
+  public void setDeletionProtection(DeletionProtection deletionProtection) {
+    this.deletionProtection = deletionProtection;
   }
 
   /**
@@ -134,13 +160,14 @@ public class ConfigureIndexRequest {
       return false;
     }
     ConfigureIndexRequest configureIndexRequest = (ConfigureIndexRequest) o;
-    return Objects.equals(this.spec, configureIndexRequest.spec)&&
+    return Objects.equals(this.spec, configureIndexRequest.spec) &&
+        Objects.equals(this.deletionProtection, configureIndexRequest.deletionProtection)&&
         Objects.equals(this.additionalProperties, configureIndexRequest.additionalProperties);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(spec, additionalProperties);
+    return Objects.hash(spec, deletionProtection, additionalProperties);
   }
 
   @Override
@@ -148,6 +175,7 @@ public class ConfigureIndexRequest {
     StringBuilder sb = new StringBuilder();
     sb.append("class ConfigureIndexRequest {\n");
     sb.append("    spec: ").append(toIndentedString(spec)).append("\n");
+    sb.append("    deletionProtection: ").append(toIndentedString(deletionProtection)).append("\n");
     sb.append("    additionalProperties: ").append(toIndentedString(additionalProperties)).append("\n");
     sb.append("}");
     return sb.toString();
@@ -172,10 +200,10 @@ public class ConfigureIndexRequest {
     // a set of all properties/fields (JSON key names)
     openapiFields = new HashSet<String>();
     openapiFields.add("spec");
+    openapiFields.add("deletion_protection");
 
     // a set of required properties/fields (JSON key names)
     openapiRequiredFields = new HashSet<String>();
-    openapiRequiredFields.add("spec");
   }
 
  /**
@@ -190,16 +218,11 @@ public class ConfigureIndexRequest {
           throw new IllegalArgumentException(String.format("The required field(s) %s in ConfigureIndexRequest is not found in the empty JSON string", ConfigureIndexRequest.openapiRequiredFields.toString()));
         }
       }
-
-      // check to make sure all required properties/fields are present in the JSON string
-      for (String requiredField : ConfigureIndexRequest.openapiRequiredFields) {
-        if (jsonElement.getAsJsonObject().get(requiredField) == null) {
-          throw new IllegalArgumentException(String.format("The required field `%s` is not found in the JSON string: %s", requiredField, jsonElement.toString()));
-        }
-      }
         JsonObject jsonObj = jsonElement.getAsJsonObject();
-      // validate the required field `spec`
-      ConfigureIndexRequestSpec.validateJsonElement(jsonObj.get("spec"));
+      // validate the optional field `spec`
+      if (jsonObj.get("spec") != null && !jsonObj.get("spec").isJsonNull()) {
+        ConfigureIndexRequestSpec.validateJsonElement(jsonObj.get("spec"));
+      }
   }
 
   public static class CustomTypeAdapterFactory implements TypeAdapterFactory {

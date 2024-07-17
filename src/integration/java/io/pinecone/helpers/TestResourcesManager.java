@@ -317,7 +317,7 @@ public class TestResourcesManager {
         String indexName = RandomStringBuilder.build("serverless-index", 8);
         
         serverlessIndexModel = pineconeClient.createServerlessIndex(indexName, metric, dimension, cloud,
-                region);
+                region, DeletionProtection.DISABLED);
         waitUntilIndexIsReady(pineconeClient, indexName);
 
         // Explicitly wait after ready to avoid the "no healthy upstream" issue
