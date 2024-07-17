@@ -404,7 +404,8 @@ public class Pinecone {
                 .name(indexName)
                 .dimension(dimension)
                 .metric(metric != null ? CreateIndexRequest.MetricEnum.fromValue(metric) : CreateIndexRequest.MetricEnum.COSINE)
-                .spec(createIndexRequestSpec);
+                .spec(createIndexRequestSpec)
+                .deletionProtection(deletionProtection);
 
         IndexModel indexModel = null;
         try {
