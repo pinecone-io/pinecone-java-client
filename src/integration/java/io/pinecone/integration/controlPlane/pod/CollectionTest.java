@@ -12,7 +12,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.openapitools.client.model.*;
+import org.openapitools.control.client.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,11 +117,11 @@ public class CollectionTest {
     public void testCreateIndexFromCollectionWithDiffMetric() throws InterruptedException {
         // Use a different metric than the source index
         String[] metrics = {
-                IndexMetric.COSINE.toString(),
-                IndexMetric.EUCLIDEAN.toString(),
-                IndexMetric.DOTPRODUCT.toString()
+                IndexModel.MetricEnum.COSINE.toString(),
+                IndexModel.MetricEnum.EUCLIDEAN.toString(),
+                IndexModel.MetricEnum.DOTPRODUCT.toString()
         };
-        String targetMetric = IndexMetric.COSINE.toString();
+        String targetMetric = IndexModel.MetricEnum.COSINE.toString();
         for (String metric : metrics) {
             if (!metric.equals(sourceIndexMetric)) {
                 targetMetric = metric;

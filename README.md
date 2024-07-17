@@ -39,8 +39,7 @@ having to obtain the *pinecone-client* dependencies separately.
 ### Initializing the client
 
 Before you can use the Pinecone Java SDK, you must sign up for a Pinecone account and find your API key in the Pinecone 
-console 
-dashboard at [https://app.pinecone.io](https://app.pinecone.io).
+console dashboard at [https://app.pinecone.io](https://app.pinecone.io).
 
 #### Using apiKey
 
@@ -75,7 +74,7 @@ public class InitializeClientExample {
 
         OkHttpClient httpClient = builder.build();
 
-        Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+        Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").withOkHttpClient(httpClient).build();
     }
 }
 ```
