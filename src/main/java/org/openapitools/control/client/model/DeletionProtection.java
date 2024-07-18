@@ -23,7 +23,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
 /**
- * Whether delete protection is enabled/disabled for the resource. 
+ * Whether [deletion protection](http://docs.pinecone.io/guides/indexes/prevent-index-deletion) is enabled/disabled for the index. 
  */
 @JsonAdapter(DeletionProtection.Adapter.class)
 public enum DeletionProtection {

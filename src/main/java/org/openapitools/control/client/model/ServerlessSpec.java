@@ -49,7 +49,7 @@ import org.openapitools.control.client.JSON;
 /**
  * Configuration needed to deploy a serverless index.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-07-16T15:28:37.412995Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-07-18T20:37:01.807093Z[Etc/UTC]")
 public class ServerlessSpec {
   /**
    * The public cloud where you would like your index hosted.

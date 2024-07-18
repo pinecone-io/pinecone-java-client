@@ -49,7 +49,7 @@ import org.openapitools.control.client.JSON;
 /**
  * The CollectionModel describes the configuration and status of a Pinecone collection.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-07-16T15:28:37.412995Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-07-18T20:37:01.807093Z[Etc/UTC]")
 public class CollectionModel {
   public static final String SERIALIZED_NAME_NAME = "name";
   @SerializedName(SERIALIZED_NAME_NAME)
@@ -199,7 +199,7 @@ public class CollectionModel {
    /**
    * The dimension of the vectors stored in each record held in the collection.
    * minimum: 1
-   * maximum: 2000
+   * maximum: 20000
    * @return dimension
   **/
   @javax.annotation.Nullable
