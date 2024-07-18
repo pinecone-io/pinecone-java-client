@@ -51,7 +51,7 @@ import org.openapitools.control.client.JSON;
 /**
  * The spec object defines how the index should be deployed.  For serverless indexes, you define only the [cloud and region](http://docs.pinecone.io/guides/indexes/understanding-indexes#cloud-regions) where the index should be hosted. For pod-based indexes, you define the [environment](http://docs.pinecone.io/guides/indexes/understanding-indexes#pod-environments) where the index should be hosted, the [pod type and size](http://docs.pinecone.io/guides/indexes/understanding-indexes#pod-types) to use, and other index characteristics. 
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-07-16T15:28:37.412995Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-07-18T20:37:01.807093Z[Etc/UTC]")
 public class IndexSpec {
   public static final String SERIALIZED_NAME_SERVERLESS = "serverless";
   @SerializedName(SERIALIZED_NAME_SERVERLESS)
