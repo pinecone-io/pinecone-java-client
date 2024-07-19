@@ -15,7 +15,7 @@ Maven:
 <dependency>
   <groupId>io.pinecone</groupId>
   <artifactId>pinecone-client</artifactId>
-  <version>1.2.2</version>
+  <version>2.0.0</version>
 </dependency>
 ```
 
@@ -28,8 +28,8 @@ implementation "io.pinecone:pinecone-client:1.2.2"
 
 [comment]: <> (^ [pc:VERSION_LATEST_RELEASE])
 
-Alternatively, you can use our standalone uberjar [pinecone-client-1.2.2-all.jar](https://repo1.maven.org/maven2/io/pinecone/pinecone-client/1.2.2/pinecone-client-1.2.2-all.jar), which bundles the pinecone 
-client and all dependencies together. You can include this in your classpath like you do with any 3rd party JAR without 
+Alternatively, you can use our standalone uberjar [pinecone-client-2.0.0-all.jar](https://repo1.maven.org/maven2/io/pinecone/pinecone-client/2.0.0/pinecone-client-2.0.0-all.jar), which bundles the pinecone
+client and all dependencies together. You can include this in your classpath like you do with any 3rd party JAR without
 having to obtain the *pinecone-client* dependencies separately.
 
 [comment]: <> (^ [pc:VERSION_LATEST_RELEASE])
@@ -94,19 +94,17 @@ serverless and regional availability, see [Understanding indexes](https://docs.p
 import io.pinecone.clients.Pinecone;
 import org.openapitools.client.model.IndexModel;
 
-public class CreateServerlessIndexExample {
-    public static void main(String[] args) {
-        Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
-        
-        String indexName = "example-index";
-        String similarityMetric = "cosine";
-        int dimension = 1538;
-        String cloud = "aws";
-        String region = "us-west-2";
+...
 
-        IndexModel indexModel = pinecone.createServerlessIndex(indexName, similarityMetric, dimension, cloud, region);
-    }
-}
+Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+        
+String indexName = "example-index";
+String similarityMetric = "cosine";
+int dimension = 1538;
+String cloud = "aws";
+String region = "us-west-2";
+
+IndexModel indexModel = pinecone.createServerlessIndex(indexName, similarityMetric, dimension, cloud, region, DeletionProtection.ENABLED);
 ```
 
 ### Create a pod index
@@ -128,6 +126,26 @@ String podType = "p1.x1";
 
 IndexModel indexModel = pinecone.createPodsIndex(indexName, dimension, environment, podType, similarityMetric);
 ```
+
+### Create a pod index with deletion protection enabled
+The following is an example of creating a pod-based index with deletion protection enabled. For all the possible
+configuration options, see `main/java/io/pinecone/clients/Pinecone.java`.
+
+```java
+import io.pinecone.clients.Pinecone;
+import org.openapitools.client.model.IndexModel;
+...
+        
+Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+        
+String indexName = "example-index";
+int dimension = 1538;
+String environment = "us-east-1-aws";
+String podType = "p1.x1";
+
+IndexModel indexModel = pinecone.createPodsIndex(indexName, dimension, environment, podType, DeletionProtection.ENABLED);
+```
+
 
 ## List indexes
 
@@ -183,7 +201,33 @@ String indexName = "example-index";
 String podType = "p1.x1";
 int newNumberOfReplicas = 7;
         
-pinecone.configureIndex(indexName, podType, newNumberOfReplicas);
+pinecone.configurePodsIndex(indexName, podType, newNumberOfReplicas);
+```
+
+## Enable deletion protection for pod index
+
+The following example enables deletion protection of a pod-based index.
+
+```java
+import io.pinecone.clients.Pinecone;
+...
+        
+Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+
+pinecone.configurePodsIndex(indexName, DeletionProtection.ENABLED);
+```
+
+## Enable deletion protection for serverless index
+
+The following example enables deletion protection of a serverless index.
+
+```java
+import io.pinecone.clients.Pinecone;
+...
+        
+Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+
+pinecone.configureServerlessIndex(indexName, DeletionProtection.ENABLED);
 ```
 
 ## Describe index statistics
@@ -205,10 +249,6 @@ DescribeIndexStatsResponse indexStatsResponse = index.describeIndexStats();
 
 Operations related to the indexing, deleting, and querying of vectors are called [data plane](https://docs.pinecone.io/reference/api/introduction#data-plane) 
 operations.
-
-
-
-
 
 The following example upserts vectors to `example-index`.
 

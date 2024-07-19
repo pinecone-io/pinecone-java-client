@@ -2,6 +2,9 @@
 
 [comment]: <> (When bumping [pc:VERSION_LATEST_RELEASE] create a new entry below)
 ### Unreleased version
+### 2.0.0
+- Add deletion protection
+
 ### 1.2.2
 - Add support for proxy configuration
 - Fix user-agent for grpc
