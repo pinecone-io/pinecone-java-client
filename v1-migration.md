@@ -97,7 +97,7 @@ controlPlaneClient.createIndex(createIndexRequest);
 
 **After: ≥ 1.0.0**
 
-```python
+```java
 import io.pinecone.clients.Pinecone;
 import org.openapitools.client.model.IndexModel;
 ...
