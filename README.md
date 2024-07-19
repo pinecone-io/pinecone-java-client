@@ -93,6 +93,7 @@ serverless and regional availability, see [Understanding indexes](https://docs.p
 ```java
 import io.pinecone.clients.Pinecone;
 import org.openapitools.client.model.IndexModel;
+import org.openapitools.control.client.model.DeletionProtection;
 
 ...
 
@@ -114,6 +115,8 @@ The following is a minimal example of creating a pod-based index. For all the po
 ```java
 import io.pinecone.clients.Pinecone;
 import org.openapitools.client.model.IndexModel;
+import org.openapitools.control.client.model.DeletionProtection;
+
 ...
         
 Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
@@ -134,6 +137,7 @@ configuration options, see `main/java/io/pinecone/clients/Pinecone.java`.
 ```java
 import io.pinecone.clients.Pinecone;
 import org.openapitools.client.model.IndexModel;
+import org.openapitools.control.client.model.DeletionProtection;
 ...
         
 Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
@@ -206,7 +210,7 @@ pinecone.configurePodsIndex(indexName, podType, newNumberOfReplicas);
 
 ## Enable deletion protection for pod index
 
-The following example enables deletion protection of a pod-based index.
+The following example enables deletion protection for a pod-based index.
 
 ```java
 import io.pinecone.clients.Pinecone;
@@ -219,7 +223,7 @@ pinecone.configurePodsIndex(indexName, DeletionProtection.ENABLED);
 
 ## Enable deletion protection for serverless index
 
-The following example enables deletion protection of a serverless index.
+The following example enables deletion protection for a serverless index.
 
 ```java
 import io.pinecone.clients.Pinecone;
