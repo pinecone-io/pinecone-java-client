@@ -129,6 +129,26 @@ String podType = "p1.x1";
 IndexModel indexModel = pinecone.createPodsIndex(indexName, dimension, environment, podType, similarityMetric);
 ```
 
+### Create a pod index with deletion protection enabled
+The following is an example of creating a pod-based index with deletion protection enabled. For all the possible 
+configuration options, see `main/java/io/pinecone/clients/Pinecone.java`.
+
+```java
+import io.pinecone.clients.Pinecone;
+import org.openapitools.client.model.IndexModel;
+...
+        
+Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+        
+String indexName = "example-index";
+int dimension = 1538;
+String environment = "us-east-1-aws";
+String podType = "p1.x1";
+
+IndexModel indexModel = pinecone.createPodsIndex(indexName, dimension, environment, podType, DeletionProtection.ENABLED);
+```
+
+
 ## List indexes
 
 The following example returns all indexes (and their corresponding metadata) in your project.
