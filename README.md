@@ -1,6 +1,6 @@
-# Pinecone Java Client
+# Pinecone Java SDK
 
-The Pinecone Java client lets JVM applications interact with Pinecone services.
+The Pinecone Java SDK lets JVM applications interact with Pinecone services.
 
 ## Requirements
 
@@ -28,8 +28,8 @@ implementation "io.pinecone:pinecone-client:1.2.2"
 
 [comment]: <> (^ [pc:VERSION_LATEST_RELEASE])
 
-Alternatively, you can use our standalone uberjar [pinecone-client-2.0.0-all.jar](https://repo1.maven.org/maven2/io/pinecone/pinecone-client/2.0.0/pinecone-client-2.0.0-all.jar), which bundles the pinecone
-client and all dependencies together. You can include this in your classpath like you do with any 3rd party JAR without
+Alternatively, you can use our standalone uberjar [pinecone-client-2.0.0-all.jar](https://repo1.maven.org/maven2/io/pinecone/pinecone-client/2.0.0/pinecone-client-2.0.0-all.jar), which bundles the Pinecone
+SDK and all dependencies together. You can include this in your classpath like you do with any 3rd party JAR without
 having to obtain the *pinecone-client* dependencies separately.
 
 [comment]: <> (^ [pc:VERSION_LATEST_RELEASE])
