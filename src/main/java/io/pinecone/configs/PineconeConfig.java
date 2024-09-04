@@ -52,7 +52,7 @@ public class PineconeConfig {
     private String sourceTag;
     private ProxyConfig proxyConfig;
     private ManagedChannel customManagedChannel;
-    private boolean usePineconeLocal = false;
+    private boolean enableTLS = true;
 
     /**
      * Constructs a {@link PineconeConfig} instance with the specified API key.
@@ -208,12 +208,22 @@ public class PineconeConfig {
         return buildUserAgent();
     }
 
-    public boolean getUsePineconeLocal() {
-        return usePineconeLocal;
+    /**
+     * Returns true if TLS is enabled or false otherwise.
+     *
+     * @return enableTls
+     */
+    public boolean getEnableTLS() {
+        return enableTLS;
     }
 
-    public void setPineconeLocal(boolean pineconeLocal) {
-        this.usePineconeLocal = pineconeLocal;
+    /**
+     * Sets whether TLS is enabled.
+     *
+     * @param enableTLS true to enable TLS, false to disable it.
+     */
+    public void setEnableTLS(boolean enableTLS) {
+        this.enableTLS = enableTLS;
     }
 
     private String buildUserAgent() {
