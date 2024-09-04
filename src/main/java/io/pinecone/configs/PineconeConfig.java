@@ -52,6 +52,7 @@ public class PineconeConfig {
     private String sourceTag;
     private ProxyConfig proxyConfig;
     private ManagedChannel customManagedChannel;
+    private boolean usePineconeLocal = false;
 
     /**
      * Constructs a {@link PineconeConfig} instance with the specified API key.
@@ -205,6 +206,14 @@ public class PineconeConfig {
      */
     public String getUserAgent() {
         return buildUserAgent();
+    }
+
+    public boolean getUsePineconeLocal() {
+        return usePineconeLocal;
+    }
+
+    public void setPineconeLocal(boolean pineconeLocal) {
+        this.usePineconeLocal = pineconeLocal;
     }
 
     private String buildUserAgent() {
