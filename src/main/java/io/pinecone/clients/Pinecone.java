@@ -871,6 +871,10 @@ public class Pinecone {
         return new AsyncIndex(connection, indexName);
     }
 
+    public Inference getInference() {
+        return new Inference();
+    }
+
     PineconeConnection getConnection(String indexName) {
         return connectionsMap.computeIfAbsent(indexName, key -> new PineconeConnection(config));
     }
