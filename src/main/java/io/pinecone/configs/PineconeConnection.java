@@ -139,7 +139,7 @@ public class PineconeConnection implements AutoCloseable {
         NettyChannelBuilder builder = NettyChannelBuilder.forTarget(endpoint);
 
         try {
-            if(config.getEnableTLS()) {
+            if(config.isTLSEnabled()) {
                 builder = builder
                         .overrideAuthority(endpoint)
                         .negotiationType(NegotiationType.TLS)

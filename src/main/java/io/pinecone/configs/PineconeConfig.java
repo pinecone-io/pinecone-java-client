@@ -213,7 +213,7 @@ public class PineconeConfig {
      *
      * @return enableTls
      */
-    public boolean getEnableTLS() {
+    public boolean isTLSEnabled() {
         return enableTLS;
     }
 
