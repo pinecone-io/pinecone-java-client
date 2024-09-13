@@ -136,13 +136,21 @@ public class PineconeConnection implements AutoCloseable {
 
     private ManagedChannel buildChannel() {
         String endpoint = formatEndpoint(config.getHost());
-        NettyChannelBuilder builder = NettyChannelBuilder.forTarget(endpoint);
+        NettyChannelBuilder builder = NettyChannelBuilder
+                .forTarget(endpoint)
+                .userAgent(config.getUserAgent());
 
         try {
-            builder = builder.overrideAuthority(endpoint)
-                    .negotiationType(NegotiationType.TLS)
-                    .sslContext(GrpcSslContexts.forClient().build())
-                    .userAgent(config.getUserAgent());
+            if(config.isTLSEnabled()) {
+                builder = builder
+                        .overrideAuthority(endpoint)
+                        .negotiationType(NegotiationType.TLS)
+                        .sslContext(GrpcSslContexts.forClient().build());
+            }
+            else {
+                builder = builder
+                        .negotiationType(NegotiationType.PLAINTEXT);
+            }
 
             if(config.getProxyConfig() != null) {
                 ProxyDetector proxyDetector = getProxyDetector();
