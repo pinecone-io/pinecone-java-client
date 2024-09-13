@@ -222,7 +222,7 @@ public class PineconeConfig {
      *
      * @param enableTLS true to enable TLS, false to disable it.
      */
-    public void setEnableTLS(boolean enableTLS) {
+    public void setTLSEnabled(boolean enableTLS) {
         this.enableTLS = enableTLS;
     }
 
