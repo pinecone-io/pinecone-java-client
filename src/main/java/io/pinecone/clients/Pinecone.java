@@ -871,7 +871,7 @@ public class Pinecone {
         return new AsyncIndex(connection, indexName);
     }
 
-    public Inference getInference() {
+    public Inference getInferenceClient() {
         return new Inference();
     }
 
