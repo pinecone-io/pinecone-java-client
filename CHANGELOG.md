@@ -2,6 +2,9 @@
 
 [comment]: <> (When bumping [pc:VERSION_LATEST_RELEASE] create a new entry below)
 ### Unreleased version
+### 2.1.0
+- Add support to disable TLS for data plane operations
+
 ### 2.0.0
 - Add deletion protection
 
