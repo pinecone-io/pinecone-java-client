@@ -23,7 +23,7 @@ Maven:
 
 Gradle:
 ```
-implementation "io.pinecone:pinecone-client:1.2.2"
+implementation "io.pinecone:pinecone-client:2.0.0"
 ```
 
 [comment]: <> (^ [pc:VERSION_LATEST_RELEASE])
@@ -61,7 +61,11 @@ public class InitializeClientExample {
 }
 ```
 
-#### Passing OkHttpClient
+#### Passing OkHttpClient for control plane operations
+
+If you need to provide a custom `OkHttpClient`, you can do so by using the `withOkHttpClient()` method of the 
+`Pinecone.Builder` class to pass in your `OkHttpClient` object.
+
 ```java
 import io.pinecone.clients.Pinecone;
 
@@ -79,14 +83,84 @@ public class InitializeClientExample {
 }
 ```
 
+#### Configuring HTTP proxy for both control and data plane operations
+
+If your network setup requires you to interact with Pinecone via a proxy, you will need to pass additional 
+configuration using the parameters `host` and `port` of the `ProxyConfig` class.
+
+```java
+import io.pinecone.clients.Index;
+import io.pinecone.clients.Pinecone;
+import io.pinecone.proto.UpsertResponse;
+import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
+import org.openapitools.control.client.model.IndexModel;
+
+import java.util.Arrays;
+
+public class ProxyExample {
+    public static void main(String[] args) {
+        String apiKey = "PINECONE_API_KEY";
+        String proxyHost = "PROXY_HOST";
+        int proxyPort = 8080; // Port can be configured based on your setup
+
+        Pinecone pinecone = new Pinecone.Builder(apiKey)
+                .withProxy(proxyHost, proxyPort)
+                .build();
+
+        // Control plane operation routed through the proxy server
+        IndexModel indexModel = pinecone.describeIndex("PINECONE_INDEX");
+
+        // Data plane operations routed through the proxy server
+        Index index = pinecone.getIndexConnection("PINECONE_INDEX_NAME");
+        // 1. Upsert data
+        UpsertResponse upsertResponse = index.upsert("v1", Arrays.asList(1F, 2F, 3F, 4F));
+        // 2. Query vector
+        QueryResponseWithUnsignedIndices queryResponse = index.queryByVectorId(1, "v1", true, true);
+    }
+}
+```
+
+#### Disabling SSL verification for data plane operations
+
+If you would like to disable TLS verification for data plane operations, you can disable it by setting `enableTLS`
+parameter of `PineconeConfig` class to false. We do not recommend going to production with TLS verification disabled.
+
+```java
+import io.pinecone.clients.Index;
+import io.pinecone.configs.PineconeConfig;
+import io.pinecone.configs.PineconeConnection;
+import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
+import io.pinecone.proto.UpsertResponse;
+import java.util.Arrays;
+
+public class DisableTLSExample {
+    public static void main(String[] args) {
+        PineconeConfig config = new PineconeConfig("api");
+        config.setHost("localhost:5081");
+        config.setTLSEnabled(false);
+        PineconeConnection connection = new PineconeConnection(config);
+        Index index = new Index(connection, "example-index");
+        
+        // Data plane operations
+        // 1. Upsert data
+        UpsertResponse upsertResponse = index.upsert("v1", Arrays.asList(1f, 2f, 3f));
+        // 2. Query data
+        QueryResponseWithUnsignedIndices queryResponse = index.queryByVectorId(1, "v1", true, true);
+    }
+}
+```
+
 # Indexes
+
 Operations related to the building and managing of Pinecone indexes are called [control plane](https://docs.pinecone.io/reference/api/introduction#control-plane) operations.
 
 ## Create Index
+
 You can use the Java SDK to create two types of indexes: [serverless indexes](https://docs.pinecone.io/guides/indexes/understanding-indexes#serverless-indexes) (recommended for most use cases) and 
 [pod-based indexes](https://docs.pinecone.io/guides/indexes/understanding-indexes#pod-based-indexes) (recommended for high-throughput use cases).
 
 ### Create a serverless index
+
 The following is an example of creating a serverless index in the `us-west-2` region of AWS. For more information on 
 serverless and regional availability, see [Understanding indexes](https://docs.pinecone.io/guides/indexes/understanding-indexes#serverless-indexes).
 
@@ -109,6 +183,7 @@ IndexModel indexModel = pinecone.createServerlessIndex(indexName, similarityMetr
 ```
 
 ### Create a pod index
+
 The following is a minimal example of creating a pod-based index. For all the possible configuration options, see 
 `main/java/io/pinecone/clients/Pinecone.java`.
 
@@ -131,6 +206,7 @@ IndexModel indexModel = pinecone.createPodsIndex(indexName, dimension, environme
 ```
 
 ### Create a pod index with deletion protection enabled
+
 The following is an example of creating a pod-based index with deletion protection enabled. For all the possible
 configuration options, see `main/java/io/pinecone/clients/Pinecone.java`.
 
@@ -149,7 +225,6 @@ String podType = "p1.x1";
 
 IndexModel indexModel = pinecone.createPodsIndex(indexName, dimension, environment, podType, DeletionProtection.ENABLED);
 ```
-
 
 ## List indexes
 
@@ -369,6 +444,7 @@ FetchResponse fetchResponse = index.fetch(ids, "example-namespace");
 ```
 
 ## List vector IDs
+
 The following example lists up to 100 vector IDs from a Pinecone index.
 
 This method accepts optional parameters for `namespace`, `prefix`, `limit`, and `paginationToken`. 
@@ -407,6 +483,7 @@ UpdateResponse updateResponse = index.update("v1", values, "example-namespace");
 ```
 
 # Collections
+
 Collections fall under data plane operations.
 
 ## Create collection
