@@ -62,6 +62,7 @@ public class InitializeClientExample {
 ```
 
 #### Passing OkHttpClient for control plane operations
+
 If you need to provide a custom `OkHttpClient`, you can do so by using the `withOkHttpClient()` method of the 
 `Pinecone.Builder` class to pass in your `OkHttpClient` object.
 
@@ -83,8 +84,10 @@ public class InitializeClientExample {
 ```
 
 #### Configuring HTTP proxy for both control and data plane operations
+
 If your network setup requires you to interact with Pinecone via a proxy, you will need to pass additional 
 configuration using the parameters `host` and `port` of the `ProxyConfig` class.
+
 ```java
 import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
@@ -118,6 +121,7 @@ public class ProxyExample {
 ```
 
 #### Disabling SSL verification for data plane operations
+
 If you would like to disable TLS verification for data plane operations, you can disable it by setting `enableTLS`
 parameter of `PineconeConfig` class to false. We do not recommend going to production with TLS verification disabled.
 
@@ -144,17 +148,19 @@ public class DisableTLSExample {
         QueryResponseWithUnsignedIndices queryResponse = index.queryByVectorId(1, "v1", true, true);
     }
 }
-
 ```
 
 # Indexes
+
 Operations related to the building and managing of Pinecone indexes are called [control plane](https://docs.pinecone.io/reference/api/introduction#control-plane) operations.
 
 ## Create Index
+
 You can use the Java SDK to create two types of indexes: [serverless indexes](https://docs.pinecone.io/guides/indexes/understanding-indexes#serverless-indexes) (recommended for most use cases) and 
 [pod-based indexes](https://docs.pinecone.io/guides/indexes/understanding-indexes#pod-based-indexes) (recommended for high-throughput use cases).
 
 ### Create a serverless index
+
 The following is an example of creating a serverless index in the `us-west-2` region of AWS. For more information on 
 serverless and regional availability, see [Understanding indexes](https://docs.pinecone.io/guides/indexes/understanding-indexes#serverless-indexes).
 
@@ -177,6 +183,7 @@ IndexModel indexModel = pinecone.createServerlessIndex(indexName, similarityMetr
 ```
 
 ### Create a pod index
+
 The following is a minimal example of creating a pod-based index. For all the possible configuration options, see 
 `main/java/io/pinecone/clients/Pinecone.java`.
 
@@ -199,6 +206,7 @@ IndexModel indexModel = pinecone.createPodsIndex(indexName, dimension, environme
 ```
 
 ### Create a pod index with deletion protection enabled
+
 The following is an example of creating a pod-based index with deletion protection enabled. For all the possible
 configuration options, see `main/java/io/pinecone/clients/Pinecone.java`.
 
@@ -218,8 +226,8 @@ String podType = "p1.x1";
 IndexModel indexModel = pinecone.createPodsIndex(indexName, dimension, environment, podType, DeletionProtection.ENABLED);
 ```
 
-
 ## List indexes
+
 The following example returns all indexes (and their corresponding metadata) in your project.
 
 ```java
@@ -232,6 +240,7 @@ IndexList indexesInYourProject = pinecone.listIndexes();
 ```
 
 ## Describe index
+
 The following example returns metadata about an index.
 
 ```java
@@ -244,6 +253,7 @@ IndexModel indexMetadata = pinecone.describeIndex("example-index");
 ```
 
 ## Delete an index
+
 The following example deletes an index.
 
 ```java
@@ -254,6 +264,7 @@ pinecone.deleteIndex("example-index");
 ```
 
 ## Scale replicas
+
 The following example changes the number of replicas for an index.
 
 Note: scaling replicas is only applicable to pod-based indexes.
@@ -273,6 +284,7 @@ pinecone.configurePodsIndex(indexName, podType, newNumberOfReplicas);
 ```
 
 ## Enable deletion protection for pod index
+
 The following example enables deletion protection for a pod-based index.
 
 ```java
@@ -285,6 +297,7 @@ pinecone.configurePodsIndex(indexName, DeletionProtection.ENABLED);
 ```
 
 ## Enable deletion protection for serverless index
+
 The following example enables deletion protection for a serverless index.
 
 ```java
@@ -297,6 +310,7 @@ pinecone.configureServerlessIndex(indexName, DeletionProtection.ENABLED);
 ```
 
 ## Describe index statistics
+
 The following example returns statistics about an index.
 
 ```java
@@ -311,6 +325,7 @@ DescribeIndexStatsResponse indexStatsResponse = index.describeIndexStats();
 ```
 
 ## Upsert vectors
+
 Operations related to the indexing, deleting, and querying of vectors are called [data plane](https://docs.pinecone.io/reference/api/introduction#data-plane) 
 operations.
 
@@ -378,6 +393,7 @@ UpsertResponse upsertResponse = index.upsert(vectors, "example-namespace");
 ```
 
 ## Query an index
+
 The following example queries the index `example-index` with metadata
 filtering.
 
@@ -393,6 +409,7 @@ QueryResponseWithUnsignedIndices queryRespone = index.queryByVectorId(3, "v1", "
 ```
 
 ## Delete vectors
+
 The following example deletes vectors by ID.
 
 ```java
@@ -409,6 +426,7 @@ DeleteResponse deleteResponse = index.deleteByIds(ids, "example-namespace");
 ```
 
 ## Fetch vectors
+
 The following example fetches vectors by ID.
 
 ```java
@@ -426,6 +444,7 @@ FetchResponse fetchResponse = index.fetch(ids, "example-namespace");
 ```
 
 ## List vector IDs
+
 The following example lists up to 100 vector IDs from a Pinecone index.
 
 This method accepts optional parameters for `namespace`, `prefix`, `limit`, and `paginationToken`. 
@@ -446,6 +465,7 @@ ListResponse listResponse = index.list("example-namespace", "prefix-");
 
 
 ## Update vectors
+
 The following example updates vectors by ID.
 
 ```java
@@ -463,9 +483,11 @@ UpdateResponse updateResponse = index.update("v1", values, "example-namespace");
 ```
 
 # Collections
+
 Collections fall under data plane operations.
 
 ## Create collection
+
 The following example creates the collection `example-collection` from
 `example-index`.
 
@@ -482,6 +504,7 @@ CollectionModel collectionModel = pinecone.createCollection(collectionName, sour
 ```
 
 ## List collections
+
 The following example returns a list of the collections in the current project.
 
 ```java
@@ -495,6 +518,7 @@ List<CollectionModel> collectionModels = pinecone.listCollections().getCollectio
 ```
 
 ## Describe a collection
+
 The following example returns a description of the collection
 
 ```java
@@ -507,6 +531,7 @@ CollectionModel model = pinecone.describeCollection("example-collection");
 ```
 
 ## Delete a collection
+
 The following example deletes the collection `example-collection`.
 
 ```java
@@ -518,5 +543,6 @@ pinecone.deleteCollection("example-collection");
 ```
 
 ## Examples
+
 - The data and control plane operation examples can be found in `io/pinecone/integration` folder.
 - A full end-to-end Semantic Search example can be found in the [Java Examples](https://github.com/pinecone-io/java-examples/tree/main) repo on Github.
