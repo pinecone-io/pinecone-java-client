@@ -23,7 +23,7 @@ Maven:
 
 Gradle:
 ```
-implementation "io.pinecone:pinecone-client:1.2.2"
+implementation "io.pinecone:pinecone-client:2.0.0"
 ```
 
 [comment]: <> (^ [pc:VERSION_LATEST_RELEASE])
@@ -117,7 +117,7 @@ public class ProxyExample {
 }
 ```
 
-### Disabling SSL verification for data plane operations
+#### Disabling SSL verification for data plane operations
 If you would like to disable TLS verification for data plane operations, you can disable it by setting `enableTLS`
 parameter of `PineconeConfig` class to false. We do not recommend going to production with TLS verification disabled.
 
