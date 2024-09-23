@@ -25,12 +25,19 @@ public class EmbedTest {
         List<String> inputs = new ArrayList<>(1);
         inputs.add("The quick brown fox jumps over the lazy dog.");
         inputs.add("Lorem ipsum");
+
         String embeddingModel = "multilingual-e5-large";
-        EmbeddingsList embeddings = inference.embed(embeddingModel, "query", "END", inputs);
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("input_type", "query");
+        parameters.put("truncate", "END");
+
+        EmbeddingsList embeddings = inference.embed(embeddingModel, parameters, inputs);
+
         try {
             assertNotNull(embeddings, "Expected embedding to be not null");
             Assertions.assertEquals(embeddingModel, embeddings.getModel());
-            System.out.println(embeddings);
+
             Assertions.assertEquals(1024, embeddings.getData().get(0).getValues().size());
             Assertions.assertEquals(2, embeddings.getData().size());
         } catch (Exception e) {
@@ -42,9 +49,12 @@ public class EmbedTest {
     public void testGenerateEmbeddingsInvalidInputs() throws ApiException {
         String embeddingModel = "multilingual-e5-large";
         List<String> inputs = new ArrayList<>();
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("input_type", "query");
+        parameters.put("truncate", "END");
 
         Exception exception = assertThrows(Exception.class, () -> {
-            inference.embed(embeddingModel, "query", "END", inputs);
+            inference.embed(embeddingModel, parameters, inputs);
         });
 
         Assertions.assertTrue(exception.getMessage().contains("Must specify at least one input"));

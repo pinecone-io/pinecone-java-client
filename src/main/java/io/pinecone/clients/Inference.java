@@ -9,6 +9,7 @@ import org.openapitools.control.client.model.EmbedRequestParameters;
 import org.openapitools.control.client.model.EmbeddingsList;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Inference {
@@ -19,10 +20,10 @@ public class Inference {
         inferenceApi = new InferenceApi(apiClient);
     }
 
-    public EmbeddingsList embed(String model, String inputType, String truncate, List<String> inputs) throws ApiException {
-        EmbedRequestParameters embedRequestParameters = new EmbedRequestParameters()
-                .inputType(inputType)
-                .truncate(truncate);
+    public EmbeddingsList embed(String model, Map<String, Object> parameters, List<String> inputs) throws ApiException {
+        EmbedRequestParameters embedRequestParameters = new EmbedRequestParameters();
+        parameters.forEach(embedRequestParameters::putAdditionalProperty);
+
         List<EmbedRequestInputsInner> EmbedRequestInputsInnerList = convertInputStringToEmbedRequestInputsInner(inputs);
         EmbedRequest embedRequest = new EmbedRequest()
                 .model(model)
