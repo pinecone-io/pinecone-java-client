@@ -542,6 +542,38 @@ Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
 pinecone.deleteCollection("example-collection");
 ```
 
+## Inference
+
+The Pinecone SDK now supports creating embeddings via the [Inference API](https://docs.pinecone.io/guides/inference/understanding-inference).
+
+```java
+import io.pinecone.clients.Inference;
+import io.pinecone.clients.Pinecone;
+import org.openapitools.control.client.ApiException;
+import org.openapitools.control.client.model.EmbeddingsList;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+...
+        
+Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+Inference inference = pinecone.getInferenceClient();
+
+List<String> inputs = new ArrayList<>(1);
+inputs.add("The quick brown fox jumps over the lazy dog.");
+inputs.add("Lorem ipsum");
+
+String embeddingModel = "multilingual-e5-large";
+
+Map<String, Object> parameters = new HashMap<>();
+parameters.put("input_type", "query");
+parameters.put("truncate", "END");
+
+EmbeddingsList embeddings = inference.embed(embeddingModel, parameters, inputs);
+```
+
 ## Examples
 
 - The data and control plane operation examples can be found in `io/pinecone/integration` folder.

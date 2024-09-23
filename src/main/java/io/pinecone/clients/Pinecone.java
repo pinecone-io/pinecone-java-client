@@ -871,6 +871,14 @@ public class Pinecone {
         return new AsyncIndex(connection, indexName);
     }
 
+    /**
+     * A method to create and return a new instance of the {@link Inference} client.
+     * <p>
+     * This method initializes the Inference client using the current ApiClient
+     * from the {@link ManageIndexesApi}. The Inference client can then be used
+     * to interact with Pinecone's embedding API.
+     * @return A new {@link Inference} client instance.
+     */
     public Inference getInferenceClient() {
         return new Inference(manageIndexesApi.getApiClient());
     }
