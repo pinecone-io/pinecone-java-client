@@ -47,8 +47,11 @@ The `Pinecone` class is your main entry point into the Pinecone Java SDK. You ca
 your `apiKey`, either by passing it as an argument in your code or by setting it as an environment variable called 
 `PINECONE_API_KEY`.
 
-Note: for pod-based indexes, you will also need an `environment` variable. You can set pass this as an argument in 
-your code or set it as an environment variable called `PINECONE_ENVIRONMENT`.
+This internally instantiates a single shared OkHttpClient instance, which is used for both control plane and inference
+operations. Note that the OkHttpClient performs best when you create a single `OkHttpClient` instance and reuse it 
+for all of your HTTP calls. This is because each client holds its own connection pool and thread pools. Reusing 
+connections and threads reduces latency and saves memory. Conversely, creating a client for each request wastes 
+resources on idle pools. More details on the OkHttpClient can be found [here](https://github.com/square/okhttp/blob/f2771425cb714a5b0b27238bd081b2516b4d640f/okhttp/src/main/kotlin/okhttp3/OkHttpClient.kt#L54).
 
 ```java
 import io.pinecone.clients.Pinecone;
@@ -550,7 +553,9 @@ The Pinecone SDK now supports creating embeddings via the [Inference API](https:
 import io.pinecone.clients.Inference;
 import io.pinecone.clients.Pinecone;
 import org.openapitools.control.client.ApiException;
+import org.openapitools.control.client.model.Embedding;
 import org.openapitools.control.client.model.EmbeddingsList;
+import org.openapitools.control.client.model.EmbeddingsListUsage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -572,6 +577,14 @@ parameters.put("input_type", "query");
 parameters.put("truncate", "END");
 
 EmbeddingsList embeddings = inference.embed(embeddingModel, parameters, inputs);
+// Get model
+String embeddingsModel = embeddings.getModel();
+
+// Get embedded data
+List<Embedding> embeddedData = embeddings.getData();
+
+// Get total usage tokens
+int tokens = embeddings.getUsage().getTotalTokens();
 ```
 
 ## Examples

@@ -31,18 +31,12 @@ public class EmbedTest {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("input_type", "query");
         parameters.put("truncate", "END");
-
         EmbeddingsList embeddings = inference.embed(embeddingModel, parameters, inputs);
 
-        try {
-            assertNotNull(embeddings, "Expected embedding to be not null");
-            Assertions.assertEquals(embeddingModel, embeddings.getModel());
-
-            Assertions.assertEquals(1024, embeddings.getData().get(0).getValues().size());
-            Assertions.assertEquals(2, embeddings.getData().size());
-        } catch (Exception e) {
-            Assertions.fail("Embedding request should not have thrown an exception: " + e.getMessage());
-        }
+        assertNotNull(embeddings, "Expected embedding to be not null");
+        Assertions.assertEquals(embeddingModel, embeddings.getModel());
+        Assertions.assertEquals(1024, embeddings.getData().get(0).getValues().size());
+        Assertions.assertEquals(2, embeddings.getData().size());
     }
 
     @Test
