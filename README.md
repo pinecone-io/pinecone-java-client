@@ -47,8 +47,11 @@ The `Pinecone` class is your main entry point into the Pinecone Java SDK. You ca
 your `apiKey`, either by passing it as an argument in your code or by setting it as an environment variable called 
 `PINECONE_API_KEY`.
 
-Note: for pod-based indexes, you will also need an `environment` variable. You can set pass this as an argument in 
-your code or set it as an environment variable called `PINECONE_ENVIRONMENT`.
+This internally instantiates a single shared OkHttpClient instance, which is used for both control plane and inference
+operations. Note that the OkHttpClient performs best when you create a single `OkHttpClient` instance and reuse it 
+for all of your HTTP calls. This is because each client holds its own connection pool and thread pools. Reusing 
+connections and threads reduces latency and saves memory. Conversely, creating a client for each request wastes 
+resources on idle pools. More details on the OkHttpClient can be found [here](https://github.com/square/okhttp/blob/f2771425cb714a5b0b27238bd081b2516b4d640f/okhttp/src/main/kotlin/okhttp3/OkHttpClient.kt#L54).
 
 ```java
 import io.pinecone.clients.Pinecone;
@@ -542,7 +545,44 @@ Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
 pinecone.deleteCollection("example-collection");
 ```
 
+## Inference
+
+The Pinecone SDK now supports creating embeddings via the [Inference API](https://docs.pinecone.io/guides/inference/understanding-inference).
+
+```java
+import io.pinecone.clients.Pinecone;
+import org.openapitools.control.client.ApiException;
+import org.openapitools.control.client.model.Embedding;
+import org.openapitools.control.client.model.EmbeddingsList;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+...
+
+Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+Inference inference = pinecone.getInferenceClient();
+
+// Prepare input sentences to be embedded
+List<String> inputs = new ArrayList<>();
+inputs.add("The quick brown fox jumps over the lazy dog.");
+inputs.add("Lorem ipsum");
+
+// Specify the embedding model and parameters
+String embeddingModel = "multilingual-e5-large";
+
+Map<String, Object> parameters = new HashMap<>();
+parameters.put("input_type", "query");
+parameters.put("truncate", "END");
+
+// Generate embeddings for the input data
+EmbeddingsList embeddings = inference.embed(embeddingModel, parameters, inputs);
+
+// Get embedded data
+List<Embedding> embeddedData = embeddings.getData();
+```
+
 ## Examples
 
 - The data and control plane operation examples can be found in `io/pinecone/integration` folder.
-- A full end-to-end Semantic Search example can be found in the [Java Examples](https://github.com/pinecone-io/java-examples/tree/main) repo on Github.

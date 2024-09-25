@@ -18,7 +18,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The Pinecone class is the main entry point for interacting with Pinecone via the Java SDK.
- * It is used to create, delete, and manage your indexes and collections.
+ * It is used to create, delete, and manage your indexes and collections, along with the inference api.
+ * Note that the Pinecone class instantiates a single shared {@link OkHttpClient} instance,
+ * which is used for both control plane and inference operations.The OkHttpClient performs best when you create a single
+ * `OkHttpClient` instance and reuse it for all of your HTTP calls. This is because each client holds its own connection
+ * pool and thread pools. Reusing connections and threads reduces latency and saves memory. Conversely, creating a
+ * client for each request wastes resources on idle pools.
  * <p>
  * To instantiate the Pinecone class, use the {@link Pinecone.Builder} class to pass
  * an API key and any other optional configuration.
@@ -869,6 +874,18 @@ public class Pinecone {
         config.setHost(getIndexHost(indexName));
         PineconeConnection connection = getConnection(indexName);
         return new AsyncIndex(connection, indexName);
+    }
+
+    /**
+     * A method to create and return a new instance of the {@link Inference} client.
+     * <p>
+     * This method initializes the Inference client using the current ApiClient
+     * from the {@link ManageIndexesApi}. The {@link Inference} client can then be used
+     * to interact with Pinecone's inference API.
+     * @return A new {@link Inference} client instance.
+     */
+    public Inference getInferenceClient() {
+        return new Inference(manageIndexesApi.getApiClient());
     }
 
     PineconeConnection getConnection(String indexName) {
