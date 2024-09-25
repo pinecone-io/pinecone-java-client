@@ -550,44 +550,39 @@ pinecone.deleteCollection("example-collection");
 The Pinecone SDK now supports creating embeddings via the [Inference API](https://docs.pinecone.io/guides/inference/understanding-inference).
 
 ```java
-import io.pinecone.clients.Inference;
 import io.pinecone.clients.Pinecone;
 import org.openapitools.control.client.ApiException;
 import org.openapitools.control.client.model.Embedding;
 import org.openapitools.control.client.model.EmbeddingsList;
-import org.openapitools.control.client.model.EmbeddingsListUsage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 ...
-        
+
 Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
 Inference inference = pinecone.getInferenceClient();
 
-List<String> inputs = new ArrayList<>(1);
+// Prepare input sentences to be embedded
+List<String> inputs = new ArrayList<>();
 inputs.add("The quick brown fox jumps over the lazy dog.");
 inputs.add("Lorem ipsum");
 
+// Specify the embedding model and parameters
 String embeddingModel = "multilingual-e5-large";
 
 Map<String, Object> parameters = new HashMap<>();
 parameters.put("input_type", "query");
 parameters.put("truncate", "END");
 
+// Generate embeddings for the input data
 EmbeddingsList embeddings = inference.embed(embeddingModel, parameters, inputs);
-// Get model
-String embeddingsModel = embeddings.getModel();
 
 // Get embedded data
 List<Embedding> embeddedData = embeddings.getData();
-
-// Get total usage tokens
-int tokens = embeddings.getUsage().getTotalTokens();
 ```
 
 ## Examples
 
 - The data and control plane operation examples can be found in `io/pinecone/integration` folder.
-- A full end-to-end Semantic Search example can be found in the [Java Examples](https://github.com/pinecone-io/java-examples/tree/main) repo on Github.
