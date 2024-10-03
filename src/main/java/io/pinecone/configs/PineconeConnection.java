@@ -1,9 +1,7 @@
 package io.pinecone.configs;
 
-import io.grpc.HttpConnectProxiedSocketAddress;
-import io.grpc.ManagedChannel;
-import io.grpc.Metadata;
-import io.grpc.ProxyDetector;
+import com.google.gson.Gson;
+import io.grpc.*;
 import io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.NegotiationType;
 import io.grpc.netty.NettyChannelBuilder;
@@ -17,6 +15,9 @@ import org.slf4j.LoggerFactory;
 import javax.net.ssl.SSLException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -145,7 +146,9 @@ public class PineconeConnection implements AutoCloseable {
                 builder = builder
                         .overrideAuthority(endpoint)
                         .negotiationType(NegotiationType.TLS)
-                        .sslContext(GrpcSslContexts.forClient().build());
+                        .sslContext(GrpcSslContexts.forClient().build())
+                        .enableRetry()
+                        .defaultServiceConfig(getRetryingServiceConfig());
             }
             else {
                 builder = builder
@@ -161,6 +164,23 @@ public class PineconeConnection implements AutoCloseable {
         }
 
         return builder.build();
+    }
+
+    private Map<String, ?> getRetryingServiceConfig() {
+        String retryConfigJson = "{"
+                + "\"methodConfig\": [{"
+                + "  \"name\": [{\"service\": \"VectorService\"}],"
+                + "  \"retryPolicy\": {"
+                + "    \"maxAttempts\": 3,"
+                + "    \"initialBackoff\": \"0.5s\","
+                + "    \"maxBackoff\": \"30s\","
+                + "    \"backoffMultiplier\": 2,"
+                + "    \"retryableStatusCodes\": [\"UNAVAILABLE\"]"
+                + "  }"
+                + "}]"
+                + "}";
+
+        return new Gson().fromJson(retryConfigJson, Map.class);
     }
 
     private ProxyDetector getProxyDetector() {
@@ -204,3 +224,23 @@ public class PineconeConnection implements AutoCloseable {
         }
     }
 }
+
+//        Map<String, Object> retryPolicy = new HashMap<>();
+//        RetryConfig retryConfig = config.getRetryConfig();
+//        retryPolicy.put("maxAttempts", retryConfig.getMaxAttempts());
+//        retryPolicy.put("initialBackoff", retryConfig.getInitialBackoff());
+//        retryPolicy.put("maxBackoff", retryConfig.getMaxBackoff());
+//        retryPolicy.put("backoffMultiplier", retryConfig.getBackoffMultiplier());
+//        retryPolicy.put("retryableStatusCodes", retryConfig.getRetryableStatusCodes());
+//
+//        Map<String, Object> methodConfig = new HashMap<>();
+//        methodConfig.put("name", Arrays.asList(
+//                new HashMap<String, Object>() {{
+//                    put("service", "TestService");
+//                }}
+//        ));
+//        methodConfig.put("retryPolicy", retryPolicy);
+//
+//        Map<String, Object> serviceConfig = new HashMap<>();
+//        serviceConfig.put("methodConfig", Arrays.asList(methodConfig));
+//        return serviceConfig;
