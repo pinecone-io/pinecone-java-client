@@ -1,5 +1,6 @@
 package io.pinecone.configs;
 
+import com.google.gson.Gson;
 import io.grpc.*;
 import io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.NegotiationType;
@@ -165,6 +166,23 @@ public class PineconeConnection implements AutoCloseable {
         return builder.build();
     }
 
+    private Map<String, ?> getRetryingServiceConfig() {
+        String retryConfigJson = "{"
+                + "\"methodConfig\": [{"
+                + "  \"name\": [{\"service\": \"VectorService\"}],"
+                + "  \"retryPolicy\": {"
+                + "    \"maxAttempts\": 3,"
+                + "    \"initialBackoff\": \"0.5s\","
+                + "    \"maxBackoff\": \"30s\","
+                + "    \"backoffMultiplier\": 2,"
+                + "    \"retryableStatusCodes\": [\"UNAVAILABLE\"]"
+                + "  }"
+                + "}]"
+                + "}";
+
+        return new Gson().fromJson(retryConfigJson, Map.class);
+    }
+
     private ProxyDetector getProxyDetector() {
         ProxyConfig proxyConfig = config.getProxyConfig();
         return (targetServerAddress) -> {
@@ -191,28 +209,6 @@ public class PineconeConnection implements AutoCloseable {
         }
     }
 
-    private Map<String, ?> getRetryingServiceConfig() {
-        Map<String, Object> retryPolicy = new HashMap<>();
-        RetryConfig retryConfig = config.getRetryConfig();
-        retryPolicy.put("maxAttempts", retryConfig.getMaxAttempts());
-        retryPolicy.put("initialBackoff", retryConfig.getInitialBackoff());
-        retryPolicy.put("maxBackoff", retryConfig.getMaxBackoff());
-        retryPolicy.put("backoffMultiplier", retryConfig.getBackoffMultiplier());
-        retryPolicy.put("retryableStatusCodes", retryConfig.getRetryableStatusCodes());
-
-        Map<String, Object> methodConfig = new HashMap<>();
-        methodConfig.put("name", Arrays.asList(
-                new HashMap<String, Object>() {{
-                    put("service", "TestService");
-                }}
-        ));
-        methodConfig.put("retryPolicy", retryPolicy);
-
-        Map<String, Object> serviceConfig = new HashMap<>();
-        serviceConfig.put("methodConfig", Arrays.asList(methodConfig));
-        return serviceConfig;
-    }
-
     /**
      * Close the connection and release all resources. A PineconeConnection's underlying gRPC components use resources
      * like threads and TCP connections. To prevent leaking these resources the connection should be closed when it
@@ -228,3 +224,23 @@ public class PineconeConnection implements AutoCloseable {
         }
     }
 }
+
+//        Map<String, Object> retryPolicy = new HashMap<>();
+//        RetryConfig retryConfig = config.getRetryConfig();
+//        retryPolicy.put("maxAttempts", retryConfig.getMaxAttempts());
+//        retryPolicy.put("initialBackoff", retryConfig.getInitialBackoff());
+//        retryPolicy.put("maxBackoff", retryConfig.getMaxBackoff());
+//        retryPolicy.put("backoffMultiplier", retryConfig.getBackoffMultiplier());
+//        retryPolicy.put("retryableStatusCodes", retryConfig.getRetryableStatusCodes());
+//
+//        Map<String, Object> methodConfig = new HashMap<>();
+//        methodConfig.put("name", Arrays.asList(
+//                new HashMap<String, Object>() {{
+//                    put("service", "TestService");
+//                }}
+//        ));
+//        methodConfig.put("retryPolicy", retryPolicy);
+//
+//        Map<String, Object> serviceConfig = new HashMap<>();
+//        serviceConfig.put("methodConfig", Arrays.asList(methodConfig));
+//        return serviceConfig;
