@@ -8,10 +8,10 @@ import io.pinecone.helpers.TestResourcesManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.openapitools.control.client.model.DeletionProtection;
-import org.openapitools.control.client.model.IndexModel;
-import org.openapitools.control.client.model.IndexModelStatus;
-import org.openapitools.control.client.model.PodSpec;
+import org.openapitools.db_control.client.model.DeletionProtection;
+import org.openapitools.db_control.client.model.IndexModel;
+import org.openapitools.db_control.client.model.IndexModelStatus;
+import org.openapitools.db_control.client.model.PodSpec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

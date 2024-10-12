@@ -1,13 +1,21 @@
 package io.pinecone.clients;
 
-import org.openapitools.control.client.ApiClient;
-import org.openapitools.control.client.ApiException;
-import org.openapitools.control.client.api.InferenceApi;
-import org.openapitools.control.client.model.EmbedRequest;
-import org.openapitools.control.client.model.EmbedRequestInputsInner;
-import org.openapitools.control.client.model.EmbedRequestParameters;
-import org.openapitools.control.client.model.EmbeddingsList;
+import io.pinecone.configs.PineconeConfig;
+import io.pinecone.configs.ProxyConfig;
+import io.pinecone.exceptions.PineconeConfigurationException;
+import okhttp3.OkHttpClient;
+import org.jetbrains.annotations.NotNull;
+import org.openapitools.inference.client.ApiClient;
+import org.openapitools.inference.client.Configuration;
+import org.openapitools.inference.client.ApiException;
+import org.openapitools.inference.client.api.InferenceApi;
+import org.openapitools.inference.client.model.EmbedRequest;
+import org.openapitools.inference.client.model.EmbedRequestInputsInner;
+import org.openapitools.inference.client.model.EmbedRequestParameters;
+import org.openapitools.inference.client.model.EmbeddingsList;
 
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -26,11 +34,34 @@ public class Inference {
 
     /**
      * Constructs an instance of {@link Inference} class.
-     *
-     * @param apiClient The ApiClient object used to configure the API connection.
+     * ToDo: add params list
      */
-    public Inference(ApiClient apiClient) {
+    public Inference(PineconeConfig config, OkHttpClient customOkHttpClient) {
+        OkHttpClient.Builder builder = getBuilder(config, customOkHttpClient);
+        ApiClient apiClient = (customOkHttpClient != null) ? new ApiClient(customOkHttpClient) : new ApiClient(builder.build());
+        apiClient.setApiKey(config.getApiKey());
+        apiClient.setUserAgent(config.getUserAgent());
+        apiClient.addDefaultHeader("X-Pinecone-Api-Version", Configuration.VERSION);
+
+        if (Boolean.parseBoolean(System.getenv("PINECONE_DEBUG"))) {
+            apiClient.setDebugging(true);
+        }
+
         inferenceApi = new InferenceApi(apiClient);
+    }
+
+    @NotNull
+    private static OkHttpClient.Builder getBuilder(PineconeConfig config, OkHttpClient customOkHttpClient) {
+        ProxyConfig proxyConfig = config.getProxyConfig();
+        if (proxyConfig != null && customOkHttpClient != null) {
+            throw new PineconeConfigurationException("Invalid configuration: Both Custom OkHttpClient and Proxy are set. Please configure only one of these options.");
+        }
+        OkHttpClient.Builder builder = new OkHttpClient.Builder();
+        if(proxyConfig != null) {
+            Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyConfig.getHost(), proxyConfig.getPort()));
+            builder.proxy(proxy);
+        }
+        return builder;
     }
 
     /**

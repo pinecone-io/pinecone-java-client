@@ -5,11 +5,11 @@ import io.pinecone.configs.PineconeConnection;
 import io.pinecone.configs.ProxyConfig;
 import io.pinecone.exceptions.*;
 import okhttp3.OkHttpClient;
-import org.openapitools.control.client.ApiClient;
-import org.openapitools.control.client.ApiException;
-import org.openapitools.control.client.Configuration;
-import org.openapitools.control.client.api.ManageIndexesApi;
-import org.openapitools.control.client.model.*;
+import org.openapitools.db_control.client.ApiClient;
+import org.openapitools.db_control.client.ApiException;
+import org.openapitools.db_control.client.Configuration;
+import org.openapitools.db_control.client.api.ManageIndexesApi;
+import org.openapitools.db_control.client.model.*;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -879,13 +879,15 @@ public class Pinecone {
     /**
      * A method to create and return a new instance of the {@link Inference} client.
      * <p>
+     * ToDo: update docString
      * This method initializes the Inference client using the current ApiClient
      * from the {@link ManageIndexesApi}. The {@link Inference} client can then be used
      * to interact with Pinecone's inference API.
      * @return A new {@link Inference} client instance.
      */
     public Inference getInferenceClient() {
-        return new Inference(manageIndexesApi.getApiClient());
+        // ToDo: add ability to add custom OkHttpClient instead of creating a new one
+        return new Inference(config, new OkHttpClient());
     }
 
     PineconeConnection getConnection(String indexName) {

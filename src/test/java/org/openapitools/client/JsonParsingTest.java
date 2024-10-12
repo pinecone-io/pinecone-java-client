@@ -3,9 +3,9 @@ package org.openapitools.client;
 import okhttp3.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.openapitools.control.client.api.ManageIndexesApi;
-import org.openapitools.control.client.model.*;
-import org.openapitools.control.client.ApiClient;
+import org.openapitools.db_control.client.api.ManageIndexesApi;
+import org.openapitools.db_control.client.model.*;
+import org.openapitools.db_control.client.ApiClient;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
