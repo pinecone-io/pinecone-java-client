@@ -40,12 +40,7 @@ public class ListEndpointValidationTest {
         PineconeValidationException thrownNullNamespace = assertThrows(PineconeValidationException.class, () -> {
             index.validateListEndpointParameters(null, null, null, null, true, true, true, true);
         });
-        assertEquals("Namespace cannot be null or empty", thrownNullNamespace.getMessage());
-
-        PineconeValidationException thrownEmptyNamespace = assertThrows(PineconeValidationException.class, () -> {
-            index.validateListEndpointParameters("", null, null, null, true, true, true, true);
-        });
-        assertEquals("Namespace cannot be null or empty", thrownEmptyNamespace.getMessage());
+        assertEquals("Namespace cannot be null", thrownNullNamespace.getMessage());
     }
 
     @Test
