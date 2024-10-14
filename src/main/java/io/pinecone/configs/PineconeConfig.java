@@ -2,6 +2,7 @@ package io.pinecone.configs;
 
 import io.grpc.ManagedChannel;
 import io.pinecone.exceptions.PineconeConfigurationException;
+import okhttp3.OkHttpClient;
 
 import static io.pinecone.commons.Constants.pineconeClientVersion;
 
@@ -51,6 +52,7 @@ public class PineconeConfig {
     private String host;
     private String sourceTag;
     private ProxyConfig proxyConfig;
+    private OkHttpClient customOkHttpClient;
     private ManagedChannel customManagedChannel;
     private boolean enableTLS = true;
 
@@ -70,21 +72,23 @@ public class PineconeConfig {
      * @param sourceTag An optional source tag to be included in the user agent.
      */
     public PineconeConfig(String apiKey, String sourceTag) {
-        this(apiKey, sourceTag, null);
+        this(apiKey, sourceTag, null, null);
     }
 
     /**
-     * Constructs a {@link PineconeConfig} instance with the specified API key, source tag, control plane proxy
-     * configuration, and data plane proxy configuration.
+     * Constructs a {@link PineconeConfig} instance with the specified API key, source tag, a HTTP proxy configuration,
+     * and a custom OkHttpClient.
      *
      * @param apiKey The API key required to authenticate with the Pinecone API.
      * @param sourceTag An optional source tag to be included in the user agent.
      * @param proxyConfig The proxy configuration for control and data plane requests. Can be null if not set.
+     * @param customOkHttpClient The custom OkHttpClient for making HTTP requests. Can be null if not set.
      */
-    public PineconeConfig(String apiKey, String sourceTag, ProxyConfig proxyConfig) {
+    public PineconeConfig(String apiKey, String sourceTag, ProxyConfig proxyConfig, OkHttpClient customOkHttpClient) {
         this.apiKey = apiKey;
         this.sourceTag = sourceTag;
         this.proxyConfig = proxyConfig;
+        this.customOkHttpClient = customOkHttpClient;
     }
 
     /**
@@ -166,6 +170,24 @@ public class PineconeConfig {
      */
     public ManagedChannel getCustomManagedChannel() {
         return this.customManagedChannel;
+    }
+
+    /**
+     * Gets a custom OkHttpClient for making HTTP requests.
+     *
+     * @return The custom OkHttpClient for control plane or inference api calls.
+     */
+    public OkHttpClient getCustomOkHttpClient() {
+        return customOkHttpClient;
+    }
+
+    /**
+     * Sets a custom OkHttpClient for making HTTP requests.
+     *
+     * @param customOkHttpClient The custom OkHttpClient.
+     */
+    public void setCustomOkHttpClient(OkHttpClient customOkHttpClient) {
+        this.customOkHttpClient = customOkHttpClient;
     }
 
     /**

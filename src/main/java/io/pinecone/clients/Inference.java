@@ -2,9 +2,7 @@ package io.pinecone.clients;
 
 import io.pinecone.configs.PineconeConfig;
 import io.pinecone.configs.ProxyConfig;
-import io.pinecone.exceptions.PineconeConfigurationException;
 import okhttp3.OkHttpClient;
-import org.jetbrains.annotations.NotNull;
 import org.openapitools.inference.client.ApiClient;
 import org.openapitools.inference.client.Configuration;
 import org.openapitools.inference.client.ApiException;
@@ -33,35 +31,26 @@ public class Inference {
     private final InferenceApi inferenceApi;
 
     /**
-     * Constructs an instance of {@link Inference} class.
-     * ToDo: add params list
+     * Constructs an instance of {@link Inference} class using PineconeConfig object.
+     * @param config The Pinecone configuration object for interacting with inference api.
      */
-    public Inference(PineconeConfig config, OkHttpClient customOkHttpClient) {
-        OkHttpClient.Builder builder = getBuilder(config, customOkHttpClient);
-        ApiClient apiClient = (customOkHttpClient != null) ? new ApiClient(customOkHttpClient) : new ApiClient(builder.build());
+    public Inference(PineconeConfig config) {
+        OkHttpClient customOkHttpClient = config.getCustomOkHttpClient();
+        ApiClient apiClient = (customOkHttpClient != null) ? new ApiClient(customOkHttpClient) : new ApiClient(buildOkHttpClient(config.getProxyConfig()));
         apiClient.setApiKey(config.getApiKey());
         apiClient.setUserAgent(config.getUserAgent());
         apiClient.addDefaultHeader("X-Pinecone-Api-Version", Configuration.VERSION);
 
-        if (Boolean.parseBoolean(System.getenv("PINECONE_DEBUG"))) {
-            apiClient.setDebugging(true);
-        }
-
         inferenceApi = new InferenceApi(apiClient);
     }
 
-    @NotNull
-    private static OkHttpClient.Builder getBuilder(PineconeConfig config, OkHttpClient customOkHttpClient) {
-        ProxyConfig proxyConfig = config.getProxyConfig();
-        if (proxyConfig != null && customOkHttpClient != null) {
-            throw new PineconeConfigurationException("Invalid configuration: Both Custom OkHttpClient and Proxy are set. Please configure only one of these options.");
-        }
+    private OkHttpClient buildOkHttpClient(ProxyConfig proxyConfig) {
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         if(proxyConfig != null) {
             Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyConfig.getHost(), proxyConfig.getPort()));
             builder.proxy(proxy);
         }
-        return builder;
+        return builder.build();
     }
 
     /**
