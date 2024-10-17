@@ -1040,7 +1040,7 @@ public class Pinecone {
                 throw new PineconeConfigurationException("Invalid configuration: Both Custom OkHttpClient and Proxy are set. Please configure only one of these options.");
             }
 
-            ApiClient apiClient = (customOkHttpClient != null) ? new ApiClient(customOkHttpClient) : new ApiClient(buildOkHttpClient());
+            ApiClient apiClient = (customOkHttpClient != null) ? new ApiClient(customOkHttpClient) : new ApiClient(buildOkHttpClient(proxyConfig));
             apiClient.setApiKey(config.getApiKey());
             apiClient.setUserAgent(config.getUserAgent());
             apiClient.addDefaultHeader("X-Pinecone-Api-Version", Configuration.VERSION);
@@ -1054,14 +1054,14 @@ public class Pinecone {
 
             return new Pinecone(config, manageIndexesApi);
         }
+    }
 
-        private OkHttpClient buildOkHttpClient() {
-            OkHttpClient.Builder builder = new OkHttpClient.Builder();
-            if(proxyConfig != null) {
-                Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyConfig.getHost(), proxyConfig.getPort()));
-                builder.proxy(proxy);
-            }
-            return builder.build();
+    static OkHttpClient buildOkHttpClient(ProxyConfig proxyConfig) {
+        OkHttpClient.Builder builder = new OkHttpClient.Builder();
+        if(proxyConfig != null) {
+            Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyConfig.getHost(), proxyConfig.getPort()));
+            builder.proxy(proxy);
         }
+        return builder.build();
     }
 }

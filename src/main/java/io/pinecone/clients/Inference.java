@@ -1,7 +1,6 @@
 package io.pinecone.clients;
 
 import io.pinecone.configs.PineconeConfig;
-import io.pinecone.configs.ProxyConfig;
 import okhttp3.OkHttpClient;
 import org.openapitools.inference.client.ApiClient;
 import org.openapitools.inference.client.Configuration;
@@ -9,10 +8,10 @@ import org.openapitools.inference.client.ApiException;
 import org.openapitools.inference.client.api.InferenceApi;
 import org.openapitools.inference.client.model.*;
 
-import java.net.InetSocketAddress;
-import java.net.Proxy;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static io.pinecone.clients.Pinecone.buildOkHttpClient;
 
 /**
  * The Inference class provides methods to interact with Pinecone's inference API through the Java SDK. It allows users
@@ -38,15 +37,6 @@ public class Inference {
         apiClient.addDefaultHeader("X-Pinecone-Api-Version", Configuration.VERSION);
 
         inferenceApi = new InferenceApi(apiClient);
-    }
-
-    private OkHttpClient buildOkHttpClient(ProxyConfig proxyConfig) {
-        OkHttpClient.Builder builder = new OkHttpClient.Builder();
-        if(proxyConfig != null) {
-            Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyConfig.getHost(), proxyConfig.getPort()));
-            builder.proxy(proxy);
-        }
-        return builder.build();
     }
 
     /**
