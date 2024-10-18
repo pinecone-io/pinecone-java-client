@@ -3,7 +3,7 @@
 set -eux -o pipefail
 
 version=$1 # e.g. 2024-07
-modules=("control")
+modules=("db_control" "db_data" "inference")
 
 destination="src/main/java/org/openapitools"
 build_dir="gen"

@@ -4,7 +4,7 @@ import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.proto.DescribeIndexStatsResponse;
 import io.pinecone.proto.NamespaceSummary;
-import org.openapitools.control.client.model.*;
+import org.openapitools.db_control.client.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -4,8 +4,8 @@ import io.pinecone.clients.Inference;
 import io.pinecone.clients.Pinecone;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.openapitools.control.client.ApiException;
-import org.openapitools.control.client.model.EmbeddingsList;
+import org.openapitools.inference.client.ApiException;
+import org.openapitools.inference.client.model.EmbeddingsList;
 
 import java.util.*;
 

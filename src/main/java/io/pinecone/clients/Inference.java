@@ -1,20 +1,21 @@
 package io.pinecone.clients;
 
-import org.openapitools.control.client.ApiClient;
-import org.openapitools.control.client.ApiException;
-import org.openapitools.control.client.api.InferenceApi;
-import org.openapitools.control.client.model.EmbedRequest;
-import org.openapitools.control.client.model.EmbedRequestInputsInner;
-import org.openapitools.control.client.model.EmbedRequestParameters;
-import org.openapitools.control.client.model.EmbeddingsList;
+import io.pinecone.configs.PineconeConfig;
+import okhttp3.OkHttpClient;
+import org.openapitools.inference.client.ApiClient;
+import org.openapitools.inference.client.Configuration;
+import org.openapitools.inference.client.ApiException;
+import org.openapitools.inference.client.api.InferenceApi;
+import org.openapitools.inference.client.model.*;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static io.pinecone.clients.Pinecone.buildOkHttpClient;
 
 /**
  * The Inference class provides methods to interact with Pinecone's inference API through the Java SDK. It allows users
- * to send input data to generate embeddings using a specified model.
+ * to send input data to generate embeddings or rank documents using a specified model.
  * <p>
  * This class utilizes the {@link InferenceApi} to make API calls to the Pinecone inference service.
  *
@@ -25,11 +26,16 @@ public class Inference {
     private final InferenceApi inferenceApi;
 
     /**
-     * Constructs an instance of {@link Inference} class.
-     *
-     * @param apiClient The ApiClient object used to configure the API connection.
+     * Constructs an instance of {@link Inference} class using PineconeConfig object.
+     * @param config The Pinecone configuration object for interacting with inference api.
      */
-    public Inference(ApiClient apiClient) {
+    public Inference(PineconeConfig config) {
+        OkHttpClient customOkHttpClient = config.getCustomOkHttpClient();
+        ApiClient apiClient = (customOkHttpClient != null) ? new ApiClient(customOkHttpClient) : new ApiClient(buildOkHttpClient(config.getProxyConfig()));
+        apiClient.setApiKey(config.getApiKey());
+        apiClient.setUserAgent(config.getUserAgent());
+        apiClient.addDefaultHeader("X-Pinecone-Api-Version", Configuration.VERSION);
+
         inferenceApi = new InferenceApi(apiClient);
     }
 
