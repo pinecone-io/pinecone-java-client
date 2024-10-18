@@ -6,7 +6,7 @@ import io.pinecone.exceptions.PineconeValidationException;
 import okhttp3.*;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.openapitools.control.client.model.*;
+import org.openapitools.db_control.client.model.*;
 
 import java.io.IOException;
 import java.nio.file.Files;

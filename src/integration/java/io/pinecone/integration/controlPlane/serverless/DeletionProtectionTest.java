@@ -4,8 +4,8 @@ import io.pinecone.clients.Pinecone;
 import io.pinecone.helpers.RandomStringBuilder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.openapitools.control.client.model.DeletionProtection;
-import org.openapitools.control.client.model.IndexModel;
+import org.openapitools.db_control.client.model.DeletionProtection;
+import org.openapitools.db_control.client.model.IndexModel;
 
 public class DeletionProtectionTest {
     private static final Pinecone controlPlaneClient = new Pinecone

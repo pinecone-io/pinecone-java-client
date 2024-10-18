@@ -7,7 +7,7 @@ import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.helpers.TestResourcesManager;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.openapitools.control.client.model.*;
+import org.openapitools.db_control.client.model.*;
 
 import java.util.Arrays;
 
