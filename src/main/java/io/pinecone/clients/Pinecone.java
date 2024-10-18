@@ -5,11 +5,11 @@ import io.pinecone.configs.PineconeConnection;
 import io.pinecone.configs.ProxyConfig;
 import io.pinecone.exceptions.*;
 import okhttp3.OkHttpClient;
-import org.openapitools.control.client.ApiClient;
-import org.openapitools.control.client.ApiException;
-import org.openapitools.control.client.Configuration;
-import org.openapitools.control.client.api.ManageIndexesApi;
-import org.openapitools.control.client.model.*;
+import org.openapitools.db_control.client.ApiClient;
+import org.openapitools.db_control.client.ApiException;
+import org.openapitools.db_control.client.Configuration;
+import org.openapitools.db_control.client.api.ManageIndexesApi;
+import org.openapitools.db_control.client.model.*;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -879,13 +879,13 @@ public class Pinecone {
     /**
      * A method to create and return a new instance of the {@link Inference} client.
      * <p>
-     * This method initializes the Inference client using the current ApiClient
-     * from the {@link ManageIndexesApi}. The {@link Inference} client can then be used
-     * to interact with Pinecone's inference API.
+     * This method initializes the Inference client using the current {@link PineconeConfig} instance which is
+     * initialized as a part of the Builder class. The {@link Inference} client can then be used to interact with
+     * Pinecone's inference API.
      * @return A new {@link Inference} client instance.
      */
     public Inference getInferenceClient() {
-        return new Inference(manageIndexesApi.getApiClient());
+        return new Inference(config);
     }
 
     PineconeConnection getConnection(String indexName) {
@@ -1033,14 +1033,14 @@ public class Pinecone {
          * @return A new {@link Pinecone} instance configured based on the builder parameters.
          */
         public Pinecone build() {
-            PineconeConfig config = new PineconeConfig(apiKey, sourceTag, proxyConfig);
+            PineconeConfig config = new PineconeConfig(apiKey, sourceTag, proxyConfig, customOkHttpClient);
             config.validate();
 
             if (proxyConfig != null && customOkHttpClient != null) {
                 throw new PineconeConfigurationException("Invalid configuration: Both Custom OkHttpClient and Proxy are set. Please configure only one of these options.");
             }
 
-            ApiClient apiClient = (customOkHttpClient != null) ? new ApiClient(customOkHttpClient) : new ApiClient(buildOkHttpClient());
+            ApiClient apiClient = (customOkHttpClient != null) ? new ApiClient(customOkHttpClient) : new ApiClient(buildOkHttpClient(proxyConfig));
             apiClient.setApiKey(config.getApiKey());
             apiClient.setUserAgent(config.getUserAgent());
             apiClient.addDefaultHeader("X-Pinecone-Api-Version", Configuration.VERSION);
@@ -1054,14 +1054,14 @@ public class Pinecone {
 
             return new Pinecone(config, manageIndexesApi);
         }
+    }
 
-        private OkHttpClient buildOkHttpClient() {
-            OkHttpClient.Builder builder = new OkHttpClient.Builder();
-            if(proxyConfig != null) {
-                Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyConfig.getHost(), proxyConfig.getPort()));
-                builder.proxy(proxy);
-            }
-            return builder.build();
+    static OkHttpClient buildOkHttpClient(ProxyConfig proxyConfig) {
+        OkHttpClient.Builder builder = new OkHttpClient.Builder();
+        if(proxyConfig != null) {
+            Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyConfig.getHost(), proxyConfig.getPort()));
+            builder.proxy(proxy);
         }
+        return builder.build();
     }
 }

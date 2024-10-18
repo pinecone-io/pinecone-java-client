@@ -1,6 +1,6 @@
 package io.pinecone.exceptions;
 
-import org.openapitools.control.client.ApiException;
+import org.openapitools.db_control.client.ApiException;
 
 public class HttpErrorMapper {
 

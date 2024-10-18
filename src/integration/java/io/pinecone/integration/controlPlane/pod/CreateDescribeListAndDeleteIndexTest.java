@@ -6,7 +6,7 @@ import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.helpers.TestResourcesManager;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.openapitools.control.client.model.*;
+import org.openapitools.db_control.client.model.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 

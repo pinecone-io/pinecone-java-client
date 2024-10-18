@@ -3,7 +3,7 @@ package io.pinecone;
 import io.pinecone.exceptions.PineconeConfigurationException;
 import io.pinecone.clients.Pinecone;
 import org.mockito.ArgumentCaptor;
-import org.openapitools.control.client.model.*;
+import org.openapitools.db_control.client.model.*;
 import okhttp3.*;
 import org.junit.jupiter.api.Test;
 import com.google.gson.Gson;

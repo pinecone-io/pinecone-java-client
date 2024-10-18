@@ -4,9 +4,9 @@ import io.pinecone.configs.PineconeConfig;
 import io.pinecone.configs.PineconeConnection;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.openapitools.control.client.ApiException;
-import org.openapitools.control.client.api.ManageIndexesApi;
-import org.openapitools.control.client.model.IndexModel;
+import org.openapitools.db_control.client.ApiException;
+import org.openapitools.db_control.client.api.ManageIndexesApi;
+import org.openapitools.db_control.client.model.IndexModel;
 
 import java.util.concurrent.ConcurrentHashMap;
 
