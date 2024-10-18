@@ -487,7 +487,7 @@ UpdateResponse updateResponse = index.update("v1", values, "example-namespace");
 
 # Collections
 
-Collections fall under data plane operations.
+Collections fall under control plane operations.
 
 ## Create collection
 
@@ -545,8 +545,8 @@ Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
 pinecone.deleteCollection("example-collection");
 ```
 
-## Inference
-
+# Inference
+## Embed
 The Pinecone SDK now supports creating embeddings via the [Inference API](https://docs.pinecone.io/guides/inference/understanding-inference).
 
 ```java
@@ -581,6 +581,66 @@ EmbeddingsList embeddings = inference.embed(embeddingModel, parameters, inputs);
 
 // Get embedded data
 List<Embedding> embeddedData = embeddings.getData();
+```
+
+## Rerank
+The following example shows how to rerank items according to their relevance to a query.
+
+```java
+import io.pinecone.clients.Inference;
+import io.pinecone.clients.Pinecone;
+import org.openapitools.inference.client.model.RerankResult;
+
+import java.util.*;
+
+...
+
+// The model to use for reranking
+String model = "bge-reranker-v2-m3";
+
+// The query to rerank documents against
+String query = "The tech company Apple is known for its innovative products like the iPhone.";
+
+// Add the documents to rerank
+List<Map<String, String>> documents = new ArrayList<>();
+Map<String, String> doc1 = new HashMap<>();
+doc1.put("id", "vec1");
+doc1.put("my_field", "Apple is a popular fruit known for its sweetness and crisp texture.");
+documents.add(doc1);
+
+Map<String, String> doc2 = new HashMap<>();
+doc2.put("id", "vec2");
+doc2.put("my_field", "Many people enjoy eating apples as a healthy snack.");
+documents.add(doc2);
+
+Map<String, String> doc3 = new HashMap<>();
+doc3.put("id", "vec3");
+doc3.put("my_field", "Apple Inc. has revolutionized the tech industry with its sleek designs and user-friendly interfaces.");
+documents.add(doc3);
+
+Map<String, String> doc4 = new HashMap<>();
+doc4.put("id", "vec4");
+doc4.put("my_field", "An apple a day keeps the doctor away, as the saying goes.");
+documents.add(doc4);
+
+// The fields to rank the documents by. If not provided, the default is "text"
+List<String> rankFields = Arrays.asList("my_field");
+
+// The number of results to return sorted by relevance. Defaults to the number of inputs
+int topN = 2;
+
+// Whether to return the documents in the response
+boolean returnDocuments = true;
+
+// Additional model-specific parameters for the reranker
+Map<String, Object> parameters = new HashMap<>();
+parameters.put("truncate", "END");
+
+// Send ranking request
+RerankResult result = inference.rerank(model, query, documents, rankFields, topN, returnDocuments, parameters);
+
+// Get ranked data
+System.out.println(result.getData());
 ```
 
 ## Examples

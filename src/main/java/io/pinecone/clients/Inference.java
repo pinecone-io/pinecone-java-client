@@ -61,6 +61,65 @@ public class Inference {
     }
 
     /**
+     * Reranks a list of documents based on the relevance to a query using the specified model. Since rest of the
+     * parameters are optional, they are set to their default values.
+     *
+     * @param model      The model to be used for reranking the documents.
+     * @param query      The query string to rank the documents against.
+     * @param documents  A list of maps representing the documents to be ranked.
+     *                   Each map should contain document attributes, such as "text".
+     *
+     * @return RerankResult containing the ranked documents and their scores.
+     * @throws ApiException If the API call fails, an ApiException is thrown.
+     */
+    public RerankResult rerank(String model,
+                               String query,
+                               List<Map<String, String>> documents) throws ApiException {
+        return rerank(model,
+                query,
+                documents,
+                Arrays.asList("text"),
+                documents.size(),
+                true,
+                new HashMap<>());
+    }
+
+    /**
+     * Reranks a list of documents based on the relevance to a query using the specified model with additional options.
+     *
+     * @param model            The model to be used for reranking the documents.
+     * @param query            The query string to rank the documents against.
+     * @param documents        A list of maps representing the documents to be ranked.
+     *                         Each map should contain document attributes, such as "text".
+     * @param rankFields       A list of fields in the documents to be used for ranking, typically "text".
+     * @param topN             The number of top-ranked documents to return.
+     * @param returnDocuments  Whether to return the documents along with the ranking scores.
+     * @param parameters       A map containing additional model-specific parameters for reranking.
+     * @return RerankResult containing the ranked documents and their scores.
+     * @throws ApiException If the API call fails, an ApiException is thrown.
+     */
+    public RerankResult rerank(String model,
+                               String query,
+                               List<Map<String, String>> documents,
+                               List<String> rankFields,
+                               int topN,
+                               boolean returnDocuments,
+                               Map<String, Object> parameters) throws ApiException {
+        RerankRequest rerankRequest = new RerankRequest();
+
+        rerankRequest
+                .model(model)
+                .query(query)
+                .documents(documents)
+                .rankFields(rankFields)
+                .topN(topN)
+                .returnDocuments(returnDocuments)
+                .putAdditionalProperty("parameters", parameters);
+
+        return inferenceApi.rerank(rerankRequest);
+    }
+
+    /**
      * Converts a list of input strings to EmbedRequestInputsInner objects.
      *
      * @param inputs A list of input strings.
