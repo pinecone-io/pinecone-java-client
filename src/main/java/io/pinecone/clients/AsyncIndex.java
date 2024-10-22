@@ -5,13 +5,31 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.Struct;
 import io.pinecone.commons.IndexInterface;
+import io.pinecone.configs.PineconeConfig;
 import io.pinecone.configs.PineconeConnection;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.proto.*;
+import io.pinecone.proto.DeleteRequest;
+import io.pinecone.proto.DescribeIndexStatsRequest;
+import io.pinecone.proto.FetchResponse;
+import io.pinecone.proto.ListResponse;
+import io.pinecone.proto.QueryRequest;
+import io.pinecone.proto.QueryResponse;
+import io.pinecone.proto.UpdateRequest;
+import io.pinecone.proto.UpsertRequest;
+import io.pinecone.proto.UpsertResponse;
 import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
 import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
+import okhttp3.OkHttpClient;
+import org.openapitools.db_data.client.ApiClient;
+import org.openapitools.db_data.client.ApiException;
+import org.openapitools.db_data.client.Configuration;
+import org.openapitools.db_data.client.api.BulkOperationsApi;
+import org.openapitools.db_data.client.model.*;
 
 import java.util.List;
+
+import static io.pinecone.clients.Pinecone.buildOkHttpClient;
 
 
 /**
@@ -37,6 +55,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     private final PineconeConnection connection;
     private final VectorServiceGrpc.VectorServiceFutureStub asyncStub;
+    private final BulkOperationsApi bulkOperations;
     private final String indexName;
 
     /**
@@ -55,7 +74,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      * @param indexName The name of the index to interact with. The index host will be automatically resolved.
      * @throws PineconeValidationException if the connection object is null.
      */
-    public AsyncIndex(PineconeConnection connection, String indexName) {
+    public AsyncIndex(PineconeConfig config, PineconeConnection connection, String indexName) {
         if (connection == null) {
             throw new PineconeValidationException("Pinecone connection object cannot be null.");
         }
@@ -63,6 +82,16 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
         this.indexName = indexName;
         this.connection = connection;
         this.asyncStub = connection.getAsyncStub();
+
+        OkHttpClient customOkHttpClient = config.getCustomOkHttpClient();
+        ApiClient apiClient = (customOkHttpClient != null) ? new ApiClient(customOkHttpClient) : new ApiClient(buildOkHttpClient(config.getProxyConfig()));
+        apiClient.setApiKey(config.getApiKey());
+        apiClient.setUserAgent(config.getUserAgent());
+        apiClient.addDefaultHeader("X-Pinecone-Api-Version", Configuration.VERSION);
+
+        this.bulkOperations = new BulkOperationsApi(apiClient);
+        String protocol = config.isTLSEnabled() ? "https://" : "http://";
+        bulkOperations.setCustomBaseUrl(protocol + config.getHost());
     }
 
     /**
@@ -1037,6 +1066,32 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
         ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).setPrefix(prefix).
                 setPaginationToken(paginationToken).setLimit(limit).build();
         return asyncStub.list(listRequest);
+    }
+
+    public StartImportResponse startImport(String uri, String integrationId, ImportErrorMode.OnErrorEnum errorMode) throws ApiException {
+        StartImportRequest importRequest = new StartImportRequest();
+        importRequest.setUri(uri);
+        if(integrationId != null && !integrationId.isEmpty()) {
+            importRequest.setIntegrationId(integrationId);
+        }
+        if(errorMode != null) {
+            ImportErrorMode importErrorMode = new ImportErrorMode().onError(errorMode);
+            importRequest.setErrorMode(importErrorMode);
+        }
+
+        return bulkOperations.startBulkImport(importRequest);
+    }
+
+    public ListImportsResponse listImport(Integer limit, String paginationToken) throws ApiException {
+        return bulkOperations.listBulkImports(limit, paginationToken);
+    }
+
+    public ImportModel describeImport(String id) throws ApiException {
+        return bulkOperations.describeBulkImport(id);
+    }
+
+    public void cancelImport(String id) throws ApiException {
+        bulkOperations.cancelBulkImport(id);
     }
 
     /**
