@@ -53,7 +53,7 @@ import org.openapitools.db_data.client.JSON;
 /**
  * The response for the &#x60;list_imports&#x60; operation.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-10-18T13:43:15.649566Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-10-22T21:23:53.484175Z[Etc/UTC]")
 public class ListImportsResponse {
   public static final String SERIALIZED_NAME_DATA = "data";
   @SerializedName(SERIALIZED_NAME_DATA)

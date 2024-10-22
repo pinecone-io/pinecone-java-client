@@ -49,7 +49,7 @@ import org.openapitools.inference.client.JSON;
 /**
  * Usage statistics for the model inference.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-10-18T13:43:17.189741Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-10-22T21:23:54.991514Z[Etc/UTC]")
 public class EmbeddingsListUsage {
   public static final String SERIALIZED_NAME_TOTAL_TOKENS = "total_tokens";
   @SerializedName(SERIALIZED_NAME_TOTAL_TOKENS)

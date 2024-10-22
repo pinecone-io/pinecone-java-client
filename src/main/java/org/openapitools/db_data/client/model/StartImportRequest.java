@@ -50,7 +50,7 @@ import org.openapitools.db_data.client.JSON;
 /**
  * The request for the &#x60;start_import&#x60; operation.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-10-18T13:43:15.649566Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-10-22T21:23:53.484175Z[Etc/UTC]")
 public class StartImportRequest {
   public static final String SERIALIZED_NAME_INTEGRATION_ID = "integrationId";
   @SerializedName(SERIALIZED_NAME_INTEGRATION_ID)
@@ -98,7 +98,7 @@ public class StartImportRequest {
    * The URI prefix under which the data to import is available. All data within this prefix will be listed then imported into the target index. Currently only &#x60;s3://&#x60; URIs are supported.
    * @return uri
   **/
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   public String getUri() {
     return uri;
   }
@@ -231,6 +231,7 @@ public class StartImportRequest {
 
     // a set of required properties/fields (JSON key names)
     openapiRequiredFields = new HashSet<String>();
+    openapiRequiredFields.add("uri");
   }
 
  /**
@@ -245,11 +246,18 @@ public class StartImportRequest {
           throw new IllegalArgumentException(String.format("The required field(s) %s in StartImportRequest is not found in the empty JSON string", StartImportRequest.openapiRequiredFields.toString()));
         }
       }
+
+      // check to make sure all required properties/fields are present in the JSON string
+      for (String requiredField : StartImportRequest.openapiRequiredFields) {
+        if (jsonElement.getAsJsonObject().get(requiredField) == null) {
+          throw new IllegalArgumentException(String.format("The required field `%s` is not found in the JSON string: %s", requiredField, jsonElement.toString()));
+        }
+      }
         JsonObject jsonObj = jsonElement.getAsJsonObject();
       if ((jsonObj.get("integrationId") != null && !jsonObj.get("integrationId").isJsonNull()) && !jsonObj.get("integrationId").isJsonPrimitive()) {
         throw new IllegalArgumentException(String.format("Expected the field `integrationId` to be a primitive type in the JSON string but got `%s`", jsonObj.get("integrationId").toString()));
       }
-      if ((jsonObj.get("uri") != null && !jsonObj.get("uri").isJsonNull()) && !jsonObj.get("uri").isJsonPrimitive()) {
+      if (!jsonObj.get("uri").isJsonPrimitive()) {
         throw new IllegalArgumentException(String.format("Expected the field `uri` to be a primitive type in the JSON string but got `%s`", jsonObj.get("uri").toString()));
       }
       // validate the optional field `errorMode`
