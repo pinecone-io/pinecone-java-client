@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.openapitools.db_control.client.model.ConfigureIndexRequestSpec;
 import org.openapitools.db_control.client.model.DeletionProtection;
+import org.openapitools.jackson.nullable.JsonNullable;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -53,7 +54,7 @@ import org.openapitools.db_control.client.JSON;
 /**
  * Configuration used to scale an index.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-10-18T13:43:14.267412Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-10-22T21:23:52.118506Z[Etc/UTC]")
 public class ConfigureIndexRequest {
   public static final String SERIALIZED_NAME_SPEC = "spec";
   @SerializedName(SERIALIZED_NAME_SPEC)
@@ -65,7 +66,7 @@ public class ConfigureIndexRequest {
 
   public static final String SERIALIZED_NAME_TAGS = "tags";
   @SerializedName(SERIALIZED_NAME_TAGS)
-  private Map<String, String> tags = new HashMap<>();
+  private Map<String, String> tags;
 
   public ConfigureIndexRequest() {
   }
@@ -201,9 +202,20 @@ public class ConfigureIndexRequest {
         Objects.equals(this.additionalProperties, configureIndexRequest.additionalProperties);
   }
 
+  private static <T> boolean equalsNullable(JsonNullable<T> a, JsonNullable<T> b) {
+    return a == b || (a != null && b != null && a.isPresent() && b.isPresent() && Objects.deepEquals(a.get(), b.get()));
+  }
+
   @Override
   public int hashCode() {
     return Objects.hash(spec, deletionProtection, tags, additionalProperties);
+  }
+
+  private static <T> int hashCodeNullable(JsonNullable<T> a) {
+    if (a == null) {
+      return 1;
+    }
+    return a.isPresent() ? Arrays.deepHashCode(new Object[]{a.get()}) : 31;
   }
 
   @Override
