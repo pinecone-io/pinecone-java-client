@@ -643,6 +643,82 @@ RerankResult result = inference.rerank(model, query, documents, rankFields, topN
 System.out.println(result.getData());
 ```
 
+# Imports
+## Start an import
+
+The following example initiates an asynchronous import of vectors from object storage into the index.
+
+```java
+import org.openapitools.db_data.client.ApiException;
+import org.openapitools.db_data.client.model.ImportErrorMode;
+import org.openapitools.db_data.client.model.StartImportResponse;
+...
+
+// Initialize pinecone object
+Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+// Get async imports connection object
+AsyncIndex asyncIndex = pinecone.getAsyncIndexConnection("PINECONE_INDEX_NAME");
+
+// s3 uri
+String uri = "s3://path/to/file.parquet";
+
+// Start an import
+StartImportResponse response = asyncIndex.startImport(uri, "123-456-789", ImportErrorMode.OnErrorEnum.CONTINUE);
+```
+
+## List imports
+
+The following example lists all recent and ongoing import operations for the specified index.
+
+```java
+import org.openapitools.db_data.client.ApiException;
+import org.openapitools.db_data.client.model.ListImportsResponse;
+...
+
+// Initialize pinecone object
+Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+// Get async imports connection object
+AsyncIndex asyncIndex = pinecone.getAsyncIndexConnection("PINECONE_INDEX_NAME");
+
+// List imports
+ListImportsResponse response = asyncIndex.listImport(100, "some-pagination-token");
+```
+
+## Describe an import
+
+The following example retrieves detailed information about a specific import operation using its unique identifier.
+
+```java
+import org.openapitools.db_data.client.ApiException;
+import org.openapitools.db_data.client.model.ImportModel;
+...
+
+// Initialize pinecone object
+Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+// Get async imports connection object
+AsyncIndex asyncIndex = pinecone.getAsyncIndexConnection("PINECONE_INDEX_NAME");
+        
+// Describe import
+ImportModel importDetails = asyncIndex.describeImport("1");
+```
+
+## Cancel an import
+
+import org.openapitools.db_data.client.ApiException;
+
+```java
+import org.openapitools.db_data.client.ApiException;
+...
+
+// Initialize pinecone object
+Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+// Get async imports connection object
+AsyncIndex asyncIndex = pinecone.getAsyncIndexConnection("PINECONE_INDEX_NAME");
+
+// Cancel import
+asyncIndex.cancelImport("2");
+```
+
 ## Examples
 
 - The data and control plane operation examples can be found in `io/pinecone/integration` folder.

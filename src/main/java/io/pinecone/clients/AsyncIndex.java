@@ -1068,6 +1068,33 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
         return asyncStub.list(listRequest);
     }
 
+    /**
+     * <p>Initiates an asynchronous import of vectors from object storage into a specified index.</p>
+     *
+     * <p>The method constructs a {@link StartImportRequest} using the provided URI for the data and optional
+     * storage integration ID. It also allows for specifying how to respond to errors during the import process
+     * through the {@link ImportErrorMode}. The import operation is then initiated via a call to the
+     * underlying {@link BulkOperationsApi}.</p>
+     *
+     * <p>Example:
+     *  <pre>{@code
+     *     import org.openapitools.db_data.client.ApiException;
+     *     import org.openapitools.db_data.client.model.ImportErrorMode;
+     *
+     *     ...
+     *
+     *     String uri = "s3://path/to/file.parquet";
+     *     String integrationId = "123-456-789";
+     *     StartImportResponse response = asyncIndex.startImport(uri, integrationId, ImportErrorMode.OnErrorEnum.CONTINUE);
+     *  }</pre>
+     *
+     * @param uri The URI prefix under which the data to import is available.
+     * @param integrationId The ID of the storage integration to access the data. Can be null or empty.
+     * @param errorMode Indicates how to respond to errors during the import process. Can be null.
+     * @return {@link StartImportResponse} containing the details of the initiated import operation.
+     * @throws ApiException if there are issues processing the request or communicating with the server.
+     *         This includes network issues, server errors, or serialization issues with the request or response.
+     */
     public StartImportResponse startImport(String uri, String integrationId, ImportErrorMode.OnErrorEnum errorMode) throws ApiException {
         StartImportRequest importRequest = new StartImportRequest();
         importRequest.setUri(uri);
@@ -1082,14 +1109,79 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
         return bulkOperations.startBulkImport(importRequest);
     }
 
+    /**
+     * <p>Lists all recent and ongoing import operations for the specified index.</p>
+     *
+     * <p>The method constructs a request to fetch a list of import operations, limited by the specified
+     * maximum number of operations to return per page. The pagination token allows for
+     * deterministic pagination through the list of import operations.</p>
+     *
+     * <p>Example:
+     *  <pre>{@code
+     *     import org.openapitools.db_data.client.ApiException;
+     *     import org.openapitools.db_data.client.model.ListImportsResponse;
+     *
+     *     ...
+     *     int limit = 10;
+     *     String paginationToken = "some-pagination-token";
+     *     ListImportsResponse response = asyncIndex.listImport(limit, paginationToken);
+     *  }</pre>
+     *
+     * @param limit The maximum number of operations to return per page. Default is 100.
+     * @param paginationToken The token to continue a previous listing operation. Can be null or empty.
+     * @return {@link ListImportsResponse} containing the list of recent and ongoing import operations.
+     * @throws ApiException if there are issues processing the request or communicating with the server.
+     *         This includes network issues, server errors, or serialization issues with the request or response.
+     */
     public ListImportsResponse listImport(Integer limit, String paginationToken) throws ApiException {
         return bulkOperations.listBulkImports(limit, paginationToken);
     }
 
+    /**
+     * <p>Retrieves detailed information about a specific import operation using its unique identifier.</p>
+     *
+     * <p>The method constructs a request to fetch details of the specified import operation by its ID,
+     * allowing users to monitor the status and results of the import process.</p>
+     *
+     * <p>Example:
+     *  <pre>{@code
+     *     import org.openapitools.db_data.client.ApiException;
+     *     import org.openapitools.db_data.client.model.ImportModel;
+     *
+     *     ...
+     *
+     *     String importId = "1";
+     *     ImportModel importDetails = asyncIndex.describeImport(importId);
+     *  }</pre>
+     *
+     * @param id The unique identifier for the import operation.
+     * @return {@link ImportModel} containing details of the specified import operation.
+     * @throws ApiException if there are issues processing the request or communicating with the server.
+     *         This includes network issues, server errors, or serialization issues with the request or response.
+     */
     public ImportModel describeImport(String id) throws ApiException {
         return bulkOperations.describeBulkImport(id);
     }
 
+    /**
+     * <p>Attempts to cancel an ongoing import operation using its unique identifier.</p>
+     *
+     * <p>The method issues a request to cancel the specified import operation if it has not yet finished.
+     * If the operation is already completed, the method has no effect.</p>
+     *
+     * <p>Example:
+     *  <pre>{@code
+     *     import org.openapitools.db_data.client.ApiException;
+     *
+     *     ...
+     *     String importId = "2";
+     *     asyncIndex.cancelImport(importId);
+     *  }</pre>
+     *
+     * @param id The unique identifier for the import operation to cancel.
+     * @throws ApiException if there are issues processing the request or communicating with the server.
+     *         This includes network issues, server errors, or serialization issues with the request or response.
+     */
     public void cancelImport(String id) throws ApiException {
         bulkOperations.cancelBulkImport(id);
     }

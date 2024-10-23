@@ -9,13 +9,11 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.openapitools.db_data.client.ApiException;
 import org.openapitools.db_data.client.api.BulkOperationsApi;
-import org.openapitools.db_data.client.model.ImportErrorMode;
-import org.openapitools.db_data.client.model.ImportModel;
-import org.openapitools.db_data.client.model.StartImportRequest;
-import org.openapitools.db_data.client.model.StartImportResponse;
+import org.openapitools.db_data.client.model.*;
 
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -142,5 +140,22 @@ public class ImportsTest {
 
         // Verify that the describeBulkImport method was called once
         verify(bulkOperationsApiMock, times(1)).describeBulkImport("1");
+    }
+
+    @Test
+    void testListImports() throws ApiException {
+        ListImportsResponse mockResponse = new ListImportsResponse();
+        mockResponse.setData(Collections.singletonList(new ImportModel()));
+        mockResponse.setPagination(new Pagination());
+
+        when(bulkOperationsApiMock.listBulkImports(anyInt(), anyString())).thenReturn(mockResponse);
+
+        ListImportsResponse response = asyncIndex.listImport(10, "next-token");
+
+        assertNotNull(response);
+        assertEquals(1, response.getData().size());
+        assertNotNull(response.getPagination());
+        verify(bulkOperationsApiMock, times(1))
+                .listBulkImports(10, "next-token");
     }
 }
