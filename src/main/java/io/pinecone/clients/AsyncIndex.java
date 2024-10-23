@@ -55,8 +55,8 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     private final PineconeConnection connection;
     private final VectorServiceGrpc.VectorServiceFutureStub asyncStub;
-    private final BulkOperationsApi bulkOperations;
     private final String indexName;
+    BulkOperationsApi bulkOperations;
 
     /**
      * Constructs an {@link AsyncIndex} instance for interacting with a Pinecone index.
