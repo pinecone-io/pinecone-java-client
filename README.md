@@ -681,7 +681,7 @@ Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
 AsyncIndex asyncIndex = pinecone.getAsyncIndexConnection("PINECONE_INDEX_NAME");
 
 // List imports
-ListImportsResponse response = asyncIndex.listImport(100, "some-pagination-token");
+ListImportsResponse response = asyncIndex.listImports(100, "some-pagination-token");
 ```
 
 ## Describe an import

@@ -150,7 +150,7 @@ public class ImportsTest {
 
         when(bulkOperationsApiMock.listBulkImports(anyInt(), anyString())).thenReturn(mockResponse);
 
-        ListImportsResponse response = asyncIndex.listImport(10, "next-token");
+        ListImportsResponse response = asyncIndex.listImports(10, "next-token");
 
         assertNotNull(response);
         assertEquals(1, response.getData().size());

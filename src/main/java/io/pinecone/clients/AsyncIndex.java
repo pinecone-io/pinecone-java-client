@@ -1110,6 +1110,57 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
     }
 
     /**
+     * <p>Lists all recent and ongoing import operations for the specified index with default limit and pagination.</p>
+     *
+     * <p>The method constructs a request to fetch a list of import operations, limited by the default value set to 100
+     * number of operations to return per page. The pagination token is set to null as well by default.</p>
+     *
+     *
+     * <p>Example:
+     *  <pre>{@code
+     *     import org.openapitools.db_data.client.ApiException;
+     *     import org.openapitools.db_data.client.model.ListImportsResponse;
+     *
+     *     ...
+     *
+     *     ListImportsResponse response = asyncIndex.listImports();
+     *  }</pre>
+     *
+     * @return {@link ListImportsResponse} containing the list of recent and ongoing import operations.
+     * @throws ApiException if there are issues processing the request or communicating with the server.
+     *         This includes network issues, server errors, or serialization issues with the request or response.
+     */
+    public ListImportsResponse listImports() throws ApiException {
+        return listImports(100, null);
+    }
+
+    /**
+     * <p>Lists all recent and ongoing import operations for the specified index based on limit.</p>
+     *
+     * <p>The method constructs a request to fetch a list of import operations, limited by the specified
+     * maximum number of operations to return per page. The pagination token is set to null by default.</p>
+     *
+     *
+     * <p>Example:
+     *  <pre>{@code
+     *     import org.openapitools.db_data.client.ApiException;
+     *     import org.openapitools.db_data.client.model.ListImportsResponse;
+     *
+     *     ...
+     *     int limit = 10;
+     *     ListImportsResponse response = asyncIndex.listImports(limit);
+     *  }</pre>
+     *
+     * @param limit The maximum number of operations to return per page. Default is 100.
+     * @return {@link ListImportsResponse} containing the list of recent and ongoing import operations.
+     * @throws ApiException if there are issues processing the request or communicating with the server.
+     *         This includes network issues, server errors, or serialization issues with the request or response.
+     */
+    public ListImportsResponse listImports(Integer limit) throws ApiException {
+        return listImports(limit, null);
+    }
+
+    /**
      * <p>Lists all recent and ongoing import operations for the specified index.</p>
      *
      * <p>The method constructs a request to fetch a list of import operations, limited by the specified
@@ -1124,7 +1175,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      *     ...
      *     int limit = 10;
      *     String paginationToken = "some-pagination-token";
-     *     ListImportsResponse response = asyncIndex.listImport(limit, paginationToken);
+     *     ListImportsResponse response = asyncIndex.listImports(limit, paginationToken);
      *  }</pre>
      *
      * @param limit The maximum number of operations to return per page. Default is 100.
@@ -1133,7 +1184,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      * @throws ApiException if there are issues processing the request or communicating with the server.
      *         This includes network issues, server errors, or serialization issues with the request or response.
      */
-    public ListImportsResponse listImport(Integer limit, String paginationToken) throws ApiException {
+    public ListImportsResponse listImports(Integer limit, String paginationToken) throws ApiException {
         return bulkOperations.listBulkImports(limit, paginationToken);
     }
 
