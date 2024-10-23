@@ -52,7 +52,7 @@ import org.openapitools.inference.client.JSON;
 /**
  * Embedding of a single input
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-10-22T21:23:54.991514Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-10-23T20:47:14.512003Z[Etc/UTC]")
 public class Embedding {
   public static final String SERIALIZED_NAME_VALUES = "values";
   @SerializedName(SERIALIZED_NAME_VALUES)
