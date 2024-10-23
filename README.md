@@ -633,7 +633,7 @@ int topN = 2;
 boolean returnDocuments = true;
 
 // Additional model-specific parameters for the reranker
-Map<String, Object> parameters = new HashMap<>();
+Map<String, String> parameters = new HashMap<>();
 parameters.put("truncate", "END");
 
 // Send ranking request
