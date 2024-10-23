@@ -47,7 +47,7 @@ public class RerankTest {
         List<String> rankFields = Arrays.asList("my_field");
         int topN = 2;
         boolean returnDocuments = true;
-        Map<String, Object> parameters = new HashMap<>();
+        Map<String, String> parameters = new HashMap<>();
         parameters.put("truncate", "END");
 
         RerankResult result = inference.rerank(model, query, documents, rankFields, topN, returnDocuments, parameters);

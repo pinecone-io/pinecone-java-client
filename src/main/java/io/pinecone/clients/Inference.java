@@ -104,7 +104,7 @@ public class Inference {
                                List<String> rankFields,
                                int topN,
                                boolean returnDocuments,
-                               Map<String, Object> parameters) throws ApiException {
+                               Map<String, String> parameters) throws ApiException {
         RerankRequest rerankRequest = new RerankRequest();
 
         rerankRequest
@@ -114,7 +114,7 @@ public class Inference {
                 .rankFields(rankFields)
                 .topN(topN)
                 .returnDocuments(returnDocuments)
-                .putAdditionalProperty("parameters", parameters);
+                .parameters(parameters);
 
         return inferenceApi.rerank(rerankRequest);
     }
