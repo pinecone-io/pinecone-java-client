@@ -13,7 +13,7 @@
 
 package org.openapitools.inference.client;
 
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-10-22T21:23:54.991514Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-10-23T20:47:14.512003Z[Etc/UTC]")
 public class Pair {
     private String name = "";
     private String value = "";

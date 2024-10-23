@@ -51,7 +51,7 @@ import org.openapitools.db_data.client.JSON;
 /**
  * Vector sparse data. Represented as a list of indices and a list of  corresponded values, which must be with the same length.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-10-22T21:23:53.484175Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-10-23T20:47:12.659110Z[Etc/UTC]")
 public class SparseValues {
   public static final String SERIALIZED_NAME_INDICES = "indices";
   @SerializedName(SERIALIZED_NAME_INDICES)
