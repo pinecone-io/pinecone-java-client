@@ -55,7 +55,6 @@ resources on idle pools. More details on the OkHttpClient can be found [here](ht
 
 ```java
 import io.pinecone.clients.Pinecone;
-import org.openapitools.client.model.*;
 
 public class InitializeClientExample {
     public static void main(String[] args) {
@@ -71,6 +70,7 @@ If you need to provide a custom `OkHttpClient`, you can do so by using the `with
 
 ```java
 import io.pinecone.clients.Pinecone;
+import okhttp3.OkHttpClient;
 
 public class InitializeClientExample {
     public static void main(String[] args) {
@@ -96,7 +96,7 @@ import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.proto.UpsertResponse;
 import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
-import org.openapitools.control.client.model.IndexModel;
+import org.openapitools.db_control.client.model.IndexModel;
 
 import java.util.Arrays;
 
@@ -169,9 +169,8 @@ serverless and regional availability, see [Understanding indexes](https://docs.p
 
 ```java
 import io.pinecone.clients.Pinecone;
-import org.openapitools.client.model.IndexModel;
-import org.openapitools.control.client.model.DeletionProtection;
-
+import org.openapitools.db_control.client.model.IndexModel;
+import org.openapitools.db_control.client.model.DeletionProtection;
 ...
 
 Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
@@ -192,9 +191,7 @@ The following is a minimal example of creating a pod-based index. For all the po
 
 ```java
 import io.pinecone.clients.Pinecone;
-import org.openapitools.client.model.IndexModel;
-import org.openapitools.control.client.model.DeletionProtection;
-
+import org.openapitools.db_control.client.model.IndexModel;
 ...
         
 Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
@@ -235,7 +232,7 @@ The following example returns all indexes (and their corresponding metadata) in 
 
 ```java
 import io.pinecone.clients.Pinecone;
-import org.openapitools.client.model.IndexList;
+import org.openapitools.db_control.client.model.IndexList;
 ...
         
 Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
@@ -248,7 +245,7 @@ The following example returns metadata about an index.
 
 ```java
 import io.pinecone.clients.Pinecone;
-import org.openapitools.client.model.IndexModel;
+import org.openapitools.db_control.client.model.IndexModel;
 ...
         
 Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build(); 
@@ -261,7 +258,8 @@ The following example deletes an index.
 
 ```java
 import io.pinecone.clients.Pinecone;
-
+...
+        
 Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
 pinecone.deleteIndex("example-index");
 ```
@@ -274,7 +272,7 @@ Note: scaling replicas is only applicable to pod-based indexes.
 
 ```java
 import io.pinecone.clients.Pinecone;
-import org.openapitools.client.model.IndexModel;
+import org.openapitools.db_control.client.model.DeletionProtection;
 ...
         
 Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
@@ -282,8 +280,9 @@ Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
 String indexName = "example-index";
 String podType = "p1.x1";
 int newNumberOfReplicas = 7;
-        
-pinecone.configurePodsIndex(indexName, podType, newNumberOfReplicas);
+DeletionProtection deletionProtection = DeletionProtection.DISABLED;
+
+pinecone.configurePodsIndex(indexName, podType, newNumberOfReplicas, deletionProtection);
 ```
 
 ## Enable deletion protection for pod index
@@ -292,11 +291,15 @@ The following example enables deletion protection for a pod-based index.
 
 ```java
 import io.pinecone.clients.Pinecone;
+import org.openapitools.db_control.client.model.DeletionProtection;
 ...
         
 Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
 
-pinecone.configurePodsIndex(indexName, DeletionProtection.ENABLED);
+String indexName = "example-index";
+DeletionProtection deletionProtection = DeletionProtection.ENABLED;
+
+pinecone.configurePodsIndex(indexName, deletionProtection);
 ```
 
 ## Enable deletion protection for serverless index
@@ -305,10 +308,12 @@ The following example enables deletion protection for a serverless index.
 
 ```java
 import io.pinecone.clients.Pinecone;
+import org.openapitools.db_control.client.model.DeletionProtection;
 ...
         
 Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
 
+String indexName = "example-index";
 pinecone.configureServerlessIndex(indexName, DeletionProtection.ENABLED);
 ```
 
@@ -320,7 +325,8 @@ The following example returns statistics about an index.
 import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.proto.DescribeIndexStatsResponse;
-
+...
+        
 Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
 
 Index index = pinecone.getIndexConnection("example-index");
@@ -452,8 +458,8 @@ The following example lists up to 100 vector IDs from a Pinecone index.
 
 This method accepts optional parameters for `namespace`, `prefix`, `limit`, and `paginationToken`. 
 
-The following 
-demonstrates how to use the `list` endpoint to get vector IDs from a specific `namespace`, filtered by a given `prefix`.
+The following demonstrates how to use the `list` endpoint to get vector IDs from a specific `namespace`, filtered by a 
+given `prefix`.
 
 ```java
 import io.pinecone.clients.Index;
@@ -465,7 +471,6 @@ String indexName = "example-index";
 Index index = pinecone.getIndexConnection(indexName);
 ListResponse listResponse = index.list("example-namespace", "prefix-");
 ```
-
 
 ## Update vectors
 
@@ -496,7 +501,7 @@ The following example creates the collection `example-collection` from
 
 ```java
 import io.pinecone.clients.Pinecone;
-import org.openapitools.client.model.CollectionModel;
+import org.openapitools.db_control.client.model.CollectionModel;
 ...
 
 Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
@@ -512,7 +517,7 @@ The following example returns a list of the collections in the current project.
 
 ```java
 import io.pinecone.clients.Pinecone;
-import org.openapitools.client.model.CollectionModel;
+import org.openapitools.db_control.client.model.CollectionModel;
 import java.util.List;
 ...
 
@@ -526,7 +531,7 @@ The following example returns a description of the collection
 
 ```java
 import io.pinecone.clients.Pinecone;
-import org.openapitools.client.model.CollectionModel;
+import org.openapitools.db_control.client.model.CollectionModel;
 ...
         
 Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
@@ -550,10 +555,11 @@ pinecone.deleteCollection("example-collection");
 The Pinecone SDK now supports creating embeddings via the [Inference API](https://docs.pinecone.io/guides/inference/understanding-inference).
 
 ```java
+import io.pinecone.clients.Inference;
 import io.pinecone.clients.Pinecone;
-import org.openapitools.control.client.ApiException;
-import org.openapitools.control.client.model.Embedding;
-import org.openapitools.control.client.model.EmbeddingsList;
+import org.openapitools.inference.client.ApiException;
+import org.openapitools.inference.client.model.Embedding;
+import org.openapitools.inference.client.model.EmbeddingsList;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -589,11 +595,14 @@ The following example shows how to rerank items according to their relevance to 
 ```java
 import io.pinecone.clients.Inference;
 import io.pinecone.clients.Pinecone;
+import org.openapitools.inference.client.ApiException;
 import org.openapitools.inference.client.model.RerankResult;
 
 import java.util.*;
-
 ...
+
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+Inference inference = pinecone.getInferenceClient();
 
 // The model to use for reranking
 String model = "bge-reranker-v2-m3";
