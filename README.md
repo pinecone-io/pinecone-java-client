@@ -704,7 +704,7 @@ ImportModel importDetails = asyncIndex.describeImport("1");
 
 ## Cancel an import
 
-import org.openapitools.db_data.client.ApiException;
+The following example attempts to cancel an ongoing import operation using its unique identifier.
 
 ```java
 import org.openapitools.db_data.client.ApiException;
