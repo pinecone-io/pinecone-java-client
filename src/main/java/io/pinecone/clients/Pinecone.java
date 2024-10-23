@@ -873,7 +873,7 @@ public class Pinecone {
 
         config.setHost(getIndexHost(indexName));
         PineconeConnection connection = getConnection(indexName);
-        return new AsyncIndex(connection, indexName);
+        return new AsyncIndex(config, connection, indexName);
     }
 
     /**
