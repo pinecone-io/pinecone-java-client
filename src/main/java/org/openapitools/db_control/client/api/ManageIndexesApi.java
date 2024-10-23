@@ -688,6 +688,7 @@ public class ManageIndexesApi {
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
         <tr><td> 202 </td><td> The request to delete the index has been accepted. </td><td>  -  </td></tr>
         <tr><td> 401 </td><td> Unauthorized. Possible causes: Invalid API key. </td><td>  -  </td></tr>
+        <tr><td> 403 </td><td> Forbidden. Deletion protection enabled. </td><td>  -  </td></tr>
         <tr><td> 404 </td><td> Index not found. </td><td>  -  </td></tr>
         <tr><td> 412 </td><td> There is a pending collection created from this index. </td><td>  -  </td></tr>
         <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
@@ -759,6 +760,7 @@ public class ManageIndexesApi {
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
         <tr><td> 202 </td><td> The request to delete the index has been accepted. </td><td>  -  </td></tr>
         <tr><td> 401 </td><td> Unauthorized. Possible causes: Invalid API key. </td><td>  -  </td></tr>
+        <tr><td> 403 </td><td> Forbidden. Deletion protection enabled. </td><td>  -  </td></tr>
         <tr><td> 404 </td><td> Index not found. </td><td>  -  </td></tr>
         <tr><td> 412 </td><td> There is a pending collection created from this index. </td><td>  -  </td></tr>
         <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
@@ -779,6 +781,7 @@ public class ManageIndexesApi {
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
         <tr><td> 202 </td><td> The request to delete the index has been accepted. </td><td>  -  </td></tr>
         <tr><td> 401 </td><td> Unauthorized. Possible causes: Invalid API key. </td><td>  -  </td></tr>
+        <tr><td> 403 </td><td> Forbidden. Deletion protection enabled. </td><td>  -  </td></tr>
         <tr><td> 404 </td><td> Index not found. </td><td>  -  </td></tr>
         <tr><td> 412 </td><td> There is a pending collection created from this index. </td><td>  -  </td></tr>
         <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
@@ -801,6 +804,7 @@ public class ManageIndexesApi {
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
         <tr><td> 202 </td><td> The request to delete the index has been accepted. </td><td>  -  </td></tr>
         <tr><td> 401 </td><td> Unauthorized. Possible causes: Invalid API key. </td><td>  -  </td></tr>
+        <tr><td> 403 </td><td> Forbidden. Deletion protection enabled. </td><td>  -  </td></tr>
         <tr><td> 404 </td><td> Index not found. </td><td>  -  </td></tr>
         <tr><td> 412 </td><td> There is a pending collection created from this index. </td><td>  -  </td></tr>
         <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>

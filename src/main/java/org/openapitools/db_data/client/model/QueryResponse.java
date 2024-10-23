@@ -54,7 +54,7 @@ import org.openapitools.db_data.client.JSON;
 /**
  * The response for the &#x60;query&#x60; operation. These are the matches found for a particular query vector. The matches are ordered from most similar to least similar.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-10-22T21:23:53.484175Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-10-23T20:47:12.659110Z[Etc/UTC]")
 public class QueryResponse {
   public static final String SERIALIZED_NAME_RESULTS = "results";
   @Deprecated

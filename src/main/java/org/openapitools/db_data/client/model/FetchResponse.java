@@ -53,7 +53,7 @@ import org.openapitools.db_data.client.JSON;
 /**
  * The response for the &#x60;fetch&#x60; operation.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-10-22T21:23:53.484175Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-10-23T20:47:12.659110Z[Etc/UTC]")
 public class FetchResponse {
   public static final String SERIALIZED_NAME_VECTORS = "vectors";
   @SerializedName(SERIALIZED_NAME_VECTORS)

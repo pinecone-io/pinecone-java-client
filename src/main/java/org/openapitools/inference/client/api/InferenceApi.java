@@ -273,8 +273,8 @@ public class InferenceApi {
     }
 
     /**
-     * Rerank items
-     * Rerank items according to their relevance to a query.  For guidance and examples, see [Rerank documents](https://docs.pinecone.io/guides/inference/rerank).
+     * Rerank documents
+     * Rerank documents according to their relevance to a query.  For guidance and examples, see [Rerank documents](https://docs.pinecone.io/guides/inference/rerank).
      * @param rerankRequest Rerank documents for the given query (optional)
      * @return RerankResult
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
@@ -293,8 +293,8 @@ public class InferenceApi {
     }
 
     /**
-     * Rerank items
-     * Rerank items according to their relevance to a query.  For guidance and examples, see [Rerank documents](https://docs.pinecone.io/guides/inference/rerank).
+     * Rerank documents
+     * Rerank documents according to their relevance to a query.  For guidance and examples, see [Rerank documents](https://docs.pinecone.io/guides/inference/rerank).
      * @param rerankRequest Rerank documents for the given query (optional)
      * @return ApiResponse&lt;RerankResult&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
@@ -314,8 +314,8 @@ public class InferenceApi {
     }
 
     /**
-     * Rerank items (asynchronously)
-     * Rerank items according to their relevance to a query.  For guidance and examples, see [Rerank documents](https://docs.pinecone.io/guides/inference/rerank).
+     * Rerank documents (asynchronously)
+     * Rerank documents according to their relevance to a query.  For guidance and examples, see [Rerank documents](https://docs.pinecone.io/guides/inference/rerank).
      * @param rerankRequest Rerank documents for the given query (optional)
      * @param _callback The callback to be executed when the API call finishes
      * @return The request call
