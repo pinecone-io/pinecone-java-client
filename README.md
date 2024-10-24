@@ -658,6 +658,8 @@ System.out.println(result.getData());
 The following example initiates an asynchronous import of vectors from object storage into the index.
 
 ```java
+import io.pinecone.clients.Pinecone;
+import io.pinecone.clients.AsyncIndex;
 import org.openapitools.db_data.client.ApiException;
 import org.openapitools.db_data.client.model.ImportErrorMode;
 import org.openapitools.db_data.client.model.StartImportResponse;
@@ -680,6 +682,8 @@ StartImportResponse response = asyncIndex.startImport(uri, "123-456-789", Import
 The following example lists all recent and ongoing import operations for the specified index.
 
 ```java
+import io.pinecone.clients.Pinecone;
+import io.pinecone.clients.AsyncIndex;
 import org.openapitools.db_data.client.ApiException;
 import org.openapitools.db_data.client.model.ListImportsResponse;
 ...
@@ -698,6 +702,8 @@ ListImportsResponse response = asyncIndex.listImports(100, "some-pagination-toke
 The following example retrieves detailed information about a specific import operation using its unique identifier.
 
 ```java
+import io.pinecone.clients.Pinecone;
+import io.pinecone.clients.AsyncIndex;
 import org.openapitools.db_data.client.ApiException;
 import org.openapitools.db_data.client.model.ImportModel;
 ...
@@ -716,6 +722,8 @@ ImportModel importDetails = asyncIndex.describeImport("1");
 The following example attempts to cancel an ongoing import operation using its unique identifier.
 
 ```java
+import io.pinecone.clients.Pinecone;
+import io.pinecone.clients.AsyncIndex;
 import org.openapitools.db_data.client.ApiException;
 ...
 
