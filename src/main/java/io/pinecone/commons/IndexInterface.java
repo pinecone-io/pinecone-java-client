@@ -734,8 +734,8 @@ public interface IndexInterface<T, U, V, W, X, Y, Z> extends AutoCloseable {
     default void validateListEndpointParameters(String namespace, String prefix, String paginationToken,
                                                 Integer limit, boolean namespaceRequired, boolean prefixRequired,
                                                 boolean paginationTokenRequired, boolean limitRequired) {
-        if (namespaceRequired && (namespace == null || namespace.isEmpty())) {
-            throw new PineconeValidationException("Namespace cannot be null or empty");
+        if (namespaceRequired && (namespace == null)) {
+            throw new PineconeValidationException("Namespace cannot be null");
         }
         if (prefixRequired && (prefix == null || prefix.isEmpty())) {
             throw new PineconeValidationException("Prefix cannot be null or empty");
