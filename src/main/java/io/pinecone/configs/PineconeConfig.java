@@ -55,6 +55,7 @@ public class PineconeConfig {
     private OkHttpClient customOkHttpClient;
     private ManagedChannel customManagedChannel;
     private boolean enableTLS = true;
+    private RetryConfig retryConfig;
 
     /**
      * Constructs a {@link PineconeConfig} instance with the specified API key.
@@ -246,6 +247,14 @@ public class PineconeConfig {
      */
     public void setTLSEnabled(boolean enableTLS) {
         this.enableTLS = enableTLS;
+    }
+    
+    public RetryConfig getRetryConfig() {
+        return retryConfig;
+    }
+
+    public void setRetryConfig(RetryConfig retryConfig) {
+        this.retryConfig = retryConfig;
     }
 
     private String buildUserAgent() {
