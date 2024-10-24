@@ -2,6 +2,17 @@
 
 [comment]: <> (When bumping [pc:VERSION_LATEST_RELEASE] create a new entry below)
 ### Unreleased version
+### 3.0.0
+- Add support for imports
+  - start import
+  - list imports
+  - describe import
+  - cancel import
+- Add support for inference
+  - embed
+  - rerank
+- Generate code based on 2024-10 open-api spec
+
 ### 2.1.0
 - Add support to disable TLS for data plane operations
 
