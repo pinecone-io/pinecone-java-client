@@ -920,9 +920,11 @@ public class Pinecone {
         private final String apiKey;
 
         // Optional fields
+        private String host;
         private String sourceTag;
         private ProxyConfig proxyConfig;
         private OkHttpClient customOkHttpClient;
+        private boolean enableTls = true;
 
         /**
          * Constructs a new {@link Builder} with the mandatory API key.
@@ -1023,6 +1025,16 @@ public class Pinecone {
             return this;
         }
 
+        public Builder withHost(String host) {
+            this.host = host;
+            return this;
+        }
+
+        public Builder withTlsEnabled(boolean enableTls) {
+            this.enableTls = enableTls;
+            return this;
+        }
+
         /**
          * Builds and returns a {@link Pinecone} instance configured with the provided API key, optional source tag,
          * and OkHttpClient.
@@ -1034,13 +1046,23 @@ public class Pinecone {
          */
         public Pinecone build() {
             PineconeConfig config = new PineconeConfig(apiKey, sourceTag, proxyConfig, customOkHttpClient);
+            config.setTLSEnabled(enableTls);
             config.validate();
 
             if (proxyConfig != null && customOkHttpClient != null) {
                 throw new PineconeConfigurationException("Invalid configuration: Both Custom OkHttpClient and Proxy are set. Please configure only one of these options.");
             }
 
-            ApiClient apiClient = (customOkHttpClient != null) ? new ApiClient(customOkHttpClient) : new ApiClient(buildOkHttpClient(proxyConfig));
+            ApiClient apiClient;
+            if (customOkHttpClient != null) {
+                apiClient = new ApiClient(customOkHttpClient);
+            } else {
+                apiClient = new ApiClient(buildOkHttpClient(proxyConfig));
+                if(host!=null && !host.isEmpty()) {
+                    config.setHost(host);
+                    apiClient.setBasePath(host);
+                }
+            }
             apiClient.setApiKey(config.getApiKey());
             apiClient.setUserAgent(config.getUserAgent());
             apiClient.addDefaultHeader("X-Pinecone-Api-Version", Configuration.VERSION);
