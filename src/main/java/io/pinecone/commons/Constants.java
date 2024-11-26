@@ -1,5 +1,5 @@
 package io.pinecone.commons;
 
 public class Constants {
-    public static final String pineconeClientVersion = "v3.0.0";
+    public static final String pineconeClientVersion = "v3.1.0";
 }

@@ -2,6 +2,9 @@
 
 [comment]: <> (When bumping [pc:VERSION_LATEST_RELEASE] create a new entry below)
 ### Unreleased version
+### 3.1.0
+- Add support to pass base url for control and data plane operations
+
 ### 3.0.0
 - Add support for imports
   - start import
