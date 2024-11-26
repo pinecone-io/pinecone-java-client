@@ -1025,11 +1025,52 @@ public class Pinecone {
             return this;
         }
 
+        /**
+         * Sets a custom host URL for the control and data plane operations.
+         * <p>
+         * This method allows you to specify a custom base URL for Pinecone control and data plane requests.
+         * <p>
+         * Example usage:
+         * <pre>{@code
+         * Pinecone client = new Pinecone.Builder("PINECONE_API_KEY")
+         *     .withHost("http://localhost:5080")
+         *     .build();
+         *
+         * // Requests will now be sent to the specified host.
+         * client.listIndexes();
+         * }</pre>
+         *
+         * @param host The custom host URL for the Pinecone service. Must be a valid URL.
+         * @return This {@link Builder} instance for chaining method calls.
+         */
         public Builder withHost(String host) {
             this.host = host;
             return this;
         }
 
+        /**
+         * Configures whether TLS (Transport Layer Security) should be enabled for data plane operations.
+         * <p>
+         * By default, TLS is enabled for data plane requests to ensure secure communication for data plane operations.
+         * This method can be used to disable TLS if needed (e.g., for testing or when communicating with non-secure
+         * endpoints). Disabling TLS in a production environment is not recommended due to potential security risks.
+         * <p>
+         * Example usage:
+         * <pre>{@code
+         * Pinecone client = new Pinecone.Builder("PINECONE_API_KEY")
+         *     .withTlsEnabled(false)
+         *     .build();
+         *
+         * // Get index for data plane operations
+         * Index index = pinecone.getIndexConnection("PINECONE_INDEX_NAME");
+         *
+         * // Requests will now be made without TLS encryption (not recommended for production use).
+         * index.upsert("v1", Arrays.asList(1f, 2f, 3f));
+         * }</pre>
+         *
+         * @param enableTls {@code true} to enable TLS (default), {@code false} to disable it.
+         * @return This {@link Builder} instance for chaining method calls.
+         */
         public Builder withTlsEnabled(boolean enableTls) {
             this.enableTls = enableTls;
             return this;
