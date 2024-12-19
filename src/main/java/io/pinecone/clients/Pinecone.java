@@ -14,6 +14,7 @@ import org.openapitools.db_control.client.model.*;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -70,6 +71,7 @@ public class Pinecone {
      * @param cloud The cloud provider for the index.
      * @param region The cloud region for the index.
      * @param deletionProtection Enable or disable deletion protection for the index.
+     * @param tags A map of tags to associate with the Index.
      * @return {@link IndexModel} representing the created serverless index.
      * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
      */
@@ -78,7 +80,8 @@ public class Pinecone {
                                             int dimension,
                                             String cloud,
                                             String region,
-                                            DeletionProtection deletionProtection) throws PineconeException {
+                                            DeletionProtection deletionProtection,
+                                            Map<String, String> tags) throws PineconeException {
         if (indexName == null || indexName.isEmpty()) {
             throw new PineconeValidationException("Index name cannot be null or empty");
         }
@@ -126,7 +129,8 @@ public class Pinecone {
                     .metric(userMetric)
                     .dimension(dimension)
                     .spec(createServerlessIndexRequestSpec)
-                    .deletionProtection(deletionProtection));
+                    .deletionProtection(deletionProtection))
+                    .tags(tags);
         } catch (ApiException apiException) {
             handleApiException(apiException);
         }
@@ -626,13 +630,15 @@ public class Pinecone {
      * @return {@link IndexModel} representing the configured index.
      * @throws PineconeException if an error occurs during the operation, the index does not exist, or if any of the arguments are invalid.
      */
-    public IndexModel configureServerlessIndex(String indexName, DeletionProtection deletionProtection) throws PineconeException {
+    public IndexModel configureServerlessIndex(String indexName, DeletionProtection deletionProtection, Map<String, String> tags) throws PineconeException {
         if (indexName == null || indexName.isEmpty()) {
             throw new PineconeValidationException("indexName cannot be null or empty");
         }
 
         // Build ConfigureIndexRequest object
-        ConfigureIndexRequest configureIndexRequest = new ConfigureIndexRequest().deletionProtection(deletionProtection);
+        ConfigureIndexRequest configureIndexRequest = new ConfigureIndexRequest()
+                .deletionProtection(deletionProtection)
+                .tags(tags);
 
         IndexModel indexModel = null;
         try {

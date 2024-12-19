@@ -10,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import static io.pinecone.helpers.BuildUpsertRequest.buildRequiredUpsertRequestByDimension;
@@ -315,9 +317,11 @@ public class TestResourcesManager {
         }
 
         String indexName = RandomStringBuilder.build("serverless-index", 8);
+        HashMap<String, String> tags = new HashMap<>();
+        tags.put("env", "testing");
         
         serverlessIndexModel = pineconeClient.createServerlessIndex(indexName, metric, dimension, cloud,
-                region, DeletionProtection.DISABLED);
+                region, DeletionProtection.DISABLED, tags);
         waitUntilIndexIsReady(pineconeClient, indexName);
 
         // Explicitly wait after ready to avoid the "no healthy upstream" issue
