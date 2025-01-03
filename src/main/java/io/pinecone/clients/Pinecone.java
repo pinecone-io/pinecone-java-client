@@ -154,7 +154,7 @@ public class Pinecone {
      */
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment, String podType) {
         return createPodsIndex(indexName, dimension, environment, podType, null, null, null,
-                null, null, null, DeletionProtection.DISABLED);
+                null, null, null, DeletionProtection.DISABLED, null);
     }
 
     /**
@@ -179,7 +179,7 @@ public class Pinecone {
                                       String podType,
                                       DeletionProtection deletionProtection) {
         return createPodsIndex(indexName, dimension, environment, podType, null, null, null,
-                null, null, null, deletionProtection);
+                null, null, null, deletionProtection, null);
     }
 
     /**
@@ -201,7 +201,7 @@ public class Pinecone {
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String podType, String metric) {
         return createPodsIndex(indexName, dimension, environment, podType, metric, null, null,
-                null, null, null, DeletionProtection.DISABLED);
+                null, null, null, DeletionProtection.DISABLED, null);
     }
 
     /**
@@ -232,7 +232,7 @@ public class Pinecone {
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String podType, String metric, PodSpecMetadataConfig metadataConfig) {
         return createPodsIndex(indexName, dimension, environment, podType, metric, null, null, null,
-                metadataConfig,null, DeletionProtection.DISABLED);
+                metadataConfig,null, DeletionProtection.DISABLED, null);
     }
 
     /**
@@ -255,7 +255,7 @@ public class Pinecone {
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String podType, String metric, String sourceCollection) {
         return createPodsIndex(indexName, dimension, environment, podType, metric, null, null, null, null,
-                sourceCollection, DeletionProtection.DISABLED);
+                sourceCollection, DeletionProtection.DISABLED, null);
     }
 
     /**
@@ -277,7 +277,7 @@ public class Pinecone {
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String podType, Integer pods) {
         return createPodsIndex(indexName, dimension, environment, podType, null, null, null, pods,
-                null, null, DeletionProtection.DISABLED);
+                null, null, DeletionProtection.DISABLED, null);
     }
 
     /**
@@ -306,7 +306,7 @@ public class Pinecone {
                                       String podType, Integer pods,
                                       PodSpecMetadataConfig metadataConfig) {
         return createPodsIndex(indexName, dimension, environment, podType, null, null, null, pods, metadataConfig,
-                null, DeletionProtection.DISABLED);
+                null, DeletionProtection.DISABLED, null);
     }
 
     /**
@@ -330,7 +330,7 @@ public class Pinecone {
                                       String podType, Integer replicas,
                                       Integer shards) {
         return createPodsIndex(indexName, dimension, environment, podType, null, replicas, shards, null,
-                null, null, DeletionProtection.DISABLED);
+                null, null, DeletionProtection.DISABLED, null);
     }
 
     /**
@@ -362,7 +362,7 @@ public class Pinecone {
         return createPodsIndex(indexName, dimension, environment,
                 podType, null, replicas,
                 shards, null, metadataConfig,
-                null, DeletionProtection.DISABLED);
+                null, DeletionProtection.DISABLED, null);
     }
 
     /**
@@ -394,11 +394,18 @@ public class Pinecone {
      * @return {@link IndexModel} representing the created serverless index.
      * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
      */
-    public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
-                                      String podType, String metric,
-                                      Integer replicas, Integer shards, Integer pods,
-                                      PodSpecMetadataConfig metadataConfig, String sourceCollection,
-                                      DeletionProtection deletionProtection) throws PineconeException {
+    public IndexModel createPodsIndex(String indexName,
+                                      Integer dimension,
+                                      String environment,
+                                      String podType,
+                                      String metric,
+                                      Integer replicas,
+                                      Integer shards,
+                                      Integer pods,
+                                      PodSpecMetadataConfig metadataConfig,
+                                      String sourceCollection,
+                                      DeletionProtection deletionProtection,
+                                      Map<String, String> tags) throws PineconeException {
         validatePodIndexParams(indexName, dimension, environment, podType, metric, replicas, shards, pods);
 
         PodSpec podSpec = new PodSpec().environment(environment)
@@ -416,6 +423,10 @@ public class Pinecone {
                 .spec(createIndexRequestSpec)
                 .deletionProtection(deletionProtection);
 
+        if (tags != null && !tags.isEmpty()) {
+            createIndexRequest.tags(tags);
+        }
+
         IndexModel indexModel = null;
         try {
             indexModel = manageIndexesApi.createIndex(createIndexRequest);
@@ -424,7 +435,6 @@ public class Pinecone {
         }
         return indexModel;
     }
-
 
     public static void validatePodIndexParams(String indexName, Integer dimension, String environment,
                                               String podType, String metric,

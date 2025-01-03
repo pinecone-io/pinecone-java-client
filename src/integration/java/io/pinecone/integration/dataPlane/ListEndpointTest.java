@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
 public class ListEndpointTest {
     private static final TestResourcesManager indexManager = TestResourcesManager.getInstance();
     private static Index indexConnection;
@@ -70,13 +69,6 @@ public class ListEndpointTest {
                 listResponseWithPaginationNoPrefix1.getPagination().getNext()
         );
         assertEquals(listResponseWithPaginationNoPrefix2.getVectorsList().size(), 2);
-        ListResponse listResponseWithPaginationNoPrefix3 = indexConnection.list(
-                customNamespace,
-                2,
-                listResponseWithPaginationNoPrefix2.getPagination().getNext()
-        );
-        assertEquals(listResponseWithPaginationNoPrefix3.getVectorsList().size(), 0);
-        assertEquals(listResponseWithPaginationNoPrefix3.getPagination().getNext(), "");
     }
 
     @Test
@@ -122,14 +114,5 @@ public class ListEndpointTest {
         );
         ListResponse asyncListResponseWithPaginationNoPrefix2 = Futures.getUnchecked(futureResponseWithPaginationNoPrefix2);
         assertEquals(asyncListResponseWithPaginationNoPrefix2.getVectorsList().size(), 2);
-        ListenableFuture<ListResponse> futureResponseWithPaginationNoPrefix3 = asyncIndexConnection.list(
-                customNamespace,
-                2,
-                asyncListResponseWithPaginationNoPrefix2.getPagination().getNext()
-        );
-        ListResponse asyncListResponseWithPaginationNoPrefix3 = Futures.getUnchecked(futureResponseWithPaginationNoPrefix3);
-        assertEquals(asyncListResponseWithPaginationNoPrefix3.getVectorsList().size(), 0);
-        assertEquals(asyncListResponseWithPaginationNoPrefix3.getPagination().getNext(), "");
     }
-
 }

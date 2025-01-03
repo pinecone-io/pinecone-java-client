@@ -146,7 +146,8 @@ public class PineconeIndexOperationsTest {
                 2,
                 new PodSpecMetadataConfig(),
                 "some-source-collection",
-                DeletionProtection.DISABLED);
+                DeletionProtection.DISABLED,
+                null);
 
         ArgumentCaptor<Request> requestCaptor = ArgumentCaptor.forClass(Request.class);
 
