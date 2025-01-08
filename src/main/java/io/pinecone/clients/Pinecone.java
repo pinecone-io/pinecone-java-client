@@ -391,6 +391,7 @@ public class Pinecone {
      *                       when metadataConfig is present, only specified metadata fields are indexed.
      * @param sourceCollection The name of the collection to be used as the source for the index. Collections are snapshots of an index at a point in time.
      * @param deletionProtection Enable or disable deletion protection for the index.
+     * @param tags A map of tags to associate with the Index.
      * @return {@link IndexModel} representing the created serverless index.
      * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
      */
@@ -525,10 +526,15 @@ public class Pinecone {
      * @param podType The new podType for the index. Can be null if not changing the pod type.
      * @param replicas The desired number of replicas for the index, lowest value is 0. Can be null if not changing the number of replicas.
      * @param deletionProtection Enable or disable deletion protection for the index.
+     * @param tags A map of tags to associate with the Index.
      * @return {@link IndexModel} representing the configured index.
      * @throws PineconeException if an error occurs during the operation, the index does not exist, or if any of the arguments are invalid.
      */
-    public IndexModel configurePodsIndex(String indexName, String podType, Integer replicas, DeletionProtection deletionProtection) throws PineconeException {
+    public IndexModel configurePodsIndex(String indexName,
+                                         String podType,
+                                         Integer replicas,
+                                         DeletionProtection deletionProtection,
+                                         Map<String, String> tags) throws PineconeException {
         if (indexName == null || indexName.isEmpty()) {
             throw new PineconeValidationException("indexName cannot be null or empty");
         }
@@ -548,6 +554,10 @@ public class Pinecone {
                                 .podType(podType)
                         )
                 ).deletionProtection(deletionProtection);
+
+        if(tags != null && !tags.isEmpty()) {
+            configureIndexRequest.tags(tags);
+        }
 
         IndexModel indexModel = null;
         try {
@@ -576,7 +586,7 @@ public class Pinecone {
      * @throws PineconeException if an error occurs during the operation, the index does not exist, or if the number of replicas is invalid.
      */
     public IndexModel configurePodsIndex(String indexName, Integer replicas, DeletionProtection deletionProtection) throws PineconeException {
-        return configurePodsIndex(indexName, null, replicas, deletionProtection);
+        return configurePodsIndex(indexName, null, replicas, deletionProtection, null);
     }
 
     /**
@@ -597,7 +607,7 @@ public class Pinecone {
      */
     public IndexModel configurePodsIndex(String indexName, String podType) throws PineconeException {
         DeletionProtection deletionProtection = describeIndex(indexName).getDeletionProtection();
-        return configurePodsIndex(indexName, podType, null, deletionProtection);
+        return configurePodsIndex(indexName, podType, null, deletionProtection, null);
     }
 
     /**
@@ -617,7 +627,7 @@ public class Pinecone {
      * @throws PineconeException if an error occurs during the operation, the index does not exist, or if the podType is invalid.
      */
     public IndexModel configurePodsIndex(String indexName, DeletionProtection deletionProtection) throws PineconeException {
-        return configurePodsIndex(indexName, null, null, deletionProtection);
+        return configurePodsIndex(indexName, null, null, deletionProtection, null);
     }
 
     /**
@@ -637,6 +647,7 @@ public class Pinecone {
      *
      * @param indexName The name of the index to configure.
      * @param deletionProtection Enable or disable deletion protection for the index.
+     * @param tags A map of tags to associate with the Index.
      * @return {@link IndexModel} representing the configured index.
      * @throws PineconeException if an error occurs during the operation, the index does not exist, or if any of the arguments are invalid.
      */
@@ -647,8 +658,11 @@ public class Pinecone {
 
         // Build ConfigureIndexRequest object
         ConfigureIndexRequest configureIndexRequest = new ConfigureIndexRequest()
-                .deletionProtection(deletionProtection)
-                .tags(tags);
+                .deletionProtection(deletionProtection);
+
+        if(tags != null && !tags.isEmpty()) {
+            configureIndexRequest.tags(tags);
+        }
 
         IndexModel indexModel = null;
         try {
