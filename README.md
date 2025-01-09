@@ -171,6 +171,7 @@ serverless and regional availability, see [Understanding indexes](https://docs.p
 import io.pinecone.clients.Pinecone;
 import org.openapitools.db_control.client.model.IndexModel;
 import org.openapitools.db_control.client.model.DeletionProtection;
+import java.util.HashMap;
 ...
 
 Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
@@ -180,8 +181,10 @@ String similarityMetric = "cosine";
 int dimension = 1538;
 String cloud = "aws";
 String region = "us-west-2";
+HashMap<String, String> tags = new HashMap<>();
+tags.put("env", "test");
 
-IndexModel indexModel = pinecone.createServerlessIndex(indexName, similarityMetric, dimension, cloud, region, DeletionProtection.ENABLED);
+IndexModel indexModel = pinecone.createServerlessIndex(indexName, similarityMetric, dimension, cloud, region, DeletionProtection.ENABLED, tags);
 ```
 
 ### Create a pod index
@@ -309,12 +312,16 @@ The following example enables deletion protection for a serverless index.
 ```java
 import io.pinecone.clients.Pinecone;
 import org.openapitools.db_control.client.model.DeletionProtection;
+import java.util.HashMap;
 ...
         
 Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
 
 String indexName = "example-index";
-pinecone.configureServerlessIndex(indexName, DeletionProtection.ENABLED);
+HashMap<String, String> tags = new HashMap<>();
+tags.put("env", "test");
+
+pinecone.configureServerlessIndex(indexName, DeletionProtection.ENABLED, tags);
 ```
 
 ## Describe index statistics
