@@ -124,13 +124,18 @@ public class Pinecone {
         IndexModel indexModel = null;
 
         try {
-            indexModel = manageIndexesApi.createIndex(new CreateIndexRequest()
+            CreateIndexRequest createIndexRequest = new CreateIndexRequest()
                     .name(indexName)
                     .metric(userMetric)
                     .dimension(dimension)
                     .spec(createServerlessIndexRequestSpec)
-                    .deletionProtection(deletionProtection))
-                    .tags(tags);
+                    .deletionProtection(deletionProtection);
+
+            if(tags != null && !tags.isEmpty()) {
+                createIndexRequest.tags(tags);
+            }
+
+            indexModel = manageIndexesApi.createIndex(createIndexRequest);
         } catch (ApiException apiException) {
             handleApiException(apiException);
         }
