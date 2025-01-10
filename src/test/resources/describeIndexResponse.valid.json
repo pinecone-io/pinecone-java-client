@@ -12,5 +12,6 @@
       "cloud": "aws",
       "region": "us-east2-gcp"
     }
-  }
+  },
+  "vector_type": "dense"
 }

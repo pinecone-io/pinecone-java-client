@@ -35,7 +35,7 @@ public class EmbedTest {
 
         assertNotNull(embeddings, "Expected embedding to be not null");
         Assertions.assertEquals(embeddingModel, embeddings.getModel());
-        Assertions.assertEquals(1024, embeddings.getData().get(0).getValues().size());
+        Assertions.assertEquals(1024, embeddings.getData().get(0).getDenseEmbedding().getValues().size());
         Assertions.assertEquals(2, embeddings.getData().size());
     }
 

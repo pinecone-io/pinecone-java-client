@@ -15,5 +15,6 @@
       "cloud": "aws",
       "weather_forecast": "partly sunny"
     }
-  }
+  },
+  "vector_type": "dense"
 }

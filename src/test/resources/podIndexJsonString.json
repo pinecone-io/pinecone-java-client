@@ -15,5 +15,6 @@
   "status": {
     "state":"Ready",
     "ready":true
-  }
+  },
+  "vector_type": "dense"
 }
