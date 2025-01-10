@@ -49,12 +49,12 @@ public class Inference {
      * @throws ApiException If the API call fails, an ApiException is thrown.
      */
     public EmbeddingsList embed(String model, Map<String, Object> parameters, List<String> inputs) throws ApiException {
-        EmbedRequestParameters embedRequestParameters = new EmbedRequestParameters();
-        parameters.forEach(embedRequestParameters::putAdditionalProperty);
+//        EmbedRequestParameters embedRequestParameters = new EmbedRequestParameters();
+//        parameters.forEach(embedRequestParameters::putAdditionalProperty);
 
         EmbedRequest embedRequest = new EmbedRequest()
                 .model(model)
-                .parameters(embedRequestParameters)
+                .parameters(parameters)
                 .inputs(convertToEmbedInputs(inputs));
 
         return inferenceApi.embed(embedRequest);
@@ -74,7 +74,7 @@ public class Inference {
      */
     public RerankResult rerank(String model,
                                String query,
-                               List<Map<String, String>> documents) throws ApiException {
+                               List<Map<String, Object>> documents) throws ApiException {
         return rerank(model,
                 query,
                 documents,
@@ -100,11 +100,11 @@ public class Inference {
      */
     public RerankResult rerank(String model,
                                String query,
-                               List<Map<String, String>> documents,
+                               List<Map<String, Object>> documents,
                                List<String> rankFields,
                                int topN,
                                boolean returnDocuments,
-                               Map<String, String> parameters) throws ApiException {
+                               Map<String, Object> parameters) throws ApiException {
         RerankRequest rerankRequest = new RerankRequest();
 
         rerankRequest

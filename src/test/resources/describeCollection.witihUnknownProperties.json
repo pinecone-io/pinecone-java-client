@@ -6,5 +6,6 @@
   "status": "Ready",
   "vector_count": 99,
   "extra": true,
-  "even_more": null
+  "even_more": null,
+  "vector_type": "dense"
 }

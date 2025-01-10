@@ -20,5 +20,6 @@
       "region": "us-east2-gcp",
       "hotness": "extra-spicy"
     }
-  }
+  },
+  "vector_type": "dense"
 }
