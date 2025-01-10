@@ -49,9 +49,6 @@ public class Inference {
      * @throws ApiException If the API call fails, an ApiException is thrown.
      */
     public EmbeddingsList embed(String model, Map<String, Object> parameters, List<String> inputs) throws ApiException {
-//        EmbedRequestParameters embedRequestParameters = new EmbedRequestParameters();
-//        parameters.forEach(embedRequestParameters::putAdditionalProperty);
-
         EmbedRequest embedRequest = new EmbedRequest()
                 .model(model)
                 .parameters(parameters)
