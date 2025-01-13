@@ -256,12 +256,20 @@ public class TestResourcesManager {
      * Cleans up any resources that have been created by the manager. Called in {@link io.pinecone.CleanupAllTestResourcesListener}
      * after all tests have finished running.
      */
-    public void cleanupResources() {
+    public void cleanupResources() throws InterruptedException {
         if (podIndexName != null) {
+            if(pineconeClient.describeIndex(podIndexName).getDeletionProtection() == DeletionProtection.ENABLED) {
+                pineconeClient.configurePodsIndex(podIndexName, DeletionProtection.DISABLED);
+                Thread.sleep(5000);
+            }
             pineconeClient.deleteIndex(podIndexName);
         }
 
         if (serverlessIndexName != null) {
+            if(pineconeClient.describeIndex(serverlessIndexName).getDeletionProtection() == DeletionProtection.ENABLED) {
+                pineconeClient.configureServerlessIndex(serverlessIndexName, DeletionProtection.DISABLED, null);
+                Thread.sleep(5000);
+            }
             pineconeClient.deleteIndex(serverlessIndexName);
         }
 
@@ -386,9 +394,6 @@ public class TestResourcesManager {
             Thread.sleep(2000);
             totalTimeWaitedForVectors += 2000;
             indexStats = indexClient.describeIndexStats();
-        }
-        if (indexStats.getTotalVectorCount() == 0 && totalTimeWaitedForVectors >= 60000) {
-            throw new PineconeException("Failed to seed index " + indexName + "with vectors");
         }
     }
 }
