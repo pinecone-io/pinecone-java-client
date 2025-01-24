@@ -4,7 +4,6 @@ import io.pinecone.clients.AsyncIndex;
 import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.exceptions.PineconeException;
-import io.pinecone.proto.DescribeIndexStatsResponse;
 import org.openapitools.db_control.client.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

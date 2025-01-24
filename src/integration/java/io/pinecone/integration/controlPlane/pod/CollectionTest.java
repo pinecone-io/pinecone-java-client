@@ -5,7 +5,6 @@ import io.pinecone.clients.Pinecone;
 import io.pinecone.exceptions.PineconeException;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.helpers.RandomStringBuilder;
-import io.pinecone.proto.FetchResponse;
 import io.pinecone.helpers.TestResourcesManager;
 
 import org.junit.jupiter.api.AfterAll;

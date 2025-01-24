@@ -5,7 +5,6 @@ import io.pinecone.clients.Index;
 import io.pinecone.configs.PineconeConfig;
 import io.pinecone.configs.PineconeConnection;
 import io.pinecone.exceptions.PineconeValidationException;
-import io.pinecone.proto.VectorServiceGrpc;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
