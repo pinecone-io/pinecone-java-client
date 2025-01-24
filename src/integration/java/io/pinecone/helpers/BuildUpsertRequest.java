@@ -3,6 +3,9 @@ package io.pinecone.helpers;
 import com.google.common.primitives.Floats;
 import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
+import io.pinecone.proto.SparseValues;
+import io.pinecone.proto.UpsertRequest;
+import io.pinecone.proto.Vector;
 import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
 
 import java.util.*;
