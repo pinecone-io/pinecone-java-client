@@ -9,8 +9,8 @@ import static io.grpc.MethodDescriptor.generateFullMethodName;
  * </pre>
  */
 @javax.annotation.Generated(
-    value = "by gRPC proto compiler (version 1.62.2)",
-    comments = "Source: vector_service.proto")
+    value = "by gRPC proto compiler (version 1.69.1)",
+    comments = "Source: db_data_2025-01.proto")
 @io.grpc.stub.annotations.GrpcGenerated
 public final class VectorServiceGrpc {
 
@@ -291,8 +291,8 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Upsert vectors
-     * The `upsert` operation writes vectors into a namespace. If a new value is upserted for an existing vector ID, it will overwrite the previous value.
-     * For guidance and examples, see [Upsert data](https://docs.pinecone.io/docs/upsert-data).
+     * Writes vectors into a namespace. If a new value is upserted for an existing vector ID, it will overwrite the previous value.
+     * For guidance and examples, see [Upsert data](https://docs.pinecone.io/guides/data/upsert-data).
      * </pre>
      */
     default void upsert(io.pinecone.proto.UpsertRequest request,
@@ -303,8 +303,8 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Delete vectors
-     * The `delete` operation deletes vectors, by id, from a single namespace.
-     * For guidance and examples, see [Delete data](https://docs.pinecone.io/docs/delete-data).
+     * Delete vectors by id from a single namespace.
+     * For guidance and examples, see [Delete data](https://docs.pinecone.io/guides/data/delete-data).
      * </pre>
      */
     default void delete(io.pinecone.proto.DeleteRequest request,
@@ -315,8 +315,8 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Fetch vectors
-     * The `fetch` operation looks up and returns vectors, by ID, from a single namespace. The returned vectors include the vector data and/or metadata.
-     * For guidance and examples, see [Fetch data](https://docs.pinecone.io/reference/fetch).
+     * Look up and returns vectors by ID from a single namespace. The returned vectors include the vector data and/or metadata.
+     * For guidance and examples, see [Fetch data](https://docs.pinecone.io/guides/data/fetch-data).
      * </pre>
      */
     default void fetch(io.pinecone.proto.FetchRequest request,
@@ -327,10 +327,10 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * List vector IDs
-     * The `list` operation lists the IDs of vectors in a single namespace of a serverless index. An optional prefix can be passed to limit the results to IDs with a common prefix.
-     * `list` returns up to 100 IDs at a time by default in sorted order (bitwise/"C" collation). If the `limit` parameter is set, `list` returns up to that number of IDs instead. Whenever there are additional IDs to return, the response also includes a `pagination_token` that you can use to get the next batch of IDs. When the response does not include a `pagination_token`, there are no more IDs to return.
-     * For guidance and examples, see [Get record IDs](https://docs.pinecone.io/docs/get-record-ids).
-     * **Note:** `list` is supported only for serverless indexes.
+     * List the IDs of vectors in a single namespace of a serverless index. An optional prefix can be passed to limit the results to IDs with a common prefix.
+     * This returns up to 100 IDs at a time by default in sorted order (bitwise/"C" collation). If the `limit` parameter is set, `list` returns up to that number of IDs instead. Whenever there are additional IDs to return, the response also includes a `pagination_token` that you can use to get the next batch of IDs. When the response does not include a `pagination_token`, there are no more IDs to return.
+     * For guidance and examples, see [List record IDs](https://docs.pinecone.io/guides/data/list-record-ids).
+     * **Note:** This is supported only for serverless indexes.
      * </pre>
      */
     default void list(io.pinecone.proto.ListRequest request,
@@ -341,8 +341,8 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Query vectors
-     * The `query` operation searches a namespace, using a query vector. It retrieves the ids of the most similar items in a namespace, along with their similarity scores.
-     * For guidance and examples, see [Query data](https://docs.pinecone.io/docs/query-data).
+     * Searches a namespace, using a query vector. It retrieves the ids of the most similar items in a namespace, along with their similarity scores.
+     * For guidance and examples, see [Query data](https://docs.pinecone.io/guides/data/query-data).
      * </pre>
      */
     default void query(io.pinecone.proto.QueryRequest request,
@@ -353,8 +353,8 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Update a vector
-     * The `update` operation updates a vector in a namespace. If a value is included, it will overwrite the previous value. If a `set_metadata` is included, the values of the fields specified in it will be added or overwrite the previous value.
-     * For guidance and examples, see [Update data](https://docs.pinecone.io/reference/update).
+     * Update a vector in a namespace. If a value is included, it will overwrite the previous value. If a `set_metadata` is included, the values of the fields specified in it will be added or overwrite the previous value.
+     * For guidance and examples, see [Update data](https://docs.pinecone.io/guides/data/update-data).
      * </pre>
      */
     default void update(io.pinecone.proto.UpdateRequest request,
@@ -365,9 +365,8 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Get index stats
-     * The `describe_index_stats` operation returns statistics about the contents of an index, including the vector count per namespace and the number of dimensions, and the index fullness.
+     * Return statistics about the contents of an index, including the vector count per namespace, the number of dimensions, and the index fullness.
      * Serverless indexes scale automatically as needed, so index fullness is relevant only for pod-based indexes.
-     * For pod-based indexes, the index fullness result may be inaccurate during pod resizing; to get the status of a pod resizing process, use [`describe_index`](https://www.pinecone.io/docs/api/operation/describe_index/).
      * </pre>
      */
     default void describeIndexStats(io.pinecone.proto.DescribeIndexStatsRequest request,
@@ -414,8 +413,8 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Upsert vectors
-     * The `upsert` operation writes vectors into a namespace. If a new value is upserted for an existing vector ID, it will overwrite the previous value.
-     * For guidance and examples, see [Upsert data](https://docs.pinecone.io/docs/upsert-data).
+     * Writes vectors into a namespace. If a new value is upserted for an existing vector ID, it will overwrite the previous value.
+     * For guidance and examples, see [Upsert data](https://docs.pinecone.io/guides/data/upsert-data).
      * </pre>
      */
     public void upsert(io.pinecone.proto.UpsertRequest request,
@@ -427,8 +426,8 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Delete vectors
-     * The `delete` operation deletes vectors, by id, from a single namespace.
-     * For guidance and examples, see [Delete data](https://docs.pinecone.io/docs/delete-data).
+     * Delete vectors by id from a single namespace.
+     * For guidance and examples, see [Delete data](https://docs.pinecone.io/guides/data/delete-data).
      * </pre>
      */
     public void delete(io.pinecone.proto.DeleteRequest request,
@@ -440,8 +439,8 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Fetch vectors
-     * The `fetch` operation looks up and returns vectors, by ID, from a single namespace. The returned vectors include the vector data and/or metadata.
-     * For guidance and examples, see [Fetch data](https://docs.pinecone.io/reference/fetch).
+     * Look up and returns vectors by ID from a single namespace. The returned vectors include the vector data and/or metadata.
+     * For guidance and examples, see [Fetch data](https://docs.pinecone.io/guides/data/fetch-data).
      * </pre>
      */
     public void fetch(io.pinecone.proto.FetchRequest request,
@@ -453,10 +452,10 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * List vector IDs
-     * The `list` operation lists the IDs of vectors in a single namespace of a serverless index. An optional prefix can be passed to limit the results to IDs with a common prefix.
-     * `list` returns up to 100 IDs at a time by default in sorted order (bitwise/"C" collation). If the `limit` parameter is set, `list` returns up to that number of IDs instead. Whenever there are additional IDs to return, the response also includes a `pagination_token` that you can use to get the next batch of IDs. When the response does not include a `pagination_token`, there are no more IDs to return.
-     * For guidance and examples, see [Get record IDs](https://docs.pinecone.io/docs/get-record-ids).
-     * **Note:** `list` is supported only for serverless indexes.
+     * List the IDs of vectors in a single namespace of a serverless index. An optional prefix can be passed to limit the results to IDs with a common prefix.
+     * This returns up to 100 IDs at a time by default in sorted order (bitwise/"C" collation). If the `limit` parameter is set, `list` returns up to that number of IDs instead. Whenever there are additional IDs to return, the response also includes a `pagination_token` that you can use to get the next batch of IDs. When the response does not include a `pagination_token`, there are no more IDs to return.
+     * For guidance and examples, see [List record IDs](https://docs.pinecone.io/guides/data/list-record-ids).
+     * **Note:** This is supported only for serverless indexes.
      * </pre>
      */
     public void list(io.pinecone.proto.ListRequest request,
@@ -468,8 +467,8 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Query vectors
-     * The `query` operation searches a namespace, using a query vector. It retrieves the ids of the most similar items in a namespace, along with their similarity scores.
-     * For guidance and examples, see [Query data](https://docs.pinecone.io/docs/query-data).
+     * Searches a namespace, using a query vector. It retrieves the ids of the most similar items in a namespace, along with their similarity scores.
+     * For guidance and examples, see [Query data](https://docs.pinecone.io/guides/data/query-data).
      * </pre>
      */
     public void query(io.pinecone.proto.QueryRequest request,
@@ -481,8 +480,8 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Update a vector
-     * The `update` operation updates a vector in a namespace. If a value is included, it will overwrite the previous value. If a `set_metadata` is included, the values of the fields specified in it will be added or overwrite the previous value.
-     * For guidance and examples, see [Update data](https://docs.pinecone.io/reference/update).
+     * Update a vector in a namespace. If a value is included, it will overwrite the previous value. If a `set_metadata` is included, the values of the fields specified in it will be added or overwrite the previous value.
+     * For guidance and examples, see [Update data](https://docs.pinecone.io/guides/data/update-data).
      * </pre>
      */
     public void update(io.pinecone.proto.UpdateRequest request,
@@ -494,9 +493,8 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Get index stats
-     * The `describe_index_stats` operation returns statistics about the contents of an index, including the vector count per namespace and the number of dimensions, and the index fullness.
+     * Return statistics about the contents of an index, including the vector count per namespace, the number of dimensions, and the index fullness.
      * Serverless indexes scale automatically as needed, so index fullness is relevant only for pod-based indexes.
-     * For pod-based indexes, the index fullness result may be inaccurate during pod resizing; to get the status of a pod resizing process, use [`describe_index`](https://www.pinecone.io/docs/api/operation/describe_index/).
      * </pre>
      */
     public void describeIndexStats(io.pinecone.proto.DescribeIndexStatsRequest request,
@@ -529,8 +527,8 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Upsert vectors
-     * The `upsert` operation writes vectors into a namespace. If a new value is upserted for an existing vector ID, it will overwrite the previous value.
-     * For guidance and examples, see [Upsert data](https://docs.pinecone.io/docs/upsert-data).
+     * Writes vectors into a namespace. If a new value is upserted for an existing vector ID, it will overwrite the previous value.
+     * For guidance and examples, see [Upsert data](https://docs.pinecone.io/guides/data/upsert-data).
      * </pre>
      */
     public io.pinecone.proto.UpsertResponse upsert(io.pinecone.proto.UpsertRequest request) {
@@ -541,8 +539,8 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Delete vectors
-     * The `delete` operation deletes vectors, by id, from a single namespace.
-     * For guidance and examples, see [Delete data](https://docs.pinecone.io/docs/delete-data).
+     * Delete vectors by id from a single namespace.
+     * For guidance and examples, see [Delete data](https://docs.pinecone.io/guides/data/delete-data).
      * </pre>
      */
     public io.pinecone.proto.DeleteResponse delete(io.pinecone.proto.DeleteRequest request) {
@@ -553,8 +551,8 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Fetch vectors
-     * The `fetch` operation looks up and returns vectors, by ID, from a single namespace. The returned vectors include the vector data and/or metadata.
-     * For guidance and examples, see [Fetch data](https://docs.pinecone.io/reference/fetch).
+     * Look up and returns vectors by ID from a single namespace. The returned vectors include the vector data and/or metadata.
+     * For guidance and examples, see [Fetch data](https://docs.pinecone.io/guides/data/fetch-data).
      * </pre>
      */
     public io.pinecone.proto.FetchResponse fetch(io.pinecone.proto.FetchRequest request) {
@@ -565,10 +563,10 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * List vector IDs
-     * The `list` operation lists the IDs of vectors in a single namespace of a serverless index. An optional prefix can be passed to limit the results to IDs with a common prefix.
-     * `list` returns up to 100 IDs at a time by default in sorted order (bitwise/"C" collation). If the `limit` parameter is set, `list` returns up to that number of IDs instead. Whenever there are additional IDs to return, the response also includes a `pagination_token` that you can use to get the next batch of IDs. When the response does not include a `pagination_token`, there are no more IDs to return.
-     * For guidance and examples, see [Get record IDs](https://docs.pinecone.io/docs/get-record-ids).
-     * **Note:** `list` is supported only for serverless indexes.
+     * List the IDs of vectors in a single namespace of a serverless index. An optional prefix can be passed to limit the results to IDs with a common prefix.
+     * This returns up to 100 IDs at a time by default in sorted order (bitwise/"C" collation). If the `limit` parameter is set, `list` returns up to that number of IDs instead. Whenever there are additional IDs to return, the response also includes a `pagination_token` that you can use to get the next batch of IDs. When the response does not include a `pagination_token`, there are no more IDs to return.
+     * For guidance and examples, see [List record IDs](https://docs.pinecone.io/guides/data/list-record-ids).
+     * **Note:** This is supported only for serverless indexes.
      * </pre>
      */
     public io.pinecone.proto.ListResponse list(io.pinecone.proto.ListRequest request) {
@@ -579,8 +577,8 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Query vectors
-     * The `query` operation searches a namespace, using a query vector. It retrieves the ids of the most similar items in a namespace, along with their similarity scores.
-     * For guidance and examples, see [Query data](https://docs.pinecone.io/docs/query-data).
+     * Searches a namespace, using a query vector. It retrieves the ids of the most similar items in a namespace, along with their similarity scores.
+     * For guidance and examples, see [Query data](https://docs.pinecone.io/guides/data/query-data).
      * </pre>
      */
     public io.pinecone.proto.QueryResponse query(io.pinecone.proto.QueryRequest request) {
@@ -591,8 +589,8 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Update a vector
-     * The `update` operation updates a vector in a namespace. If a value is included, it will overwrite the previous value. If a `set_metadata` is included, the values of the fields specified in it will be added or overwrite the previous value.
-     * For guidance and examples, see [Update data](https://docs.pinecone.io/reference/update).
+     * Update a vector in a namespace. If a value is included, it will overwrite the previous value. If a `set_metadata` is included, the values of the fields specified in it will be added or overwrite the previous value.
+     * For guidance and examples, see [Update data](https://docs.pinecone.io/guides/data/update-data).
      * </pre>
      */
     public io.pinecone.proto.UpdateResponse update(io.pinecone.proto.UpdateRequest request) {
@@ -603,9 +601,8 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Get index stats
-     * The `describe_index_stats` operation returns statistics about the contents of an index, including the vector count per namespace and the number of dimensions, and the index fullness.
+     * Return statistics about the contents of an index, including the vector count per namespace, the number of dimensions, and the index fullness.
      * Serverless indexes scale automatically as needed, so index fullness is relevant only for pod-based indexes.
-     * For pod-based indexes, the index fullness result may be inaccurate during pod resizing; to get the status of a pod resizing process, use [`describe_index`](https://www.pinecone.io/docs/api/operation/describe_index/).
      * </pre>
      */
     public io.pinecone.proto.DescribeIndexStatsResponse describeIndexStats(io.pinecone.proto.DescribeIndexStatsRequest request) {
@@ -637,8 +634,8 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Upsert vectors
-     * The `upsert` operation writes vectors into a namespace. If a new value is upserted for an existing vector ID, it will overwrite the previous value.
-     * For guidance and examples, see [Upsert data](https://docs.pinecone.io/docs/upsert-data).
+     * Writes vectors into a namespace. If a new value is upserted for an existing vector ID, it will overwrite the previous value.
+     * For guidance and examples, see [Upsert data](https://docs.pinecone.io/guides/data/upsert-data).
      * </pre>
      */
     public com.google.common.util.concurrent.ListenableFuture<io.pinecone.proto.UpsertResponse> upsert(
@@ -650,8 +647,8 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Delete vectors
-     * The `delete` operation deletes vectors, by id, from a single namespace.
-     * For guidance and examples, see [Delete data](https://docs.pinecone.io/docs/delete-data).
+     * Delete vectors by id from a single namespace.
+     * For guidance and examples, see [Delete data](https://docs.pinecone.io/guides/data/delete-data).
      * </pre>
      */
     public com.google.common.util.concurrent.ListenableFuture<io.pinecone.proto.DeleteResponse> delete(
@@ -663,8 +660,8 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Fetch vectors
-     * The `fetch` operation looks up and returns vectors, by ID, from a single namespace. The returned vectors include the vector data and/or metadata.
-     * For guidance and examples, see [Fetch data](https://docs.pinecone.io/reference/fetch).
+     * Look up and returns vectors by ID from a single namespace. The returned vectors include the vector data and/or metadata.
+     * For guidance and examples, see [Fetch data](https://docs.pinecone.io/guides/data/fetch-data).
      * </pre>
      */
     public com.google.common.util.concurrent.ListenableFuture<io.pinecone.proto.FetchResponse> fetch(
@@ -676,10 +673,10 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * List vector IDs
-     * The `list` operation lists the IDs of vectors in a single namespace of a serverless index. An optional prefix can be passed to limit the results to IDs with a common prefix.
-     * `list` returns up to 100 IDs at a time by default in sorted order (bitwise/"C" collation). If the `limit` parameter is set, `list` returns up to that number of IDs instead. Whenever there are additional IDs to return, the response also includes a `pagination_token` that you can use to get the next batch of IDs. When the response does not include a `pagination_token`, there are no more IDs to return.
-     * For guidance and examples, see [Get record IDs](https://docs.pinecone.io/docs/get-record-ids).
-     * **Note:** `list` is supported only for serverless indexes.
+     * List the IDs of vectors in a single namespace of a serverless index. An optional prefix can be passed to limit the results to IDs with a common prefix.
+     * This returns up to 100 IDs at a time by default in sorted order (bitwise/"C" collation). If the `limit` parameter is set, `list` returns up to that number of IDs instead. Whenever there are additional IDs to return, the response also includes a `pagination_token` that you can use to get the next batch of IDs. When the response does not include a `pagination_token`, there are no more IDs to return.
+     * For guidance and examples, see [List record IDs](https://docs.pinecone.io/guides/data/list-record-ids).
+     * **Note:** This is supported only for serverless indexes.
      * </pre>
      */
     public com.google.common.util.concurrent.ListenableFuture<io.pinecone.proto.ListResponse> list(
@@ -691,8 +688,8 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Query vectors
-     * The `query` operation searches a namespace, using a query vector. It retrieves the ids of the most similar items in a namespace, along with their similarity scores.
-     * For guidance and examples, see [Query data](https://docs.pinecone.io/docs/query-data).
+     * Searches a namespace, using a query vector. It retrieves the ids of the most similar items in a namespace, along with their similarity scores.
+     * For guidance and examples, see [Query data](https://docs.pinecone.io/guides/data/query-data).
      * </pre>
      */
     public com.google.common.util.concurrent.ListenableFuture<io.pinecone.proto.QueryResponse> query(
@@ -704,8 +701,8 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Update a vector
-     * The `update` operation updates a vector in a namespace. If a value is included, it will overwrite the previous value. If a `set_metadata` is included, the values of the fields specified in it will be added or overwrite the previous value.
-     * For guidance and examples, see [Update data](https://docs.pinecone.io/reference/update).
+     * Update a vector in a namespace. If a value is included, it will overwrite the previous value. If a `set_metadata` is included, the values of the fields specified in it will be added or overwrite the previous value.
+     * For guidance and examples, see [Update data](https://docs.pinecone.io/guides/data/update-data).
      * </pre>
      */
     public com.google.common.util.concurrent.ListenableFuture<io.pinecone.proto.UpdateResponse> update(
@@ -717,9 +714,8 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Get index stats
-     * The `describe_index_stats` operation returns statistics about the contents of an index, including the vector count per namespace and the number of dimensions, and the index fullness.
+     * Return statistics about the contents of an index, including the vector count per namespace, the number of dimensions, and the index fullness.
      * Serverless indexes scale automatically as needed, so index fullness is relevant only for pod-based indexes.
-     * For pod-based indexes, the index fullness result may be inaccurate during pod resizing; to get the status of a pod resizing process, use [`describe_index`](https://www.pinecone.io/docs/api/operation/describe_index/).
      * </pre>
      */
     public com.google.common.util.concurrent.ListenableFuture<io.pinecone.proto.DescribeIndexStatsResponse> describeIndexStats(
@@ -858,7 +854,7 @@ public final class VectorServiceGrpc {
 
     @java.lang.Override
     public com.google.protobuf.Descriptors.FileDescriptor getFileDescriptor() {
-      return io.pinecone.proto.VectorServiceOuterClass.getDescriptor();
+      return io.pinecone.proto.DbData202501.getDescriptor();
     }
 
     @java.lang.Override
