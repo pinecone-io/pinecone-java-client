@@ -17,11 +17,17 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class SparseIndexTest {
-    String indexName = RandomStringBuilder.build("sparse-index", 8);
-    Pinecone pinecone = new Pinecone
-            .Builder(System.getenv("PINECONE_API_KEY"))
-            .withSourceTag("pinecone_test")
-            .build();
+    static String indexName;
+    static Pinecone pinecone;
+
+    @BeforeAll
+    public static void setUp() throws InterruptedException {
+        indexName = RandomStringBuilder.build("sparse-index", 8);
+        pinecone = new Pinecone
+                .Builder(System.getenv("PINECONE_API_KEY"))
+                .withSourceTag("pinecone_test")
+                .build();
+    }
 
     @Test
     @Order(1)
@@ -54,7 +60,7 @@ public class SparseIndexTest {
         tags.put(key, value);
 
         // Wait until index is ready
-        waitUntilIndexIsReady(pinecone, indexName, 200000);
+         waitUntilIndexIsReady(pinecone, indexName, 200000);
 
         // Disable deletion protection and add more index tags
         pinecone.configureServerlessIndex(indexName, DeletionProtection.DISABLED, tags);
