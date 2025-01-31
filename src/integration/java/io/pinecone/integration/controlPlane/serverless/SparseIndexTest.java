@@ -12,6 +12,7 @@ import org.openapitools.db_control.client.model.IndexModel;
 
 import java.util.*;
 
+import static io.pinecone.helpers.TestUtilities.waitUntilIndexIsReady;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -51,6 +52,9 @@ public class SparseIndexTest {
         String value = "internal";
         Map<String, String> tags = new HashMap<>();
         tags.put(key, value);
+
+        // Wait until index is ready
+        waitUntilIndexIsReady(pinecone, indexName, 200000);
 
         // Disable deletion protection and add more index tags
         pinecone.configureServerlessIndex(indexName, DeletionProtection.DISABLED, tags);
