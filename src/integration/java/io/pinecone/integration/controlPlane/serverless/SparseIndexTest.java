@@ -3,6 +3,7 @@ package io.pinecone.integration.controlPlane.serverless;
 import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.exceptions.PineconeNotFoundException;
+import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.UpsertResponse;
 import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
 import org.junit.jupiter.api.*;
@@ -15,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class SparseIndexTest {
-    String indexName = "sparse-index";
+    String indexName = RandomStringBuilder.build("sparse-index", 8);
     Pinecone pinecone = new Pinecone
             .Builder(System.getenv("PINECONE_API_KEY"))
             .withSourceTag("pinecone_test")
