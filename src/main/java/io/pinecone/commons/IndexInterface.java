@@ -103,11 +103,9 @@ public interface IndexInterface<T, U, V, W, X, Y, Z> extends AutoCloseable {
                                      List<Long> sparseIndices,
                                      List<Float> sparseValues,
                                      Struct metadata) {
-        if (id == null || id.isEmpty() || values == null || values.isEmpty()) {
-            throw new PineconeValidationException("Invalid upsert request. Please ensure that both id and values are " +
-                    "provided.");
+         if (id == null || id.isEmpty()) {
+            throw new PineconeValidationException("Invalid upsert request. Please ensure that id is provided.");
         }
-
 
         Vector.Builder vectorBuilder = Vector.newBuilder()
                 .setId(id)

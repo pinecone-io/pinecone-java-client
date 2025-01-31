@@ -87,8 +87,9 @@ public class Pinecone {
         }
 
         if (metric == null || metric.isEmpty()) {
-            throw new PineconeValidationException("Metric cannot be null or empty. Must be one of " + Arrays.toString(CreateIndexRequest.MetricEnum.values()));
+            metric = "cosine";
         }
+
         try {
             CreateIndexRequest.MetricEnum.fromValue(metric.toLowerCase());
         } catch (IllegalArgumentException e) {
@@ -130,6 +131,78 @@ public class Pinecone {
                     .dimension(dimension)
                     .spec(createServerlessIndexRequestSpec)
                     .deletionProtection(deletionProtection);
+
+            if(tags != null && !tags.isEmpty()) {
+                createIndexRequest.tags(tags);
+            }
+
+            indexModel = manageIndexesApi.createIndex(createIndexRequest);
+        } catch (ApiException apiException) {
+            handleApiException(apiException);
+        }
+        return indexModel;
+    }
+
+    /**
+     * Creates a new sparse serverless index.
+     * <p>
+     * Example:
+     * <pre>{@code
+     *     client.createServerlessIndex("YOUR-INDEX", "cosine", 1536, "aws", "us-west-2", DeletionProtection.ENABLED);
+     * }</pre>
+     *
+     * @param indexName The name of the index to be created.
+     * @param cloud The cloud provider for the index.
+     * @param region The cloud region for the index.
+     * @param deletionProtection Enable or disable deletion protection for the index.
+     * @param tags A map of tags to associate with the Index.
+     * @param vectorType The metric type for the index. Must be one of "cosine", "euclidean", or "dotproduct".
+     * @return {@link IndexModel} representing the created serverless index.
+     * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
+     */
+    public IndexModel createSparseServelessIndex(String indexName,
+                                                  String cloud,
+                                                  String region,
+                                                  DeletionProtection deletionProtection,
+                                                  Map<String, String> tags,
+                                                  String vectorType)  throws PineconeException {
+        if (indexName == null || indexName.isEmpty()) {
+            throw new PineconeValidationException("Index name cannot be null or empty");
+        }
+
+        if (cloud == null || cloud.isEmpty()) {
+            throw new PineconeValidationException("Cloud cannot be null or empty. Must be one of " + Arrays.toString(ServerlessSpec.CloudEnum.values()));
+        }
+
+        try {
+            ServerlessSpec.CloudEnum.fromValue(cloud.toLowerCase());
+        } catch (IllegalArgumentException e) {
+            throw new PineconeValidationException("Cloud cannot be null or empty. Must be one of " + Arrays.toString(ServerlessSpec.CloudEnum.values()));
+        }
+
+        if (region == null || region.isEmpty()) {
+            throw new PineconeValidationException("Region cannot be null or empty");
+        }
+
+        if(!vectorType.equalsIgnoreCase("sparse") && !vectorType.equalsIgnoreCase("dense")) {
+            throw new PineconeValidationException("vectorType must be sparse or dense");
+        }
+
+        // Convert user string for "cloud" arg into ServerlessSpec.CloudEnum
+        ServerlessSpec.CloudEnum cloudProvider = ServerlessSpec.CloudEnum.fromValue(cloud.toLowerCase());
+
+        ServerlessSpec serverlessSpec = new ServerlessSpec().cloud(cloudProvider).region(region);
+        IndexSpec createServerlessIndexRequestSpec = new IndexSpec().serverless(serverlessSpec);
+
+        IndexModel indexModel = null;
+
+        try {
+            CreateIndexRequest createIndexRequest = new CreateIndexRequest()
+                    .name(indexName)
+                    .metric(CreateIndexRequest.MetricEnum.DOTPRODUCT)
+                    .spec(createServerlessIndexRequestSpec)
+                    .deletionProtection(deletionProtection)
+                    .vectorType(vectorType);
 
             if(tags != null && !tags.isEmpty()) {
                 createIndexRequest.tags(tags);
