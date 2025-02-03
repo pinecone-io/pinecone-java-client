@@ -60,7 +60,7 @@ public class SparseIndexTest {
         tags.put(key, value);
 
         // Wait until index is ready
-         waitUntilIndexIsReady(pinecone, indexName, 200000);
+        waitUntilIndexIsReady(pinecone, indexName, 200000);
 
         // Disable deletion protection and add more index tags
         pinecone.configureServerlessIndex(indexName, DeletionProtection.DISABLED, tags);
