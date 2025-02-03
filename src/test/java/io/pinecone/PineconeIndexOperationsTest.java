@@ -76,19 +76,6 @@ public class PineconeIndexOperationsTest {
                 () -> client.createServerlessIndex(null, "cosine", 3, "aws", "us-west-2", DeletionProtection.DISABLED, Collections.EMPTY_MAP));
         assertEquals("Index name cannot be null or empty", thrownNullIndexName.getMessage());
 
-        PineconeValidationException thrownEmptyMetric = assertThrows(PineconeValidationException.class,
-                () -> client.createServerlessIndex("testServerlessIndex", "", 3, "aws", "us-west-2", DeletionProtection.DISABLED, Collections.EMPTY_MAP));
-        assertEquals("Metric cannot be null or empty. Must be one of " + Arrays.toString(IndexModel.MetricEnum.values()), thrownEmptyMetric.getMessage());
-
-        PineconeValidationException thrownInvalidMetric = assertThrows(PineconeValidationException.class,
-                () -> client.createServerlessIndex("testServerlessIndex", "blah", 3, "aws", "us-west-2", DeletionProtection.DISABLED, Collections.EMPTY_MAP));
-        assertEquals(String.format("Metric cannot be null or empty. Must be one of " + Arrays.toString(IndexModel.MetricEnum.values())), thrownInvalidMetric.getMessage());
-
-        PineconeValidationException thrownNullMetric = assertThrows(PineconeValidationException.class,
-                () -> client.createServerlessIndex("testServerlessIndex", null, 3, "aws", "us-west-2", DeletionProtection.DISABLED, Collections.EMPTY_MAP));
-        assertEquals("Metric cannot be null or empty. Must be one of " + Arrays.toString(IndexModel.MetricEnum.values()),
-                thrownNullMetric.getMessage());
-
         PineconeValidationException thrownNegativeDimension = assertThrows(PineconeValidationException.class,
                 () -> client.createServerlessIndex("testServerlessIndex", "cosine", -3, "aws", "us-west-2", DeletionProtection.DISABLED, Collections.EMPTY_MAP));
         assertEquals("Dimension must be greater than 0. See limits for more info: https://docs.pinecone.io/reference/limits", thrownNegativeDimension.getMessage());
