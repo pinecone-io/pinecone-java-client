@@ -2,6 +2,10 @@
 
 [comment]: <> (When bumping [pc:VERSION_LATEST_RELEASE] create a new entry below)
 ### Unreleased version
+### 4.0.0
+- Add support for sparse indexes
+- Generate code based on 2025-01 open-api spec
+
 ### 3.1.0
 - Add support to pass base url for control and data plane operations
 
