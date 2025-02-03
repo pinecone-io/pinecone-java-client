@@ -15,7 +15,7 @@ Maven:
 <dependency>
   <groupId>io.pinecone</groupId>
   <artifactId>pinecone-client</artifactId>
-  <version>3.0.0</version>
+  <version>4.0.0</version>
 </dependency>
 ```
 
@@ -23,12 +23,12 @@ Maven:
 
 Gradle:
 ```
-implementation "io.pinecone:pinecone-client:3.0.0"
+implementation "io.pinecone:pinecone-client:4.0.0"
 ```
 
 [comment]: <> (^ [pc:VERSION_LATEST_RELEASE])
 
-Alternatively, you can use our standalone uberjar [pinecone-client-3.0.0-all.jar](https://repo1.maven.org/maven2/io/pinecone/pinecone-client/3.0.0/pinecone-client-3.0.0-all.jar), which bundles the Pinecone
+Alternatively, you can use our standalone uberjar [pinecone-client-4.0.0-all.jar](https://repo1.maven.org/maven2/io/pinecone/pinecone-client/4.0.0/pinecone-client-4.0.0-all.jar), which bundles the Pinecone
 SDK and all dependencies together. You can include this in your classpath like you do with any 3rd party JAR without
 having to obtain the *pinecone-client* dependencies separately.
 
@@ -202,7 +202,6 @@ import java.util.HashMap;
 Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
         
 String indexName = "example-index";
-int dimension = 1538;
 String cloud = "aws";
 String region = "us-east-1";
 HashMap<String, String> tags = new HashMap<>();
