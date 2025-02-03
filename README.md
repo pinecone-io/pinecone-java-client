@@ -642,23 +642,23 @@ String model = "bge-reranker-v2-m3";
 String query = "The tech company Apple is known for its innovative products like the iPhone.";
 
 // Add the documents to rerank
-List<Map<String, String>> documents = new ArrayList<>();
-Map<String, String> doc1 = new HashMap<>();
+List<Map<String, Object>> documents = new ArrayList<>();
+Map<String, Object> doc1 = new HashMap<>();
 doc1.put("id", "vec1");
 doc1.put("my_field", "Apple is a popular fruit known for its sweetness and crisp texture.");
 documents.add(doc1);
 
-Map<String, String> doc2 = new HashMap<>();
+Map<String, Object> doc2 = new HashMap<>();
 doc2.put("id", "vec2");
 doc2.put("my_field", "Many people enjoy eating apples as a healthy snack.");
 documents.add(doc2);
 
-Map<String, String> doc3 = new HashMap<>();
+Map<String, Object> doc3 = new HashMap<>();
 doc3.put("id", "vec3");
 doc3.put("my_field", "Apple Inc. has revolutionized the tech industry with its sleek designs and user-friendly interfaces.");
 documents.add(doc3);
 
-Map<String, String> doc4 = new HashMap<>();
+Map<String, Object> doc4 = new HashMap<>();
 doc4.put("id", "vec4");
 doc4.put("my_field", "An apple a day keeps the doctor away, as the saying goes.");
 documents.add(doc4);
@@ -673,7 +673,7 @@ int topN = 2;
 boolean returnDocuments = true;
 
 // Additional model-specific parameters for the reranker
-Map<String, String> parameters = new HashMap<>();
+Map<String, Object> parameters = new HashMap<>();
 parameters.put("truncate", "END");
 
 // Send ranking request
