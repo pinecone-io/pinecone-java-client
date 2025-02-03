@@ -162,7 +162,7 @@ Operations related to the building and managing of Pinecone indexes are called [
 You can use the Java SDK to create two types of indexes: [serverless indexes](https://docs.pinecone.io/guides/indexes/understanding-indexes#serverless-indexes) (recommended for most use cases) and 
 [pod-based indexes](https://docs.pinecone.io/guides/indexes/understanding-indexes#pod-based-indexes) (recommended for high-throughput use cases).
 
-### Create a serverless index
+### Create a dense serverless index
 
 The following is an example of creating a serverless index in the `us-west-2` region of AWS. For more information on 
 serverless and regional availability, see [Understanding indexes](https://docs.pinecone.io/guides/indexes/understanding-indexes#serverless-indexes).
@@ -185,6 +185,31 @@ HashMap<String, String> tags = new HashMap<>();
 tags.put("env", "test");
 
 IndexModel indexModel = pinecone.createServerlessIndex(indexName, similarityMetric, dimension, cloud, region, DeletionProtection.ENABLED, tags);
+```
+
+### Create a sparse serverless index
+
+The following is an example of creating a sparse serverless index in the `us-east-1` region of AWS. For more information on
+serverless and regional availability, see [Understanding indexes](https://docs.pinecone.io/guides/indexes/sparse-indexes).
+
+```java
+import io.pinecone.clients.Pinecone;
+import org.openapitools.db_control.client.model.IndexModel;
+import org.openapitools.db_control.client.model.DeletionProtection;
+import java.util.HashMap;
+...
+
+Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+        
+String indexName = "example-index";
+int dimension = 1538;
+String cloud = "aws";
+String region = "us-east-1";
+HashMap<String, String> tags = new HashMap<>();
+tags.put("env", "test");
+String vectorType = "sparse";
+
+IndexModel indexModel = pinecone.createSparseServelessIndex(indexName, cloud, region, DeletionProtection.ENABLED, tags, vectorType);
 ```
 
 ### Create a pod index

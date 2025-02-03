@@ -48,17 +48,7 @@ public class UpsertErrorTest {
             index.upsert(null, values);
             fail("Expecting invalid upsert request exception");
         } catch (PineconeException expected) {
-            assertEquals(expected.getMessage(), "Invalid upsert request. Please ensure that both id and values are provided.");
-        }
-    }
-
-    @Test
-    public void upsertWhenValuesMissingSyncTest() {
-        try {
-            index.upsert("some_id", null);
-            fail("Expecting invalid upsert request exception");
-        } catch (PineconeException expected) {
-            assertEquals(expected.getMessage(), "Invalid upsert request. Please ensure that both id and values are provided.");
+            assertEquals(expected.getMessage(), "Invalid upsert request. Please ensure that id is provided.");
         }
     }
 
@@ -126,17 +116,7 @@ public class UpsertErrorTest {
             asyncIndex.upsert(null, values);
             fail("Expecting invalid upsert request exception");
         } catch (PineconeException expected) {
-            assertTrue(expected.getMessage().contains("ensure that both id and values are provided."));
-        }
-    }
-
-    @Test
-    public void upsertWhenValuesMissingFutureTest() {
-        try {
-            asyncIndex.upsert("some_id", null);
-            fail("Expecting invalid upsert request exception");
-        } catch (PineconeException expected) {
-            assertTrue(expected.getMessage().contains("ensure that both id and values are provided."));
+            assertTrue(expected.getMessage().contains("ensure that id is provided."));
         }
     }
 
