@@ -949,7 +949,6 @@ public class Pinecone {
             throw new PineconeValidationException("Index name cannot be null or empty");
         }
 
-        config.setHost(getIndexHost(indexName));
         PineconeConnection connection = getConnection(indexName);
         return new Index(connection, indexName);
     }
@@ -979,7 +978,6 @@ public class Pinecone {
             throw new PineconeValidationException("Index name cannot be null or empty");
         }
 
-        config.setHost(getIndexHost(indexName));
         PineconeConnection connection = getConnection(indexName);
         return new AsyncIndex(config, connection, indexName);
     }
@@ -997,7 +995,9 @@ public class Pinecone {
     }
 
     PineconeConnection getConnection(String indexName) {
-        return connectionsMap.computeIfAbsent(indexName, key -> new PineconeConnection(config));
+        PineconeConfig perConnectionConfig = new PineconeConfig(config.getApiKey());
+        perConnectionConfig.setHost(getIndexHost(indexName));
+        return connectionsMap.computeIfAbsent(indexName, key -> new PineconeConnection(perConnectionConfig));
     }
 
     ConcurrentHashMap<String, PineconeConnection> getConnectionsMap() {
