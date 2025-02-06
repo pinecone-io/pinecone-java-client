@@ -995,7 +995,7 @@ public class Pinecone {
     }
 
     PineconeConnection getConnection(String indexName) {
-        PineconeConfig perConnectionConfig = new PineconeConfig(config.getApiKey());
+        PineconeConfig perConnectionConfig = new PineconeConfig(config.getApiKey(), config.getSourceTag());
         perConnectionConfig.setHost(getIndexHost(indexName));
         return connectionsMap.computeIfAbsent(indexName, key -> new PineconeConnection(perConnectionConfig));
     }
