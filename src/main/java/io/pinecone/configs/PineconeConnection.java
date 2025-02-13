@@ -203,4 +203,9 @@ public class PineconeConnection implements AutoCloseable {
             logger.warn("Channel shutdown interrupted before termination confirmed");
         }
     }
+
+    @Override
+    public String toString() {
+        return config.getHost();
+    }
 }
