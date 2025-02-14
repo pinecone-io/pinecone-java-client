@@ -2,6 +2,9 @@
 
 [comment]: <> (When bumping [pc:VERSION_LATEST_RELEASE] create a new entry below)
 ### Unreleased version
+### 4.0.1
+- Create a new config per index connection 
+
 ### 4.0.0
 - Add support for sparse indexes
 - Generate code based on 2025-01 open-api spec
