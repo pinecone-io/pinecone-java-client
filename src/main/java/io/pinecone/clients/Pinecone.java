@@ -982,6 +982,12 @@ public class Pinecone {
         return new AsyncIndex(config, connection, indexName);
     }
 
+    public RestIndex getRestIndexConnection(String indexName) throws PineconeValidationException {
+        PineconeConfig perConnectionConfig = new PineconeConfig(config.getApiKey(), config.getSourceTag());
+        perConnectionConfig.setHost(getIndexHost(indexName));
+        return new RestIndex(perConnectionConfig);
+    }
+
     /**
      * A method to create and return a new instance of the {@link Inference} client.
      * <p>
