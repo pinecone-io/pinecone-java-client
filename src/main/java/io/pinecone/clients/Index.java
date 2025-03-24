@@ -2,16 +2,34 @@ package io.pinecone.clients;
 
 import com.google.protobuf.Struct;
 import io.pinecone.commons.IndexInterface;
+import io.pinecone.configs.PineconeConfig;
 import io.pinecone.configs.PineconeConnection;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.proto.*;
+import io.pinecone.proto.DeleteRequest;
+import io.pinecone.proto.DescribeIndexStatsRequest;
+import io.pinecone.proto.FetchResponse;
+import io.pinecone.proto.ListResponse;
+import io.pinecone.proto.QueryRequest;
+import io.pinecone.proto.UpdateRequest;
+import io.pinecone.proto.UpsertRequest;
+import io.pinecone.proto.UpsertResponse;
 import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
 import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
+import okhttp3.OkHttpClient;
+import org.openapitools.db_data.client.ApiClient;
+import org.openapitools.db_data.client.ApiException;
+import org.openapitools.db_data.client.Configuration;
+import org.openapitools.db_data.client.api.VectorOperationsApi;
+import org.openapitools.db_data.client.model.*;
 
 import java.util.List;
 
+import static io.pinecone.clients.Pinecone.buildOkHttpClient;
+
 /**
- * A client for interacting with a Pinecone index via GRPC synchronously. Allows for upserting, querying, fetching, updating, and deleting vectors.
+ * A client for interacting with a Pinecone index synchronously. Allows for vector operations such as upserting,
+ * querying, fetching, updating, and deleting vectors along with records operations such as upsert and search records.
  * This class provides a direct interface to interact with a specific index, encapsulating network communication and request validation.
  * <p>
  * Example:
@@ -34,6 +52,7 @@ public class Index implements IndexInterface<UpsertResponse,
     private final PineconeConnection connection;
     private final String indexName;
     private final VectorServiceGrpc.VectorServiceBlockingStub blockingStub;
+    private final VectorOperationsApi vectorOperations;
 
     /**
      * Constructs an {@link Index} instance for interacting with a Pinecone index.
@@ -47,11 +66,12 @@ public class Index implements IndexInterface<UpsertResponse,
      *     Index index = client.getIndexConnection("my-index");
      * }</pre>
      *
+     * @param config The {@link PineconeConfig} configuration of the index.
      * @param connection The {@link PineconeConnection} configuration to be used for this index.
      * @param indexName The name of the index to interact with. The index host will be automatically resolved.
      * @throws PineconeValidationException if the connection object is null.
      */
-    public Index(PineconeConnection connection, String indexName) {
+    public Index(PineconeConfig config, PineconeConnection connection, String indexName) {
         if (connection == null) {
             throw new PineconeValidationException("Pinecone connection object cannot be null.");
         }
@@ -59,6 +79,16 @@ public class Index implements IndexInterface<UpsertResponse,
         this.connection = connection;
         this.indexName = indexName;
         this.blockingStub = connection.getBlockingStub();
+
+        OkHttpClient customOkHttpClient = config.getCustomOkHttpClient();
+        ApiClient apiClient = (customOkHttpClient != null) ? new ApiClient(customOkHttpClient) : new ApiClient(buildOkHttpClient(config.getProxyConfig()));
+        apiClient.setApiKey(config.getApiKey());
+        apiClient.setUserAgent(config.getUserAgent());
+        apiClient.addDefaultHeader("X-Pinecone-Api-Version", Configuration.VERSION);
+
+        this.vectorOperations = new VectorOperationsApi(apiClient);
+        String protocol = config.isTLSEnabled() ? "https://" : "http://";
+        vectorOperations.setCustomBaseUrl(protocol + config.getHost());
     }
 
     /**
@@ -944,6 +974,20 @@ public class Index implements IndexInterface<UpsertResponse,
         return blockingStub.list(listRequest);
     }
 
+    public void upsertRecords(String namespace, List<UpsertRecord> upsertRecord) throws ApiException {
+        vectorOperations.upsertRecordsNamespace(namespace, upsertRecord);
+    }
+
+    public SearchRecordsResponse searchRecords(String id, String namespace, Object filter, int topK, SearchRecordsVector vector) throws ApiException {
+        SearchRecordsRequestQuery searchRecordsRequestquery = new SearchRecordsRequestQuery()
+                .id(id)
+                .filter(filter)
+                .topK(topK)
+                .vector(vector);
+        SearchRecordsRequest request = new SearchRecordsRequest().query(searchRecordsRequestquery);
+
+        return vectorOperations.searchRecordsNamespace(namespace, request);
+    }
 
     /**
      * {@inheritDoc}

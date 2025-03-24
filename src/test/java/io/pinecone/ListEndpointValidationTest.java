@@ -1,6 +1,7 @@
 package io.pinecone;
 
 import io.pinecone.clients.Index;
+import io.pinecone.configs.PineconeConfig;
 import io.pinecone.configs.PineconeConnection;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.proto.VectorServiceGrpc;
@@ -18,21 +19,19 @@ import static org.mockito.Mockito.when;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ListEndpointValidationTest {
 
-    private String indexName;
-    private PineconeConnection connectionMock;
-    private VectorServiceGrpc.VectorServiceBlockingStub stubMock;
     private Index index;
 
     @BeforeAll
     public void setUp() {
-        indexName = "test-index";
+        String indexName = "test-index";
 
         // Mock sync Pinecone connection
-        connectionMock = mock(PineconeConnection.class);
-        stubMock = mock(VectorServiceGrpc.VectorServiceBlockingStub.class);
+        PineconeConfig config = mock(PineconeConfig.class);
+        PineconeConnection connectionMock = mock(PineconeConnection.class);
+        VectorServiceGrpc.VectorServiceBlockingStub stubMock = mock(VectorServiceGrpc.VectorServiceBlockingStub.class);
         when(connectionMock.getBlockingStub()).thenReturn(stubMock);
 
-        index = new Index(connectionMock, indexName);
+        index = new Index(config, connectionMock, indexName);
     }
 
     @Test

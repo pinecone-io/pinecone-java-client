@@ -216,6 +216,50 @@ public class Pinecone {
     }
 
     /**
+     * Creates a new serverless index with an associated embedding model.
+     * <p>
+     * Example:
+     * <pre>{@code
+     *     client.createIndexForModel("my-index", CreateIndexForModelRequest.CloudEnum.AWS,
+     *                                            "us-west-2", embedConfig, DeletionProtection.ENABLED, tags);
+     * }</pre>
+     *
+     * @param name The name of the index to be created. The name must be between 1 and 45 characters,
+     *             start and end with an alphanumeric character, and consist only of lowercase alphanumeric
+     *             characters or hyphens ('-').
+     * @param cloud The cloud provider where the index will be hosted. Must be one of the supported cloud providers.
+     * @param region The cloud region where the index will be created.
+     * @param embed The embedding model configuration. Once set, the model cannot be changed, but configurations
+     *              such as field map and parameters can be updated.
+     * @param deletionProtection Whether deletion protection is enabled for the index. If enabled, the index
+     *                           cannot be deleted. Defaults to disabled if not provided.
+     * @param tags A map of custom user tags to associate with the index. Keys must be alphanumeric or contain
+     *             underscores ('_') or hyphens ('-'). Values must be alphanumeric, or contain characters such
+     *             as ';', '@', '_', '-', '.', '+', or spaces.
+     * @return {@link IndexModel} representing the created serverless index with the associated embedding model.
+     * @throws PineconeException if the API encounters an error during index creation, or if any of the arguments
+     *                           are invalid.
+     * @throws ApiException if an error occurs while communicating with the API.
+     */
+    public IndexModel createIndexForModel(String name,
+                                                     CreateIndexForModelRequest.CloudEnum cloud,
+                                                     String region,
+                                                     CreateIndexForModelRequestEmbed embed,
+                                                     DeletionProtection deletionProtection,
+                                                     Map<String, String> tags) throws PineconeException, ApiException {
+
+        CreateIndexForModelRequest createIndexForModelRequest = new CreateIndexForModelRequest()
+                .name(name)
+                .cloud(cloud)
+                .region(region)
+                .embed(embed)
+                .deletionProtection(deletionProtection)
+                .tags(tags);
+
+        return manageIndexesApi.createIndexForModel(createIndexForModelRequest);
+    }
+
+    /**
      * Overload for creating a new pods index with environment and podType, the minimum required parameters.
      * <p>
      * Example:
@@ -950,7 +994,7 @@ public class Pinecone {
         }
 
         PineconeConnection connection = getConnection(indexName);
-        return new Index(connection, indexName);
+        return new Index(config, connection, indexName);
     }
 
     /**
@@ -980,12 +1024,6 @@ public class Pinecone {
 
         PineconeConnection connection = getConnection(indexName);
         return new AsyncIndex(config, connection, indexName);
-    }
-
-    public RestIndex getRestIndexConnection(String indexName) throws PineconeValidationException {
-        PineconeConfig perConnectionConfig = new PineconeConfig(config.getApiKey(), config.getSourceTag());
-        perConnectionConfig.setHost(getIndexHost(indexName));
-        return new RestIndex(perConnectionConfig);
     }
 
     /**
