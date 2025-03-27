@@ -221,7 +221,7 @@ public class Pinecone {
      * Example:
      * <pre>{@code
      *     client.createIndexForModel("my-index", CreateIndexForModelRequest.CloudEnum.AWS,
-     *                                            "us-west-2", embedConfig, DeletionProtection.ENABLED, tags);
+     *                                            "us-west-2", embedConfig, DeletionProtection.DISABLED, tags);
      * }</pre>
      *
      * @param name The name of the index to be created. The name must be between 1 and 45 characters,
@@ -993,8 +993,11 @@ public class Pinecone {
             throw new PineconeValidationException("Index name cannot be null or empty");
         }
 
-        PineconeConnection connection = getConnection(indexName);
-        return new Index(config, connection, indexName);
+        PineconeConfig perConnectionConfig = new PineconeConfig(config.getApiKey(), config.getSourceTag());
+        perConnectionConfig.setHost(getIndexHost(indexName));
+
+        PineconeConnection connection = getConnection(indexName, perConnectionConfig);
+        return new Index(perConnectionConfig, connection, indexName);
     }
 
     /**
@@ -1022,7 +1025,10 @@ public class Pinecone {
             throw new PineconeValidationException("Index name cannot be null or empty");
         }
 
-        PineconeConnection connection = getConnection(indexName);
+        PineconeConfig perConnectionConfig = new PineconeConfig(config.getApiKey(), config.getSourceTag());
+        perConnectionConfig.setHost(getIndexHost(indexName));
+
+        PineconeConnection connection = getConnection(indexName, perConnectionConfig);
         return new AsyncIndex(config, connection, indexName);
     }
 
@@ -1038,9 +1044,7 @@ public class Pinecone {
         return new Inference(config);
     }
 
-    PineconeConnection getConnection(String indexName) {
-        PineconeConfig perConnectionConfig = new PineconeConfig(config.getApiKey(), config.getSourceTag());
-        perConnectionConfig.setHost(getIndexHost(indexName));
+    PineconeConnection getConnection(String indexName, PineconeConfig perConnectionConfig) {
         return connectionsMap.computeIfAbsent(indexName, key -> new PineconeConnection(perConnectionConfig));
     }
 

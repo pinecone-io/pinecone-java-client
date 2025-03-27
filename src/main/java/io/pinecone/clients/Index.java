@@ -66,9 +66,9 @@ public class Index implements IndexInterface<UpsertResponse,
      *     Index index = client.getIndexConnection("my-index");
      * }</pre>
      *
-     * @param config The {@link PineconeConfig} configuration of the index.
+     * @param config     The {@link PineconeConfig} configuration of the index.
      * @param connection The {@link PineconeConnection} configuration to be used for this index.
-     * @param indexName The name of the index to interact with. The index host will be automatically resolved.
+     * @param indexName  The name of the index to interact with. The index host will be automatically resolved.
      * @throws PineconeValidationException if the connection object is null.
      */
     public Index(PineconeConfig config, PineconeConnection connection, String indexName) {
@@ -813,7 +813,7 @@ public class Index implements IndexInterface<UpsertResponse,
     /**
      * {@inheritDoc}
      * <p> Example:
-     *  <pre>{@code
+     * <pre>{@code
      *     import io.pinecone.proto.ListResponse;
      *
      *     ...
@@ -832,7 +832,7 @@ public class Index implements IndexInterface<UpsertResponse,
     /**
      * {@inheritDoc}
      * <p>Example:
-     *  <pre>{@code
+     * <pre>{@code
      *     import io.pinecone.proto.ListResponse;
      *
      *     ...
@@ -850,7 +850,7 @@ public class Index implements IndexInterface<UpsertResponse,
     /**
      * {@inheritDoc}
      * <p>Example:
-     *  <pre>{@code
+     * <pre>{@code
      *     import io.pinecone.proto.ListResponse;
      *
      *     ...
@@ -868,7 +868,7 @@ public class Index implements IndexInterface<UpsertResponse,
     /**
      * {@inheritDoc}
      * <p>Example:
-     *  <pre>{@code
+     * <pre>{@code
      *     import io.pinecone.proto.ListResponse;
      *
      *     ...
@@ -886,7 +886,7 @@ public class Index implements IndexInterface<UpsertResponse,
     /**
      * {@inheritDoc}
      * <p>Example:
-     *  <pre>{@code
+     * <pre>{@code
      *     import io.pinecone.proto.ListResponse;
      *
      *     ...
@@ -905,7 +905,7 @@ public class Index implements IndexInterface<UpsertResponse,
     /**
      * {@inheritDoc}
      * <p> Example:
-     *  <pre>{@code
+     * <pre>{@code
      *     import io.pinecone.proto.ListResponse;
      *
      *     ...
@@ -925,7 +925,7 @@ public class Index implements IndexInterface<UpsertResponse,
     /**
      * {@inheritDoc}
      * <p>Example:
-     *  <pre>{@code
+     * <pre>{@code
      *     import io.pinecone.proto.ListResponse;
      *
      *     ...
@@ -950,22 +950,23 @@ public class Index implements IndexInterface<UpsertResponse,
      * through a list of vector IDs. It then makes a synchronous RPC call to fetch the list of vector IDs.
      *
      * <p>Example:
-     *  <pre>{@code
+     * <pre>{@code
      *     import io.pinecone.proto.ListResponse;
      *
      *     ...
      *
      *     ListResponse listResponse = index.list("example-namespace", "st-", "some-pagToken", 10);
      *   }</pre>
-     * @param namespace The namespace that holds the vector IDs you want to retrieve. If namespace is not specified,
-     *                  the default namespace is used.
-     * @param prefix The prefix with which vector IDs must start to be included in the response.
+     *
+     * @param namespace       The namespace that holds the vector IDs you want to retrieve. If namespace is not specified,
+     *                        the default namespace is used.
+     * @param prefix          The prefix with which vector IDs must start to be included in the response.
      * @param paginationToken The token to paginate through the list of vector IDs.
-     * @param limit The maximum number of vector IDs you want to retrieve.
+     * @param limit           The maximum number of vector IDs you want to retrieve.
      * @return {@link ListResponse} containing the list of vector IDs fetched from the specified namespace.
-     *         The response includes vector IDs up to {@code 100} items.
+     * The response includes vector IDs up to {@code 100} items.
      * @throws RuntimeException if there are issues processing the request or communicating with the server.
-     *         This includes network issues, server errors, or serialization issues with the request or response.
+     *                          This includes network issues, server errors, or serialization issues with the request or response.
      */
     public ListResponse list(String namespace, String prefix, String paginationToken, int limit) {
         validateListEndpointParameters(namespace, prefix, paginationToken, limit, true, true, true, true);
@@ -974,17 +975,81 @@ public class Index implements IndexInterface<UpsertResponse,
         return blockingStub.list(listRequest);
     }
 
+    /**
+     * <p>Upserts records into a specified namespace within a Pinecone index. This operation
+     * will insert new records or update existing ones based on the provided data.</p>
+     *
+     * <p>The method sends a list of {@link UpsertRecord} objects to the specified namespace
+     * in the Pinecone index, either inserting new records or updating existing records
+     * depending on whether the record IDs already exist.</p>
+     *
+     * <p>Example:
+     * <pre>{@code
+     *     List<UpsertRecord> records = new ArrayList<>();
+     *     records.add(new UpsertRecord("rec1", "Apple's first product, the Apple I, was released in 1976.", "product"));
+     *     records.add(new UpsertRecord("rec2", "Apples are a great source of dietary fiber.", "nutrition"));
+     *
+     *     try {
+     *         index.upsertRecords("example-namespace", records);
+     *     } catch (ApiException e) {
+     *
+     *     }
+     * }</pre></p>
+     *
+     * @param namespace    The namespace within the Pinecone index where the records will be upserted.
+     *                     The namespace must be an existing namespace or a valid one to create new records.
+     * @param upsertRecord A list of {@link UpsertRecord} objects containing the records to be upserted.
+     *                     Each record must include a unique ID and the data to be stored.
+     * @throws ApiException If there is an issue with the upsert operation. This could include network errors,
+     *                      invalid input data, or issues communicating with the Pinecone service.
+     */
     public void upsertRecords(String namespace, List<UpsertRecord> upsertRecord) throws ApiException {
         vectorOperations.upsertRecordsNamespace(namespace, upsertRecord);
     }
 
-    public SearchRecordsResponse searchRecords(String id, String namespace, Object filter, int topK, SearchRecordsVector vector) throws ApiException {
-        SearchRecordsRequestQuery searchRecordsRequestquery = new SearchRecordsRequestQuery()
-                .id(id)
-                .filter(filter)
-                .topK(topK)
-                .vector(vector);
-        SearchRecordsRequest request = new SearchRecordsRequest().query(searchRecordsRequestquery);
+    /**
+     * <p>Searches for records in a specified namespace within a Pinecone index by converting a query into a vector embedding.
+     * Optionally, a reranking operation can be applied to refine the results.</p>
+     *
+     * <p>This method sends a search query along with specified fields to the Pinecone index, retrieves the relevant records,
+     * and applies an optional reranking operation if provided.</p>
+     *
+     * <p>Example:
+     * <pre>{@code
+     *     String namespace = "example-namespace";
+     *     HashMap<String, String> inputsMap = new HashMap<>();
+     *     inputsMap.put("text", "Disease prevention");
+     *     SearchRecordsRequestQuery query = new SearchRecordsRequestQuery()
+     *             .topK(3)
+     *             .inputs(inputsMap);
+     *
+     *     List<String> fields = new ArrayList<>();
+     *     fields.add("category");
+     *     fields.add("chunk_text");
+     *
+     *     SearchRecordsResponse recordsResponse = index.searchRecords(namespace, query, fields, null);
+     * }</pre></p>
+     *
+     * @param namespace The namespace within the Pinecone index where the search will be performed.
+     *                  The namespace must exist and contain records to search through.
+     * @param query The query to be converted into a vector embedding for the search operation.
+     *              This query contains the input data for the search and parameters like topK for result limits.
+     * @param fields A list of fields to be searched within the records. These fields define which parts of the records
+     *               are considered during the search.
+     * @param rerank (Optional) A reranking operation that can be applied to refine or reorder the search results.
+     *               Pass null if no reranking is required.
+     * @return A {@link SearchRecordsResponse} object containing the search results, including the top matching records.
+     * @throws ApiException If there is an issue with the search operation. This could include network errors,
+     *                      invalid input data, or issues communicating with the Pinecone service.
+     */
+    public SearchRecordsResponse searchRecords(String namespace,
+                                               SearchRecordsRequestQuery query,
+                                               List<String> fields,
+                                               SearchRecordsRequestRerank rerank) throws ApiException {
+        SearchRecordsRequest request = new SearchRecordsRequest()
+                .query(query)
+                .fields(fields)
+                .rerank(rerank);
 
         return vectorOperations.searchRecordsNamespace(namespace, request);
     }
