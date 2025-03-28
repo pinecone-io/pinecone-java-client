@@ -63,7 +63,7 @@ public class SparseIndexTest {
         waitUntilIndexIsReady(pinecone, indexName, 200000);
 
         // Disable deletion protection and add more index tags
-        pinecone.configureServerlessIndex(indexName, DeletionProtection.DISABLED, tags);
+        pinecone.configureServerlessIndex(indexName, DeletionProtection.DISABLED, tags, null);
         Thread.sleep(7000);
 
         // Describe index to confirm deletion protection is disabled

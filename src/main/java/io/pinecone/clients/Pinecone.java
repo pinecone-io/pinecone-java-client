@@ -760,8 +760,17 @@ public class Pinecone {
      *     import org.openapitools.control.client.model.IndexModel;
      *     ...
      *
+     *     HashMap<String, String> tags = new HashMap<>();
+     *     tags.put("env", "test);
+     *
+     *     ConfigureIndexRequestEmbed embed = new ConfigureIndexRequestEmbed();
+     *     embed.model("multilingual-e5-large");
+     *     HashMap<String, String> fieldMap = new HashMap<>();
+     *     fieldMap.put("text", "your-text-field");
+     *     embed.fieldMap(fieldMap);
+     *
      *     // Make a configuration change
-     *     IndexModel indexModel = client.configureServerlessIndex("YOUR-INDEX", DeletionProtection.ENABLED);
+     *     IndexModel indexModel = client.configureServerlessIndex("YOUR-INDEX", DeletionProtection.ENABLED, tags, embed);
      *
      *     // Call describeIndex to see the index status as the change is applied.
      *     indexModel = client.describeIndex("YOUR-INDEX");
@@ -770,10 +779,16 @@ public class Pinecone {
      * @param indexName The name of the index to configure.
      * @param deletionProtection Enable or disable deletion protection for the index.
      * @param tags A map of tags to associate with the Index.
+     * @param embed Convert an existing index to an integrated index by specifying the embedding model and field_map.
+     *              The index vector type and dimension must match the model vector type and dimension, and the index
+     *              similarity metric must be supported by the model
      * @return {@link IndexModel} representing the configured index.
      * @throws PineconeException if an error occurs during the operation, the index does not exist, or if any of the arguments are invalid.
      */
-    public IndexModel configureServerlessIndex(String indexName, DeletionProtection deletionProtection, Map<String, String> tags) throws PineconeException {
+    public IndexModel configureServerlessIndex(String indexName,
+                                               DeletionProtection deletionProtection,
+                                               Map<String, String> tags,
+                                               ConfigureIndexRequestEmbed embed) throws PineconeException {
         if (indexName == null || indexName.isEmpty()) {
             throw new PineconeValidationException("indexName cannot be null or empty");
         }
@@ -784,6 +799,10 @@ public class Pinecone {
 
         if(tags != null && !tags.isEmpty()) {
             configureIndexRequest.tags(tags);
+        }
+
+        if(embed != null) {
+            configureIndexRequest.embed(embed);
         }
 
         IndexModel indexModel = null;
