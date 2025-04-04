@@ -23,7 +23,9 @@ import org.openapitools.db_data.client.Configuration;
 import org.openapitools.db_data.client.api.VectorOperationsApi;
 import org.openapitools.db_data.client.model.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static io.pinecone.clients.Pinecone.buildOkHttpClient;
 
@@ -998,13 +1000,28 @@ public class Index implements IndexInterface<UpsertResponse,
      *
      * @param namespace    The namespace within the Pinecone index where the records will be upserted.
      *                     The namespace must be an existing namespace or a valid one to create new records.
-     * @param upsertRecord A list of {@link UpsertRecord} objects containing the records to be upserted.
-     *                     Each record must include a unique ID and the data to be stored.
+     * @param upsertRecords A list of Map<String, String> containing the records to be upserted.
+     *                     Each record must include a unique ID represented by the key "_id" along with the data to be
+     *                     stored.
      * @throws ApiException If there is an issue with the upsert operation. This could include network errors,
      *                      invalid input data, or issues communicating with the Pinecone service.
      */
-    public void upsertRecords(String namespace, List<UpsertRecord> upsertRecord) throws ApiException {
-        vectorOperations.upsertRecordsNamespace(namespace, upsertRecord);
+    public void upsertRecords(String namespace, List<Map<String, String>> upsertRecords) throws ApiException {
+        List<UpsertRecord> records = new ArrayList<>();
+        for(Map<String, String> record: upsertRecords) {
+            UpsertRecord upsertRecord = new UpsertRecord();
+            for (Map.Entry<String, String> entry : record.entrySet()) {
+                if(entry.getKey().equals("_id")) {
+                    upsertRecord.id(entry.getValue());
+                }
+                else {
+                    upsertRecord.putAdditionalProperty(entry.getKey(), entry.getValue());
+                }
+            }
+
+            records.add(upsertRecord);
+        }
+        vectorOperations.upsertRecordsNamespace(namespace, records);
     }
 
     /**
@@ -1046,6 +1063,173 @@ public class Index implements IndexInterface<UpsertResponse,
                                                SearchRecordsRequestQuery query,
                                                List<String> fields,
                                                SearchRecordsRequestRerank rerank) throws ApiException {
+        SearchRecordsRequest request = new SearchRecordsRequest()
+                .query(query)
+                .fields(fields)
+                .rerank(rerank);
+
+        return vectorOperations.searchRecordsNamespace(namespace, request);
+    }
+
+    /**
+     * <p>Searches for records by a specific record ID within a Pinecone index. The search query will use the ID as a
+     * filter.</p>
+     *
+     * <p>This method retrieves records from the Pinecone index by searching for a specific record ID.
+     * You can optionally apply a filter, limit the number of results with the topK parameter,
+     * and refine the results using an optional reranking operation.</p>
+     *
+     * <p>Example:
+     * <pre>{@code
+     *     String id = "12345";
+     *     String namespace = "example-namespace";
+     *     List<String> fields = new ArrayList<>();
+     *     fields.add("category");
+     *     fields.add("chunk_text");
+     *     int topK = 3;
+     *
+     *     SearchRecordsResponse recordsResponse = index.searchRecordsById(id, namespace, fields, topK, null, null);
+     * }</pre></p>
+     *
+     * @param id The ID of the record to be searched within the Pinecone index.
+     *           The ID must exist within the specified namespace for a valid search.
+     * @param namespace The namespace within the Pinecone index where the search will be performed.
+     *                  The namespace must exist and contain records to search through.
+     * @param fields A list of fields to be searched within the records. These fields define which parts of the records
+     *               are considered during the search.
+     * @param topK The maximum number of results to be returned by the search.
+     * @param filter (Optional) A filter to apply to the search query. It can be used to narrow down the search
+     *               based on specific criteria.
+     * @param rerank (Optional) A reranking operation that can be applied to refine or reorder the search results.
+     *               Pass null if no reranking is required.
+     * @return A {@link SearchRecordsResponse} object containing the search results, including the top matching records.
+     * @throws ApiException If there is an issue with the search operation. This could include network errors,
+     *                      invalid input data, or issues communicating with the Pinecone service.
+     */
+    public SearchRecordsResponse searchRecordsById(String id,
+                                  String namespace,
+                                  List<String> fields,
+                                  int topK,
+                                  Map<String, Object> filter,
+                                  SearchRecordsRequestRerank rerank) throws ApiException {
+        SearchRecordsRequestQuery query = new SearchRecordsRequestQuery()
+                .id(id)
+                .topK(topK)
+                .filter(filter);
+
+        SearchRecordsRequest request = new SearchRecordsRequest()
+                .query(query)
+                .fields(fields)
+                .rerank(rerank);
+
+        return vectorOperations.searchRecordsNamespace(namespace, request);
+    }
+
+    /**
+     * <p>Searches for records in a Pinecone index by a vector. The vector represents the search query in vector space.</p>
+     *
+     * <p>This method converts the given vector into a query and searches for the most relevant records within the Pinecone index.
+     * You can limit the results with the topK parameter, apply a filter, and optionally apply a reranking operation.</p>
+     *
+     * <p>The {@link SearchRecordsVector} class represents a vector in the query. It contains the following optional fields:
+     * - `values`: A list of floats representing the dense vector values. If this field is provided, it is used for the search.
+     * - `sparseValues`: An optional list of non-zero values for sparse vectors. If provided, the search will use sparse vector representation.
+     * - `sparseIndices`: An optional list of indices corresponding to the non-zero values in the sparse vector. If provided along with `sparseValues`, it will enable sparse vector search.</p>
+     *
+     * <p>Example:
+     * <pre>{@code
+     *     SearchRecordsVector vector = new SearchRecordsVector();
+     *     vector.setValues(Arrays.asList(1.0f, 2.0f, 3.0f)); // Dense vector values
+     *     // Or, for sparse vectors:
+     *     // vector.setSparseValues(Arrays.asList(1.0f, 2.0f));
+     *     // vector.setSparseIndices(Arrays.asList(0, 2));
+     *     String namespace = "example-namespace";
+     *     List<String> fields = new ArrayList<>();
+     *     fields.add("category");
+     *     fields.add("chunk_text");
+     *     int topK = 3;
+     *
+     *     SearchRecordsResponse recordsResponse = index.searchRecordsByVector(vector, namespace, fields, topK, null, null);
+     * }</pre></p>
+     *
+     * @param vector The vector representing the search query, which is used to find the closest matching records.
+     *              The vector can be a dense vector (via `values`) or a sparse vector (via `sparseValues` and `sparseIndices`).
+     *              All fields in the vector are optional. If none are provided, the search will fail due to missing query data.
+     * @param namespace The namespace within the Pinecone index where the search will be performed.
+     *                  The namespace must exist and contain records to search through.
+     * @param fields A list of fields to be searched within the records. These fields define which parts of the records
+     *               are considered during the search.
+     * @param topK The maximum number of results to be returned by the search.
+     * @param filter (Optional) A filter to apply to the search query. It can be used to narrow down the search
+     *               based on specific criteria.
+     * @param rerank (Optional) A reranking operation that can be applied to refine or reorder the search results.
+     *               Pass null if no reranking is required.
+     * @return A {@link SearchRecordsResponse} object containing the search results, including the top matching records.
+     * @throws ApiException If there is an issue with the search operation. This could include network errors,
+     *                      invalid input data, or issues communicating with the Pinecone service.
+     */
+    public SearchRecordsResponse searchRecordsByVector(SearchRecordsVector vector,
+                                                       String namespace,
+                                                       List<String> fields,
+                                                       int topK,
+                                                       Map<String, Object>  filter,
+                                                       SearchRecordsRequestRerank rerank) throws ApiException {
+        SearchRecordsRequestQuery query = new SearchRecordsRequestQuery()
+                .vector(vector)
+                .topK(topK)
+                .filter(filter);
+
+        SearchRecordsRequest request = new SearchRecordsRequest()
+                .query(query)
+                .fields(fields)
+                .rerank(rerank);
+
+        return vectorOperations.searchRecordsNamespace(namespace, request);
+    }
+
+    /**
+     * <p>Searches for records in a Pinecone index using a text query. The text is converted into a vector for the search operation.</p>
+     *
+     * <p>This method converts the given text into a vector representation and performs a search within the Pinecone index.
+     * You can limit the results with the topK parameter, apply a filter, and optionally apply a reranking operation.</p>
+     *
+     * <p>Example:
+     * <pre>{@code
+     *     String text = "Disease prevention";
+     *     String namespace = "example-namespace";
+     *     List<String> fields = new ArrayList<>();
+     *     fields.add("category");
+     *     fields.add("chunk_text");
+     *     int topK = 3;
+     *
+     *     SearchRecordsResponse recordsResponse = index.searchRecordsByText(text, namespace, fields, topK, null, null);
+     * }</pre></p>
+     *
+     * @param text The text used in the query for searching.
+     * @param namespace The namespace within the Pinecone index where the search will be performed.
+     *                  The namespace must exist and contain records to search through.
+     * @param fields A list of fields to be searched within the records. These fields define which parts of the records
+     *               are considered during the search.
+     * @param topK The maximum number of results to be returned by the search.
+     * @param filter (Optional) A filter to apply to the search query. It can be used to narrow down the search
+     *               based on specific criteria.
+     * @param rerank (Optional) A reranking operation that can be applied to refine or reorder the search results.
+     *               Pass null if no reranking is required.
+     * @return A {@link SearchRecordsResponse} object containing the search results, including the top matching records.
+     * @throws ApiException If there is an issue with the search operation. This could include network errors,
+     *                      invalid input data, or issues communicating with the Pinecone service.
+     */
+    public SearchRecordsResponse searchRecordsByText(String text,
+                                    String namespace,
+                                    List<String> fields,
+                                    int topK,
+                                    Map<String, Object>  filter,
+                                    SearchRecordsRequestRerank rerank) throws ApiException {
+        SearchRecordsRequestQuery query = new SearchRecordsRequestQuery()
+                .inputs(text)
+                .topK(topK)
+                .filter(filter);
+
         SearchRecordsRequest request = new SearchRecordsRequest()
                 .query(query)
                 .fields(fields)

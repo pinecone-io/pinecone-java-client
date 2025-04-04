@@ -16,6 +16,7 @@ import org.openapitools.db_data.client.model.UpsertRecord;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class UpsertAndSearchRecordsTest {
     @Test
@@ -33,33 +34,35 @@ public class UpsertAndSearchRecordsTest {
         Thread.sleep(10000);
 
         Index index = pinecone.getIndexConnection(indexName);
-        UpsertRecord record1 = new UpsertRecord();
-        record1.id("rec1");
-        record1.putAdditionalProperty("category", "digestive system");
-        record1.putAdditionalProperty("chunk_text", "Apples are a great source of dietary fiber, which supports digestion and helps maintain a healthy gut.");
-        ArrayList<UpsertRecord> records = new ArrayList<>();
+        ArrayList<Map<String, String>> upsertRecords = new ArrayList<>();
 
-        UpsertRecord record2 = new UpsertRecord();
-        record2.id("rec2");
-        record2.putAdditionalProperty("category", "cultivation");
-        record2.putAdditionalProperty("chunk_text", "Apples originated in Central Asia and have been cultivated for thousands of years, with over 7,500 varieties available today.");
+        HashMap<String, String> record1 = new HashMap<>();
+        record1.put("_id", "rec1");
+        record1.put("category", "digestive system");
+        record1.put("chunk_text", "Apples are a great source of dietary fiber, which supports digestion and helps maintain a healthy gut.");
 
-        UpsertRecord record3 = new UpsertRecord();
-        record3.id("rec3");
-        record3.putAdditionalProperty("category", "immune system");
-        record3.putAdditionalProperty("chunk_text", "Rich in vitamin C and other antioxidants, apples contribute to immune health and may reduce the risk of chronic diseases.");
+        HashMap<String, String> record2 = new HashMap<>();
+        record2.put("_id", "rec2");
+        record2.put("category", "cultivation");
+        record2.put("chunk_text", "Apples originated in Central Asia and have been cultivated for thousands of years, with over 7,500 varieties available today.");
 
-        UpsertRecord record4 = new UpsertRecord();
-        record4.id("rec4");
-        record4.putAdditionalProperty("category", "endocrine system");
-        record4.putAdditionalProperty("chunk_text", "The high fiber content in apples can also help regulate blood sugar levels, making them a favorable snack for people with diabetes.");
+        HashMap<String, String> record3 = new HashMap<>();
+        record3.put("_id", "rec3");
+        record3.put("category", "immune system");
+        record3.put("chunk_text", "Rich in vitamin C and other antioxidants, apples contribute to immune health and may reduce the risk of chronic diseases.");
 
-        records.add(record1);
-        records.add(record2);
-        records.add(record3);
-        records.add(record4);
+        HashMap<String, String> record4 = new HashMap<>();
+        record4.put("_id", "rec4");
+        record4.put("category", "endocrine system");
+        record4.put("chunk_text", "The high fiber content in apples can also help regulate blood sugar levels, making them a favorable snack for people with diabetes.");
 
-        index.upsertRecords("example-namespace", records);
+        upsertRecords.add(record1);
+        upsertRecords.add(record2);
+        upsertRecords.add(record3);
+        upsertRecords.add(record4);
+
+        index.upsertRecords("example-namespace", upsertRecords);
+
         String namespace = "example-namespace";
         HashMap<String, String> inputsMap = new HashMap<>();
         inputsMap.put("text", "Disease prevention");
@@ -75,8 +78,8 @@ public class UpsertAndSearchRecordsTest {
         Thread.sleep(5000);
 
         SearchRecordsResponse recordsResponse = index.searchRecords(namespace, query, fields, null);
-        Assertions.assertEquals(records.size(), recordsResponse.getResult().getHits().size());
-        Assertions.assertEquals(record3.getId(), recordsResponse.getResult().getHits().get(0).getId());
+        Assertions.assertEquals(upsertRecords.size(), recordsResponse.getResult().getHits().size());
+        Assertions.assertEquals(record3.get("_id"), recordsResponse.getResult().getHits().get(0).getId());
 
         pinecone.deleteIndex(indexName);
     }
