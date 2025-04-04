@@ -10,13 +10,10 @@ import org.openapitools.db_control.client.model.CreateIndexForModelRequestEmbed;
 import org.openapitools.db_control.client.model.DeletionProtection;
 import org.openapitools.db_data.client.ApiException;
 import org.openapitools.db_data.client.model.SearchRecordsRequestQuery;
+import org.openapitools.db_data.client.model.SearchRecordsRequestRerank;
 import org.openapitools.db_data.client.model.SearchRecordsResponse;
-import org.openapitools.db_data.client.model.UpsertRecord;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class UpsertAndSearchRecordsTest {
     @Test
@@ -79,6 +76,18 @@ public class UpsertAndSearchRecordsTest {
 
         SearchRecordsResponse recordsResponse = index.searchRecords(namespace, query, fields, null);
         Assertions.assertEquals(upsertRecords.size(), recordsResponse.getResult().getHits().size());
+        Assertions.assertEquals(record3.get("_id"), recordsResponse.getResult().getHits().get(0).getId());
+
+        recordsResponse = index.searchRecordsById(record1.get("_id"), namespace, fields, 1, null, null);
+        Assertions.assertEquals(1, recordsResponse.getResult().getHits().size());
+        Assertions.assertEquals(record1.get("_id"), recordsResponse.getResult().getHits().get(0).getId());
+
+        SearchRecordsRequestRerank rerank = new SearchRecordsRequestRerank()
+                .model("bge-reranker-v2-m3")
+                .topN(2)
+                .rankFields(Arrays.asList("chunk_text"));
+
+        recordsResponse = index.searchRecordsByText("Disease prevention", namespace, fields, 4, null, rerank);
         Assertions.assertEquals(record3.get("_id"), recordsResponse.getResult().getHits().get(0).getId());
 
         pinecone.deleteIndex(indexName);

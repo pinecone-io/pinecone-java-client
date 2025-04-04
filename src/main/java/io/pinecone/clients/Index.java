@@ -24,6 +24,7 @@ import org.openapitools.db_data.client.api.VectorOperationsApi;
 import org.openapitools.db_data.client.model.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -1225,8 +1226,11 @@ public class Index implements IndexInterface<UpsertResponse,
                                     int topK,
                                     Map<String, Object>  filter,
                                     SearchRecordsRequestRerank rerank) throws ApiException {
+        HashMap<String, String> inputs = new HashMap<>();
+        inputs.put("text", text);
+
         SearchRecordsRequestQuery query = new SearchRecordsRequestQuery()
-                .inputs(text)
+                .inputs(inputs)
                 .topK(topK)
                 .filter(filter);
 
