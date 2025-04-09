@@ -74,6 +74,27 @@ generate_client() {
   find "${destination}/${module_name}" -name "*.java" | while IFS= read -r file; do
     sed -i '' "s/org\.openapitools\.client/org\.openapitools\.${module_name}\.client/g" "$file"
   done
+
+  # Add NDJSON block to ApiClient.java in the db_data module
+  if [ "$module_name" == "db_data" ]; then
+      echo "Adding NDJSON handler block to ApiClient.java"
+
+      # Use sed to insert the NDJSON block into ApiClient.java
+      sed -i '' '/return RequestBody.create((File) obj, MediaType.parse(contentType));/a \
+          } else if ("application/x-ndjson".equals(contentType)) { \
+              // Handle NDJSON (Newline Delimited JSON) \
+              if (obj instanceof Iterable) { \
+                  StringBuilder ndjsonContent = new StringBuilder(); \
+                  for (Object item : (Iterable<?>) obj) { \
+                      String json = JSON.serialize(item); \
+                      ndjsonContent.append(json).append("\\n"); \
+                  } \
+                  return RequestBody.create(ndjsonContent.toString(), MediaType.parse(contentType)); \
+              } else { \
+                  throw new ApiException("NDJSON content requires a collection of objects."); \
+              } \
+          ' src/main/java/org/openapitools/db_data/client/ApiClient.java
+  fi
 }
 
 update_apis_repo
