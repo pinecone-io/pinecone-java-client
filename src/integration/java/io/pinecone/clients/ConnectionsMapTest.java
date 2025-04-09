@@ -1,5 +1,6 @@
 package io.pinecone.clients;
 
+import io.pinecone.configs.PineconeConfig;
 import io.pinecone.configs.PineconeConnection;
 import io.pinecone.exceptions.PineconeNotFoundException;
 import io.pinecone.helpers.RandomStringBuilder;
@@ -57,6 +58,10 @@ public class ConnectionsMapTest {
         // Get index1's host
         String host1 = indexModel1.getHost();
 
+        // Create config1 for getting index connection and set the host
+        PineconeConfig config1 = new PineconeConfig(System.getenv("PINECONE_API_KEY"));
+        config1.setHost(host1);
+
         // Create index-2
         pinecone1.createServerlessIndex(indexName2,
                 null,
@@ -71,6 +76,11 @@ public class ConnectionsMapTest {
 
         // Get index2's host
         String host2 = indexModel2.getHost();
+
+        // Create config2 for getting index connection and set the host
+        PineconeConfig config2 = new PineconeConfig(System.getenv("PINECONE_API_KEY"));
+        config1.setHost(host2);
+
 
         // Establish grpc connection for index-1
         Index index1_1 = pinecone1.getIndexConnection(indexName1);
@@ -94,7 +104,7 @@ public class ConnectionsMapTest {
         assertEquals(host2, connectionsMap1_2.get(indexName2).toString());
 
         // Establishing connections with index1 and index2 using another pinecone client
-        pinecone2.getConnection(indexName1);
+        pinecone2.getConnection(indexName1, config1);
         ConcurrentHashMap<String, PineconeConnection> connectionsMap2_1 = pinecone1.getConnectionsMap();
         // Verify the new connections map is pointing to the same reference
         assert connectionsMap2_1 == connectionsMap1_2;
@@ -103,7 +113,7 @@ public class ConnectionsMapTest {
         // Verify the connection value for index1 is host1
         assertEquals(host1, connectionsMap2_1.get(indexName1).toString());
 
-        pinecone2.getConnection(indexName2);
+        pinecone2.getConnection(indexName2, config2);
         ConcurrentHashMap<String, PineconeConnection> connectionsMap2_2 = pinecone1.getConnectionsMap();
         // Verify the new connections map is pointing to the same reference
         assert connectionsMap2_1 == connectionsMap2_2;

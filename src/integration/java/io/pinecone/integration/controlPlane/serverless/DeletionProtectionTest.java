@@ -44,12 +44,12 @@ public class DeletionProtectionTest {
         Map<String, String> actualTags = indexModel.getTags();
         Assertions.assertEquals(expectedTags, actualTags);
         // Configure index to enable deletionProtection
-        controlPlaneClient.configureServerlessIndex(indexName, DeletionProtection.ENABLED, expectedTags);
+        controlPlaneClient.configureServerlessIndex(indexName, DeletionProtection.ENABLED, expectedTags, null);
         indexModel = controlPlaneClient.describeIndex(indexName);
         deletionProtection = indexModel.getDeletionProtection();
         Assertions.assertEquals(deletionProtection, DeletionProtection.ENABLED);
         // Configure index to disable deletionProtection
-        controlPlaneClient.configureServerlessIndex(indexName, DeletionProtection.DISABLED, expectedTags);
+        controlPlaneClient.configureServerlessIndex(indexName, DeletionProtection.DISABLED, expectedTags, null);
         // Delete index
         controlPlaneClient.deleteIndex(indexName);
     }

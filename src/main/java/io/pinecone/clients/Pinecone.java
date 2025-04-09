@@ -216,6 +216,50 @@ public class Pinecone {
     }
 
     /**
+     * Creates a new serverless index with an associated embedding model.
+     * <p>
+     * Example:
+     * <pre>{@code
+     *     client.createIndexForModel("my-index", CreateIndexForModelRequest.CloudEnum.AWS,
+     *                                            "us-west-2", embedConfig, DeletionProtection.DISABLED, tags);
+     * }</pre>
+     *
+     * @param name The name of the index to be created. The name must be between 1 and 45 characters,
+     *             start and end with an alphanumeric character, and consist only of lowercase alphanumeric
+     *             characters or hyphens ('-').
+     * @param cloud The cloud provider where the index will be hosted. Must be one of the supported cloud providers.
+     * @param region The cloud region where the index will be created.
+     * @param embed The embedding model configuration. Once set, the model cannot be changed, but configurations
+     *              such as field map and parameters can be updated.
+     * @param deletionProtection Whether deletion protection is enabled for the index. If enabled, the index
+     *                           cannot be deleted. Defaults to disabled if not provided.
+     * @param tags A map of custom user tags to associate with the index. Keys must be alphanumeric or contain
+     *             underscores ('_') or hyphens ('-'). Values must be alphanumeric, or contain characters such
+     *             as ';', '@', '_', '-', '.', '+', or spaces.
+     * @return {@link IndexModel} representing the created serverless index with the associated embedding model.
+     * @throws PineconeException if the API encounters an error during index creation, or if any of the arguments
+     *                           are invalid.
+     * @throws ApiException if an error occurs while communicating with the API.
+     */
+    public IndexModel createIndexForModel(String name,
+                                                     CreateIndexForModelRequest.CloudEnum cloud,
+                                                     String region,
+                                                     CreateIndexForModelRequestEmbed embed,
+                                                     DeletionProtection deletionProtection,
+                                                     Map<String, String> tags) throws PineconeException, ApiException {
+
+        CreateIndexForModelRequest createIndexForModelRequest = new CreateIndexForModelRequest()
+                .name(name)
+                .cloud(cloud)
+                .region(region)
+                .embed(embed)
+                .deletionProtection(deletionProtection)
+                .tags(tags);
+
+        return manageIndexesApi.createIndexForModel(createIndexForModelRequest);
+    }
+
+    /**
      * Overload for creating a new pods index with environment and podType, the minimum required parameters.
      * <p>
      * Example:
@@ -716,8 +760,17 @@ public class Pinecone {
      *     import org.openapitools.control.client.model.IndexModel;
      *     ...
      *
+     *     HashMap<String, String> tags = new HashMap<>();
+     *     tags.put("env", "test);
+     *
+     *     ConfigureIndexRequestEmbed embed = new ConfigureIndexRequestEmbed();
+     *     embed.model("multilingual-e5-large");
+     *     HashMap<String, String> fieldMap = new HashMap<>();
+     *     fieldMap.put("text", "your-text-field");
+     *     embed.fieldMap(fieldMap);
+     *
      *     // Make a configuration change
-     *     IndexModel indexModel = client.configureServerlessIndex("YOUR-INDEX", DeletionProtection.ENABLED);
+     *     IndexModel indexModel = client.configureServerlessIndex("YOUR-INDEX", DeletionProtection.ENABLED, tags, embed);
      *
      *     // Call describeIndex to see the index status as the change is applied.
      *     indexModel = client.describeIndex("YOUR-INDEX");
@@ -726,10 +779,16 @@ public class Pinecone {
      * @param indexName The name of the index to configure.
      * @param deletionProtection Enable or disable deletion protection for the index.
      * @param tags A map of tags to associate with the Index.
+     * @param embed Convert an existing index to an integrated index by specifying the embedding model and field_map.
+     *              The index vector type and dimension must match the model vector type and dimension, and the index
+     *              similarity metric must be supported by the model
      * @return {@link IndexModel} representing the configured index.
      * @throws PineconeException if an error occurs during the operation, the index does not exist, or if any of the arguments are invalid.
      */
-    public IndexModel configureServerlessIndex(String indexName, DeletionProtection deletionProtection, Map<String, String> tags) throws PineconeException {
+    public IndexModel configureServerlessIndex(String indexName,
+                                               DeletionProtection deletionProtection,
+                                               Map<String, String> tags,
+                                               ConfigureIndexRequestEmbed embed) throws PineconeException {
         if (indexName == null || indexName.isEmpty()) {
             throw new PineconeValidationException("indexName cannot be null or empty");
         }
@@ -740,6 +799,10 @@ public class Pinecone {
 
         if(tags != null && !tags.isEmpty()) {
             configureIndexRequest.tags(tags);
+        }
+
+        if(embed != null) {
+            configureIndexRequest.embed(embed);
         }
 
         IndexModel indexModel = null;
@@ -949,8 +1012,11 @@ public class Pinecone {
             throw new PineconeValidationException("Index name cannot be null or empty");
         }
 
-        PineconeConnection connection = getConnection(indexName);
-        return new Index(connection, indexName);
+        PineconeConfig perConnectionConfig = new PineconeConfig(config.getApiKey(), config.getSourceTag());
+        perConnectionConfig.setHost(getIndexHost(indexName));
+
+        PineconeConnection connection = getConnection(indexName, perConnectionConfig);
+        return new Index(perConnectionConfig, connection, indexName);
     }
 
     /**
@@ -978,7 +1044,10 @@ public class Pinecone {
             throw new PineconeValidationException("Index name cannot be null or empty");
         }
 
-        PineconeConnection connection = getConnection(indexName);
+        PineconeConfig perConnectionConfig = new PineconeConfig(config.getApiKey(), config.getSourceTag());
+        perConnectionConfig.setHost(getIndexHost(indexName));
+
+        PineconeConnection connection = getConnection(indexName, perConnectionConfig);
         return new AsyncIndex(config, connection, indexName);
     }
 
@@ -994,9 +1063,7 @@ public class Pinecone {
         return new Inference(config);
     }
 
-    PineconeConnection getConnection(String indexName) {
-        PineconeConfig perConnectionConfig = new PineconeConfig(config.getApiKey(), config.getSourceTag());
-        perConnectionConfig.setHost(getIndexHost(indexName));
+    PineconeConnection getConnection(String indexName, PineconeConfig perConnectionConfig) {
         return connectionsMap.computeIfAbsent(indexName, key -> new PineconeConnection(perConnectionConfig));
     }
 
