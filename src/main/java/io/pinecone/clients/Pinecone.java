@@ -875,6 +875,98 @@ public class Pinecone {
     }
 
     /**
+     * Create a backup of an index
+     * @param indexName Name of the index to backup (required)
+     * @param description A description of the backup. (required)
+     * @return BackupModel
+     */
+    public BackupModel createBackup(String indexName, String description) throws ApiException {
+        return manageIndexesApi.createBackup(indexName, new CreateBackupRequest().description(description));
+    }
+
+    /**
+     * Overload to list all backups for an index with default limit = 10 and pagination token = null.
+     * @param indexName Name of the backed up index (required)
+     * limit which is the number of results to return per page is set to 10 by default.
+     * paginationToken which is the token to use to retrieve the next page of results is set to null.
+     * @return BackupList
+     */
+    public BackupList listIndexBackup(String indexName) throws ApiException {
+        return manageIndexesApi.listIndexBackups(indexName, 10, null);
+    }
+
+    /**
+     * List all backups for an index.
+     * @param indexName Name of the backed up index (required)
+     * @param limit The number of results to return per page. (optional, default to 10)
+     * @param paginationToken The token to use to retrieve the next page of results. (optional)
+     * @return BackupList
+     */
+    public BackupList listIndexBackups(String indexName, Integer limit, String paginationToken) throws ApiException {
+        return manageIndexesApi.listIndexBackups(indexName, limit, paginationToken);
+    }
+
+    /**
+     * List backups for all indexes in a project
+     * List all backups for a project.
+     * @return BackupList
+     */
+    public BackupList listProjectBackups() throws ApiException {
+        return manageIndexesApi.listProjectBackups();
+    }
+
+    /**
+     * Describe a backup
+     * Get a description of a backup.
+     * @param backupId The ID of the backup to describe. (required)
+     * @return BackupModel
+     */
+    public BackupModel describeBackup(String backupId) throws ApiException {
+        return manageIndexesApi.describeBackup(backupId);
+    }
+
+    /**
+     * Delete a backup
+     * @param backupId The ID of the backup to delete. (required)
+     */
+    public void deleteBackup(String backupId) throws ApiException {
+        manageIndexesApi.deleteBackup(backupId);
+    }
+
+    /**
+     * Create an index from a backup
+     * @param backupId The ID of the backup to create an index from. (required)
+     * @param name The name of the index. Resource name must be 1-45 characters long, start and end with an
+     *             alphanumeric character, and consist only of lower case alphanumeric characters. (required)
+     * @param tags Custom user tags added to an index. (optional)
+     * @param deletionProtection Whether deletion protection is enabled for the index. If enabled, the index
+     *             cannot be deleted. Defaults to disabled if not provided.
+     */
+    public void createIndexFromBackup(String backupId, String name, Map<String, String> tags, DeletionProtection deletionProtection) throws ApiException {
+        CreateIndexFromBackupRequest createIndexFromBackupRequest = new CreateIndexFromBackupRequest()
+                .name(name)
+                .tags(tags);
+
+        if(deletionProtection != null) {
+            createIndexFromBackupRequest.deletionProtection(deletionProtection);
+        }
+        manageIndexesApi.createIndexFromBackup(backupId, createIndexFromBackupRequest);
+    }
+
+    /**
+     * Overload to create an index from a backup with name and backupId.
+     * @param backupId The ID of the backup to create an index from. (required)
+     * @param name The name of the index. Resource name must be 1-45 characters long, start and end with an
+     *             alphanumeric character, and consist only of lower case alphanumeric characters. (required)
+     *             cannot be deleted. Defaults to disabled if not provided.
+     */
+    public void createIndexFromBackup(String backupId, String name) throws ApiException {
+        CreateIndexFromBackupRequest createIndexFromBackupRequest = new CreateIndexFromBackupRequest()
+                .name(name);
+        manageIndexesApi.createIndexFromBackup(backupId, createIndexFromBackupRequest);
+    }
+
+    /**
      * Creates a new collection from a source index.
      * <p>
      * Example:
