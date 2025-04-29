@@ -929,19 +929,19 @@ public class ApiClient {
         } else if (obj instanceof File) {
             // File body parameter support.
             return RequestBody.create((File) obj, MediaType.parse(contentType));
-        } else if ("application/x-ndjson".equals(contentType)) {
-            // Handle NDJSON (Newline Delimited JSON)
-            if (obj instanceof Iterable) {
-                StringBuilder ndjsonContent = new StringBuilder();
-                for (Object item : (Iterable<?>) obj) {
-                    String json = JSON.serialize(item);
-                    ndjsonContent.append(json).append("\n");
-                }
-                return RequestBody.create(ndjsonContent.toString(), MediaType.parse(contentType));
-            } else {
-                throw new ApiException("NDJSON content requires a collection of objects.");
-            }
-        } else if ("text/plain".equals(contentType) && obj instanceof String) {
+          } else if ("application/x-ndjson".equals(contentType)) { 
+              // Handle NDJSON (Newline Delimited JSON) 
+              if (obj instanceof Iterable) { 
+                  StringBuilder ndjsonContent = new StringBuilder(); 
+                  for (Object item : (Iterable<?>) obj) { 
+                      String json = JSON.serialize(item); 
+                      ndjsonContent.append(json).append("\n"); 
+                  } 
+                  return RequestBody.create(ndjsonContent.toString(), MediaType.parse(contentType)); 
+              } else { 
+                  throw new ApiException("NDJSON content requires a collection of objects."); 
+              } 
+                  } else if ("text/plain".equals(contentType) && obj instanceof String) {
             return RequestBody.create((String) obj, MediaType.parse(contentType));
         } else if (isJsonMime(contentType)) {
             String content;

@@ -107,6 +107,7 @@ public class JSON {
         gsonBuilder.registerTypeAdapterFactory(new org.openapitools.db_control.client.model.CreateIndexForModelRequest.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new org.openapitools.db_control.client.model.CreateIndexForModelRequestEmbed.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new org.openapitools.db_control.client.model.CreateIndexFromBackupRequest.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new org.openapitools.db_control.client.model.CreateIndexFromBackupResponse.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new org.openapitools.db_control.client.model.CreateIndexRequest.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new org.openapitools.db_control.client.model.ErrorResponse.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new org.openapitools.db_control.client.model.ErrorResponseError.CustomTypeAdapterFactory());

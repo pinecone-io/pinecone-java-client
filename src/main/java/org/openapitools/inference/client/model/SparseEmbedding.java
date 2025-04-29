@@ -52,7 +52,7 @@ import org.openapitools.inference.client.JSON;
 /**
  * A sparse embedding of a single input
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-04-09T20:09:49.238595Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-04-29T13:39:27.757942Z[Etc/UTC]")
 public class SparseEmbedding {
   public static final String SERIALIZED_NAME_SPARSE_VALUES = "sparse_values";
   @SerializedName(SERIALIZED_NAME_SPARSE_VALUES)
@@ -60,7 +60,7 @@ public class SparseEmbedding {
 
   public static final String SERIALIZED_NAME_SPARSE_INDICES = "sparse_indices";
   @SerializedName(SERIALIZED_NAME_SPARSE_INDICES)
-  private List<Integer> sparseIndices = new ArrayList<>();
+  private List<Long> sparseIndices = new ArrayList<>();
 
   public static final String SERIALIZED_NAME_SPARSE_TOKENS = "sparse_tokens";
   @SerializedName(SERIALIZED_NAME_SPARSE_TOKENS)
@@ -102,13 +102,13 @@ public class SparseEmbedding {
   }
 
 
-  public SparseEmbedding sparseIndices(List<Integer> sparseIndices) {
+  public SparseEmbedding sparseIndices(List<Long> sparseIndices) {
     
     this.sparseIndices = sparseIndices;
     return this;
   }
 
-  public SparseEmbedding addSparseIndicesItem(Integer sparseIndicesItem) {
+  public SparseEmbedding addSparseIndicesItem(Long sparseIndicesItem) {
     if (this.sparseIndices == null) {
       this.sparseIndices = new ArrayList<>();
     }
@@ -121,12 +121,12 @@ public class SparseEmbedding {
    * @return sparseIndices
   **/
   @javax.annotation.Nonnull
-  public List<Integer> getSparseIndices() {
+  public List<Long> getSparseIndices() {
     return sparseIndices;
   }
 
 
-  public void setSparseIndices(List<Integer> sparseIndices) {
+  public void setSparseIndices(List<Long> sparseIndices) {
     this.sparseIndices = sparseIndices;
   }
 

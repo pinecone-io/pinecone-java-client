@@ -36,6 +36,7 @@ import org.openapitools.db_control.client.model.CreateBackupRequest;
 import org.openapitools.db_control.client.model.CreateCollectionRequest;
 import org.openapitools.db_control.client.model.CreateIndexForModelRequest;
 import org.openapitools.db_control.client.model.CreateIndexFromBackupRequest;
+import org.openapitools.db_control.client.model.CreateIndexFromBackupResponse;
 import org.openapitools.db_control.client.model.CreateIndexRequest;
 import org.openapitools.db_control.client.model.ErrorResponse;
 import org.openapitools.db_control.client.model.IndexList;
@@ -945,6 +946,7 @@ public class ManageIndexesApi {
      * Create an index from a backup.
      * @param backupId The ID of the backup to create an index from. (required)
      * @param createIndexFromBackupRequest The desired configuration for the index created from a backup. (required)
+     * @return CreateIndexFromBackupResponse
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
      <table summary="Response Details" border="1">
@@ -960,8 +962,9 @@ public class ManageIndexesApi {
         <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
-    public void createIndexFromBackup(String backupId, CreateIndexFromBackupRequest createIndexFromBackupRequest) throws ApiException {
-        createIndexFromBackupWithHttpInfo(backupId, createIndexFromBackupRequest);
+    public CreateIndexFromBackupResponse createIndexFromBackup(String backupId, CreateIndexFromBackupRequest createIndexFromBackupRequest) throws ApiException {
+        ApiResponse<CreateIndexFromBackupResponse> localVarResp = createIndexFromBackupWithHttpInfo(backupId, createIndexFromBackupRequest);
+        return localVarResp.getData();
     }
 
     /**
@@ -969,7 +972,7 @@ public class ManageIndexesApi {
      * Create an index from a backup.
      * @param backupId The ID of the backup to create an index from. (required)
      * @param createIndexFromBackupRequest The desired configuration for the index created from a backup. (required)
-     * @return ApiResponse&lt;Void&gt;
+     * @return ApiResponse&lt;CreateIndexFromBackupResponse&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
      <table summary="Response Details" border="1">
@@ -985,9 +988,10 @@ public class ManageIndexesApi {
         <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<Void> createIndexFromBackupWithHttpInfo(String backupId, CreateIndexFromBackupRequest createIndexFromBackupRequest) throws ApiException {
+    public ApiResponse<CreateIndexFromBackupResponse> createIndexFromBackupWithHttpInfo(String backupId, CreateIndexFromBackupRequest createIndexFromBackupRequest) throws ApiException {
         okhttp3.Call localVarCall = createIndexFromBackupValidateBeforeCall(backupId, createIndexFromBackupRequest, null);
-        return localVarApiClient.execute(localVarCall);
+        Type localVarReturnType = new TypeToken<CreateIndexFromBackupResponse>(){}.getType();
+        return localVarApiClient.execute(localVarCall, localVarReturnType);
     }
 
     /**
@@ -1012,10 +1016,11 @@ public class ManageIndexesApi {
         <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call createIndexFromBackupAsync(String backupId, CreateIndexFromBackupRequest createIndexFromBackupRequest, final ApiCallback<Void> _callback) throws ApiException {
+    public okhttp3.Call createIndexFromBackupAsync(String backupId, CreateIndexFromBackupRequest createIndexFromBackupRequest, final ApiCallback<CreateIndexFromBackupResponse> _callback) throws ApiException {
 
         okhttp3.Call localVarCall = createIndexFromBackupValidateBeforeCall(backupId, createIndexFromBackupRequest, _callback);
-        localVarApiClient.executeAsync(localVarCall, _callback);
+        Type localVarReturnType = new TypeToken<CreateIndexFromBackupResponse>(){}.getType();
+        localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
         return localVarCall;
     }
     /**

@@ -49,7 +49,7 @@ import org.openapitools.db_data.client.JSON;
 /**
  * Indicates how to respond to errors during the import process.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-04-09T20:09:47.193346Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-04-29T13:39:25.790649Z[Etc/UTC]")
 public class ImportErrorMode {
   /**
    * Indicates how to respond to errors during the import process.

@@ -49,7 +49,7 @@ import org.openapitools.db_control.client.JSON;
 /**
  * Configure the integrated inference embedding settings for this index.  You can convert an existing index to an integrated index by specifying the embedding model and field_map. The index vector type and dimension must match the model vector type and dimension, and the index similarity metric must be supported by the model. Refer to the [model guide](https://docs.pinecone.io/guides/inference/understanding-inference#embedding-models) for available models and model details.  You can later change the embedding configuration to update the field map, read parameters, or write parameters. Once set, the model cannot be changed.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-04-09T20:09:44.938992Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-04-29T13:39:23.829370Z[Etc/UTC]")
 public class ConfigureIndexRequestEmbed {
   public static final String SERIALIZED_NAME_MODEL = "model";
   @SerializedName(SERIALIZED_NAME_MODEL)

@@ -49,7 +49,7 @@ import org.openapitools.db_control.client.JSON;
 /**
  * The embedding model and document fields mapped to embedding inputs.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-04-09T20:09:44.938992Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-04-29T13:39:23.829370Z[Etc/UTC]")
 public class ModelIndexEmbed {
   public static final String SERIALIZED_NAME_MODEL = "model";
   @SerializedName(SERIALIZED_NAME_MODEL)

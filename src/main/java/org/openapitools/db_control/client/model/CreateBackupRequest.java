@@ -49,7 +49,7 @@ import org.openapitools.db_control.client.JSON;
 /**
  * The configuration needed to create a backup of an index.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-04-09T20:09:44.938992Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-04-29T13:39:23.829370Z[Etc/UTC]")
 public class CreateBackupRequest {
   public static final String SERIALIZED_NAME_NAME = "name";
   @SerializedName(SERIALIZED_NAME_NAME)
@@ -69,7 +69,7 @@ public class CreateBackupRequest {
   }
 
    /**
-   * The name of the index. Resource name must be 1-45 characters long, start and end with an alphanumeric character, and consist only of lower case alphanumeric characters or &#39;-&#39;. 
+   * The name of the backup.
    * @return name
   **/
   @javax.annotation.Nullable

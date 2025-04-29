@@ -53,7 +53,7 @@ import org.openapitools.inference.client.JSON;
 /**
  * Represents the model configuration including model type, supported parameters, and other model details.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-04-09T20:09:49.238595Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-04-29T13:39:27.757942Z[Etc/UTC]")
 public class ModelInfo {
   public static final String SERIALIZED_NAME_NAME = "name";
   @SerializedName(SERIALIZED_NAME_NAME)
@@ -165,21 +165,29 @@ public class ModelInfo {
   @SerializedName(SERIALIZED_NAME_VECTOR_TYPE)
   private VectorTypeEnum vectorType;
 
-  public static final String SERIALIZED_NAME_DIMENSION = "dimension";
-  @SerializedName(SERIALIZED_NAME_DIMENSION)
-  private Integer dimension;
+  public static final String SERIALIZED_NAME_DEFAULT_DIMENSION = "default_dimension";
+  @SerializedName(SERIALIZED_NAME_DEFAULT_DIMENSION)
+  private Integer defaultDimension;
 
   public static final String SERIALIZED_NAME_MODALITY = "modality";
   @SerializedName(SERIALIZED_NAME_MODALITY)
   private String modality;
 
-  public static final String SERIALIZED_NAME_SEQUENCE_LENGTH = "sequence_length";
-  @SerializedName(SERIALIZED_NAME_SEQUENCE_LENGTH)
-  private Integer sequenceLength;
+  public static final String SERIALIZED_NAME_MAX_SEQUENCE_LENGTH = "max_sequence_length";
+  @SerializedName(SERIALIZED_NAME_MAX_SEQUENCE_LENGTH)
+  private Integer maxSequenceLength;
 
-  public static final String SERIALIZED_NAME_BATCH_SIZE = "batch_size";
-  @SerializedName(SERIALIZED_NAME_BATCH_SIZE)
-  private Integer batchSize;
+  public static final String SERIALIZED_NAME_MAX_BATCH_SIZE = "max_batch_size";
+  @SerializedName(SERIALIZED_NAME_MAX_BATCH_SIZE)
+  private Integer maxBatchSize;
+
+  public static final String SERIALIZED_NAME_PROVIDER_NAME = "provider_name";
+  @SerializedName(SERIALIZED_NAME_PROVIDER_NAME)
+  private String providerName;
+
+  public static final String SERIALIZED_NAME_SUPPORTED_DIMENSIONS = "supported_dimensions";
+  @SerializedName(SERIALIZED_NAME_SUPPORTED_DIMENSIONS)
+  private List<Integer> supportedDimensions;
 
   public static final String SERIALIZED_NAME_SUPPORTED_METRICS = "supported_metrics";
   @SerializedName(SERIALIZED_NAME_SUPPORTED_METRICS)
@@ -276,26 +284,26 @@ public class ModelInfo {
   }
 
 
-  public ModelInfo dimension(Integer dimension) {
+  public ModelInfo defaultDimension(Integer defaultDimension) {
     
-    this.dimension = dimension;
+    this.defaultDimension = defaultDimension;
     return this;
   }
 
    /**
-   * The embedding model dimension (applies to dense embedding models only).
+   * The default embedding model dimension (applies to dense embedding models only).
    * minimum: 1
    * maximum: 20000
-   * @return dimension
+   * @return defaultDimension
   **/
   @javax.annotation.Nullable
-  public Integer getDimension() {
-    return dimension;
+  public Integer getDefaultDimension() {
+    return defaultDimension;
   }
 
 
-  public void setDimension(Integer dimension) {
-    this.dimension = dimension;
+  public void setDefaultDimension(Integer defaultDimension) {
+    this.defaultDimension = defaultDimension;
   }
 
 
@@ -320,47 +328,97 @@ public class ModelInfo {
   }
 
 
-  public ModelInfo sequenceLength(Integer sequenceLength) {
+  public ModelInfo maxSequenceLength(Integer maxSequenceLength) {
     
-    this.sequenceLength = sequenceLength;
+    this.maxSequenceLength = maxSequenceLength;
     return this;
   }
 
    /**
    * The maximum tokens per sequence supported by the model.
    * minimum: 1
-   * @return sequenceLength
+   * @return maxSequenceLength
   **/
   @javax.annotation.Nullable
-  public Integer getSequenceLength() {
-    return sequenceLength;
+  public Integer getMaxSequenceLength() {
+    return maxSequenceLength;
   }
 
 
-  public void setSequenceLength(Integer sequenceLength) {
-    this.sequenceLength = sequenceLength;
+  public void setMaxSequenceLength(Integer maxSequenceLength) {
+    this.maxSequenceLength = maxSequenceLength;
   }
 
 
-  public ModelInfo batchSize(Integer batchSize) {
+  public ModelInfo maxBatchSize(Integer maxBatchSize) {
     
-    this.batchSize = batchSize;
+    this.maxBatchSize = maxBatchSize;
     return this;
   }
 
    /**
    * The maximum batch size (number of sequences) supported by the model.
    * minimum: 1
-   * @return batchSize
+   * @return maxBatchSize
   **/
   @javax.annotation.Nullable
-  public Integer getBatchSize() {
-    return batchSize;
+  public Integer getMaxBatchSize() {
+    return maxBatchSize;
   }
 
 
-  public void setBatchSize(Integer batchSize) {
-    this.batchSize = batchSize;
+  public void setMaxBatchSize(Integer maxBatchSize) {
+    this.maxBatchSize = maxBatchSize;
+  }
+
+
+  public ModelInfo providerName(String providerName) {
+    
+    this.providerName = providerName;
+    return this;
+  }
+
+   /**
+   * The name of the provider of the model.
+   * @return providerName
+  **/
+  @javax.annotation.Nullable
+  public String getProviderName() {
+    return providerName;
+  }
+
+
+  public void setProviderName(String providerName) {
+    this.providerName = providerName;
+  }
+
+
+  public ModelInfo supportedDimensions(List<Integer> supportedDimensions) {
+    
+    this.supportedDimensions = supportedDimensions;
+    return this;
+  }
+
+  public ModelInfo addSupportedDimensionsItem(Integer supportedDimensionsItem) {
+    if (this.supportedDimensions == null) {
+      this.supportedDimensions = new ArrayList<>();
+    }
+    this.supportedDimensions.add(supportedDimensionsItem);
+    return this;
+  }
+
+   /**
+   * The list of supported dimensions for the model (applies to dense embedding models only).
+   * @return supportedDimensions
+  **/
+  @javax.annotation.Nullable
+  public List<Integer> getSupportedDimensions() {
+    return supportedDimensions;
+  }
+
+
+  public void setSupportedDimensions(List<Integer> supportedDimensions) {
+    this.supportedDimensions = supportedDimensions;
   }
 
 
@@ -480,10 +538,12 @@ public class ModelInfo {
         Objects.equals(this.shortDescription, modelInfo.shortDescription) &&
         Objects.equals(this.type, modelInfo.type) &&
         Objects.equals(this.vectorType, modelInfo.vectorType) &&
-        Objects.equals(this.dimension, modelInfo.dimension) &&
+        Objects.equals(this.defaultDimension, modelInfo.defaultDimension) &&
         Objects.equals(this.modality, modelInfo.modality) &&
-        Objects.equals(this.sequenceLength, modelInfo.sequenceLength) &&
-        Objects.equals(this.batchSize, modelInfo.batchSize) &&
+        Objects.equals(this.maxSequenceLength, modelInfo.maxSequenceLength) &&
+        Objects.equals(this.maxBatchSize, modelInfo.maxBatchSize) &&
+        Objects.equals(this.providerName, modelInfo.providerName) &&
+        Objects.equals(this.supportedDimensions, modelInfo.supportedDimensions) &&
         Objects.equals(this.supportedMetrics, modelInfo.supportedMetrics) &&
         Objects.equals(this.supportedParameters, modelInfo.supportedParameters)&&
         Objects.equals(this.additionalProperties, modelInfo.additionalProperties);
@@ -491,7 +551,7 @@ public class ModelInfo {
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, shortDescription, type, vectorType, dimension, modality, sequenceLength, batchSize, supportedMetrics, supportedParameters, additionalProperties);
+    return Objects.hash(name, shortDescription, type, vectorType, defaultDimension, modality, maxSequenceLength, maxBatchSize, providerName, supportedDimensions, supportedMetrics, supportedParameters, additionalProperties);
   }
 
   @Override
@@ -502,10 +562,12 @@ public class ModelInfo {
     sb.append("    shortDescription: ").append(toIndentedString(shortDescription)).append("\n");
     sb.append("    type: ").append(toIndentedString(type)).append("\n");
     sb.append("    vectorType: ").append(toIndentedString(vectorType)).append("\n");
-    sb.append("    dimension: ").append(toIndentedString(dimension)).append("\n");
+    sb.append("    defaultDimension: ").append(toIndentedString(defaultDimension)).append("\n");
     sb.append("    modality: ").append(toIndentedString(modality)).append("\n");
-    sb.append("    sequenceLength: ").append(toIndentedString(sequenceLength)).append("\n");
-    sb.append("    batchSize: ").append(toIndentedString(batchSize)).append("\n");
+    sb.append("    maxSequenceLength: ").append(toIndentedString(maxSequenceLength)).append("\n");
+    sb.append("    maxBatchSize: ").append(toIndentedString(maxBatchSize)).append("\n");
+    sb.append("    providerName: ").append(toIndentedString(providerName)).append("\n");
+    sb.append("    supportedDimensions: ").append(toIndentedString(supportedDimensions)).append("\n");
     sb.append("    supportedMetrics: ").append(toIndentedString(supportedMetrics)).append("\n");
     sb.append("    supportedParameters: ").append(toIndentedString(supportedParameters)).append("\n");
     sb.append("    additionalProperties: ").append(toIndentedString(additionalProperties)).append("\n");
@@ -535,10 +597,12 @@ public class ModelInfo {
     openapiFields.add("short_description");
     openapiFields.add("type");
     openapiFields.add("vector_type");
-    openapiFields.add("dimension");
+    openapiFields.add("default_dimension");
     openapiFields.add("modality");
-    openapiFields.add("sequence_length");
-    openapiFields.add("batch_size");
+    openapiFields.add("max_sequence_length");
+    openapiFields.add("max_batch_size");
+    openapiFields.add("provider_name");
+    openapiFields.add("supported_dimensions");
     openapiFields.add("supported_metrics");
     openapiFields.add("supported_parameters");
 
@@ -584,6 +648,13 @@ public class ModelInfo {
       }
       if ((jsonObj.get("modality") != null && !jsonObj.get("modality").isJsonNull()) && !jsonObj.get("modality").isJsonPrimitive()) {
         throw new IllegalArgumentException(String.format("Expected the field `modality` to be a primitive type in the JSON string but got `%s`", jsonObj.get("modality").toString()));
+      }
+      if ((jsonObj.get("provider_name") != null && !jsonObj.get("provider_name").isJsonNull()) && !jsonObj.get("provider_name").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `provider_name` to be a primitive type in the JSON string but got `%s`", jsonObj.get("provider_name").toString()));
+      }
+      // ensure the optional json data is an array if present
+      if (jsonObj.get("supported_dimensions") != null && !jsonObj.get("supported_dimensions").isJsonNull() && !jsonObj.get("supported_dimensions").isJsonArray()) {
+        throw new IllegalArgumentException(String.format("Expected the field `supported_dimensions` to be an array in the JSON string but got `%s`", jsonObj.get("supported_dimensions").toString()));
       }
       // ensure the optional json data is an array if present
       if (jsonObj.get("supported_metrics") != null && !jsonObj.get("supported_metrics").isJsonNull() && !jsonObj.get("supported_metrics").isJsonArray()) {

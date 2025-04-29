@@ -50,7 +50,7 @@ import com.google.gson.JsonParseException;
 
 import org.openapitools.inference.client.JSON;
 
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-04-09T20:09:49.238595Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-04-29T13:39:27.757942Z[Etc/UTC]")
 public class ModelInfoSupportedParameterDefault extends AbstractOpenApiSchema {
     private static final Logger log = Logger.getLogger(ModelInfoSupportedParameterDefault.class.getName());
 

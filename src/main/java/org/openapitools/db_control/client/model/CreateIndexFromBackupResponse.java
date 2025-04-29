@@ -1,5 +1,5 @@
 /*
- * Pinecone Inference API
+ * Pinecone Control Plane API
  * Pinecone is a vector database that makes it easy to search and retrieve billions of high-dimensional vectors.
  *
  * The version of the OpenAPI document: 2025-04
@@ -11,7 +11,7 @@
  */
 
 
-package org.openapitools.inference.client.model;
+package org.openapitools.db_control.client.model;
 
 import java.util.Objects;
 import com.google.gson.TypeAdapter;
@@ -44,39 +44,63 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.openapitools.inference.client.JSON;
+import org.openapitools.db_control.client.JSON;
 
 /**
- * Usage statistics for the model inference.
+ * The response for creating an index from a backup.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-04-29T13:39:27.757942Z[Etc/UTC]")
-public class EmbeddingsListUsage {
-  public static final String SERIALIZED_NAME_TOTAL_TOKENS = "total_tokens";
-  @SerializedName(SERIALIZED_NAME_TOTAL_TOKENS)
-  private Integer totalTokens;
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-04-29T13:39:23.829370Z[Etc/UTC]")
+public class CreateIndexFromBackupResponse {
+  public static final String SERIALIZED_NAME_RESTORE_JOB_ID = "restore_job_id";
+  @SerializedName(SERIALIZED_NAME_RESTORE_JOB_ID)
+  private String restoreJobId;
 
-  public EmbeddingsListUsage() {
+  public static final String SERIALIZED_NAME_INDEX_ID = "index_id";
+  @SerializedName(SERIALIZED_NAME_INDEX_ID)
+  private String indexId;
+
+  public CreateIndexFromBackupResponse() {
   }
 
-  public EmbeddingsListUsage totalTokens(Integer totalTokens) {
+  public CreateIndexFromBackupResponse restoreJobId(String restoreJobId) {
     
-    this.totalTokens = totalTokens;
+    this.restoreJobId = restoreJobId;
     return this;
   }
 
    /**
-   * Total number of tokens consumed across all inputs.
-   * minimum: 0
-   * @return totalTokens
+   * The ID of the restore job that was created.
+   * @return restoreJobId
   **/
-  @javax.annotation.Nullable
-  public Integer getTotalTokens() {
-    return totalTokens;
+  @javax.annotation.Nonnull
+  public String getRestoreJobId() {
+    return restoreJobId;
   }
 
 
-  public void setTotalTokens(Integer totalTokens) {
-    this.totalTokens = totalTokens;
+  public void setRestoreJobId(String restoreJobId) {
+    this.restoreJobId = restoreJobId;
+  }
+
+
+  public CreateIndexFromBackupResponse indexId(String indexId) {
+    
+    this.indexId = indexId;
+    return this;
+  }
+
+   /**
+   * The ID of the index that was created from the backup.
+   * @return indexId
+  **/
+  @javax.annotation.Nonnull
+  public String getIndexId() {
+    return indexId;
+  }
+
+
+  public void setIndexId(String indexId) {
+    this.indexId = indexId;
   }
 
   /**
@@ -92,9 +116,9 @@ public class EmbeddingsListUsage {
    *
    * @param key name of the property
    * @param value value of the property
-   * @return the EmbeddingsListUsage instance itself
+   * @return the CreateIndexFromBackupResponse instance itself
    */
-  public EmbeddingsListUsage putAdditionalProperty(String key, Object value) {
+  public CreateIndexFromBackupResponse putAdditionalProperty(String key, Object value) {
     if (this.additionalProperties == null) {
         this.additionalProperties = new HashMap<String, Object>();
     }
@@ -133,21 +157,23 @@ public class EmbeddingsListUsage {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    EmbeddingsListUsage embeddingsListUsage = (EmbeddingsListUsage) o;
-    return Objects.equals(this.totalTokens, embeddingsListUsage.totalTokens)&&
-        Objects.equals(this.additionalProperties, embeddingsListUsage.additionalProperties);
+    CreateIndexFromBackupResponse createIndexFromBackupResponse = (CreateIndexFromBackupResponse) o;
+    return Objects.equals(this.restoreJobId, createIndexFromBackupResponse.restoreJobId) &&
+        Objects.equals(this.indexId, createIndexFromBackupResponse.indexId)&&
+        Objects.equals(this.additionalProperties, createIndexFromBackupResponse.additionalProperties);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(totalTokens, additionalProperties);
+    return Objects.hash(restoreJobId, indexId, additionalProperties);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class EmbeddingsListUsage {\n");
-    sb.append("    totalTokens: ").append(toIndentedString(totalTokens)).append("\n");
+    sb.append("class CreateIndexFromBackupResponse {\n");
+    sb.append("    restoreJobId: ").append(toIndentedString(restoreJobId)).append("\n");
+    sb.append("    indexId: ").append(toIndentedString(indexId)).append("\n");
     sb.append("    additionalProperties: ").append(toIndentedString(additionalProperties)).append("\n");
     sb.append("}");
     return sb.toString();
@@ -171,41 +197,57 @@ public class EmbeddingsListUsage {
   static {
     // a set of all properties/fields (JSON key names)
     openapiFields = new HashSet<String>();
-    openapiFields.add("total_tokens");
+    openapiFields.add("restore_job_id");
+    openapiFields.add("index_id");
 
     // a set of required properties/fields (JSON key names)
     openapiRequiredFields = new HashSet<String>();
+    openapiRequiredFields.add("restore_job_id");
+    openapiRequiredFields.add("index_id");
   }
 
  /**
   * Validates the JSON Element and throws an exception if issues found
   *
   * @param jsonElement JSON Element
-  * @throws IOException if the JSON Element is invalid with respect to EmbeddingsListUsage
+  * @throws IOException if the JSON Element is invalid with respect to CreateIndexFromBackupResponse
   */
   public static void validateJsonElement(JsonElement jsonElement) throws IOException {
       if (jsonElement == null) {
-        if (!EmbeddingsListUsage.openapiRequiredFields.isEmpty()) { // has required fields but JSON element is null
-          throw new IllegalArgumentException(String.format("The required field(s) %s in EmbeddingsListUsage is not found in the empty JSON string", EmbeddingsListUsage.openapiRequiredFields.toString()));
+        if (!CreateIndexFromBackupResponse.openapiRequiredFields.isEmpty()) { // has required fields but JSON element is null
+          throw new IllegalArgumentException(String.format("The required field(s) %s in CreateIndexFromBackupResponse is not found in the empty JSON string", CreateIndexFromBackupResponse.openapiRequiredFields.toString()));
+        }
+      }
+
+      // check to make sure all required properties/fields are present in the JSON string
+      for (String requiredField : CreateIndexFromBackupResponse.openapiRequiredFields) {
+        if (jsonElement.getAsJsonObject().get(requiredField) == null) {
+          throw new IllegalArgumentException(String.format("The required field `%s` is not found in the JSON string: %s", requiredField, jsonElement.toString()));
         }
       }
         JsonObject jsonObj = jsonElement.getAsJsonObject();
+      if (!jsonObj.get("restore_job_id").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `restore_job_id` to be a primitive type in the JSON string but got `%s`", jsonObj.get("restore_job_id").toString()));
+      }
+      if (!jsonObj.get("index_id").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `index_id` to be a primitive type in the JSON string but got `%s`", jsonObj.get("index_id").toString()));
+      }
   }
 
   public static class CustomTypeAdapterFactory implements TypeAdapterFactory {
     @SuppressWarnings("unchecked")
     @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-       if (!EmbeddingsListUsage.class.isAssignableFrom(type.getRawType())) {
-         return null; // this class only serializes 'EmbeddingsListUsage' and its subtypes
+       if (!CreateIndexFromBackupResponse.class.isAssignableFrom(type.getRawType())) {
+         return null; // this class only serializes 'CreateIndexFromBackupResponse' and its subtypes
        }
        final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
-       final TypeAdapter<EmbeddingsListUsage> thisAdapter
-                        = gson.getDelegateAdapter(this, TypeToken.get(EmbeddingsListUsage.class));
+       final TypeAdapter<CreateIndexFromBackupResponse> thisAdapter
+                        = gson.getDelegateAdapter(this, TypeToken.get(CreateIndexFromBackupResponse.class));
 
-       return (TypeAdapter<T>) new TypeAdapter<EmbeddingsListUsage>() {
+       return (TypeAdapter<T>) new TypeAdapter<CreateIndexFromBackupResponse>() {
            @Override
-           public void write(JsonWriter out, EmbeddingsListUsage value) throws IOException {
+           public void write(JsonWriter out, CreateIndexFromBackupResponse value) throws IOException {
              JsonObject obj = thisAdapter.toJsonTree(value).getAsJsonObject();
              obj.remove("additionalProperties");
              // serialize additional properties
@@ -228,12 +270,12 @@ public class EmbeddingsListUsage {
            }
 
            @Override
-           public EmbeddingsListUsage read(JsonReader in) throws IOException {
+           public CreateIndexFromBackupResponse read(JsonReader in) throws IOException {
              JsonElement jsonElement = elementAdapter.read(in);
              validateJsonElement(jsonElement);
              JsonObject jsonObj = jsonElement.getAsJsonObject();
              // store additional fields in the deserialized instance
-             EmbeddingsListUsage instance = thisAdapter.fromJsonTree(jsonObj);
+             CreateIndexFromBackupResponse instance = thisAdapter.fromJsonTree(jsonObj);
              for (Map.Entry<String, JsonElement> entry : jsonObj.entrySet()) {
                if (!openapiFields.contains(entry.getKey())) {
                  if (entry.getValue().isJsonPrimitive()) { // primitive type
@@ -260,18 +302,18 @@ public class EmbeddingsListUsage {
   }
 
  /**
-  * Create an instance of EmbeddingsListUsage given an JSON string
+  * Create an instance of CreateIndexFromBackupResponse given an JSON string
   *
   * @param jsonString JSON string
-  * @return An instance of EmbeddingsListUsage
-  * @throws IOException if the JSON string is invalid with respect to EmbeddingsListUsage
+  * @return An instance of CreateIndexFromBackupResponse
+  * @throws IOException if the JSON string is invalid with respect to CreateIndexFromBackupResponse
   */
-  public static EmbeddingsListUsage fromJson(String jsonString) throws IOException {
-    return JSON.getGson().fromJson(jsonString, EmbeddingsListUsage.class);
+  public static CreateIndexFromBackupResponse fromJson(String jsonString) throws IOException {
+    return JSON.getGson().fromJson(jsonString, CreateIndexFromBackupResponse.class);
   }
 
  /**
-  * Convert an instance of EmbeddingsListUsage to an JSON string
+  * Convert an instance of CreateIndexFromBackupResponse to an JSON string
   *
   * @return JSON string
   */
