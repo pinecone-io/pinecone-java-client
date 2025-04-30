@@ -876,8 +876,9 @@ public class Pinecone {
 
     /**
      * Create a backup of an index
-     * @param indexName Name of the index to backup (required)
-     * @param backupName Name of the backup (required)
+     *
+     * @param indexName   Name of the index to backup (required)
+     * @param backupName  Name of the backup (required)
      * @param description A description of the backup. (required)
      * @return BackupModel
      */
@@ -888,9 +889,10 @@ public class Pinecone {
 
     /**
      * Overload to list all backups for an index with default limit = 10 and pagination token = null.
+     *
      * @param indexName Name of the backed up index (required)
-     * limit which is the number of results to return per page is set to 10 by default.
-     * paginationToken which is the token to use to retrieve the next page of results is set to null.
+     *                  limit which is the number of results to return per page is set to 10 by default.
+     *                  paginationToken which is the token to use to retrieve the next page of results is set to null.
      * @return BackupList
      */
     public BackupList listIndexBackups(String indexName) throws ApiException {
@@ -899,8 +901,9 @@ public class Pinecone {
 
     /**
      * List all backups for an index.
-     * @param indexName Name of the backed up index (required)
-     * @param limit The number of results to return per page. (optional, default to 10)
+     *
+     * @param indexName       Name of the backed up index (required)
+     * @param limit           The number of results to return per page. (optional, default to 10)
      * @param paginationToken The token to use to retrieve the next page of results. (optional)
      * @return BackupList
      */
@@ -911,6 +914,7 @@ public class Pinecone {
     /**
      * List backups for all indexes in a project
      * List all backups for a project.
+     *
      * @return BackupList
      */
     public BackupList listProjectBackups() throws ApiException {
@@ -920,6 +924,7 @@ public class Pinecone {
     /**
      * Describe a backup
      * Get a description of a backup.
+     *
      * @param backupId The ID of the backup to describe. (required)
      * @return BackupModel
      */
@@ -929,6 +934,7 @@ public class Pinecone {
 
     /**
      * Delete a backup
+     *
      * @param backupId The ID of the backup to delete. (required)
      */
     public void deleteBackup(String backupId) throws ApiException {
@@ -937,19 +943,20 @@ public class Pinecone {
 
     /**
      * Create an index from a backup
-     * @param backupId The ID of the backup to create an index from. (required)
-     * @param indexName The name of the index. Resource name must be 1-45 characters long, start and end with an
-     *             alphanumeric character, and consist only of lower case alphanumeric characters. (required)
-     * @param tags Custom user tags added to an index. (optional)
+     *
+     * @param backupId           The ID of the backup to create an index from. (required)
+     * @param indexName          The name of the index. Resource name must be 1-45 characters long, start and end with an
+     *                           alphanumeric character, and consist only of lower case alphanumeric characters. (required)
+     * @param tags               Custom user tags added to an index. (optional)
      * @param deletionProtection Whether deletion protection is enabled for the index. If enabled, the index
-     *             cannot be deleted. Defaults to disabled if not provided.
+     *                           cannot be deleted. Defaults to disabled if not provided.
      */
     public void createIndexFromBackup(String backupId, String indexName, Map<String, String> tags, DeletionProtection deletionProtection) throws ApiException {
         CreateIndexFromBackupRequest createIndexFromBackupRequest = new CreateIndexFromBackupRequest()
                 .name(indexName)
                 .tags(tags);
 
-        if(deletionProtection != null) {
+        if (deletionProtection != null) {
             createIndexFromBackupRequest.deletionProtection(deletionProtection);
         }
         manageIndexesApi.createIndexFromBackup(backupId, createIndexFromBackupRequest);
@@ -957,10 +964,11 @@ public class Pinecone {
 
     /**
      * Overload to create an index from a backup with name and backupId.
-     * @param backupId The ID of the backup to create an index from. (required)
+     *
+     * @param backupId  The ID of the backup to create an index from. (required)
      * @param indexName The name of the index. Resource name must be 1-45 characters long, start and end with an
-     *             alphanumeric character, and consist only of lower case alphanumeric characters. (required)
-     *             cannot be deleted. Defaults to disabled if not provided.
+     *                  alphanumeric character, and consist only of lower case alphanumeric characters. (required)
+     *                  cannot be deleted. Defaults to disabled if not provided.
      * @return CreateIndexFromBackupResponse
      */
     public CreateIndexFromBackupResponse createIndexFromBackup(String backupId, String indexName) throws ApiException {
@@ -972,6 +980,7 @@ public class Pinecone {
     /**
      * Describe a restore job
      * Get a description of a restore job.
+     *
      * @param jobId The ID of the restore job to describe. (required)
      * @return RestoreJobModel
      */
@@ -982,6 +991,7 @@ public class Pinecone {
     /**
      * Overload to list restore jobs
      * List all restore jobs for a project.
+     *
      * @param limit The number of results to return per page.
      * @return RestoreJobList
      */
@@ -992,6 +1002,7 @@ public class Pinecone {
     /**
      * Overload to list restore jobs
      * List all restore jobs for a project.
+     *
      * @param paginationToken The token to use to retrieve the next page of results.
      * @return RestoreJobList
      */
@@ -1002,7 +1013,8 @@ public class Pinecone {
     /**
      * List restore jobs
      * List all restore jobs for a project.
-     * @param limit The number of results to return per page. (optional, default to 10)
+     *
+     * @param limit           The number of results to return per page. (optional, default to 10)
      * @param paginationToken The token to use to retrieve the next page of results. (optional)
      * @return RestoreJobList
      */
