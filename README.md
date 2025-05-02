@@ -766,6 +766,65 @@ AsyncIndex asyncIndex = pinecone.getAsyncIndexConnection("PINECONE_INDEX_NAME");
 // Cancel import
 asyncIndex.cancelImport("2");
 ```
+# Backups and restore
+
+The following example shows how to backup and restore from a serverless index. 
+
+```java
+import io.pinecone.clients.Pinecone;
+import org.openapitools.db_control.client.ApiException;
+import org.openapitools.db_control.client.model.*;
+
+...
+
+Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+
+String indexName1 = "test-index-1";
+String indexName2 = "test-index-2";
+
+// create a backup from index
+BackupModel backupModel1 = pinecone.createBackup(indexName1, "backup-id-1", "description-for-backup-1");
+System.out.println("backupModel1: " + backupModel1);
+
+BackupModel backupModel2 = pinecone.createBackup(indexName2, "backup-id-2", "description-for-backup-2");
+System.out.println("backupModel2: " + backupModel2);
+
+// list all backups for an index
+BackupList backupList = pinecone.listIndexBackups(indexName1);
+System.out.println("backupList for index1: " + backupList);
+
+// list all backups for a project
+backupList = pinecone.listProjectBackups();
+System.out.println("backupList for project: " + backupList);
+
+// describe backup
+backupModel1 = pinecone.describeBackup(backupModel1.getBackupId());
+System.out.println("describe backup for index1: " + backupModel1);
+
+backupModel2 = pinecone.describeBackup(backupModel2.getBackupId());
+System.out.println("describe backup index2: " + backupModel2);
+
+// delete backup
+pinecone.deleteBackup(backupModel1.getBackupId());
+
+// wait for the backup to be ready
+Thread.sleep(10000);
+
+// create index from a backup
+CreateIndexFromBackupResponse backupResponse = pinecone.createIndexFromBackup(backupModel1.getBackupId(), "test-index-3");
+System.out.println(backupResponse.getRestoreJobId());
+
+// wait for index to be created
+Thread.sleep(5000);
+
+// describeRestoreJob
+RestoreJobModel restoreJobModel = pinecone.describeRestoreJob(backupResponse.getRestoreJobId());
+System.out.println("restore model: " + restoreJobModel);
+
+// listRestoreJobs
+RestoreJobList restoreJobList = pinecone.listRestoreJobs(2);
+System.out.println("restore job list: " + restoreJobList);
+```
 
 ## Examples
 
