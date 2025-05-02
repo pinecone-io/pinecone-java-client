@@ -878,8 +878,8 @@ public class Pinecone {
      * Create a backup of an index
      *
      * @param indexName   Name of the index to backup (required)
-     * @param backupName  Name of the backup (required)
-     * @param description A description of the backup. (required)
+     * @param backupName  Name of the backup (optional)
+     * @param description A description of the backup. (optional)
      * @return BackupModel
      */
     public BackupModel createBackup(String indexName, String backupName, String description) throws ApiException {
