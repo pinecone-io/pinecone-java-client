@@ -6,12 +6,12 @@
 package io.pinecone.proto;
 
 /**
- * Protobuf type {@code Pagination}
+ * Protobuf type {@code DeleteNamespaceRequest}
  */
-public final class Pagination extends
+public final class DeleteNamespaceRequest extends
     com.google.protobuf.GeneratedMessage implements
-    // @@protoc_insertion_point(message_implements:Pagination)
-    PaginationOrBuilder {
+    // @@protoc_insertion_point(message_implements:DeleteNamespaceRequest)
+    DeleteNamespaceRequestOrBuilder {
 private static final long serialVersionUID = 0L;
   static {
     com.google.protobuf.RuntimeVersion.validateProtobufGencodeVersion(
@@ -20,62 +20,70 @@ private static final long serialVersionUID = 0L;
       /* minor= */ 29,
       /* patch= */ 3,
       /* suffix= */ "",
-      Pagination.class.getName());
+      DeleteNamespaceRequest.class.getName());
   }
-  // Use Pagination.newBuilder() to construct.
-  private Pagination(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+  // Use DeleteNamespaceRequest.newBuilder() to construct.
+  private DeleteNamespaceRequest(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
     super(builder);
   }
-  private Pagination() {
-    next_ = "";
+  private DeleteNamespaceRequest() {
+    namespace_ = "";
   }
 
   public static final com.google.protobuf.Descriptors.Descriptor
       getDescriptor() {
-    return io.pinecone.proto.DbData202504.internal_static_Pagination_descriptor;
+    return io.pinecone.proto.DbData202504.internal_static_DeleteNamespaceRequest_descriptor;
   }
 
   @java.lang.Override
   protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internalGetFieldAccessorTable() {
-    return io.pinecone.proto.DbData202504.internal_static_Pagination_fieldAccessorTable
+    return io.pinecone.proto.DbData202504.internal_static_DeleteNamespaceRequest_fieldAccessorTable
         .ensureFieldAccessorsInitialized(
-            io.pinecone.proto.Pagination.class, io.pinecone.proto.Pagination.Builder.class);
+            io.pinecone.proto.DeleteNamespaceRequest.class, io.pinecone.proto.DeleteNamespaceRequest.Builder.class);
   }
 
-  public static final int NEXT_FIELD_NUMBER = 1;
+  public static final int NAMESPACE_FIELD_NUMBER = 1;
   @SuppressWarnings("serial")
-  private volatile java.lang.Object next_ = "";
+  private volatile java.lang.Object namespace_ = "";
   /**
-   * <code>string next = 1 [json_name = "next"];</code>
-   * @return The next.
+   * <pre>
+   * The namespace to delete
+   * </pre>
+   *
+   * <code>string namespace = 1 [json_name = "namespace"];</code>
+   * @return The namespace.
    */
   @java.lang.Override
-  public java.lang.String getNext() {
-    java.lang.Object ref = next_;
+  public java.lang.String getNamespace() {
+    java.lang.Object ref = namespace_;
     if (ref instanceof java.lang.String) {
       return (java.lang.String) ref;
     } else {
       com.google.protobuf.ByteString bs = 
           (com.google.protobuf.ByteString) ref;
       java.lang.String s = bs.toStringUtf8();
-      next_ = s;
+      namespace_ = s;
       return s;
     }
   }
   /**
-   * <code>string next = 1 [json_name = "next"];</code>
-   * @return The bytes for next.
+   * <pre>
+   * The namespace to delete
+   * </pre>
+   *
+   * <code>string namespace = 1 [json_name = "namespace"];</code>
+   * @return The bytes for namespace.
    */
   @java.lang.Override
   public com.google.protobuf.ByteString
-      getNextBytes() {
-    java.lang.Object ref = next_;
+      getNamespaceBytes() {
+    java.lang.Object ref = namespace_;
     if (ref instanceof java.lang.String) {
       com.google.protobuf.ByteString b = 
           com.google.protobuf.ByteString.copyFromUtf8(
               (java.lang.String) ref);
-      next_ = b;
+      namespace_ = b;
       return b;
     } else {
       return (com.google.protobuf.ByteString) ref;
@@ -96,8 +104,8 @@ private static final long serialVersionUID = 0L;
   @java.lang.Override
   public void writeTo(com.google.protobuf.CodedOutputStream output)
                       throws java.io.IOException {
-    if (!com.google.protobuf.GeneratedMessage.isStringEmpty(next_)) {
-      com.google.protobuf.GeneratedMessage.writeString(output, 1, next_);
+    if (!com.google.protobuf.GeneratedMessage.isStringEmpty(namespace_)) {
+      com.google.protobuf.GeneratedMessage.writeString(output, 1, namespace_);
     }
     getUnknownFields().writeTo(output);
   }
@@ -108,8 +116,8 @@ private static final long serialVersionUID = 0L;
     if (size != -1) return size;
 
     size = 0;
-    if (!com.google.protobuf.GeneratedMessage.isStringEmpty(next_)) {
-      size += com.google.protobuf.GeneratedMessage.computeStringSize(1, next_);
+    if (!com.google.protobuf.GeneratedMessage.isStringEmpty(namespace_)) {
+      size += com.google.protobuf.GeneratedMessage.computeStringSize(1, namespace_);
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
@@ -121,13 +129,13 @@ private static final long serialVersionUID = 0L;
     if (obj == this) {
      return true;
     }
-    if (!(obj instanceof io.pinecone.proto.Pagination)) {
+    if (!(obj instanceof io.pinecone.proto.DeleteNamespaceRequest)) {
       return super.equals(obj);
     }
-    io.pinecone.proto.Pagination other = (io.pinecone.proto.Pagination) obj;
+    io.pinecone.proto.DeleteNamespaceRequest other = (io.pinecone.proto.DeleteNamespaceRequest) obj;
 
-    if (!getNext()
-        .equals(other.getNext())) return false;
+    if (!getNamespace()
+        .equals(other.getNamespace())) return false;
     if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
@@ -139,51 +147,51 @@ private static final long serialVersionUID = 0L;
     }
     int hash = 41;
     hash = (19 * hash) + getDescriptor().hashCode();
-    hash = (37 * hash) + NEXT_FIELD_NUMBER;
-    hash = (53 * hash) + getNext().hashCode();
+    hash = (37 * hash) + NAMESPACE_FIELD_NUMBER;
+    hash = (53 * hash) + getNamespace().hashCode();
     hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
     return hash;
   }
 
-  public static io.pinecone.proto.Pagination parseFrom(
+  public static io.pinecone.proto.DeleteNamespaceRequest parseFrom(
       java.nio.ByteBuffer data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static io.pinecone.proto.Pagination parseFrom(
+  public static io.pinecone.proto.DeleteNamespaceRequest parseFrom(
       java.nio.ByteBuffer data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static io.pinecone.proto.Pagination parseFrom(
+  public static io.pinecone.proto.DeleteNamespaceRequest parseFrom(
       com.google.protobuf.ByteString data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static io.pinecone.proto.Pagination parseFrom(
+  public static io.pinecone.proto.DeleteNamespaceRequest parseFrom(
       com.google.protobuf.ByteString data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static io.pinecone.proto.Pagination parseFrom(byte[] data)
+  public static io.pinecone.proto.DeleteNamespaceRequest parseFrom(byte[] data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static io.pinecone.proto.Pagination parseFrom(
+  public static io.pinecone.proto.DeleteNamespaceRequest parseFrom(
       byte[] data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static io.pinecone.proto.Pagination parseFrom(java.io.InputStream input)
+  public static io.pinecone.proto.DeleteNamespaceRequest parseFrom(java.io.InputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessage
         .parseWithIOException(PARSER, input);
   }
-  public static io.pinecone.proto.Pagination parseFrom(
+  public static io.pinecone.proto.DeleteNamespaceRequest parseFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
@@ -191,26 +199,26 @@ private static final long serialVersionUID = 0L;
         .parseWithIOException(PARSER, input, extensionRegistry);
   }
 
-  public static io.pinecone.proto.Pagination parseDelimitedFrom(java.io.InputStream input)
+  public static io.pinecone.proto.DeleteNamespaceRequest parseDelimitedFrom(java.io.InputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessage
         .parseDelimitedWithIOException(PARSER, input);
   }
 
-  public static io.pinecone.proto.Pagination parseDelimitedFrom(
+  public static io.pinecone.proto.DeleteNamespaceRequest parseDelimitedFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessage
         .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
   }
-  public static io.pinecone.proto.Pagination parseFrom(
+  public static io.pinecone.proto.DeleteNamespaceRequest parseFrom(
       com.google.protobuf.CodedInputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessage
         .parseWithIOException(PARSER, input);
   }
-  public static io.pinecone.proto.Pagination parseFrom(
+  public static io.pinecone.proto.DeleteNamespaceRequest parseFrom(
       com.google.protobuf.CodedInputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
@@ -223,7 +231,7 @@ private static final long serialVersionUID = 0L;
   public static Builder newBuilder() {
     return DEFAULT_INSTANCE.toBuilder();
   }
-  public static Builder newBuilder(io.pinecone.proto.Pagination prototype) {
+  public static Builder newBuilder(io.pinecone.proto.DeleteNamespaceRequest prototype) {
     return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
   }
   @java.lang.Override
@@ -239,26 +247,26 @@ private static final long serialVersionUID = 0L;
     return builder;
   }
   /**
-   * Protobuf type {@code Pagination}
+   * Protobuf type {@code DeleteNamespaceRequest}
    */
   public static final class Builder extends
       com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-      // @@protoc_insertion_point(builder_implements:Pagination)
-      io.pinecone.proto.PaginationOrBuilder {
+      // @@protoc_insertion_point(builder_implements:DeleteNamespaceRequest)
+      io.pinecone.proto.DeleteNamespaceRequestOrBuilder {
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return io.pinecone.proto.DbData202504.internal_static_Pagination_descriptor;
+      return io.pinecone.proto.DbData202504.internal_static_DeleteNamespaceRequest_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return io.pinecone.proto.DbData202504.internal_static_Pagination_fieldAccessorTable
+      return io.pinecone.proto.DbData202504.internal_static_DeleteNamespaceRequest_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              io.pinecone.proto.Pagination.class, io.pinecone.proto.Pagination.Builder.class);
+              io.pinecone.proto.DeleteNamespaceRequest.class, io.pinecone.proto.DeleteNamespaceRequest.Builder.class);
     }
 
-    // Construct using io.pinecone.proto.Pagination.newBuilder()
+    // Construct using io.pinecone.proto.DeleteNamespaceRequest.newBuilder()
     private Builder() {
 
     }
@@ -272,24 +280,24 @@ private static final long serialVersionUID = 0L;
     public Builder clear() {
       super.clear();
       bitField0_ = 0;
-      next_ = "";
+      namespace_ = "";
       return this;
     }
 
     @java.lang.Override
     public com.google.protobuf.Descriptors.Descriptor
         getDescriptorForType() {
-      return io.pinecone.proto.DbData202504.internal_static_Pagination_descriptor;
+      return io.pinecone.proto.DbData202504.internal_static_DeleteNamespaceRequest_descriptor;
     }
 
     @java.lang.Override
-    public io.pinecone.proto.Pagination getDefaultInstanceForType() {
-      return io.pinecone.proto.Pagination.getDefaultInstance();
+    public io.pinecone.proto.DeleteNamespaceRequest getDefaultInstanceForType() {
+      return io.pinecone.proto.DeleteNamespaceRequest.getDefaultInstance();
     }
 
     @java.lang.Override
-    public io.pinecone.proto.Pagination build() {
-      io.pinecone.proto.Pagination result = buildPartial();
+    public io.pinecone.proto.DeleteNamespaceRequest build() {
+      io.pinecone.proto.DeleteNamespaceRequest result = buildPartial();
       if (!result.isInitialized()) {
         throw newUninitializedMessageException(result);
       }
@@ -297,34 +305,34 @@ private static final long serialVersionUID = 0L;
     }
 
     @java.lang.Override
-    public io.pinecone.proto.Pagination buildPartial() {
-      io.pinecone.proto.Pagination result = new io.pinecone.proto.Pagination(this);
+    public io.pinecone.proto.DeleteNamespaceRequest buildPartial() {
+      io.pinecone.proto.DeleteNamespaceRequest result = new io.pinecone.proto.DeleteNamespaceRequest(this);
       if (bitField0_ != 0) { buildPartial0(result); }
       onBuilt();
       return result;
     }
 
-    private void buildPartial0(io.pinecone.proto.Pagination result) {
+    private void buildPartial0(io.pinecone.proto.DeleteNamespaceRequest result) {
       int from_bitField0_ = bitField0_;
       if (((from_bitField0_ & 0x00000001) != 0)) {
-        result.next_ = next_;
+        result.namespace_ = namespace_;
       }
     }
 
     @java.lang.Override
     public Builder mergeFrom(com.google.protobuf.Message other) {
-      if (other instanceof io.pinecone.proto.Pagination) {
-        return mergeFrom((io.pinecone.proto.Pagination)other);
+      if (other instanceof io.pinecone.proto.DeleteNamespaceRequest) {
+        return mergeFrom((io.pinecone.proto.DeleteNamespaceRequest)other);
       } else {
         super.mergeFrom(other);
         return this;
       }
     }
 
-    public Builder mergeFrom(io.pinecone.proto.Pagination other) {
-      if (other == io.pinecone.proto.Pagination.getDefaultInstance()) return this;
-      if (!other.getNext().isEmpty()) {
-        next_ = other.next_;
+    public Builder mergeFrom(io.pinecone.proto.DeleteNamespaceRequest other) {
+      if (other == io.pinecone.proto.DeleteNamespaceRequest.getDefaultInstance()) return this;
+      if (!other.getNamespace().isEmpty()) {
+        namespace_ = other.namespace_;
         bitField0_ |= 0x00000001;
         onChanged();
       }
@@ -355,7 +363,7 @@ private static final long serialVersionUID = 0L;
               done = true;
               break;
             case 10: {
-              next_ = input.readStringRequireUtf8();
+              namespace_ = input.readStringRequireUtf8();
               bitField0_ |= 0x00000001;
               break;
             } // case 10
@@ -376,95 +384,115 @@ private static final long serialVersionUID = 0L;
     }
     private int bitField0_;
 
-    private java.lang.Object next_ = "";
+    private java.lang.Object namespace_ = "";
     /**
-     * <code>string next = 1 [json_name = "next"];</code>
-     * @return The next.
+     * <pre>
+     * The namespace to delete
+     * </pre>
+     *
+     * <code>string namespace = 1 [json_name = "namespace"];</code>
+     * @return The namespace.
      */
-    public java.lang.String getNext() {
-      java.lang.Object ref = next_;
+    public java.lang.String getNamespace() {
+      java.lang.Object ref = namespace_;
       if (!(ref instanceof java.lang.String)) {
         com.google.protobuf.ByteString bs =
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
-        next_ = s;
+        namespace_ = s;
         return s;
       } else {
         return (java.lang.String) ref;
       }
     }
     /**
-     * <code>string next = 1 [json_name = "next"];</code>
-     * @return The bytes for next.
+     * <pre>
+     * The namespace to delete
+     * </pre>
+     *
+     * <code>string namespace = 1 [json_name = "namespace"];</code>
+     * @return The bytes for namespace.
      */
     public com.google.protobuf.ByteString
-        getNextBytes() {
-      java.lang.Object ref = next_;
+        getNamespaceBytes() {
+      java.lang.Object ref = namespace_;
       if (ref instanceof String) {
         com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
-        next_ = b;
+        namespace_ = b;
         return b;
       } else {
         return (com.google.protobuf.ByteString) ref;
       }
     }
     /**
-     * <code>string next = 1 [json_name = "next"];</code>
-     * @param value The next to set.
+     * <pre>
+     * The namespace to delete
+     * </pre>
+     *
+     * <code>string namespace = 1 [json_name = "namespace"];</code>
+     * @param value The namespace to set.
      * @return This builder for chaining.
      */
-    public Builder setNext(
+    public Builder setNamespace(
         java.lang.String value) {
       if (value == null) { throw new NullPointerException(); }
-      next_ = value;
+      namespace_ = value;
       bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
     /**
-     * <code>string next = 1 [json_name = "next"];</code>
+     * <pre>
+     * The namespace to delete
+     * </pre>
+     *
+     * <code>string namespace = 1 [json_name = "namespace"];</code>
      * @return This builder for chaining.
      */
-    public Builder clearNext() {
-      next_ = getDefaultInstance().getNext();
+    public Builder clearNamespace() {
+      namespace_ = getDefaultInstance().getNamespace();
       bitField0_ = (bitField0_ & ~0x00000001);
       onChanged();
       return this;
     }
     /**
-     * <code>string next = 1 [json_name = "next"];</code>
-     * @param value The bytes for next to set.
+     * <pre>
+     * The namespace to delete
+     * </pre>
+     *
+     * <code>string namespace = 1 [json_name = "namespace"];</code>
+     * @param value The bytes for namespace to set.
      * @return This builder for chaining.
      */
-    public Builder setNextBytes(
+    public Builder setNamespaceBytes(
         com.google.protobuf.ByteString value) {
       if (value == null) { throw new NullPointerException(); }
       checkByteStringIsUtf8(value);
-      next_ = value;
+      namespace_ = value;
       bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
 
-    // @@protoc_insertion_point(builder_scope:Pagination)
+    // @@protoc_insertion_point(builder_scope:DeleteNamespaceRequest)
   }
 
-  // @@protoc_insertion_point(class_scope:Pagination)
-  private static final io.pinecone.proto.Pagination DEFAULT_INSTANCE;
+  // @@protoc_insertion_point(class_scope:DeleteNamespaceRequest)
+  private static final io.pinecone.proto.DeleteNamespaceRequest DEFAULT_INSTANCE;
   static {
-    DEFAULT_INSTANCE = new io.pinecone.proto.Pagination();
+    DEFAULT_INSTANCE = new io.pinecone.proto.DeleteNamespaceRequest();
   }
 
-  public static io.pinecone.proto.Pagination getDefaultInstance() {
+  public static io.pinecone.proto.DeleteNamespaceRequest getDefaultInstance() {
     return DEFAULT_INSTANCE;
   }
 
-  private static final com.google.protobuf.Parser<Pagination>
-      PARSER = new com.google.protobuf.AbstractParser<Pagination>() {
+  private static final com.google.protobuf.Parser<DeleteNamespaceRequest>
+      PARSER = new com.google.protobuf.AbstractParser<DeleteNamespaceRequest>() {
     @java.lang.Override
-    public Pagination parsePartialFrom(
+    public DeleteNamespaceRequest parsePartialFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -483,17 +511,17 @@ private static final long serialVersionUID = 0L;
     }
   };
 
-  public static com.google.protobuf.Parser<Pagination> parser() {
+  public static com.google.protobuf.Parser<DeleteNamespaceRequest> parser() {
     return PARSER;
   }
 
   @java.lang.Override
-  public com.google.protobuf.Parser<Pagination> getParserForType() {
+  public com.google.protobuf.Parser<DeleteNamespaceRequest> getParserForType() {
     return PARSER;
   }
 
   @java.lang.Override
-  public io.pinecone.proto.Pagination getDefaultInstanceForType() {
+  public io.pinecone.proto.DeleteNamespaceRequest getDefaultInstanceForType() {
     return DEFAULT_INSTANCE;
   }
 
