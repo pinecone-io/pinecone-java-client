@@ -178,6 +178,7 @@ public class PineconeConnection implements AutoCloseable {
     private static Metadata assembleMetadata(PineconeConfig config) {
         Metadata metadata = new Metadata();
         metadata.put(Metadata.Key.of("api-key", Metadata.ASCII_STRING_MARSHALLER), config.getApiKey());
+        metadata.put(Metadata.Key.of("X-Pinecone-api-version", Metadata.ASCII_STRING_MARSHALLER), "2025-04");
         return metadata;
     }
 

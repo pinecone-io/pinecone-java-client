@@ -45,5 +45,8 @@ rm -rf "${dest}*.java"
 # Copy the new generated files to dest directory
 cp codegen/gen/java/io/pinecone/proto/*.java ${dest}
 
+# Update version reference in PineconeConnection.java
+sed -i '' "s/[0-9][0-9][0-9][0-9]-[0-1][0-9]/${version}/g" src/main/java/io/pinecone/configs/PineconeConnection.java
+
 # Cleanup the intermediate files that were generated
 rm -rf codegen/gen
