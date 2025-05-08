@@ -984,11 +984,27 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * <pre>
+     * Overload to get a list of all namespaces withing an index without limit and pagination token. When limit is not
+     * set, it'll default to 100.
+     * @return {@link ListNamespacesResponse} The response for the list namespace operation.
+     * </pre>
+     */
+    @Override
+    public ListNamespacesResponse listNamespaces() {
+        ListNamespacesRequest listNamespacesRequest = ListNamespacesRequest
+                .newBuilder()
+                .build();
+        return blockingStub.listNamespaces(listNamespacesRequest);
+    }
+
+    /**
+     * <pre>
      * Overload to get a list of all namespaces withing an index with default limit set to 100.
      * @param paginationToken The token to paginate through the list of vector IDs.
      * @return {@link ListNamespacesResponse} The response for the list namespace operation.
      * </pre>
      */
+    @Override
     public ListNamespacesResponse listNamespaces(String paginationToken) {
         ListNamespacesRequest listNamespacesRequest = ListNamespacesRequest
                 .newBuilder()
@@ -1006,6 +1022,7 @@ public class Index implements IndexInterface<UpsertResponse,
      * @return {@link ListNamespacesResponse} The response for the list namespace operation.
      * </pre>
      */
+    @Override
     public ListNamespacesResponse listNamespaces(String paginationToken, int limit) {
         ListNamespacesRequest.Builder listNamespacesRequest = ListNamespacesRequest
                 .newBuilder()

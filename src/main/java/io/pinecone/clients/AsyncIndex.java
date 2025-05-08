@@ -1075,11 +1075,27 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     /**
      * <pre>
+     * Overload to get a list of all namespaces without limit and pagination token. When limit is not set, it'll
+     * default to 100.
+     * @return {@link ListenableFuture<ListNamespacesResponse>} The response for the list namespace operation.
+     * </pre>
+     */
+    @Override
+    public ListenableFuture<ListNamespacesResponse> listNamespaces() {
+        ListNamespacesRequest listNamespacesRequest = ListNamespacesRequest
+                .newBuilder()
+                .build();
+        return asyncStub.listNamespaces(listNamespacesRequest);
+    }
+
+    /**
+     * <pre>
      * Overload to get a list of all namespaces withing an index with default limit set to 100.
      * @param paginationToken The token to paginate through the list of vector IDs.
      * @return {@link ListenableFuture<ListNamespacesResponse>} The response for the list namespace operation.
      * </pre>
      */
+    @Override
     public ListenableFuture<ListNamespacesResponse> listNamespaces(String paginationToken) {
         ListNamespacesRequest listNamespacesRequest = ListNamespacesRequest
                 .newBuilder()

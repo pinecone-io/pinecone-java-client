@@ -827,6 +827,15 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
 
     /**
      * <pre>
+     * Overload to get a list of all namespaces without limit and pagination token. When limit is not set, it'll
+     * default to 100.
+     * @return {@link ListNamespacesResponse} The response for the list namespace operation.
+     * </pre>
+     */
+    A listNamespaces();
+
+    /**
+     * <pre>
      * Overload to get a list of all namespaces withing an index with default limit set to 100.
      * @param paginationToken The token to paginate through the list of vector IDs.
      * @return {@link ListNamespacesResponse} The response for the list namespace operation.
