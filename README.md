@@ -15,7 +15,7 @@ Maven:
 <dependency>
   <groupId>io.pinecone</groupId>
   <artifactId>pinecone-client</artifactId>
-  <version>4.0.0</version>
+  <version>5.0.0</version>
 </dependency>
 ```
 
@@ -23,12 +23,12 @@ Maven:
 
 Gradle:
 ```
-implementation "io.pinecone:pinecone-client:4.0.0"
+implementation "io.pinecone:pinecone-client:5.0.0"
 ```
 
 [comment]: <> (^ [pc:VERSION_LATEST_RELEASE])
 
-Alternatively, you can use our standalone uberjar [pinecone-client-4.0.0-all.jar](https://repo1.maven.org/maven2/io/pinecone/pinecone-client/4.0.0/pinecone-client-4.0.0-all.jar), which bundles the Pinecone
+Alternatively, you can use our standalone uberjar [pinecone-client-5.0.0-all.jar](https://repo1.maven.org/maven2/io/pinecone/pinecone-client/5.0.0/pinecone-client-5.0.0-all.jar), which bundles the Pinecone
 SDK and all dependencies together. You can include this in your classpath like you do with any 3rd party JAR without
 having to obtain the *pinecone-client* dependencies separately.
 
@@ -521,6 +521,74 @@ List<Float> values = Arrays.asList(1F, 2F, 3F);
 UpdateResponse updateResponse = index.update("v1", values, "example-namespace");
 ```
 
+## List namespaces
+
+The following example shows various methods to list namespaces.
+
+```java
+import io.pinecone.clients.AsyncIndex;
+import io.pinecone.clients.Index;
+import io.pinecone.clients.Pinecone;
+import io.pinecone.proto.ListNamespacesResponse;
+
+import java.util.concurrent.ExecutionException;
+...
+
+String indexName = "PINECONE_INDEX_NAME";
+Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+Index index = pinecone.getIndexConnection(indexName);
+
+// list namespaces without pagination token and limit (if no limit is passed, it'll default to 100)
+ListNamespacesResponse listNamespacesResponse = index.listNamespaces();
+
+// list namespaces with pagination token
+listNamespacesResponse = index.listNamespaces("some-pagination-token");
+
+// list namespaces with pagination token and a custom limit of 5
+listNamespacesResponse = index.listNamespaces("some-pagination-token", 5);
+```
+
+## Describe namespace
+
+The following example shows how to describe a namespace.
+
+```java
+import io.pinecone.clients.AsyncIndex;
+import io.pinecone.clients.Index;
+import io.pinecone.clients.Pinecone;
+import io.pinecone.proto.NamespaceDescription;
+
+import java.util.concurrent.ExecutionException;
+...
+
+String indexName = "PINECONE_INDEX_NAME";
+Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+Index index = pinecone.getIndexConnection(indexName);
+
+// describe a namespace
+NamespaceDescription namespaceDescription = index.describeName("some-namespace");
+```
+
+## Delete namespace
+
+The following example shows how to describe a namespace.
+
+```java
+import io.pinecone.clients.AsyncIndex;
+import io.pinecone.clients.Index;
+import io.pinecone.clients.Pinecone;
+
+import java.util.concurrent.ExecutionException;
+...
+
+String indexName = "PINECONE_INDEX_NAME";
+Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+Index index = pinecone.getIndexConnection(indexName);
+
+// delete a namespace
+index.deleteName("some-namespace");
+```
+
 # Collections
 
 Collections fall under control plane operations.
@@ -765,6 +833,65 @@ AsyncIndex asyncIndex = pinecone.getAsyncIndexConnection("PINECONE_INDEX_NAME");
 
 // Cancel import
 asyncIndex.cancelImport("2");
+```
+# Backups and restore
+
+The following example shows how to backup and restore from a serverless index. 
+
+```java
+import io.pinecone.clients.Pinecone;
+import org.openapitools.db_control.client.ApiException;
+import org.openapitools.db_control.client.model.*;
+
+...
+
+Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+
+String indexName1 = "test-index-1";
+String indexName2 = "test-index-2";
+
+// create a backup from index
+BackupModel backupModel1 = pinecone.createBackup(indexName1, "backup-id-1", "description-for-backup-1");
+System.out.println("backupModel1: " + backupModel1);
+
+BackupModel backupModel2 = pinecone.createBackup(indexName2, "backup-id-2", "description-for-backup-2");
+System.out.println("backupModel2: " + backupModel2);
+
+// list all backups for an index
+BackupList backupList = pinecone.listIndexBackups(indexName1);
+System.out.println("backupList for index1: " + backupList);
+
+// list all backups for a project
+backupList = pinecone.listProjectBackups();
+System.out.println("backupList for project: " + backupList);
+
+// describe backup
+backupModel1 = pinecone.describeBackup(backupModel1.getBackupId());
+System.out.println("describe backup for index1: " + backupModel1);
+
+backupModel2 = pinecone.describeBackup(backupModel2.getBackupId());
+System.out.println("describe backup index2: " + backupModel2);
+
+// delete backup
+pinecone.deleteBackup(backupModel1.getBackupId());
+
+// wait for the backup to be ready
+Thread.sleep(10000);
+
+// create index from a backup
+CreateIndexFromBackupResponse backupResponse = pinecone.createIndexFromBackup(backupModel1.getBackupId(), "test-index-3");
+System.out.println(backupResponse.getRestoreJobId());
+
+// wait for index to be created
+Thread.sleep(5000);
+
+// describeRestoreJob
+RestoreJobModel restoreJobModel = pinecone.describeRestoreJob(backupResponse.getRestoreJobId());
+System.out.println("restore model: " + restoreJobModel);
+
+// listRestoreJobs
+RestoreJobList restoreJobList = pinecone.listRestoreJobs(2);
+System.out.println("restore job list: " + restoreJobList);
 ```
 
 ## Examples

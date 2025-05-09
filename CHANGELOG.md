@@ -2,6 +2,12 @@
 
 [comment]: <> (When bumping [pc:VERSION_LATEST_RELEASE] create a new entry below)
 ### Unreleased version
+### 5.0.0
+- Add support for backups and restore
+- Add support for list, describe, and delete namespaces
+- Generate code based on 2025-04 api spec
+- Automate ndjson handling
+
 ### 4.0.1
 - Create a new config per index connection 
 
