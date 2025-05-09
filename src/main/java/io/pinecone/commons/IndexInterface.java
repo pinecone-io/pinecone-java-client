@@ -25,8 +25,10 @@ import static io.pinecone.utils.SparseIndicesConverter.convertUnsigned32IntToSig
  * @param <X> The return type for delete operations.
  * @param <Y> The return type for describing index stats.
  * @param <Z> The return type for listing vector IDs.
+ * @param <A> The return type for listing namespaces.
+ * @param <B> The return type for describing namespaces.
  */
-public interface IndexInterface<T, U, V, W, X, Y, Z> extends AutoCloseable {
+public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable {
 
     /**
      * Validates and builds an upsert request with a single vector and optional namespace.
@@ -823,4 +825,50 @@ public interface IndexInterface<T, U, V, W, X, Y, Z> extends AutoCloseable {
      */
     Z list(String namespace, String prefix, String paginationToken, int limit);
 
+    /**
+     * <pre>
+     * Overload to get a list of all namespaces without limit and pagination token. When limit is not set, it'll
+     * default to 100.
+     * @return {@link ListNamespacesResponse} The response for the list namespace operation.
+     * </pre>
+     */
+    A listNamespaces();
+
+    /**
+     * <pre>
+     * Overload to get a list of all namespaces withing an index with default limit set to 100.
+     * @param paginationToken The token to paginate through the list of vector IDs.
+     * @return {@link ListNamespacesResponse} The response for the list namespace operation.
+     * </pre>
+     */
+    A listNamespaces(String paginationToken);
+
+    /**
+     * <pre>
+     * Get list of all namespaces within an index.
+     * @param paginationToken The token to paginate through the list of vector IDs. If pagination token is set to null,
+     *                        it'll be ignored.
+     * @param limit           The maximum number of vector IDs you want to retrieve.
+     * @return {@link ListNamespacesResponse} The response for the list namespace operation.
+     * </pre>
+     */
+    A listNamespaces(String paginationToken, int limit);
+
+    /**
+     * <pre>
+     * Describe a namespace within an index, showing the vector count within the namespace.
+     * @param namespace The namespace to describe.
+     * @return {@link NamespaceDescription} The response for the describe namespace operation.
+     * </pre>
+     */
+    B describeNamespace(String namespace);
+
+    /**
+     * <pre>
+     * Delete a namespace from an index.
+     * @param namespace The namespace to describe.
+     * @return {@link DeleteResponse} The response for the delete namespace operation.
+     * </pre>
+     */
+    X deleteNamespace(String namespace);
 }

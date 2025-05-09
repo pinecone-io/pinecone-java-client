@@ -521,6 +521,74 @@ List<Float> values = Arrays.asList(1F, 2F, 3F);
 UpdateResponse updateResponse = index.update("v1", values, "example-namespace");
 ```
 
+## List namespaces
+
+The following example shows various methods to list namespaces.
+
+```java
+import io.pinecone.clients.AsyncIndex;
+import io.pinecone.clients.Index;
+import io.pinecone.clients.Pinecone;
+import io.pinecone.proto.ListNamespacesResponse;
+
+import java.util.concurrent.ExecutionException;
+...
+
+String indexName = "PINECONE_INDEX_NAME";
+Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+Index index = pinecone.getIndexConnection(indexName);
+
+// list namespaces without pagination token and limit (if no limit is passed, it'll default to 100)
+ListNamespacesResponse listNamespacesResponse = index.listNamespaces();
+
+// list namespaces with pagination token
+listNamespacesResponse = index.listNamespaces("some-pagination-token");
+
+// list namespaces with pagination token and a custom limit of 5
+listNamespacesResponse = index.listNamespaces("some-pagination-token", 5);
+```
+
+## Describe namespace
+
+The following example shows how to describe a namespace.
+
+```java
+import io.pinecone.clients.AsyncIndex;
+import io.pinecone.clients.Index;
+import io.pinecone.clients.Pinecone;
+import io.pinecone.proto.NamespaceDescription;
+
+import java.util.concurrent.ExecutionException;
+...
+
+String indexName = "PINECONE_INDEX_NAME";
+Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+Index index = pinecone.getIndexConnection(indexName);
+
+// describe a namespace
+NamespaceDescription namespaceDescription = index.describeName("some-namespace");
+```
+
+## Delete namespace
+
+The following example shows how to describe a namespace.
+
+```java
+import io.pinecone.clients.AsyncIndex;
+import io.pinecone.clients.Index;
+import io.pinecone.clients.Pinecone;
+
+import java.util.concurrent.ExecutionException;
+...
+
+String indexName = "PINECONE_INDEX_NAME";
+Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+Index index = pinecone.getIndexConnection(indexName);
+
+// delete a namespace
+index.deleteName("some-namespace");
+```
+
 # Collections
 
 Collections fall under control plane operations.

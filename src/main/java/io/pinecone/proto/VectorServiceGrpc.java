@@ -9,8 +9,8 @@ import static io.grpc.MethodDescriptor.generateFullMethodName;
  * </pre>
  */
 @javax.annotation.Generated(
-    value = "by gRPC proto compiler (version 1.69.1)",
-    comments = "Source: db_data_2025-01.proto")
+    value = "by gRPC proto compiler (version 1.64.0)",
+    comments = "Source: db_data_2025-04.proto")
 @io.grpc.stub.annotations.GrpcGenerated
 public final class VectorServiceGrpc {
 
@@ -236,6 +236,99 @@ public final class VectorServiceGrpc {
     return getDescribeIndexStatsMethod;
   }
 
+  private static volatile io.grpc.MethodDescriptor<io.pinecone.proto.ListNamespacesRequest,
+      io.pinecone.proto.ListNamespacesResponse> getListNamespacesMethod;
+
+  @io.grpc.stub.annotations.RpcMethod(
+      fullMethodName = SERVICE_NAME + '/' + "ListNamespaces",
+      requestType = io.pinecone.proto.ListNamespacesRequest.class,
+      responseType = io.pinecone.proto.ListNamespacesResponse.class,
+      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+  public static io.grpc.MethodDescriptor<io.pinecone.proto.ListNamespacesRequest,
+      io.pinecone.proto.ListNamespacesResponse> getListNamespacesMethod() {
+    io.grpc.MethodDescriptor<io.pinecone.proto.ListNamespacesRequest, io.pinecone.proto.ListNamespacesResponse> getListNamespacesMethod;
+    if ((getListNamespacesMethod = VectorServiceGrpc.getListNamespacesMethod) == null) {
+      synchronized (VectorServiceGrpc.class) {
+        if ((getListNamespacesMethod = VectorServiceGrpc.getListNamespacesMethod) == null) {
+          VectorServiceGrpc.getListNamespacesMethod = getListNamespacesMethod =
+              io.grpc.MethodDescriptor.<io.pinecone.proto.ListNamespacesRequest, io.pinecone.proto.ListNamespacesResponse>newBuilder()
+              .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
+              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "ListNamespaces"))
+              .setSampledToLocalTracing(true)
+              .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  io.pinecone.proto.ListNamespacesRequest.getDefaultInstance()))
+              .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  io.pinecone.proto.ListNamespacesResponse.getDefaultInstance()))
+              .setSchemaDescriptor(new VectorServiceMethodDescriptorSupplier("ListNamespaces"))
+              .build();
+        }
+      }
+    }
+    return getListNamespacesMethod;
+  }
+
+  private static volatile io.grpc.MethodDescriptor<io.pinecone.proto.DescribeNamespaceRequest,
+      io.pinecone.proto.NamespaceDescription> getDescribeNamespaceMethod;
+
+  @io.grpc.stub.annotations.RpcMethod(
+      fullMethodName = SERVICE_NAME + '/' + "DescribeNamespace",
+      requestType = io.pinecone.proto.DescribeNamespaceRequest.class,
+      responseType = io.pinecone.proto.NamespaceDescription.class,
+      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+  public static io.grpc.MethodDescriptor<io.pinecone.proto.DescribeNamespaceRequest,
+      io.pinecone.proto.NamespaceDescription> getDescribeNamespaceMethod() {
+    io.grpc.MethodDescriptor<io.pinecone.proto.DescribeNamespaceRequest, io.pinecone.proto.NamespaceDescription> getDescribeNamespaceMethod;
+    if ((getDescribeNamespaceMethod = VectorServiceGrpc.getDescribeNamespaceMethod) == null) {
+      synchronized (VectorServiceGrpc.class) {
+        if ((getDescribeNamespaceMethod = VectorServiceGrpc.getDescribeNamespaceMethod) == null) {
+          VectorServiceGrpc.getDescribeNamespaceMethod = getDescribeNamespaceMethod =
+              io.grpc.MethodDescriptor.<io.pinecone.proto.DescribeNamespaceRequest, io.pinecone.proto.NamespaceDescription>newBuilder()
+              .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
+              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "DescribeNamespace"))
+              .setSampledToLocalTracing(true)
+              .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  io.pinecone.proto.DescribeNamespaceRequest.getDefaultInstance()))
+              .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  io.pinecone.proto.NamespaceDescription.getDefaultInstance()))
+              .setSchemaDescriptor(new VectorServiceMethodDescriptorSupplier("DescribeNamespace"))
+              .build();
+        }
+      }
+    }
+    return getDescribeNamespaceMethod;
+  }
+
+  private static volatile io.grpc.MethodDescriptor<io.pinecone.proto.DeleteNamespaceRequest,
+      io.pinecone.proto.DeleteResponse> getDeleteNamespaceMethod;
+
+  @io.grpc.stub.annotations.RpcMethod(
+      fullMethodName = SERVICE_NAME + '/' + "DeleteNamespace",
+      requestType = io.pinecone.proto.DeleteNamespaceRequest.class,
+      responseType = io.pinecone.proto.DeleteResponse.class,
+      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+  public static io.grpc.MethodDescriptor<io.pinecone.proto.DeleteNamespaceRequest,
+      io.pinecone.proto.DeleteResponse> getDeleteNamespaceMethod() {
+    io.grpc.MethodDescriptor<io.pinecone.proto.DeleteNamespaceRequest, io.pinecone.proto.DeleteResponse> getDeleteNamespaceMethod;
+    if ((getDeleteNamespaceMethod = VectorServiceGrpc.getDeleteNamespaceMethod) == null) {
+      synchronized (VectorServiceGrpc.class) {
+        if ((getDeleteNamespaceMethod = VectorServiceGrpc.getDeleteNamespaceMethod) == null) {
+          VectorServiceGrpc.getDeleteNamespaceMethod = getDeleteNamespaceMethod =
+              io.grpc.MethodDescriptor.<io.pinecone.proto.DeleteNamespaceRequest, io.pinecone.proto.DeleteResponse>newBuilder()
+              .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
+              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "DeleteNamespace"))
+              .setSampledToLocalTracing(true)
+              .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  io.pinecone.proto.DeleteNamespaceRequest.getDefaultInstance()))
+              .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  io.pinecone.proto.DeleteResponse.getDefaultInstance()))
+              .setSchemaDescriptor(new VectorServiceMethodDescriptorSupplier("DeleteNamespace"))
+              .build();
+        }
+      }
+    }
+    return getDeleteNamespaceMethod;
+  }
+
   /**
    * Creates a new async stub that supports all call types for the service
    */
@@ -291,8 +384,8 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Upsert vectors
-     * Writes vectors into a namespace. If a new value is upserted for an existing vector ID, it will overwrite the previous value.
-     * For guidance and examples, see [Upsert data](https://docs.pinecone.io/guides/data/upsert-data).
+     * Upsert vectors into a namespace. If a new value is upserted for an existing vector ID, it will overwrite the previous value.
+     * For guidance and examples, see [Upsert data](https://docs.pinecone.io/guides/data/upsert-data#upsert-vectors).
      * </pre>
      */
     default void upsert(io.pinecone.proto.UpsertRequest request,
@@ -315,7 +408,7 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Fetch vectors
-     * Look up and returns vectors by ID from a single namespace. The returned vectors include the vector data and/or metadata.
+     * Look up and return vectors by ID from a single namespace. The returned vectors include the vector data and/or metadata.
      * For guidance and examples, see [Fetch data](https://docs.pinecone.io/guides/data/fetch-data).
      * </pre>
      */
@@ -330,7 +423,7 @@ public final class VectorServiceGrpc {
      * List the IDs of vectors in a single namespace of a serverless index. An optional prefix can be passed to limit the results to IDs with a common prefix.
      * This returns up to 100 IDs at a time by default in sorted order (bitwise/"C" collation). If the `limit` parameter is set, `list` returns up to that number of IDs instead. Whenever there are additional IDs to return, the response also includes a `pagination_token` that you can use to get the next batch of IDs. When the response does not include a `pagination_token`, there are no more IDs to return.
      * For guidance and examples, see [List record IDs](https://docs.pinecone.io/guides/data/list-record-ids).
-     * **Note:** This is supported only for serverless indexes.
+     * **Note:** `list` is supported only for serverless indexes.
      * </pre>
      */
     default void list(io.pinecone.proto.ListRequest request,
@@ -340,8 +433,8 @@ public final class VectorServiceGrpc {
 
     /**
      * <pre>
-     * Query vectors
-     * Searches a namespace, using a query vector. It retrieves the ids of the most similar items in a namespace, along with their similarity scores.
+     * Search with a vector
+     * Search a namespace with a query vector or record ID and return the IDs of the most similar records, along with their similarity scores.
      * For guidance and examples, see [Query data](https://docs.pinecone.io/guides/data/query-data).
      * </pre>
      */
@@ -372,6 +465,39 @@ public final class VectorServiceGrpc {
     default void describeIndexStats(io.pinecone.proto.DescribeIndexStatsRequest request,
         io.grpc.stub.StreamObserver<io.pinecone.proto.DescribeIndexStatsResponse> responseObserver) {
       io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getDescribeIndexStatsMethod(), responseObserver);
+    }
+
+    /**
+     * <pre>
+     * Get list of all namespaces
+     * Get a list of all namespaces within an index.
+     * </pre>
+     */
+    default void listNamespaces(io.pinecone.proto.ListNamespacesRequest request,
+        io.grpc.stub.StreamObserver<io.pinecone.proto.ListNamespacesResponse> responseObserver) {
+      io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getListNamespacesMethod(), responseObserver);
+    }
+
+    /**
+     * <pre>
+     * Describe a namespace
+     * Describe a namespace within an index, showing the vector count within the namespace.
+     * </pre>
+     */
+    default void describeNamespace(io.pinecone.proto.DescribeNamespaceRequest request,
+        io.grpc.stub.StreamObserver<io.pinecone.proto.NamespaceDescription> responseObserver) {
+      io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getDescribeNamespaceMethod(), responseObserver);
+    }
+
+    /**
+     * <pre>
+     * Delete a namespace
+     * Delete a namespace from an index.
+     * </pre>
+     */
+    default void deleteNamespace(io.pinecone.proto.DeleteNamespaceRequest request,
+        io.grpc.stub.StreamObserver<io.pinecone.proto.DeleteResponse> responseObserver) {
+      io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getDeleteNamespaceMethod(), responseObserver);
     }
   }
 
@@ -413,8 +539,8 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Upsert vectors
-     * Writes vectors into a namespace. If a new value is upserted for an existing vector ID, it will overwrite the previous value.
-     * For guidance and examples, see [Upsert data](https://docs.pinecone.io/guides/data/upsert-data).
+     * Upsert vectors into a namespace. If a new value is upserted for an existing vector ID, it will overwrite the previous value.
+     * For guidance and examples, see [Upsert data](https://docs.pinecone.io/guides/data/upsert-data#upsert-vectors).
      * </pre>
      */
     public void upsert(io.pinecone.proto.UpsertRequest request,
@@ -439,7 +565,7 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Fetch vectors
-     * Look up and returns vectors by ID from a single namespace. The returned vectors include the vector data and/or metadata.
+     * Look up and return vectors by ID from a single namespace. The returned vectors include the vector data and/or metadata.
      * For guidance and examples, see [Fetch data](https://docs.pinecone.io/guides/data/fetch-data).
      * </pre>
      */
@@ -455,7 +581,7 @@ public final class VectorServiceGrpc {
      * List the IDs of vectors in a single namespace of a serverless index. An optional prefix can be passed to limit the results to IDs with a common prefix.
      * This returns up to 100 IDs at a time by default in sorted order (bitwise/"C" collation). If the `limit` parameter is set, `list` returns up to that number of IDs instead. Whenever there are additional IDs to return, the response also includes a `pagination_token` that you can use to get the next batch of IDs. When the response does not include a `pagination_token`, there are no more IDs to return.
      * For guidance and examples, see [List record IDs](https://docs.pinecone.io/guides/data/list-record-ids).
-     * **Note:** This is supported only for serverless indexes.
+     * **Note:** `list` is supported only for serverless indexes.
      * </pre>
      */
     public void list(io.pinecone.proto.ListRequest request,
@@ -466,8 +592,8 @@ public final class VectorServiceGrpc {
 
     /**
      * <pre>
-     * Query vectors
-     * Searches a namespace, using a query vector. It retrieves the ids of the most similar items in a namespace, along with their similarity scores.
+     * Search with a vector
+     * Search a namespace with a query vector or record ID and return the IDs of the most similar records, along with their similarity scores.
      * For guidance and examples, see [Query data](https://docs.pinecone.io/guides/data/query-data).
      * </pre>
      */
@@ -502,6 +628,42 @@ public final class VectorServiceGrpc {
       io.grpc.stub.ClientCalls.asyncUnaryCall(
           getChannel().newCall(getDescribeIndexStatsMethod(), getCallOptions()), request, responseObserver);
     }
+
+    /**
+     * <pre>
+     * Get list of all namespaces
+     * Get a list of all namespaces within an index.
+     * </pre>
+     */
+    public void listNamespaces(io.pinecone.proto.ListNamespacesRequest request,
+        io.grpc.stub.StreamObserver<io.pinecone.proto.ListNamespacesResponse> responseObserver) {
+      io.grpc.stub.ClientCalls.asyncUnaryCall(
+          getChannel().newCall(getListNamespacesMethod(), getCallOptions()), request, responseObserver);
+    }
+
+    /**
+     * <pre>
+     * Describe a namespace
+     * Describe a namespace within an index, showing the vector count within the namespace.
+     * </pre>
+     */
+    public void describeNamespace(io.pinecone.proto.DescribeNamespaceRequest request,
+        io.grpc.stub.StreamObserver<io.pinecone.proto.NamespaceDescription> responseObserver) {
+      io.grpc.stub.ClientCalls.asyncUnaryCall(
+          getChannel().newCall(getDescribeNamespaceMethod(), getCallOptions()), request, responseObserver);
+    }
+
+    /**
+     * <pre>
+     * Delete a namespace
+     * Delete a namespace from an index.
+     * </pre>
+     */
+    public void deleteNamespace(io.pinecone.proto.DeleteNamespaceRequest request,
+        io.grpc.stub.StreamObserver<io.pinecone.proto.DeleteResponse> responseObserver) {
+      io.grpc.stub.ClientCalls.asyncUnaryCall(
+          getChannel().newCall(getDeleteNamespaceMethod(), getCallOptions()), request, responseObserver);
+    }
   }
 
   /**
@@ -527,8 +689,8 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Upsert vectors
-     * Writes vectors into a namespace. If a new value is upserted for an existing vector ID, it will overwrite the previous value.
-     * For guidance and examples, see [Upsert data](https://docs.pinecone.io/guides/data/upsert-data).
+     * Upsert vectors into a namespace. If a new value is upserted for an existing vector ID, it will overwrite the previous value.
+     * For guidance and examples, see [Upsert data](https://docs.pinecone.io/guides/data/upsert-data#upsert-vectors).
      * </pre>
      */
     public io.pinecone.proto.UpsertResponse upsert(io.pinecone.proto.UpsertRequest request) {
@@ -551,7 +713,7 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Fetch vectors
-     * Look up and returns vectors by ID from a single namespace. The returned vectors include the vector data and/or metadata.
+     * Look up and return vectors by ID from a single namespace. The returned vectors include the vector data and/or metadata.
      * For guidance and examples, see [Fetch data](https://docs.pinecone.io/guides/data/fetch-data).
      * </pre>
      */
@@ -566,7 +728,7 @@ public final class VectorServiceGrpc {
      * List the IDs of vectors in a single namespace of a serverless index. An optional prefix can be passed to limit the results to IDs with a common prefix.
      * This returns up to 100 IDs at a time by default in sorted order (bitwise/"C" collation). If the `limit` parameter is set, `list` returns up to that number of IDs instead. Whenever there are additional IDs to return, the response also includes a `pagination_token` that you can use to get the next batch of IDs. When the response does not include a `pagination_token`, there are no more IDs to return.
      * For guidance and examples, see [List record IDs](https://docs.pinecone.io/guides/data/list-record-ids).
-     * **Note:** This is supported only for serverless indexes.
+     * **Note:** `list` is supported only for serverless indexes.
      * </pre>
      */
     public io.pinecone.proto.ListResponse list(io.pinecone.proto.ListRequest request) {
@@ -576,8 +738,8 @@ public final class VectorServiceGrpc {
 
     /**
      * <pre>
-     * Query vectors
-     * Searches a namespace, using a query vector. It retrieves the ids of the most similar items in a namespace, along with their similarity scores.
+     * Search with a vector
+     * Search a namespace with a query vector or record ID and return the IDs of the most similar records, along with their similarity scores.
      * For guidance and examples, see [Query data](https://docs.pinecone.io/guides/data/query-data).
      * </pre>
      */
@@ -609,6 +771,39 @@ public final class VectorServiceGrpc {
       return io.grpc.stub.ClientCalls.blockingUnaryCall(
           getChannel(), getDescribeIndexStatsMethod(), getCallOptions(), request);
     }
+
+    /**
+     * <pre>
+     * Get list of all namespaces
+     * Get a list of all namespaces within an index.
+     * </pre>
+     */
+    public io.pinecone.proto.ListNamespacesResponse listNamespaces(io.pinecone.proto.ListNamespacesRequest request) {
+      return io.grpc.stub.ClientCalls.blockingUnaryCall(
+          getChannel(), getListNamespacesMethod(), getCallOptions(), request);
+    }
+
+    /**
+     * <pre>
+     * Describe a namespace
+     * Describe a namespace within an index, showing the vector count within the namespace.
+     * </pre>
+     */
+    public io.pinecone.proto.NamespaceDescription describeNamespace(io.pinecone.proto.DescribeNamespaceRequest request) {
+      return io.grpc.stub.ClientCalls.blockingUnaryCall(
+          getChannel(), getDescribeNamespaceMethod(), getCallOptions(), request);
+    }
+
+    /**
+     * <pre>
+     * Delete a namespace
+     * Delete a namespace from an index.
+     * </pre>
+     */
+    public io.pinecone.proto.DeleteResponse deleteNamespace(io.pinecone.proto.DeleteNamespaceRequest request) {
+      return io.grpc.stub.ClientCalls.blockingUnaryCall(
+          getChannel(), getDeleteNamespaceMethod(), getCallOptions(), request);
+    }
   }
 
   /**
@@ -634,8 +829,8 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Upsert vectors
-     * Writes vectors into a namespace. If a new value is upserted for an existing vector ID, it will overwrite the previous value.
-     * For guidance and examples, see [Upsert data](https://docs.pinecone.io/guides/data/upsert-data).
+     * Upsert vectors into a namespace. If a new value is upserted for an existing vector ID, it will overwrite the previous value.
+     * For guidance and examples, see [Upsert data](https://docs.pinecone.io/guides/data/upsert-data#upsert-vectors).
      * </pre>
      */
     public com.google.common.util.concurrent.ListenableFuture<io.pinecone.proto.UpsertResponse> upsert(
@@ -660,7 +855,7 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Fetch vectors
-     * Look up and returns vectors by ID from a single namespace. The returned vectors include the vector data and/or metadata.
+     * Look up and return vectors by ID from a single namespace. The returned vectors include the vector data and/or metadata.
      * For guidance and examples, see [Fetch data](https://docs.pinecone.io/guides/data/fetch-data).
      * </pre>
      */
@@ -676,7 +871,7 @@ public final class VectorServiceGrpc {
      * List the IDs of vectors in a single namespace of a serverless index. An optional prefix can be passed to limit the results to IDs with a common prefix.
      * This returns up to 100 IDs at a time by default in sorted order (bitwise/"C" collation). If the `limit` parameter is set, `list` returns up to that number of IDs instead. Whenever there are additional IDs to return, the response also includes a `pagination_token` that you can use to get the next batch of IDs. When the response does not include a `pagination_token`, there are no more IDs to return.
      * For guidance and examples, see [List record IDs](https://docs.pinecone.io/guides/data/list-record-ids).
-     * **Note:** This is supported only for serverless indexes.
+     * **Note:** `list` is supported only for serverless indexes.
      * </pre>
      */
     public com.google.common.util.concurrent.ListenableFuture<io.pinecone.proto.ListResponse> list(
@@ -687,8 +882,8 @@ public final class VectorServiceGrpc {
 
     /**
      * <pre>
-     * Query vectors
-     * Searches a namespace, using a query vector. It retrieves the ids of the most similar items in a namespace, along with their similarity scores.
+     * Search with a vector
+     * Search a namespace with a query vector or record ID and return the IDs of the most similar records, along with their similarity scores.
      * For guidance and examples, see [Query data](https://docs.pinecone.io/guides/data/query-data).
      * </pre>
      */
@@ -723,6 +918,42 @@ public final class VectorServiceGrpc {
       return io.grpc.stub.ClientCalls.futureUnaryCall(
           getChannel().newCall(getDescribeIndexStatsMethod(), getCallOptions()), request);
     }
+
+    /**
+     * <pre>
+     * Get list of all namespaces
+     * Get a list of all namespaces within an index.
+     * </pre>
+     */
+    public com.google.common.util.concurrent.ListenableFuture<io.pinecone.proto.ListNamespacesResponse> listNamespaces(
+        io.pinecone.proto.ListNamespacesRequest request) {
+      return io.grpc.stub.ClientCalls.futureUnaryCall(
+          getChannel().newCall(getListNamespacesMethod(), getCallOptions()), request);
+    }
+
+    /**
+     * <pre>
+     * Describe a namespace
+     * Describe a namespace within an index, showing the vector count within the namespace.
+     * </pre>
+     */
+    public com.google.common.util.concurrent.ListenableFuture<io.pinecone.proto.NamespaceDescription> describeNamespace(
+        io.pinecone.proto.DescribeNamespaceRequest request) {
+      return io.grpc.stub.ClientCalls.futureUnaryCall(
+          getChannel().newCall(getDescribeNamespaceMethod(), getCallOptions()), request);
+    }
+
+    /**
+     * <pre>
+     * Delete a namespace
+     * Delete a namespace from an index.
+     * </pre>
+     */
+    public com.google.common.util.concurrent.ListenableFuture<io.pinecone.proto.DeleteResponse> deleteNamespace(
+        io.pinecone.proto.DeleteNamespaceRequest request) {
+      return io.grpc.stub.ClientCalls.futureUnaryCall(
+          getChannel().newCall(getDeleteNamespaceMethod(), getCallOptions()), request);
+    }
   }
 
   private static final int METHODID_UPSERT = 0;
@@ -732,6 +963,9 @@ public final class VectorServiceGrpc {
   private static final int METHODID_QUERY = 4;
   private static final int METHODID_UPDATE = 5;
   private static final int METHODID_DESCRIBE_INDEX_STATS = 6;
+  private static final int METHODID_LIST_NAMESPACES = 7;
+  private static final int METHODID_DESCRIBE_NAMESPACE = 8;
+  private static final int METHODID_DELETE_NAMESPACE = 9;
 
   private static final class MethodHandlers<Req, Resp> implements
       io.grpc.stub.ServerCalls.UnaryMethod<Req, Resp>,
@@ -777,6 +1011,18 @@ public final class VectorServiceGrpc {
         case METHODID_DESCRIBE_INDEX_STATS:
           serviceImpl.describeIndexStats((io.pinecone.proto.DescribeIndexStatsRequest) request,
               (io.grpc.stub.StreamObserver<io.pinecone.proto.DescribeIndexStatsResponse>) responseObserver);
+          break;
+        case METHODID_LIST_NAMESPACES:
+          serviceImpl.listNamespaces((io.pinecone.proto.ListNamespacesRequest) request,
+              (io.grpc.stub.StreamObserver<io.pinecone.proto.ListNamespacesResponse>) responseObserver);
+          break;
+        case METHODID_DESCRIBE_NAMESPACE:
+          serviceImpl.describeNamespace((io.pinecone.proto.DescribeNamespaceRequest) request,
+              (io.grpc.stub.StreamObserver<io.pinecone.proto.NamespaceDescription>) responseObserver);
+          break;
+        case METHODID_DELETE_NAMESPACE:
+          serviceImpl.deleteNamespace((io.pinecone.proto.DeleteNamespaceRequest) request,
+              (io.grpc.stub.StreamObserver<io.pinecone.proto.DeleteResponse>) responseObserver);
           break;
         default:
           throw new AssertionError();
@@ -845,6 +1091,27 @@ public final class VectorServiceGrpc {
               io.pinecone.proto.DescribeIndexStatsRequest,
               io.pinecone.proto.DescribeIndexStatsResponse>(
                 service, METHODID_DESCRIBE_INDEX_STATS)))
+        .addMethod(
+          getListNamespacesMethod(),
+          io.grpc.stub.ServerCalls.asyncUnaryCall(
+            new MethodHandlers<
+              io.pinecone.proto.ListNamespacesRequest,
+              io.pinecone.proto.ListNamespacesResponse>(
+                service, METHODID_LIST_NAMESPACES)))
+        .addMethod(
+          getDescribeNamespaceMethod(),
+          io.grpc.stub.ServerCalls.asyncUnaryCall(
+            new MethodHandlers<
+              io.pinecone.proto.DescribeNamespaceRequest,
+              io.pinecone.proto.NamespaceDescription>(
+                service, METHODID_DESCRIBE_NAMESPACE)))
+        .addMethod(
+          getDeleteNamespaceMethod(),
+          io.grpc.stub.ServerCalls.asyncUnaryCall(
+            new MethodHandlers<
+              io.pinecone.proto.DeleteNamespaceRequest,
+              io.pinecone.proto.DeleteResponse>(
+                service, METHODID_DELETE_NAMESPACE)))
         .build();
   }
 
@@ -854,7 +1121,7 @@ public final class VectorServiceGrpc {
 
     @java.lang.Override
     public com.google.protobuf.Descriptors.FileDescriptor getFileDescriptor() {
-      return io.pinecone.proto.DbData202501.getDescriptor();
+      return io.pinecone.proto.DbData202504.getDescriptor();
     }
 
     @java.lang.Override
@@ -900,6 +1167,9 @@ public final class VectorServiceGrpc {
               .addMethod(getQueryMethod())
               .addMethod(getUpdateMethod())
               .addMethod(getDescribeIndexStatsMethod())
+              .addMethod(getListNamespacesMethod())
+              .addMethod(getDescribeNamespaceMethod())
+              .addMethod(getDeleteNamespaceMethod())
               .build();
         }
       }

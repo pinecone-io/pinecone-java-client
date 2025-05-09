@@ -12,7 +12,9 @@ import io.pinecone.proto.*;
 import io.pinecone.proto.DeleteRequest;
 import io.pinecone.proto.DescribeIndexStatsRequest;
 import io.pinecone.proto.FetchResponse;
+import io.pinecone.proto.ListNamespacesResponse;
 import io.pinecone.proto.ListResponse;
+import io.pinecone.proto.NamespaceDescription;
 import io.pinecone.proto.QueryRequest;
 import io.pinecone.proto.QueryResponse;
 import io.pinecone.proto.UpdateRequest;
@@ -51,7 +53,9 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
         ListenableFuture<UpdateResponse>,
         ListenableFuture<DeleteResponse>,
         ListenableFuture<DescribeIndexStatsResponse>,
-        ListenableFuture<ListResponse>>{
+        ListenableFuture<ListResponse>,
+        ListenableFuture<ListNamespacesResponse>,
+        ListenableFuture<NamespaceDescription>>{
 
     private final PineconeConnection connection;
     private final VectorServiceGrpc.VectorServiceFutureStub asyncStub;
@@ -1067,6 +1071,86 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
         ListRequest listRequest = ListRequest.newBuilder().setNamespace(namespace).setPrefix(prefix).
                 setPaginationToken(paginationToken).setLimit(limit).build();
         return asyncStub.list(listRequest);
+    }
+
+    /**
+     * <pre>
+     * Overload to get a list of all namespaces without limit and pagination token. When limit is not set, it'll
+     * default to 100.
+     * @return {@link ListenableFuture<ListNamespacesResponse>} The response for the list namespace operation.
+     * </pre>
+     */
+    @Override
+    public ListenableFuture<ListNamespacesResponse> listNamespaces() {
+        ListNamespacesRequest listNamespacesRequest = ListNamespacesRequest
+                .newBuilder()
+                .build();
+        return asyncStub.listNamespaces(listNamespacesRequest);
+    }
+
+    /**
+     * <pre>
+     * Overload to get a list of all namespaces withing an index with default limit set to 100.
+     * @param paginationToken The token to paginate through the list of vector IDs.
+     * @return {@link ListenableFuture<ListNamespacesResponse>} The response for the list namespace operation.
+     * </pre>
+     */
+    @Override
+    public ListenableFuture<ListNamespacesResponse> listNamespaces(String paginationToken) {
+        ListNamespacesRequest listNamespacesRequest = ListNamespacesRequest
+                .newBuilder()
+                .setPaginationToken(paginationToken)
+                .build();
+        return asyncStub.listNamespaces(listNamespacesRequest);
+    }
+
+    /**
+     * <pre>
+     * Get list of all namespaces within an index.
+     * @param paginationToken The token to paginate through the list of vector IDs. If pagination token is set to null,
+     *                        it'll be ignored.
+     * @param limit           The maximum number of vector IDs you want to retrieve.
+     * @return {@link ListenableFuture<ListNamespacesResponse>} The response for the list namespace operation.
+     * </pre>
+     */
+    public ListenableFuture<ListNamespacesResponse> listNamespaces(String paginationToken, int limit) {
+        ListNamespacesRequest.Builder listNamespacesRequest = ListNamespacesRequest
+                .newBuilder()
+                .setLimit(limit);
+        if(paginationToken != null) {
+            listNamespacesRequest.setPaginationToken(paginationToken);
+        }
+        return asyncStub.listNamespaces(listNamespacesRequest.build());
+    }
+
+    /**
+     * <pre>
+     * Describe a namespace within an index, showing the vector count within the namespace.
+     * @param namespace The namespace to describe.
+     * @return {@link ListenableFuture<NamespaceDescription>} The response for the describe namespace operation.
+     * </pre>
+     */
+    public ListenableFuture<NamespaceDescription> describeNamespace(String namespace) {
+        DescribeNamespaceRequest describeNamespaceRequest = DescribeNamespaceRequest
+                .newBuilder()
+                .setNamespace(namespace)
+                .build();
+        return asyncStub.describeNamespace(describeNamespaceRequest);
+    }
+
+    /**
+     * <pre>
+     * Delete a namespace from an index.
+     * @param namespace The namespace to describe.
+     * @return {@link ListenableFuture<DeleteResponse>} The response for the delete namespace operation.
+     * </pre>
+     */
+    public ListenableFuture<DeleteResponse> deleteNamespace(String namespace) {
+        DeleteNamespaceRequest deleteNamespaceRequest = DeleteNamespaceRequest
+                .newBuilder()
+                .setNamespace(namespace)
+                .build();
+        return asyncStub.deleteNamespace(deleteNamespaceRequest);
     }
 
     /**
