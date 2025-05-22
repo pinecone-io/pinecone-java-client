@@ -149,7 +149,7 @@ public class BulkOperationsApi {
 
     /**
      * Cancel an import
-     * Cancel an import operation if it is not yet finished. It has no effect if the operation is already finished.  For guidance and examples, see [Import data](https://docs.pinecone.io/guides/data/import-data).
+     * Cancel an import operation if it is not yet finished. It has no effect if the operation is already finished.  For guidance and examples, see [Import data](https://docs.pinecone.io/guides/index-data/import-data).
      * @param id Unique identifier for the import operation. (required)
      * @return Object
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
@@ -169,7 +169,7 @@ public class BulkOperationsApi {
 
     /**
      * Cancel an import
-     * Cancel an import operation if it is not yet finished. It has no effect if the operation is already finished.  For guidance and examples, see [Import data](https://docs.pinecone.io/guides/data/import-data).
+     * Cancel an import operation if it is not yet finished. It has no effect if the operation is already finished.  For guidance and examples, see [Import data](https://docs.pinecone.io/guides/index-data/import-data).
      * @param id Unique identifier for the import operation. (required)
      * @return ApiResponse&lt;Object&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
@@ -190,7 +190,7 @@ public class BulkOperationsApi {
 
     /**
      * Cancel an import (asynchronously)
-     * Cancel an import operation if it is not yet finished. It has no effect if the operation is already finished.  For guidance and examples, see [Import data](https://docs.pinecone.io/guides/data/import-data).
+     * Cancel an import operation if it is not yet finished. It has no effect if the operation is already finished.  For guidance and examples, see [Import data](https://docs.pinecone.io/guides/index-data/import-data).
      * @param id Unique identifier for the import operation. (required)
      * @param _callback The callback to be executed when the API call finishes
      * @return The request call
@@ -284,7 +284,7 @@ public class BulkOperationsApi {
 
     /**
      * Describe an import
-     * Return details of a specific import operation.  For guidance and examples, see [Import data](https://docs.pinecone.io/guides/data/import-data).
+     * Return details of a specific import operation.  For guidance and examples, see [Import data](https://docs.pinecone.io/guides/index-data/import-data).
      * @param id Unique identifier for the import operation. (required)
      * @return ImportModel
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
@@ -304,7 +304,7 @@ public class BulkOperationsApi {
 
     /**
      * Describe an import
-     * Return details of a specific import operation.  For guidance and examples, see [Import data](https://docs.pinecone.io/guides/data/import-data).
+     * Return details of a specific import operation.  For guidance and examples, see [Import data](https://docs.pinecone.io/guides/index-data/import-data).
      * @param id Unique identifier for the import operation. (required)
      * @return ApiResponse&lt;ImportModel&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
@@ -325,7 +325,7 @@ public class BulkOperationsApi {
 
     /**
      * Describe an import (asynchronously)
-     * Return details of a specific import operation.  For guidance and examples, see [Import data](https://docs.pinecone.io/guides/data/import-data).
+     * Return details of a specific import operation.  For guidance and examples, see [Import data](https://docs.pinecone.io/guides/index-data/import-data).
      * @param id Unique identifier for the import operation. (required)
      * @param _callback The callback to be executed when the API call finishes
      * @return The request call
@@ -422,7 +422,7 @@ public class BulkOperationsApi {
 
     /**
      * List imports
-     * List all recent and ongoing import operations.  By default, &#x60;list_imports&#x60; returns up to 100 imports per page. If the &#x60;limit&#x60; parameter is set, &#x60;list&#x60; returns up to that number of imports instead. Whenever there are additional IDs to return, the response also includes a &#x60;pagination_token&#x60; that you can use to get the next batch of imports. When the response does not include a &#x60;pagination_token&#x60;, there are no more imports to return.  For guidance and examples, see [Import data](https://docs.pinecone.io/guides/data/import-data).
+     * List all recent and ongoing import operations.  By default, &#x60;list_imports&#x60; returns up to 100 imports per page. If the &#x60;limit&#x60; parameter is set, &#x60;list&#x60; returns up to that number of imports instead. Whenever there are additional IDs to return, the response also includes a &#x60;pagination_token&#x60; that you can use to get the next batch of imports. When the response does not include a &#x60;pagination_token&#x60;, there are no more imports to return.  For guidance and examples, see [Import data](https://docs.pinecone.io/guides/index-data/import-data).
      * @param limit Max number of operations to return per page. (optional)
      * @param paginationToken Pagination token to continue a previous listing operation. (optional)
      * @return ListImportsResponse
@@ -443,7 +443,7 @@ public class BulkOperationsApi {
 
     /**
      * List imports
-     * List all recent and ongoing import operations.  By default, &#x60;list_imports&#x60; returns up to 100 imports per page. If the &#x60;limit&#x60; parameter is set, &#x60;list&#x60; returns up to that number of imports instead. Whenever there are additional IDs to return, the response also includes a &#x60;pagination_token&#x60; that you can use to get the next batch of imports. When the response does not include a &#x60;pagination_token&#x60;, there are no more imports to return.  For guidance and examples, see [Import data](https://docs.pinecone.io/guides/data/import-data).
+     * List all recent and ongoing import operations.  By default, &#x60;list_imports&#x60; returns up to 100 imports per page. If the &#x60;limit&#x60; parameter is set, &#x60;list&#x60; returns up to that number of imports instead. Whenever there are additional IDs to return, the response also includes a &#x60;pagination_token&#x60; that you can use to get the next batch of imports. When the response does not include a &#x60;pagination_token&#x60;, there are no more imports to return.  For guidance and examples, see [Import data](https://docs.pinecone.io/guides/index-data/import-data).
      * @param limit Max number of operations to return per page. (optional)
      * @param paginationToken Pagination token to continue a previous listing operation. (optional)
      * @return ApiResponse&lt;ListImportsResponse&gt;
@@ -465,7 +465,7 @@ public class BulkOperationsApi {
 
     /**
      * List imports (asynchronously)
-     * List all recent and ongoing import operations.  By default, &#x60;list_imports&#x60; returns up to 100 imports per page. If the &#x60;limit&#x60; parameter is set, &#x60;list&#x60; returns up to that number of imports instead. Whenever there are additional IDs to return, the response also includes a &#x60;pagination_token&#x60; that you can use to get the next batch of imports. When the response does not include a &#x60;pagination_token&#x60;, there are no more imports to return.  For guidance and examples, see [Import data](https://docs.pinecone.io/guides/data/import-data).
+     * List all recent and ongoing import operations.  By default, &#x60;list_imports&#x60; returns up to 100 imports per page. If the &#x60;limit&#x60; parameter is set, &#x60;list&#x60; returns up to that number of imports instead. Whenever there are additional IDs to return, the response also includes a &#x60;pagination_token&#x60; that you can use to get the next batch of imports. When the response does not include a &#x60;pagination_token&#x60;, there are no more imports to return.  For guidance and examples, see [Import data](https://docs.pinecone.io/guides/index-data/import-data).
      * @param limit Max number of operations to return per page. (optional)
      * @param paginationToken Pagination token to continue a previous listing operation. (optional)
      * @param _callback The callback to be executed when the API call finishes
@@ -560,7 +560,7 @@ public class BulkOperationsApi {
 
     /**
      * Start import
-     * Start an asynchronous import of vectors from object storage into an index.  For guidance and examples, see [Import data](https://docs.pinecone.io/guides/data/import-data).
+     * Start an asynchronous import of vectors from object storage into an index.  For guidance and examples, see [Import data](https://docs.pinecone.io/guides/index-data/import-data).
      * @param startImportRequest  (required)
      * @return StartImportResponse
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
@@ -580,7 +580,7 @@ public class BulkOperationsApi {
 
     /**
      * Start import
-     * Start an asynchronous import of vectors from object storage into an index.  For guidance and examples, see [Import data](https://docs.pinecone.io/guides/data/import-data).
+     * Start an asynchronous import of vectors from object storage into an index.  For guidance and examples, see [Import data](https://docs.pinecone.io/guides/index-data/import-data).
      * @param startImportRequest  (required)
      * @return ApiResponse&lt;StartImportResponse&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
@@ -601,7 +601,7 @@ public class BulkOperationsApi {
 
     /**
      * Start import (asynchronously)
-     * Start an asynchronous import of vectors from object storage into an index.  For guidance and examples, see [Import data](https://docs.pinecone.io/guides/data/import-data).
+     * Start an asynchronous import of vectors from object storage into an index.  For guidance and examples, see [Import data](https://docs.pinecone.io/guides/index-data/import-data).
      * @param startImportRequest  (required)
      * @param _callback The callback to be executed when the API call finishes
      * @return The request call

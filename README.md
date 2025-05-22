@@ -651,6 +651,7 @@ pinecone.deleteCollection("example-collection");
 
 # Inference
 ## Embed
+
 The Pinecone SDK now supports creating embeddings via the [Inference API](https://docs.pinecone.io/guides/inference/understanding-inference).
 
 ```java
@@ -689,6 +690,7 @@ List<Embedding> embeddedData = embeddings.getData();
 ```
 
 ## Rerank
+
 The following example shows how to rerank items according to their relevance to a query.
 
 ```java
@@ -749,6 +751,41 @@ RerankResult result = inference.rerank(model, query, documents, rankFields, topN
 
 // Get ranked data
 System.out.println(result.getData());
+```
+
+## Models
+
+The following example shows how to list and describe an embedding model.
+
+```java
+import io.pinecone.clients.Inference;
+import io.pinecone.clients.Pinecone;
+import org.openapitools.inference.client.ApiException;
+import org.openapitools.inference.client.model.ModelInfo;
+import org.openapitools.inference.client.model.ModelInfoList;
+...
+
+Pinecone pinecone = new Pinecone
+        .Builder(System.getenv("PINECONE_API_KEY"))
+        .build();
+
+Inference inference = pinecone.getInferenceClient();
+
+// list models
+ModelInfoList models = inference.listModels();
+System.out.println(models);
+
+// list models by filtering with type
+models = inference.listModels("rerank");
+System.out.println(models);
+
+// list models by filtering with type and vectorType
+models = inference.listModels("embed", "dense");
+System.out.println(models);
+
+// describe a model
+ModelInfo modelInfo = inference.describeModel("llama-text-embed-v2");
+System.out.println(modelInfo);
 ```
 
 # Imports
@@ -862,7 +899,7 @@ BackupList backupList = pinecone.listIndexBackups(indexName1);
 System.out.println("backupList for index1: " + backupList);
 
 // list all backups for a project
-backupList = pinecone.listProjectBackups();
+backupList = pinecone.listProjectBackups(3, "some-pagination-token");
 System.out.println("backupList for project: " + backupList);
 
 // describe backup

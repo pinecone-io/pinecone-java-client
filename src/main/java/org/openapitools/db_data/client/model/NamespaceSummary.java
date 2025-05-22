@@ -49,7 +49,7 @@ import org.openapitools.db_data.client.JSON;
 /**
  * A summary of the contents of a namespace.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-04-29T13:39:25.790649Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-05-22T16:07:22.496740Z[Etc/UTC]")
 public class NamespaceSummary {
   public static final String SERIALIZED_NAME_VECTOR_COUNT = "vectorCount";
   @SerializedName(SERIALIZED_NAME_VECTOR_COUNT)

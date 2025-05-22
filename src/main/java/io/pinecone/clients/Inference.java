@@ -117,6 +117,46 @@ public class Inference {
     }
 
     /**
+     * Overloaded method to list available models.
+     * @return ModelInfoList
+     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+     */
+    public ModelInfoList listModels() throws ApiException {
+        return inferenceApi.listModels(null, null);
+    }
+
+    /**
+     * Overloaded method to list available models based on type parameter only.
+     * @param type Filter models by type (&#39;embed&#39; or &#39;rerank&#39;). (optional)
+     * @return ModelInfoList
+     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+     */
+    public ModelInfoList listModels(String type) throws ApiException {
+        return inferenceApi.listModels(type, null);
+    }
+
+    /**
+     * List available models.
+     * @param type Filter models by type (&#39;embed&#39; or &#39;rerank&#39;). (optional)
+     * @param vectorType Filter embedding models by vector type (&#39;dense&#39; or &#39;sparse&#39;). Only relevant when &#x60;type&#x3D;embed&#x60;. (optional)
+     * @return ModelInfoList
+     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+     */
+    public ModelInfoList listModels(String type, String vectorType) throws ApiException {
+        return inferenceApi.listModels(type, vectorType);
+    }
+
+    /**
+     * Get available model details.
+     * @param modelName The name of the model to look up. (required)
+     * @return ModelInfo
+     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+     */
+    public ModelInfo describeModel(String modelName) throws ApiException {
+        return inferenceApi.getModel(modelName);
+    }
+
+    /**
      * Converts a list of input strings to EmbedRequestInputsInner objects.
      *
      * @param inputs A list of input strings.

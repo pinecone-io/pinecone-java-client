@@ -913,17 +913,26 @@ public class Pinecone {
 
     /**
      * List backups for all indexes in a project
-     * List all backups for a project.
      *
      * @return BackupList
      */
     public BackupList listProjectBackups() throws ApiException {
-        return manageIndexesApi.listProjectBackups();
+        return listProjectBackups(null, null);
+    }
+
+    /**
+     * List backups for all indexes in a project
+     * @param limit The number of results to return per page. (optional)
+     * @param paginationToken The token to use to retrieve the next page of results. (optional)
+     *
+     * @return BackupList
+     */
+    public BackupList listProjectBackups(Integer limit, String paginationToken) throws ApiException {
+        return manageIndexesApi.listProjectBackups(limit, paginationToken);
     }
 
     /**
      * Describe a backup
-     * Get a description of a backup.
      *
      * @param backupId The ID of the backup to describe. (required)
      * @return BackupModel
@@ -959,7 +968,7 @@ public class Pinecone {
         if (deletionProtection != null) {
             createIndexFromBackupRequest.deletionProtection(deletionProtection);
         }
-        manageIndexesApi.createIndexFromBackup(backupId, createIndexFromBackupRequest);
+        manageIndexesApi.createIndexFromBackupOperation(backupId, createIndexFromBackupRequest);
     }
 
     /**
@@ -974,7 +983,7 @@ public class Pinecone {
     public CreateIndexFromBackupResponse createIndexFromBackup(String backupId, String indexName) throws ApiException {
         CreateIndexFromBackupRequest createIndexFromBackupRequest = new CreateIndexFromBackupRequest()
                 .name(indexName);
-        return manageIndexesApi.createIndexFromBackup(backupId, createIndexFromBackupRequest);
+        return manageIndexesApi.createIndexFromBackupOperation(backupId, createIndexFromBackupRequest);
     }
 
     /**

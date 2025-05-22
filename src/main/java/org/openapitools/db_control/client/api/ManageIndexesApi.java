@@ -634,7 +634,7 @@ public class ManageIndexesApi {
 
     /**
      * Create an index
-     * Create a Pinecone index. This is where you specify the measure of similarity, the dimension of vectors to be stored in the index, which cloud provider you would like to deploy with, and more.    For guidance and examples, see [Create an index](https://docs.pinecone.io/guides/indexes/create-an-index#create-a-serverless-index). 
+     * Create a Pinecone index. This is where you specify the measure of similarity, the dimension of vectors to be stored in the index, which cloud provider you would like to deploy with, and more.    For guidance and examples, see [Create an index](https://docs.pinecone.io/guides/index-data/create-an-index). 
      * @param createIndexRequest The desired configuration for the index. (required)
      * @return IndexModel
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
@@ -659,7 +659,7 @@ public class ManageIndexesApi {
 
     /**
      * Create an index
-     * Create a Pinecone index. This is where you specify the measure of similarity, the dimension of vectors to be stored in the index, which cloud provider you would like to deploy with, and more.    For guidance and examples, see [Create an index](https://docs.pinecone.io/guides/indexes/create-an-index#create-a-serverless-index). 
+     * Create a Pinecone index. This is where you specify the measure of similarity, the dimension of vectors to be stored in the index, which cloud provider you would like to deploy with, and more.    For guidance and examples, see [Create an index](https://docs.pinecone.io/guides/index-data/create-an-index). 
      * @param createIndexRequest The desired configuration for the index. (required)
      * @return ApiResponse&lt;IndexModel&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
@@ -685,7 +685,7 @@ public class ManageIndexesApi {
 
     /**
      * Create an index (asynchronously)
-     * Create a Pinecone index. This is where you specify the measure of similarity, the dimension of vectors to be stored in the index, which cloud provider you would like to deploy with, and more.    For guidance and examples, see [Create an index](https://docs.pinecone.io/guides/indexes/create-an-index#create-a-serverless-index). 
+     * Create a Pinecone index. This is where you specify the measure of similarity, the dimension of vectors to be stored in the index, which cloud provider you would like to deploy with, and more.    For guidance and examples, see [Create an index](https://docs.pinecone.io/guides/index-data/create-an-index). 
      * @param createIndexRequest The desired configuration for the index. (required)
      * @param _callback The callback to be executed when the API call finishes
      * @return The request call
@@ -787,7 +787,7 @@ public class ManageIndexesApi {
 
     /**
      * Create an index with integrated embedding
-     * Create an index with integrated embedding.  With this type of index, you provide source text, and Pinecone uses a [hosted embedding model](https://docs.pinecone.io/guides/inference/understanding-inference#embedding-models) to convert the text automatically during [upsert](https://docs.pinecone.io/reference/api/2025-01/data-plane/upsert_records) and [search](https://docs.pinecone.io/reference/api/2025-01/data-plane/search_records).  For guidance and examples, see [Create an index](https://docs.pinecone.io/guides/indexes/create-an-index#integrated-embedding).
+     * Create an index with integrated embedding.  With this type of index, you provide source text, and Pinecone uses a [hosted embedding model](https://docs.pinecone.io/guides/index-data/create-an-index#embedding-models) to convert the text automatically during [upsert](https://docs.pinecone.io/reference/api/2025-01/data-plane/upsert_records) and [search](https://docs.pinecone.io/reference/api/2025-01/data-plane/search_records).  For guidance and examples, see [Create an index](https://docs.pinecone.io/guides/index-data/create-an-index#integrated-embedding).
      * @param createIndexForModelRequest The desired configuration for the index and associated embedding model. (required)
      * @return IndexModel
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
@@ -810,7 +810,7 @@ public class ManageIndexesApi {
 
     /**
      * Create an index with integrated embedding
-     * Create an index with integrated embedding.  With this type of index, you provide source text, and Pinecone uses a [hosted embedding model](https://docs.pinecone.io/guides/inference/understanding-inference#embedding-models) to convert the text automatically during [upsert](https://docs.pinecone.io/reference/api/2025-01/data-plane/upsert_records) and [search](https://docs.pinecone.io/reference/api/2025-01/data-plane/search_records).  For guidance and examples, see [Create an index](https://docs.pinecone.io/guides/indexes/create-an-index#integrated-embedding).
+     * Create an index with integrated embedding.  With this type of index, you provide source text, and Pinecone uses a [hosted embedding model](https://docs.pinecone.io/guides/index-data/create-an-index#embedding-models) to convert the text automatically during [upsert](https://docs.pinecone.io/reference/api/2025-01/data-plane/upsert_records) and [search](https://docs.pinecone.io/reference/api/2025-01/data-plane/search_records).  For guidance and examples, see [Create an index](https://docs.pinecone.io/guides/index-data/create-an-index#integrated-embedding).
      * @param createIndexForModelRequest The desired configuration for the index and associated embedding model. (required)
      * @return ApiResponse&lt;IndexModel&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
@@ -834,7 +834,7 @@ public class ManageIndexesApi {
 
     /**
      * Create an index with integrated embedding (asynchronously)
-     * Create an index with integrated embedding.  With this type of index, you provide source text, and Pinecone uses a [hosted embedding model](https://docs.pinecone.io/guides/inference/understanding-inference#embedding-models) to convert the text automatically during [upsert](https://docs.pinecone.io/reference/api/2025-01/data-plane/upsert_records) and [search](https://docs.pinecone.io/reference/api/2025-01/data-plane/search_records).  For guidance and examples, see [Create an index](https://docs.pinecone.io/guides/indexes/create-an-index#integrated-embedding).
+     * Create an index with integrated embedding.  With this type of index, you provide source text, and Pinecone uses a [hosted embedding model](https://docs.pinecone.io/guides/index-data/create-an-index#embedding-models) to convert the text automatically during [upsert](https://docs.pinecone.io/reference/api/2025-01/data-plane/upsert_records) and [search](https://docs.pinecone.io/reference/api/2025-01/data-plane/search_records).  For guidance and examples, see [Create an index](https://docs.pinecone.io/guides/index-data/create-an-index#integrated-embedding).
      * @param createIndexForModelRequest The desired configuration for the index and associated embedding model. (required)
      * @param _callback The callback to be executed when the API call finishes
      * @return The request call
@@ -859,7 +859,7 @@ public class ManageIndexesApi {
         return localVarCall;
     }
     /**
-     * Build call for createIndexFromBackup
+     * Build call for createIndexFromBackupOperation
      * @param backupId The ID of the backup to create an index from. (required)
      * @param createIndexFromBackupRequest The desired configuration for the index created from a backup. (required)
      * @param _callback Callback for upload/download progress
@@ -879,7 +879,7 @@ public class ManageIndexesApi {
         <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call createIndexFromBackupCall(String backupId, CreateIndexFromBackupRequest createIndexFromBackupRequest, final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call createIndexFromBackupOperationCall(String backupId, CreateIndexFromBackupRequest createIndexFromBackupRequest, final ApiCallback _callback) throws ApiException {
         String basePath = null;
         // Operation Servers
         String[] localBasePaths = new String[] {  };
@@ -926,18 +926,18 @@ public class ManageIndexesApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call createIndexFromBackupValidateBeforeCall(String backupId, CreateIndexFromBackupRequest createIndexFromBackupRequest, final ApiCallback _callback) throws ApiException {
+    private okhttp3.Call createIndexFromBackupOperationValidateBeforeCall(String backupId, CreateIndexFromBackupRequest createIndexFromBackupRequest, final ApiCallback _callback) throws ApiException {
         // verify the required parameter 'backupId' is set
         if (backupId == null) {
-            throw new ApiException("Missing the required parameter 'backupId' when calling createIndexFromBackup(Async)");
+            throw new ApiException("Missing the required parameter 'backupId' when calling createIndexFromBackupOperation(Async)");
         }
 
         // verify the required parameter 'createIndexFromBackupRequest' is set
         if (createIndexFromBackupRequest == null) {
-            throw new ApiException("Missing the required parameter 'createIndexFromBackupRequest' when calling createIndexFromBackup(Async)");
+            throw new ApiException("Missing the required parameter 'createIndexFromBackupRequest' when calling createIndexFromBackupOperation(Async)");
         }
 
-        return createIndexFromBackupCall(backupId, createIndexFromBackupRequest, _callback);
+        return createIndexFromBackupOperationCall(backupId, createIndexFromBackupRequest, _callback);
 
     }
 
@@ -962,8 +962,8 @@ public class ManageIndexesApi {
         <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
-    public CreateIndexFromBackupResponse createIndexFromBackup(String backupId, CreateIndexFromBackupRequest createIndexFromBackupRequest) throws ApiException {
-        ApiResponse<CreateIndexFromBackupResponse> localVarResp = createIndexFromBackupWithHttpInfo(backupId, createIndexFromBackupRequest);
+    public CreateIndexFromBackupResponse createIndexFromBackupOperation(String backupId, CreateIndexFromBackupRequest createIndexFromBackupRequest) throws ApiException {
+        ApiResponse<CreateIndexFromBackupResponse> localVarResp = createIndexFromBackupOperationWithHttpInfo(backupId, createIndexFromBackupRequest);
         return localVarResp.getData();
     }
 
@@ -988,8 +988,8 @@ public class ManageIndexesApi {
         <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<CreateIndexFromBackupResponse> createIndexFromBackupWithHttpInfo(String backupId, CreateIndexFromBackupRequest createIndexFromBackupRequest) throws ApiException {
-        okhttp3.Call localVarCall = createIndexFromBackupValidateBeforeCall(backupId, createIndexFromBackupRequest, null);
+    public ApiResponse<CreateIndexFromBackupResponse> createIndexFromBackupOperationWithHttpInfo(String backupId, CreateIndexFromBackupRequest createIndexFromBackupRequest) throws ApiException {
+        okhttp3.Call localVarCall = createIndexFromBackupOperationValidateBeforeCall(backupId, createIndexFromBackupRequest, null);
         Type localVarReturnType = new TypeToken<CreateIndexFromBackupResponse>(){}.getType();
         return localVarApiClient.execute(localVarCall, localVarReturnType);
     }
@@ -1016,9 +1016,9 @@ public class ManageIndexesApi {
         <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call createIndexFromBackupAsync(String backupId, CreateIndexFromBackupRequest createIndexFromBackupRequest, final ApiCallback<CreateIndexFromBackupResponse> _callback) throws ApiException {
+    public okhttp3.Call createIndexFromBackupOperationAsync(String backupId, CreateIndexFromBackupRequest createIndexFromBackupRequest, final ApiCallback<CreateIndexFromBackupResponse> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = createIndexFromBackupValidateBeforeCall(backupId, createIndexFromBackupRequest, _callback);
+        okhttp3.Call localVarCall = createIndexFromBackupOperationValidateBeforeCall(backupId, createIndexFromBackupRequest, _callback);
         Type localVarReturnType = new TypeToken<CreateIndexFromBackupResponse>(){}.getType();
         localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
         return localVarCall;
@@ -2363,6 +2363,8 @@ public class ManageIndexesApi {
     }
     /**
      * Build call for listProjectBackups
+     * @param limit The number of results to return per page. (optional, default to 10)
+     * @param paginationToken The token to use to retrieve the next page of results. (optional)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
      * @throws ApiException If fail to serialize the request body object
@@ -2374,7 +2376,7 @@ public class ManageIndexesApi {
         <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call listProjectBackupsCall(final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call listProjectBackupsCall(Integer limit, String paginationToken, final ApiCallback _callback) throws ApiException {
         String basePath = null;
         // Operation Servers
         String[] localBasePaths = new String[] {  };
@@ -2399,6 +2401,14 @@ public class ManageIndexesApi {
         Map<String, String> localVarCookieParams = new HashMap<String, String>();
         Map<String, Object> localVarFormParams = new HashMap<String, Object>();
 
+        if (limit != null) {
+            localVarQueryParams.addAll(localVarApiClient.parameterToPair("limit", limit));
+        }
+
+        if (paginationToken != null) {
+            localVarQueryParams.addAll(localVarApiClient.parameterToPair("paginationToken", paginationToken));
+        }
+
         final String[] localVarAccepts = {
             "application/json"
         };
@@ -2419,14 +2429,16 @@ public class ManageIndexesApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call listProjectBackupsValidateBeforeCall(final ApiCallback _callback) throws ApiException {
-        return listProjectBackupsCall(_callback);
+    private okhttp3.Call listProjectBackupsValidateBeforeCall(Integer limit, String paginationToken, final ApiCallback _callback) throws ApiException {
+        return listProjectBackupsCall(limit, paginationToken, _callback);
 
     }
 
     /**
      * List backups for all indexes in a project
      * List all backups for a project.
+     * @param limit The number of results to return per page. (optional, default to 10)
+     * @param paginationToken The token to use to retrieve the next page of results. (optional)
      * @return BackupList
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
@@ -2437,14 +2449,16 @@ public class ManageIndexesApi {
         <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
-    public BackupList listProjectBackups() throws ApiException {
-        ApiResponse<BackupList> localVarResp = listProjectBackupsWithHttpInfo();
+    public BackupList listProjectBackups(Integer limit, String paginationToken) throws ApiException {
+        ApiResponse<BackupList> localVarResp = listProjectBackupsWithHttpInfo(limit, paginationToken);
         return localVarResp.getData();
     }
 
     /**
      * List backups for all indexes in a project
      * List all backups for a project.
+     * @param limit The number of results to return per page. (optional, default to 10)
+     * @param paginationToken The token to use to retrieve the next page of results. (optional)
      * @return ApiResponse&lt;BackupList&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
@@ -2455,8 +2469,8 @@ public class ManageIndexesApi {
         <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<BackupList> listProjectBackupsWithHttpInfo() throws ApiException {
-        okhttp3.Call localVarCall = listProjectBackupsValidateBeforeCall(null);
+    public ApiResponse<BackupList> listProjectBackupsWithHttpInfo(Integer limit, String paginationToken) throws ApiException {
+        okhttp3.Call localVarCall = listProjectBackupsValidateBeforeCall(limit, paginationToken, null);
         Type localVarReturnType = new TypeToken<BackupList>(){}.getType();
         return localVarApiClient.execute(localVarCall, localVarReturnType);
     }
@@ -2464,6 +2478,8 @@ public class ManageIndexesApi {
     /**
      * List backups for all indexes in a project (asynchronously)
      * List all backups for a project.
+     * @param limit The number of results to return per page. (optional, default to 10)
+     * @param paginationToken The token to use to retrieve the next page of results. (optional)
      * @param _callback The callback to be executed when the API call finishes
      * @return The request call
      * @throws ApiException If fail to process the API call, e.g. serializing the request body object
@@ -2475,9 +2491,9 @@ public class ManageIndexesApi {
         <tr><td> 500 </td><td> Internal server error. </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call listProjectBackupsAsync(final ApiCallback<BackupList> _callback) throws ApiException {
+    public okhttp3.Call listProjectBackupsAsync(Integer limit, String paginationToken, final ApiCallback<BackupList> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = listProjectBackupsValidateBeforeCall(_callback);
+        okhttp3.Call localVarCall = listProjectBackupsValidateBeforeCall(limit, paginationToken, _callback);
         Type localVarReturnType = new TypeToken<BackupList>(){}.getType();
         localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
         return localVarCall;

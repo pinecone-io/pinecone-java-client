@@ -146,7 +146,7 @@ public class InferenceApi {
 
     /**
      * Generate vectors
-     * Generate vector embeddings for input data. This endpoint uses [Pinecone Inference](https://docs.pinecone.io/guides/inference/understanding-inference).  For guidance and examples, see [Embed data](https://docs.pinecone.io/guides/inference/generate-embeddings).
+     * Generate vector embeddings for input data. This endpoint uses Pinecone&#39;s [hosted embedding models](https://docs.pinecone.io/guides/index-data/create-an-index#embedding-models).
      * @param embedRequest Generate embeddings for inputs. (optional)
      * @return EmbeddingsList
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
@@ -166,7 +166,7 @@ public class InferenceApi {
 
     /**
      * Generate vectors
-     * Generate vector embeddings for input data. This endpoint uses [Pinecone Inference](https://docs.pinecone.io/guides/inference/understanding-inference).  For guidance and examples, see [Embed data](https://docs.pinecone.io/guides/inference/generate-embeddings).
+     * Generate vector embeddings for input data. This endpoint uses Pinecone&#39;s [hosted embedding models](https://docs.pinecone.io/guides/index-data/create-an-index#embedding-models).
      * @param embedRequest Generate embeddings for inputs. (optional)
      * @return ApiResponse&lt;EmbeddingsList&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
@@ -187,7 +187,7 @@ public class InferenceApi {
 
     /**
      * Generate vectors (asynchronously)
-     * Generate vector embeddings for input data. This endpoint uses [Pinecone Inference](https://docs.pinecone.io/guides/inference/understanding-inference).  For guidance and examples, see [Embed data](https://docs.pinecone.io/guides/inference/generate-embeddings).
+     * Generate vector embeddings for input data. This endpoint uses Pinecone&#39;s [hosted embedding models](https://docs.pinecone.io/guides/index-data/create-an-index#embedding-models).
      * @param embedRequest Generate embeddings for inputs. (optional)
      * @param _callback The callback to be executed when the API call finishes
      * @return The request call
@@ -280,8 +280,8 @@ public class InferenceApi {
     }
 
     /**
-     * Get available model details.
-     * Get model details.
+     * Describe a model
+     * Get a description of a model hosted by Pinecone.   You can use hosted models as an integrated part of Pinecone operations or for standalone embedding and reranking. For more details, see [Vector embedding](https://docs.pinecone.io/guides/index-data/indexing-overview#vector-embedding) and [Rerank results](https://docs.pinecone.io/guides/search/rerank-results).
      * @param modelName The name of the model to look up. (required)
      * @return ModelInfo
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
@@ -300,8 +300,8 @@ public class InferenceApi {
     }
 
     /**
-     * Get available model details.
-     * Get model details.
+     * Describe a model
+     * Get a description of a model hosted by Pinecone.   You can use hosted models as an integrated part of Pinecone operations or for standalone embedding and reranking. For more details, see [Vector embedding](https://docs.pinecone.io/guides/index-data/indexing-overview#vector-embedding) and [Rerank results](https://docs.pinecone.io/guides/search/rerank-results).
      * @param modelName The name of the model to look up. (required)
      * @return ApiResponse&lt;ModelInfo&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
@@ -321,8 +321,8 @@ public class InferenceApi {
     }
 
     /**
-     * Get available model details. (asynchronously)
-     * Get model details.
+     * Describe a model (asynchronously)
+     * Get a description of a model hosted by Pinecone.   You can use hosted models as an integrated part of Pinecone operations or for standalone embedding and reranking. For more details, see [Vector embedding](https://docs.pinecone.io/guides/index-data/indexing-overview#vector-embedding) and [Rerank results](https://docs.pinecone.io/guides/search/rerank-results).
      * @param modelName The name of the model to look up. (required)
      * @param _callback The callback to be executed when the API call finishes
      * @return The request call
@@ -418,8 +418,8 @@ public class InferenceApi {
     }
 
     /**
-     * Get available models.
-     * Get available models.
+     * List available models
+     * List the embedding and reranking models hosted by Pinecone.   You can use hosted models as an integrated part of Pinecone operations or for standalone embedding and reranking. For more details, see [Vector embedding](https://docs.pinecone.io/guides/index-data/indexing-overview#vector-embedding) and [Rerank results](https://docs.pinecone.io/guides/search/rerank-results).
      * @param type Filter models by type (&#39;embed&#39; or &#39;rerank&#39;). (optional)
      * @param vectorType Filter embedding models by vector type (&#39;dense&#39; or &#39;sparse&#39;). Only relevant when &#x60;type&#x3D;embed&#x60;. (optional)
      * @return ModelInfoList
@@ -439,8 +439,8 @@ public class InferenceApi {
     }
 
     /**
-     * Get available models.
-     * Get available models.
+     * List available models
+     * List the embedding and reranking models hosted by Pinecone.   You can use hosted models as an integrated part of Pinecone operations or for standalone embedding and reranking. For more details, see [Vector embedding](https://docs.pinecone.io/guides/index-data/indexing-overview#vector-embedding) and [Rerank results](https://docs.pinecone.io/guides/search/rerank-results).
      * @param type Filter models by type (&#39;embed&#39; or &#39;rerank&#39;). (optional)
      * @param vectorType Filter embedding models by vector type (&#39;dense&#39; or &#39;sparse&#39;). Only relevant when &#x60;type&#x3D;embed&#x60;. (optional)
      * @return ApiResponse&lt;ModelInfoList&gt;
@@ -461,8 +461,8 @@ public class InferenceApi {
     }
 
     /**
-     * Get available models. (asynchronously)
-     * Get available models.
+     * List available models (asynchronously)
+     * List the embedding and reranking models hosted by Pinecone.   You can use hosted models as an integrated part of Pinecone operations or for standalone embedding and reranking. For more details, see [Vector embedding](https://docs.pinecone.io/guides/index-data/indexing-overview#vector-embedding) and [Rerank results](https://docs.pinecone.io/guides/search/rerank-results).
      * @param type Filter models by type (&#39;embed&#39; or &#39;rerank&#39;). (optional)
      * @param vectorType Filter embedding models by vector type (&#39;dense&#39; or &#39;sparse&#39;). Only relevant when &#x60;type&#x3D;embed&#x60;. (optional)
      * @param _callback The callback to be executed when the API call finishes
@@ -552,7 +552,7 @@ public class InferenceApi {
 
     /**
      * Rerank documents
-     * Rerank documents according to their relevance to a query.  For guidance and examples, see [Rerank documents](https://docs.pinecone.io/guides/inference/rerank).
+     * Rerank results according to their relevance to a query.  For guidance and examples, see [Rerank results](https://docs.pinecone.io/guides/search/rerank-results).
      * @param rerankRequest Rerank documents for the given query (optional)
      * @return RerankResult
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
@@ -572,7 +572,7 @@ public class InferenceApi {
 
     /**
      * Rerank documents
-     * Rerank documents according to their relevance to a query.  For guidance and examples, see [Rerank documents](https://docs.pinecone.io/guides/inference/rerank).
+     * Rerank results according to their relevance to a query.  For guidance and examples, see [Rerank results](https://docs.pinecone.io/guides/search/rerank-results).
      * @param rerankRequest Rerank documents for the given query (optional)
      * @return ApiResponse&lt;RerankResult&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
@@ -593,7 +593,7 @@ public class InferenceApi {
 
     /**
      * Rerank documents (asynchronously)
-     * Rerank documents according to their relevance to a query.  For guidance and examples, see [Rerank documents](https://docs.pinecone.io/guides/inference/rerank).
+     * Rerank results according to their relevance to a query.  For guidance and examples, see [Rerank results](https://docs.pinecone.io/guides/search/rerank-results).
      * @param rerankRequest Rerank documents for the given query (optional)
      * @param _callback The callback to be executed when the API call finishes
      * @return The request call

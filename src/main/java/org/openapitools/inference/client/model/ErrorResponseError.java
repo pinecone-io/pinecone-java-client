@@ -49,7 +49,7 @@ import org.openapitools.inference.client.JSON;
 /**
  * Detailed information about the error that occurred.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-04-29T13:39:27.757942Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-05-22T16:07:32.070880Z[Etc/UTC]")
 public class ErrorResponseError {
   /**
    * Gets or Sets code

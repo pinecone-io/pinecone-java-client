@@ -282,7 +282,7 @@ public class NamespaceOperationsApi {
 
     /**
      * Describe a namespace
-     * Describe a namespace within an index, showing the vector count within the namespace.
+     * Describe a [namespace](https://docs.pinecone.io/guides/index-data/indexing-overview#namespaces) in a serverless index, including the total number of vectors in the namespace.
      * @param namespace The namespace to describe (required)
      * @return NamespaceDescription
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
@@ -302,7 +302,7 @@ public class NamespaceOperationsApi {
 
     /**
      * Describe a namespace
-     * Describe a namespace within an index, showing the vector count within the namespace.
+     * Describe a [namespace](https://docs.pinecone.io/guides/index-data/indexing-overview#namespaces) in a serverless index, including the total number of vectors in the namespace.
      * @param namespace The namespace to describe (required)
      * @return ApiResponse&lt;NamespaceDescription&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
@@ -323,7 +323,7 @@ public class NamespaceOperationsApi {
 
     /**
      * Describe a namespace (asynchronously)
-     * Describe a namespace within an index, showing the vector count within the namespace.
+     * Describe a [namespace](https://docs.pinecone.io/guides/index-data/indexing-overview#namespaces) in a serverless index, including the total number of vectors in the namespace.
      * @param namespace The namespace to describe (required)
      * @param _callback The callback to be executed when the API call finishes
      * @return The request call
@@ -345,7 +345,7 @@ public class NamespaceOperationsApi {
         return localVarCall;
     }
     /**
-     * Build call for listNamespaces
+     * Build call for listNamespacesOperation
      * @param limit Max number namespaces to return per page. (optional)
      * @param paginationToken Pagination token to continue a previous listing operation. (optional)
      * @param _callback Callback for upload/download progress
@@ -359,7 +359,7 @@ public class NamespaceOperationsApi {
         <tr><td> 5XX </td><td> An unexpected error response. </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call listNamespacesCall(Integer limit, String paginationToken, final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call listNamespacesOperationCall(Integer limit, String paginationToken, final ApiCallback _callback) throws ApiException {
         String basePath = null;
         // Operation Servers
         String[] localBasePaths = new String[] {  };
@@ -412,14 +412,14 @@ public class NamespaceOperationsApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call listNamespacesValidateBeforeCall(Integer limit, String paginationToken, final ApiCallback _callback) throws ApiException {
-        return listNamespacesCall(limit, paginationToken, _callback);
+    private okhttp3.Call listNamespacesOperationValidateBeforeCall(Integer limit, String paginationToken, final ApiCallback _callback) throws ApiException {
+        return listNamespacesOperationCall(limit, paginationToken, _callback);
 
     }
 
     /**
-     * Get list of all namespaces
-     * Get a list of all namespaces within an index.
+     * List namespaces
+     * Get a list of all [namespaces](https://docs.pinecone.io/guides/index-data/indexing-overview#namespaces) in a serverless index.  Up to 100 namespaces are returned at a time by default, in sorted order (bitwise “C” collation). If the &#x60;limit&#x60; parameter is set, up to that number of namespaces are returned instead. Whenever there are additional namespaces to return, the response also includes a &#x60;pagination_token&#x60; that you can use to get the next batch of namespaces. When the response does not include a &#x60;pagination_token&#x60;, there are no more namespaces to return.
      * @param limit Max number namespaces to return per page. (optional)
      * @param paginationToken Pagination token to continue a previous listing operation. (optional)
      * @return ListNamespacesResponse
@@ -432,14 +432,14 @@ public class NamespaceOperationsApi {
         <tr><td> 5XX </td><td> An unexpected error response. </td><td>  -  </td></tr>
      </table>
      */
-    public ListNamespacesResponse listNamespaces(Integer limit, String paginationToken) throws ApiException {
-        ApiResponse<ListNamespacesResponse> localVarResp = listNamespacesWithHttpInfo(limit, paginationToken);
+    public ListNamespacesResponse listNamespacesOperation(Integer limit, String paginationToken) throws ApiException {
+        ApiResponse<ListNamespacesResponse> localVarResp = listNamespacesOperationWithHttpInfo(limit, paginationToken);
         return localVarResp.getData();
     }
 
     /**
-     * Get list of all namespaces
-     * Get a list of all namespaces within an index.
+     * List namespaces
+     * Get a list of all [namespaces](https://docs.pinecone.io/guides/index-data/indexing-overview#namespaces) in a serverless index.  Up to 100 namespaces are returned at a time by default, in sorted order (bitwise “C” collation). If the &#x60;limit&#x60; parameter is set, up to that number of namespaces are returned instead. Whenever there are additional namespaces to return, the response also includes a &#x60;pagination_token&#x60; that you can use to get the next batch of namespaces. When the response does not include a &#x60;pagination_token&#x60;, there are no more namespaces to return.
      * @param limit Max number namespaces to return per page. (optional)
      * @param paginationToken Pagination token to continue a previous listing operation. (optional)
      * @return ApiResponse&lt;ListNamespacesResponse&gt;
@@ -452,15 +452,15 @@ public class NamespaceOperationsApi {
         <tr><td> 5XX </td><td> An unexpected error response. </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<ListNamespacesResponse> listNamespacesWithHttpInfo(Integer limit, String paginationToken) throws ApiException {
-        okhttp3.Call localVarCall = listNamespacesValidateBeforeCall(limit, paginationToken, null);
+    public ApiResponse<ListNamespacesResponse> listNamespacesOperationWithHttpInfo(Integer limit, String paginationToken) throws ApiException {
+        okhttp3.Call localVarCall = listNamespacesOperationValidateBeforeCall(limit, paginationToken, null);
         Type localVarReturnType = new TypeToken<ListNamespacesResponse>(){}.getType();
         return localVarApiClient.execute(localVarCall, localVarReturnType);
     }
 
     /**
-     * Get list of all namespaces (asynchronously)
-     * Get a list of all namespaces within an index.
+     * List namespaces (asynchronously)
+     * Get a list of all [namespaces](https://docs.pinecone.io/guides/index-data/indexing-overview#namespaces) in a serverless index.  Up to 100 namespaces are returned at a time by default, in sorted order (bitwise “C” collation). If the &#x60;limit&#x60; parameter is set, up to that number of namespaces are returned instead. Whenever there are additional namespaces to return, the response also includes a &#x60;pagination_token&#x60; that you can use to get the next batch of namespaces. When the response does not include a &#x60;pagination_token&#x60;, there are no more namespaces to return.
      * @param limit Max number namespaces to return per page. (optional)
      * @param paginationToken Pagination token to continue a previous listing operation. (optional)
      * @param _callback The callback to be executed when the API call finishes
@@ -474,9 +474,9 @@ public class NamespaceOperationsApi {
         <tr><td> 5XX </td><td> An unexpected error response. </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call listNamespacesAsync(Integer limit, String paginationToken, final ApiCallback<ListNamespacesResponse> _callback) throws ApiException {
+    public okhttp3.Call listNamespacesOperationAsync(Integer limit, String paginationToken, final ApiCallback<ListNamespacesResponse> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = listNamespacesValidateBeforeCall(limit, paginationToken, _callback);
+        okhttp3.Call localVarCall = listNamespacesOperationValidateBeforeCall(limit, paginationToken, _callback);
         Type localVarReturnType = new TypeToken<ListNamespacesResponse>(){}.getType();
         localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
         return localVarCall;

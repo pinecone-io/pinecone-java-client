@@ -53,117 +53,23 @@ import org.openapitools.inference.client.JSON;
 /**
  * Represents the model configuration including model type, supported parameters, and other model details.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-04-29T13:39:27.757942Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-05-22T16:07:32.070880Z[Etc/UTC]")
 public class ModelInfo {
-  public static final String SERIALIZED_NAME_NAME = "name";
-  @SerializedName(SERIALIZED_NAME_NAME)
-  private String name;
+  public static final String SERIALIZED_NAME_MODEL = "model";
+  @SerializedName(SERIALIZED_NAME_MODEL)
+  private String model;
 
   public static final String SERIALIZED_NAME_SHORT_DESCRIPTION = "short_description";
   @SerializedName(SERIALIZED_NAME_SHORT_DESCRIPTION)
   private String shortDescription;
 
-  /**
-   * The type of model (e.g. &#39;embed&#39; or &#39;rerank&#39;).
-   */
-  @JsonAdapter(TypeEnum.Adapter.class)
-  public enum TypeEnum {
-    EMBED("embed"),
-    
-    RERANK("rerank");
-
-    private String value;
-
-    TypeEnum(String value) {
-      this.value = value;
-    }
-
-    public String getValue() {
-      return value;
-    }
-
-    @Override
-    public String toString() {
-      return String.valueOf(value);
-    }
-
-    public static TypeEnum fromValue(String value) {
-      for (TypeEnum b : TypeEnum.values()) {
-        if (b.value.equals(value)) {
-          return b;
-        }
-      }
-      throw new IllegalArgumentException("Unexpected value '" + value + "'");
-    }
-
-    public static class Adapter extends TypeAdapter<TypeEnum> {
-      @Override
-      public void write(final JsonWriter jsonWriter, final TypeEnum enumeration) throws IOException {
-        jsonWriter.value(enumeration.getValue());
-      }
-
-      @Override
-      public TypeEnum read(final JsonReader jsonReader) throws IOException {
-        String value =  jsonReader.nextString();
-        return TypeEnum.fromValue(value);
-      }
-    }
-  }
-
   public static final String SERIALIZED_NAME_TYPE = "type";
   @SerializedName(SERIALIZED_NAME_TYPE)
-  private TypeEnum type;
-
-  /**
-   * Whether the embedding model produces &#39;dense&#39; or &#39;sparse&#39; embeddings.
-   */
-  @JsonAdapter(VectorTypeEnum.Adapter.class)
-  public enum VectorTypeEnum {
-    DENSE("dense"),
-    
-    SPARSE("sparse");
-
-    private String value;
-
-    VectorTypeEnum(String value) {
-      this.value = value;
-    }
-
-    public String getValue() {
-      return value;
-    }
-
-    @Override
-    public String toString() {
-      return String.valueOf(value);
-    }
-
-    public static VectorTypeEnum fromValue(String value) {
-      for (VectorTypeEnum b : VectorTypeEnum.values()) {
-        if (b.value.equals(value)) {
-          return b;
-        }
-      }
-      throw new IllegalArgumentException("Unexpected value '" + value + "'");
-    }
-
-    public static class Adapter extends TypeAdapter<VectorTypeEnum> {
-      @Override
-      public void write(final JsonWriter jsonWriter, final VectorTypeEnum enumeration) throws IOException {
-        jsonWriter.value(enumeration.getValue());
-      }
-
-      @Override
-      public VectorTypeEnum read(final JsonReader jsonReader) throws IOException {
-        String value =  jsonReader.nextString();
-        return VectorTypeEnum.fromValue(value);
-      }
-    }
-  }
+  private String type;
 
   public static final String SERIALIZED_NAME_VECTOR_TYPE = "vector_type";
   @SerializedName(SERIALIZED_NAME_VECTOR_TYPE)
-  private VectorTypeEnum vectorType;
+  private String vectorType;
 
   public static final String SERIALIZED_NAME_DEFAULT_DIMENSION = "default_dimension";
   @SerializedName(SERIALIZED_NAME_DEFAULT_DIMENSION)
@@ -200,24 +106,24 @@ public class ModelInfo {
   public ModelInfo() {
   }
 
-  public ModelInfo name(String name) {
+  public ModelInfo model(String model) {
     
-    this.name = name;
+    this.model = model;
     return this;
   }
 
    /**
    * The name of the model.
-   * @return name
+   * @return model
   **/
   @javax.annotation.Nonnull
-  public String getName() {
-    return name;
+  public String getModel() {
+    return model;
   }
 
 
-  public void setName(String name) {
-    this.name = name;
+  public void setModel(String model) {
+    this.model = model;
   }
 
 
@@ -242,7 +148,7 @@ public class ModelInfo {
   }
 
 
-  public ModelInfo type(TypeEnum type) {
+  public ModelInfo type(String type) {
     
     this.type = type;
     return this;
@@ -253,17 +159,17 @@ public class ModelInfo {
    * @return type
   **/
   @javax.annotation.Nonnull
-  public TypeEnum getType() {
+  public String getType() {
     return type;
   }
 
 
-  public void setType(TypeEnum type) {
+  public void setType(String type) {
     this.type = type;
   }
 
 
-  public ModelInfo vectorType(VectorTypeEnum vectorType) {
+  public ModelInfo vectorType(String vectorType) {
     
     this.vectorType = vectorType;
     return this;
@@ -274,12 +180,12 @@ public class ModelInfo {
    * @return vectorType
   **/
   @javax.annotation.Nullable
-  public VectorTypeEnum getVectorType() {
+  public String getVectorType() {
     return vectorType;
   }
 
 
-  public void setVectorType(VectorTypeEnum vectorType) {
+  public void setVectorType(String vectorType) {
     this.vectorType = vectorType;
   }
 
@@ -534,7 +440,7 @@ public class ModelInfo {
       return false;
     }
     ModelInfo modelInfo = (ModelInfo) o;
-    return Objects.equals(this.name, modelInfo.name) &&
+    return Objects.equals(this.model, modelInfo.model) &&
         Objects.equals(this.shortDescription, modelInfo.shortDescription) &&
         Objects.equals(this.type, modelInfo.type) &&
         Objects.equals(this.vectorType, modelInfo.vectorType) &&
@@ -551,14 +457,14 @@ public class ModelInfo {
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, shortDescription, type, vectorType, defaultDimension, modality, maxSequenceLength, maxBatchSize, providerName, supportedDimensions, supportedMetrics, supportedParameters, additionalProperties);
+    return Objects.hash(model, shortDescription, type, vectorType, defaultDimension, modality, maxSequenceLength, maxBatchSize, providerName, supportedDimensions, supportedMetrics, supportedParameters, additionalProperties);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class ModelInfo {\n");
-    sb.append("    name: ").append(toIndentedString(name)).append("\n");
+    sb.append("    model: ").append(toIndentedString(model)).append("\n");
     sb.append("    shortDescription: ").append(toIndentedString(shortDescription)).append("\n");
     sb.append("    type: ").append(toIndentedString(type)).append("\n");
     sb.append("    vectorType: ").append(toIndentedString(vectorType)).append("\n");
@@ -593,7 +499,7 @@ public class ModelInfo {
   static {
     // a set of all properties/fields (JSON key names)
     openapiFields = new HashSet<String>();
-    openapiFields.add("name");
+    openapiFields.add("model");
     openapiFields.add("short_description");
     openapiFields.add("type");
     openapiFields.add("vector_type");
@@ -608,7 +514,7 @@ public class ModelInfo {
 
     // a set of required properties/fields (JSON key names)
     openapiRequiredFields = new HashSet<String>();
-    openapiRequiredFields.add("name");
+    openapiRequiredFields.add("model");
     openapiRequiredFields.add("short_description");
     openapiRequiredFields.add("type");
     openapiRequiredFields.add("supported_parameters");
@@ -634,8 +540,8 @@ public class ModelInfo {
         }
       }
         JsonObject jsonObj = jsonElement.getAsJsonObject();
-      if (!jsonObj.get("name").isJsonPrimitive()) {
-        throw new IllegalArgumentException(String.format("Expected the field `name` to be a primitive type in the JSON string but got `%s`", jsonObj.get("name").toString()));
+      if (!jsonObj.get("model").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `model` to be a primitive type in the JSON string but got `%s`", jsonObj.get("model").toString()));
       }
       if (!jsonObj.get("short_description").isJsonPrimitive()) {
         throw new IllegalArgumentException(String.format("Expected the field `short_description` to be a primitive type in the JSON string but got `%s`", jsonObj.get("short_description").toString()));

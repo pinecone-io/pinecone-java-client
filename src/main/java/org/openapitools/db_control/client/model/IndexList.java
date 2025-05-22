@@ -52,7 +52,7 @@ import org.openapitools.db_control.client.JSON;
 /**
  * The list of indexes that exist in the project.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-04-29T13:39:23.829370Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-05-22T16:07:13.211110Z[Etc/UTC]")
 public class IndexList {
   public static final String SERIALIZED_NAME_INDEXES = "indexes";
   @SerializedName(SERIALIZED_NAME_INDEXES)
