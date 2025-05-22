@@ -13,7 +13,7 @@
 
 package org.openapitools.inference.client;
 
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-04-29T13:39:27.757942Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-05-22T16:07:32.070880Z[Etc/UTC]")
 public class Configuration {
     public static final String VERSION = "2025-04";
 

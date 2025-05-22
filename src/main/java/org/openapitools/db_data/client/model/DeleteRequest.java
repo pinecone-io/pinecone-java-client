@@ -51,7 +51,7 @@ import org.openapitools.db_data.client.JSON;
 /**
  * The request for the &#x60;delete&#x60; operation.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-04-29T13:39:25.790649Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-05-22T16:07:22.496740Z[Etc/UTC]")
 public class DeleteRequest {
   public static final String SERIALIZED_NAME_IDS = "ids";
   @SerializedName(SERIALIZED_NAME_IDS)
@@ -150,7 +150,7 @@ public class DeleteRequest {
   }
 
    /**
-   * If specified, the metadata filter here will be used to select the vectors to delete. This is mutually exclusive with specifying ids to delete in the ids param or using delete_all&#x3D;True. See [Understanding metadata](https://docs.pinecone.io/guides/data/understanding-metadata). Serverless indexes do not support delete by metadata. Instead, you can use the &#x60;list&#x60; operation to fetch the vector IDs based on their common ID prefix and then delete the records by ID.
+   * If specified, the metadata filter here will be used to select the vectors to delete. This is mutually exclusive with specifying ids to delete in the ids param or using delete_all&#x3D;True. See [Understanding metadata](https://docs.pinecone.io/guides/index-data/indexing-overview#metadata). Serverless indexes do not support delete by metadata. Instead, you can use the &#x60;list&#x60; operation to fetch the vector IDs based on their common ID prefix and then delete the records by ID.
    * @return filter
   **/
   @javax.annotation.Nullable

@@ -50,7 +50,7 @@ import org.openapitools.db_data.client.JSON;
 /**
  * The request for the &#x60;start_import&#x60; operation.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-04-29T13:39:25.790649Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-05-22T16:07:22.496740Z[Etc/UTC]")
 public class StartImportRequest {
   public static final String SERIALIZED_NAME_INTEGRATION_ID = "integrationId";
   @SerializedName(SERIALIZED_NAME_INTEGRATION_ID)
@@ -95,7 +95,7 @@ public class StartImportRequest {
   }
 
    /**
-   * The [URI prefix](https://docs.pinecone.io/guides/data/understanding-imports#directory-structure) under which the data to import is available. All data within this prefix will be listed then imported into the target index. Currently only &#x60;s3://&#x60; URIs are supported.
+   * The [URI prefix](https://docs.pinecone.io/guides/index-data/import-data#prepare-your-data) under which the data to import is available. All data within this prefix will be listed then imported into the target index. Currently only &#x60;s3://&#x60; URIs are supported.
    * @return uri
   **/
   @javax.annotation.Nonnull

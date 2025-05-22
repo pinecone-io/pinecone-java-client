@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.List;
 import org.openapitools.inference.client.model.DenseEmbedding;
 import org.openapitools.inference.client.model.SparseEmbedding;
-import org.openapitools.inference.client.model.VectorType;
 
 
 
@@ -62,7 +61,7 @@ import com.google.gson.JsonParseException;
 
 import org.openapitools.inference.client.JSON;
 
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-04-29T13:39:27.757942Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-05-22T16:07:32.070880Z[Etc/UTC]")
 public class Embedding extends AbstractOpenApiSchema {
     private static final Logger log = Logger.getLogger(Embedding.class.getName());
 

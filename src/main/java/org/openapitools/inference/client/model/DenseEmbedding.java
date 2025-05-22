@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.openapitools.inference.client.model.VectorType;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -52,7 +51,7 @@ import org.openapitools.inference.client.JSON;
 /**
  * A dense embedding of a single input
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-04-29T13:39:27.757942Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-05-22T16:07:32.070880Z[Etc/UTC]")
 public class DenseEmbedding {
   public static final String SERIALIZED_NAME_VALUES = "values";
   @SerializedName(SERIALIZED_NAME_VALUES)
@@ -60,7 +59,7 @@ public class DenseEmbedding {
 
   public static final String SERIALIZED_NAME_VECTOR_TYPE = "vector_type";
   @SerializedName(SERIALIZED_NAME_VECTOR_TYPE)
-  private VectorType vectorType;
+  private String vectorType;
 
   public DenseEmbedding() {
   }
@@ -94,23 +93,23 @@ public class DenseEmbedding {
   }
 
 
-  public DenseEmbedding vectorType(VectorType vectorType) {
+  public DenseEmbedding vectorType(String vectorType) {
     
     this.vectorType = vectorType;
     return this;
   }
 
    /**
-   * Get vectorType
+   * Indicates whether this is a &#39;dense&#39; or &#39;sparse&#39; embedding.
    * @return vectorType
   **/
   @javax.annotation.Nonnull
-  public VectorType getVectorType() {
+  public String getVectorType() {
     return vectorType;
   }
 
 
-  public void setVectorType(VectorType vectorType) {
+  public void setVectorType(String vectorType) {
     this.vectorType = vectorType;
   }
 
@@ -242,6 +241,9 @@ public class DenseEmbedding {
         throw new IllegalArgumentException("Expected the field `linkedContent` to be an array in the JSON string but got `null`");
       } else if (!jsonObj.get("values").isJsonArray()) {
         throw new IllegalArgumentException(String.format("Expected the field `values` to be an array in the JSON string but got `%s`", jsonObj.get("values").toString()));
+      }
+      if (!jsonObj.get("vector_type").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `vector_type` to be a primitive type in the JSON string but got `%s`", jsonObj.get("vector_type").toString()));
       }
   }
 

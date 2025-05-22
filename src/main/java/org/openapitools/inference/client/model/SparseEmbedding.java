@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.openapitools.inference.client.model.VectorType;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -52,7 +51,7 @@ import org.openapitools.inference.client.JSON;
 /**
  * A sparse embedding of a single input
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-04-29T13:39:27.757942Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-05-22T16:07:32.070880Z[Etc/UTC]")
 public class SparseEmbedding {
   public static final String SERIALIZED_NAME_SPARSE_VALUES = "sparse_values";
   @SerializedName(SERIALIZED_NAME_SPARSE_VALUES)
@@ -68,7 +67,7 @@ public class SparseEmbedding {
 
   public static final String SERIALIZED_NAME_VECTOR_TYPE = "vector_type";
   @SerializedName(SERIALIZED_NAME_VECTOR_TYPE)
-  private VectorType vectorType;
+  private String vectorType;
 
   public SparseEmbedding() {
   }
@@ -160,23 +159,23 @@ public class SparseEmbedding {
   }
 
 
-  public SparseEmbedding vectorType(VectorType vectorType) {
+  public SparseEmbedding vectorType(String vectorType) {
     
     this.vectorType = vectorType;
     return this;
   }
 
    /**
-   * Get vectorType
+   * Indicates whether this is a &#39;dense&#39; or &#39;sparse&#39; embedding.
    * @return vectorType
   **/
   @javax.annotation.Nonnull
-  public VectorType getVectorType() {
+  public String getVectorType() {
     return vectorType;
   }
 
 
-  public void setVectorType(VectorType vectorType) {
+  public void setVectorType(String vectorType) {
     this.vectorType = vectorType;
   }
 
@@ -325,6 +324,9 @@ public class SparseEmbedding {
       // ensure the optional json data is an array if present
       if (jsonObj.get("sparse_tokens") != null && !jsonObj.get("sparse_tokens").isJsonNull() && !jsonObj.get("sparse_tokens").isJsonArray()) {
         throw new IllegalArgumentException(String.format("Expected the field `sparse_tokens` to be an array in the JSON string but got `%s`", jsonObj.get("sparse_tokens").toString()));
+      }
+      if (!jsonObj.get("vector_type").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `vector_type` to be a primitive type in the JSON string but got `%s`", jsonObj.get("vector_type").toString()));
       }
   }
 

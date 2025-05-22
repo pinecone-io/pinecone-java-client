@@ -52,7 +52,7 @@ import org.openapitools.inference.client.JSON;
 /**
  * The list of available models.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-04-29T13:39:27.757942Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-05-22T16:07:32.070880Z[Etc/UTC]")
 public class ModelInfoList {
   public static final String SERIALIZED_NAME_MODELS = "models";
   @SerializedName(SERIALIZED_NAME_MODELS)

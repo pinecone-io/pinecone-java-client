@@ -52,7 +52,7 @@ import org.openapitools.db_data.client.JSON;
 /**
  * ScoredVector
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-04-29T13:39:25.790649Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-05-22T16:07:22.496740Z[Etc/UTC]")
 public class ScoredVector {
   public static final String SERIALIZED_NAME_ID = "id";
   @SerializedName(SERIALIZED_NAME_ID)

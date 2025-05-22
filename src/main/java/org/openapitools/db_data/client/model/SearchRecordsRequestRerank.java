@@ -53,7 +53,7 @@ import org.openapitools.db_data.client.JSON;
 /**
  * Parameters for reranking the initial search results.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-04-29T13:39:25.790649Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-05-22T16:07:22.496740Z[Etc/UTC]")
 public class SearchRecordsRequestRerank {
   public static final String SERIALIZED_NAME_MODEL = "model";
   @SerializedName(SERIALIZED_NAME_MODEL)
@@ -85,7 +85,7 @@ public class SearchRecordsRequestRerank {
   }
 
    /**
-   * The name of the [reranking model](https://docs.pinecone.io/guides/inference/understanding-inference#reranking-models) to use.
+   * The name of the [reranking model](https://docs.pinecone.io/guides/search/rerank-results#reranking-models) to use.
    * @return model
   **/
   @javax.annotation.Nonnull
@@ -114,7 +114,7 @@ public class SearchRecordsRequestRerank {
   }
 
    /**
-   * The field(s) to consider for reranking. If not provided, the default is &#x60;[\&quot;text\&quot;]&#x60;.  The number of fields supported is [model-specific](https://docs.pinecone.io/guides/inference/understanding-inference#reranking-models). 
+   * The field(s) to consider for reranking. If not provided, the default is &#x60;[\&quot;text\&quot;]&#x60;.  The number of fields supported is [model-specific](https://docs.pinecone.io/guides/search/rerank-results#reranking-models). 
    * @return rankFields
   **/
   @javax.annotation.Nonnull
@@ -164,7 +164,7 @@ public class SearchRecordsRequestRerank {
   }
 
    /**
-   * Additional model-specific parameters. Refer to the [model guide](https://docs.pinecone.io/guides/inference/understanding-inference#reranking-models) for available model parameters.
+   * Additional model-specific parameters. Refer to the [model guide](https://docs.pinecone.io/guides/search/rerank-results#reranking-models) for available model parameters.
    * @return parameters
   **/
   @javax.annotation.Nullable

@@ -53,7 +53,7 @@ import org.openapitools.inference.client.JSON;
 /**
  * RerankRequest
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-04-29T13:39:27.757942Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-05-22T16:07:32.070880Z[Etc/UTC]")
 public class RerankRequest {
   public static final String SERIALIZED_NAME_MODEL = "model";
   @SerializedName(SERIALIZED_NAME_MODEL)
@@ -93,7 +93,7 @@ public class RerankRequest {
   }
 
    /**
-   * The [model](https://docs.pinecone.io/guides/inference/understanding-inference#reranking-models) to use for reranking.
+   * The [model](https://docs.pinecone.io/guides/search/rerank-results#reranking-models) to use for reranking.
    * @return model
   **/
   @javax.annotation.Nonnull
@@ -185,7 +185,7 @@ public class RerankRequest {
   }
 
    /**
-   * The field(s) to consider for reranking. If not provided, the default is &#x60;[\&quot;text\&quot;]&#x60;.  The number of fields supported is [model-specific](https://docs.pinecone.io/guides/inference/understanding-inference#reranking-models). 
+   * The field(s) to consider for reranking. If not provided, the default is &#x60;[\&quot;text\&quot;]&#x60;.  The number of fields supported is [model-specific](https://docs.pinecone.io/guides/search/rerank-results#reranking-models). 
    * @return rankFields
   **/
   @javax.annotation.Nullable
@@ -243,7 +243,7 @@ public class RerankRequest {
   }
 
    /**
-   * Additional model-specific parameters. Refer to the [model guide](https://docs.pinecone.io/guides/inference/understanding-inference#reranking-models) for available model parameters.
+   * Additional model-specific parameters. Refer to the [model guide](https://docs.pinecone.io/guides/search/rerank-results#reranking-models) for available model parameters.
    * @return parameters
   **/
   @javax.annotation.Nullable
