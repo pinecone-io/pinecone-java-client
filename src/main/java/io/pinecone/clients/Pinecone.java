@@ -917,8 +917,8 @@ public class Pinecone {
      *
      * @return BackupList
      */
-    public BackupList listProjectBackups() throws ApiException {
-        return manageIndexesApi.listProjectBackups();
+    public BackupList listProjectBackups(Integer limit, String paginationToken) throws ApiException {
+        return manageIndexesApi.listProjectBackups(limit, paginationToken);
     }
 
     /**
@@ -959,7 +959,7 @@ public class Pinecone {
         if (deletionProtection != null) {
             createIndexFromBackupRequest.deletionProtection(deletionProtection);
         }
-        manageIndexesApi.createIndexFromBackup(backupId, createIndexFromBackupRequest);
+        manageIndexesApi.createIndexFromBackupOperation(backupId, createIndexFromBackupRequest);
     }
 
     /**
@@ -974,7 +974,7 @@ public class Pinecone {
     public CreateIndexFromBackupResponse createIndexFromBackup(String backupId, String indexName) throws ApiException {
         CreateIndexFromBackupRequest createIndexFromBackupRequest = new CreateIndexFromBackupRequest()
                 .name(indexName);
-        return manageIndexesApi.createIndexFromBackup(backupId, createIndexFromBackupRequest);
+        return manageIndexesApi.createIndexFromBackupOperation(backupId, createIndexFromBackupRequest);
     }
 
     /**
