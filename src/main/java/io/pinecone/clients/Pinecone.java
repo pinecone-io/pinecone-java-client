@@ -913,7 +913,15 @@ public class Pinecone {
 
     /**
      * List backups for all indexes in a project
-     * List all backups for a project.
+     *
+     * @return BackupList
+     */
+    public BackupList listProjectBackups() throws ApiException {
+        return listProjectBackups(null, null);
+    }
+
+    /**
+     * List backups for all indexes in a project
      * @param limit The number of results to return per page. (optional)
      * @param paginationToken The token to use to retrieve the next page of results. (optional)
      *
@@ -925,7 +933,6 @@ public class Pinecone {
 
     /**
      * Describe a backup
-     * Get a description of a backup.
      *
      * @param backupId The ID of the backup to describe. (required)
      * @return BackupModel
