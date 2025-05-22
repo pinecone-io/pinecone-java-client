@@ -758,8 +758,6 @@ System.out.println(result.getData());
 The following example shows how to list and describe an embedding model.
 
 ```java
-package io.pinecone.integration.inference;
-
 import io.pinecone.clients.Inference;
 import io.pinecone.clients.Pinecone;
 import org.openapitools.inference.client.ApiException;

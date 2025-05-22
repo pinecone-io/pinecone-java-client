@@ -914,6 +914,8 @@ public class Pinecone {
     /**
      * List backups for all indexes in a project
      * List all backups for a project.
+     * @param limit The number of results to return per page. (optional)
+     * @param paginationToken The token to use to retrieve the next page of results. (optional)
      *
      * @return BackupList
      */
