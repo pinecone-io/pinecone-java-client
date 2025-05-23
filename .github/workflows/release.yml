@@ -1,0 +1,87 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Git ref to build (branch name or SHA)'
+        required: true
+        type: string
+        default: 'main'
+      releaseLevel:
+        description: 'Release level'
+        required: true
+        type: choice
+        default: 'patch'
+        options:
+          - 'patch' # bug fixes
+          - 'minor' # new features, backwards compatible
+          - 'major' # breaking changes
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.ref }}
+
+      - name: Set up JDK 8
+        uses: actions/setup-java@v3
+        with:
+          java-version: '8'
+          distribution: 'temurin'
+
+      - name: Bump version
+        run: |
+          # Read current version
+          CURRENT_VERSION=$(grep "pineconeClientVersion" gradle.properties | cut -d'=' -f2 | tr -d ' ')
+          
+          # Split version into components
+          IFS='.' read -r major minor patch <<< "$CURRENT_VERSION"
+          
+          # Bump version based on release level
+          case "${{ github.event.inputs.releaseLevel }}" in
+            "major")
+              NEW_VERSION="$((major + 1)).0.0"
+              ;;
+            "minor")
+              NEW_VERSION="$major.$((minor + 1)).0"
+              ;;
+            "patch")
+              NEW_VERSION="$major.$minor.$((patch + 1))"
+              ;;
+          esac
+          
+          # Update gradle.properties
+          sed -i "s/pineconeClientVersion = .*/pineconeClientVersion = $NEW_VERSION/" gradle.properties
+          
+          # Set output for later steps
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+
+      - name: Build with Gradle
+        run: ./gradlew clean build
+
+      - name: Publish to Maven Central
+        env:
+          ORG_GRADLE_PROJECT_signingKeyId: ${{ secrets.SIGNING_KEY_ID }}
+          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.SIGNING_KEY }}
+          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.SIGNING_PASSWORD }}
+          ORG_GRADLE_PROJECT_sonatypeUsername: ${{ secrets.SONATYPE_USERNAME }}
+          ORG_GRADLE_PROJECT_sonatypePassword: ${{ secrets.SONATYPE_PASSWORD }}
+        run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Release v${{ env.NEW_VERSION }}
+          tag_name: v${{ env.NEW_VERSION }}
+          body: |
+            Release v${{ env.NEW_VERSION }}
+            
+            This release was created automatically by the release workflow.
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
