@@ -17,7 +17,16 @@ on:
           - 'patch' # bug fixes
           - 'minor' # new features, backwards compatible
           - 'major' # breaking changes
-
+      isPrerelease:
+        description: 'Whether this is a prerelease'
+        required: true
+        type: boolean
+        default: true
+      prereleaseSuffix:
+        description: 'Suffix to add onto the new version number in order to mark it as a prerelease. Value ignored when shipping a release that is not a prerelease.'
+        required: false
+        type: string
+        default: 'rc1'
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -54,6 +63,11 @@ jobs:
               ;;
           esac
           
+          # Append prerelease suffix if isPrerelease is true
+          if [[ "${{ github.event.inputs.isPrerelease }}" == "true" ]]; then
+            NEW_VERSION="$NEW_VERSION-${{ github.event.inputs.prereleaseSuffix }}"
+          fi
+
           # Update gradle.properties
           sed -i "s/pineconeClientVersion = .*/pineconeClientVersion = $NEW_VERSION/" gradle.properties
           
@@ -63,25 +77,7 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew clean build
 
-      - name: Publish to Maven Central
+      - name: Echo New Version
+        run: echo "New version is $NEW_VERSION"
         env:
-          ORG_GRADLE_PROJECT_signingKeyId: ${{ secrets.SIGNING_KEY_ID }}
-          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.SIGNING_KEY }}
-          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.SIGNING_PASSWORD }}
-          ORG_GRADLE_PROJECT_sonatypeUsername: ${{ secrets.SONATYPE_USERNAME }}
-          ORG_GRADLE_PROJECT_sonatypePassword: ${{ secrets.SONATYPE_PASSWORD }}
-        run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
-        with:
-          name: Release v${{ env.NEW_VERSION }}
-          tag_name: v${{ env.NEW_VERSION }}
-          body: |
-            Release v${{ env.NEW_VERSION }}
-            
-            This release was created automatically by the release workflow.
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          NEW_VERSION: ${{ env.NEW_VERSION }}
