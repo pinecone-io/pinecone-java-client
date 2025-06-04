@@ -78,6 +78,9 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew clean build
 
+      - name: Stop daemon
+        run: ./gradlew --stop
+
       - name: Echo New Version
         run: echo "New version is $NEW_VERSION"
         env:
@@ -90,4 +93,4 @@ jobs:
           ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.SIGNING_PASSWORD }}
           ORG_GRADLE_PROJECT_sonatypeUsername: ${{ secrets.SONATYPE_USERNAME }}
           ORG_GRADLE_PROJECT_sonatypePassword: ${{ secrets.SONATYPE_PASSWORD }}
-        run: ./gradlew --no-daemon publishToSonatype closeAndReleaseSonatypeStagingRepository
+        run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository
