@@ -2,6 +2,9 @@
 
 [comment]: <> (When bumping [pc:VERSION_LATEST_RELEASE] create a new entry below)
 ### Unreleased version
+### 5.1.0
+- Add support for models api
+
 ### 5.0.0
 - Add support for backups and restore
 - Add support for list, describe, and delete namespaces
