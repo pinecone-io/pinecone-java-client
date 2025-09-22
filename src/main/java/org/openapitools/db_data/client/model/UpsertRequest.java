@@ -52,7 +52,7 @@ import org.openapitools.db_data.client.JSON;
 /**
  * The request for the &#x60;upsert&#x60; operation.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-05-22T16:07:22.496740Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-09-22T16:03:28.142147Z[Etc/UTC]")
 public class UpsertRequest {
   public static final String SERIALIZED_NAME_VECTORS = "vectors";
   @SerializedName(SERIALIZED_NAME_VECTORS)
@@ -80,7 +80,7 @@ public class UpsertRequest {
   }
 
    /**
-   * An array containing the vectors to upsert. Recommended batch limit is 100 vectors.
+   * An array containing the vectors to upsert. Recommended batch limit is up to 1000 vectors.
    * @return vectors
   **/
   @javax.annotation.Nonnull

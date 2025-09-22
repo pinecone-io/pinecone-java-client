@@ -147,7 +147,7 @@ public class NamespaceOperationsApi {
 
     /**
      * Delete a namespace
-     * Delete a namespace from an index.
+     * Delete a namespace from a serverless index. Deleting a namespace is irreversible; all data in the namespace is permanently deleted.  For guidance and examples, see [Manage namespaces](https://docs.pinecone.io/guides/manage-data/manage-namespaces).  **Note:** This operation is not supported for pod-based indexes.
      * @param namespace The namespace to delete (required)
      * @return Object
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
@@ -167,7 +167,7 @@ public class NamespaceOperationsApi {
 
     /**
      * Delete a namespace
-     * Delete a namespace from an index.
+     * Delete a namespace from a serverless index. Deleting a namespace is irreversible; all data in the namespace is permanently deleted.  For guidance and examples, see [Manage namespaces](https://docs.pinecone.io/guides/manage-data/manage-namespaces).  **Note:** This operation is not supported for pod-based indexes.
      * @param namespace The namespace to delete (required)
      * @return ApiResponse&lt;Object&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
@@ -188,7 +188,7 @@ public class NamespaceOperationsApi {
 
     /**
      * Delete a namespace (asynchronously)
-     * Delete a namespace from an index.
+     * Delete a namespace from a serverless index. Deleting a namespace is irreversible; all data in the namespace is permanently deleted.  For guidance and examples, see [Manage namespaces](https://docs.pinecone.io/guides/manage-data/manage-namespaces).  **Note:** This operation is not supported for pod-based indexes.
      * @param namespace The namespace to delete (required)
      * @param _callback The callback to be executed when the API call finishes
      * @return The request call
@@ -282,7 +282,7 @@ public class NamespaceOperationsApi {
 
     /**
      * Describe a namespace
-     * Describe a [namespace](https://docs.pinecone.io/guides/index-data/indexing-overview#namespaces) in a serverless index, including the total number of vectors in the namespace.
+     * Describe a namespace in a serverless index, including the total number of vectors in the namespace.  For guidance and examples, see [Manage namespaces](https://docs.pinecone.io/guides/manage-data/manage-namespaces).  **Note:** This operation is not supported for pod-based indexes.
      * @param namespace The namespace to describe (required)
      * @return NamespaceDescription
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
@@ -302,7 +302,7 @@ public class NamespaceOperationsApi {
 
     /**
      * Describe a namespace
-     * Describe a [namespace](https://docs.pinecone.io/guides/index-data/indexing-overview#namespaces) in a serverless index, including the total number of vectors in the namespace.
+     * Describe a namespace in a serverless index, including the total number of vectors in the namespace.  For guidance and examples, see [Manage namespaces](https://docs.pinecone.io/guides/manage-data/manage-namespaces).  **Note:** This operation is not supported for pod-based indexes.
      * @param namespace The namespace to describe (required)
      * @return ApiResponse&lt;NamespaceDescription&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
@@ -323,7 +323,7 @@ public class NamespaceOperationsApi {
 
     /**
      * Describe a namespace (asynchronously)
-     * Describe a [namespace](https://docs.pinecone.io/guides/index-data/indexing-overview#namespaces) in a serverless index, including the total number of vectors in the namespace.
+     * Describe a namespace in a serverless index, including the total number of vectors in the namespace.  For guidance and examples, see [Manage namespaces](https://docs.pinecone.io/guides/manage-data/manage-namespaces).  **Note:** This operation is not supported for pod-based indexes.
      * @param namespace The namespace to describe (required)
      * @param _callback The callback to be executed when the API call finishes
      * @return The request call
@@ -419,7 +419,7 @@ public class NamespaceOperationsApi {
 
     /**
      * List namespaces
-     * Get a list of all [namespaces](https://docs.pinecone.io/guides/index-data/indexing-overview#namespaces) in a serverless index.  Up to 100 namespaces are returned at a time by default, in sorted order (bitwise “C” collation). If the &#x60;limit&#x60; parameter is set, up to that number of namespaces are returned instead. Whenever there are additional namespaces to return, the response also includes a &#x60;pagination_token&#x60; that you can use to get the next batch of namespaces. When the response does not include a &#x60;pagination_token&#x60;, there are no more namespaces to return.
+     * List all namespaces in a serverless index.  Up to 100 namespaces are returned at a time by default, in sorted order (bitwise “C” collation). If the &#x60;limit&#x60; parameter is set, up to that number of namespaces are returned instead. Whenever there are additional namespaces to return, the response also includes a &#x60;pagination_token&#x60; that you can use to get the next batch of namespaces. When the response does not include a &#x60;pagination_token&#x60;, there are no more namespaces to return.  For guidance and examples, see [Manage namespaces](https://docs.pinecone.io/guides/manage-data/manage-namespaces).  **Note:** This operation is not supported for pod-based indexes.
      * @param limit Max number namespaces to return per page. (optional)
      * @param paginationToken Pagination token to continue a previous listing operation. (optional)
      * @return ListNamespacesResponse
@@ -439,7 +439,7 @@ public class NamespaceOperationsApi {
 
     /**
      * List namespaces
-     * Get a list of all [namespaces](https://docs.pinecone.io/guides/index-data/indexing-overview#namespaces) in a serverless index.  Up to 100 namespaces are returned at a time by default, in sorted order (bitwise “C” collation). If the &#x60;limit&#x60; parameter is set, up to that number of namespaces are returned instead. Whenever there are additional namespaces to return, the response also includes a &#x60;pagination_token&#x60; that you can use to get the next batch of namespaces. When the response does not include a &#x60;pagination_token&#x60;, there are no more namespaces to return.
+     * List all namespaces in a serverless index.  Up to 100 namespaces are returned at a time by default, in sorted order (bitwise “C” collation). If the &#x60;limit&#x60; parameter is set, up to that number of namespaces are returned instead. Whenever there are additional namespaces to return, the response also includes a &#x60;pagination_token&#x60; that you can use to get the next batch of namespaces. When the response does not include a &#x60;pagination_token&#x60;, there are no more namespaces to return.  For guidance and examples, see [Manage namespaces](https://docs.pinecone.io/guides/manage-data/manage-namespaces).  **Note:** This operation is not supported for pod-based indexes.
      * @param limit Max number namespaces to return per page. (optional)
      * @param paginationToken Pagination token to continue a previous listing operation. (optional)
      * @return ApiResponse&lt;ListNamespacesResponse&gt;
@@ -460,7 +460,7 @@ public class NamespaceOperationsApi {
 
     /**
      * List namespaces (asynchronously)
-     * Get a list of all [namespaces](https://docs.pinecone.io/guides/index-data/indexing-overview#namespaces) in a serverless index.  Up to 100 namespaces are returned at a time by default, in sorted order (bitwise “C” collation). If the &#x60;limit&#x60; parameter is set, up to that number of namespaces are returned instead. Whenever there are additional namespaces to return, the response also includes a &#x60;pagination_token&#x60; that you can use to get the next batch of namespaces. When the response does not include a &#x60;pagination_token&#x60;, there are no more namespaces to return.
+     * List all namespaces in a serverless index.  Up to 100 namespaces are returned at a time by default, in sorted order (bitwise “C” collation). If the &#x60;limit&#x60; parameter is set, up to that number of namespaces are returned instead. Whenever there are additional namespaces to return, the response also includes a &#x60;pagination_token&#x60; that you can use to get the next batch of namespaces. When the response does not include a &#x60;pagination_token&#x60;, there are no more namespaces to return.  For guidance and examples, see [Manage namespaces](https://docs.pinecone.io/guides/manage-data/manage-namespaces).  **Note:** This operation is not supported for pod-based indexes.
      * @param limit Max number namespaces to return per page. (optional)
      * @param paginationToken Pagination token to continue a previous listing operation. (optional)
      * @param _callback The callback to be executed when the API call finishes

@@ -13,7 +13,7 @@
 
 package org.openapitools.db_data.client;
 
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-05-22T16:07:22.496740Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-09-22T16:03:28.142147Z[Etc/UTC]")
 public class Configuration {
     public static final String VERSION = "2025-04";
 
