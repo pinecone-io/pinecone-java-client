@@ -55,8 +55,8 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         versions: [
-            { java: 8, gradle: 6.8 },
-            { java: 17, gradle: 7.3.1 }
+            { java: 8, gradle: 7.6.4 },
+            { java: 17, gradle: 7.6.4 }
         ]
     steps:
     - uses: actions/checkout@v4

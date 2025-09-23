@@ -23,10 +23,8 @@ public class DeletionProtectionTest {
         expectedTags.put("test", "deletion-protection-enabled");
         // Create serverless index with deletion protection enabled
         controlPlaneClient.createServerlessIndex(indexName, "cosine", 3, "aws", "us-west-2", DeletionProtection.ENABLED, expectedTags);
-
         // Wait for index to be created
         Thread.sleep(5000);
-
         // Describe index to verify deletion protection is enabled
         IndexModel indexModel = controlPlaneClient.describeIndex(indexName);
         DeletionProtection deletionProtection = indexModel.getDeletionProtection();
@@ -42,28 +40,24 @@ public class DeletionProtectionTest {
         expectedTags.put("test", "deletion-protection-disabled");
         // Create serverless index with deletion protection disabled
         controlPlaneClient.createServerlessIndex(indexName, "cosine", 3, "aws", "us-west-2", DeletionProtection.DISABLED, expectedTags);
-
         // Wait for index to be created
         Thread.sleep(5000);
-
         IndexModel indexModel = controlPlaneClient.describeIndex(indexName);
         DeletionProtection deletionProtection = indexModel.getDeletionProtection();
         Assertions.assertEquals(DeletionProtection.DISABLED, deletionProtection);
         Map<String, String> actualTags = indexModel.getTags();
         Assertions.assertEquals(expectedTags, actualTags);
-
         // Configure index to enable deletionProtection
         controlPlaneClient.configureServerlessIndex(indexName, DeletionProtection.ENABLED, expectedTags, null);
+        // Wait for index to be configured
+        Thread.sleep(5000);
         indexModel = controlPlaneClient.describeIndex(indexName);
         deletionProtection = indexModel.getDeletionProtection();
         Assertions.assertEquals(DeletionProtection.ENABLED, deletionProtection);
-
         // Configure index to disable deletionProtection
         controlPlaneClient.configureServerlessIndex(indexName, DeletionProtection.DISABLED, expectedTags, null);
-
         // Wait for index to be configured
         Thread.sleep(5000);
-
         // Delete index
         controlPlaneClient.deleteIndex(indexName);
     }
