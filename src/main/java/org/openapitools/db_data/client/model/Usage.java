@@ -49,7 +49,7 @@ import org.openapitools.db_data.client.JSON;
 /**
  * Usage
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-05-22T16:07:22.496740Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-09-22T16:03:28.142147Z[Etc/UTC]")
 public class Usage {
   public static final String SERIALIZED_NAME_READ_UNITS = "readUnits";
   @SerializedName(SERIALIZED_NAME_READ_UNITS)

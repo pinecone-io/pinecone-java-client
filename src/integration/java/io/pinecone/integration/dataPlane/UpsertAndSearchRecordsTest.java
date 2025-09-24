@@ -72,7 +72,7 @@ public class UpsertAndSearchRecordsTest {
         fields.add("chunk_text");
 
         // Wait for vectors to be upserted
-        Thread.sleep(5000);
+        Thread.sleep(7500);
 
         SearchRecordsResponse recordsResponse = index.searchRecords(namespace, query, fields, null);
         Assertions.assertEquals(upsertRecords.size(), recordsResponse.getResult().getHits().size());

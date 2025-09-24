@@ -55,7 +55,7 @@ import org.openapitools.db_control.client.JSON;
 /**
  * The IndexModel describes the configuration and status of a Pinecone index.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-05-22T16:07:13.211110Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-09-22T16:03:26.361685Z[Etc/UTC]")
 public class IndexModel {
   public static final String SERIALIZED_NAME_NAME = "name";
   @SerializedName(SERIALIZED_NAME_NAME)
@@ -121,6 +121,10 @@ public class IndexModel {
   public static final String SERIALIZED_NAME_HOST = "host";
   @SerializedName(SERIALIZED_NAME_HOST)
   private String host;
+
+  public static final String SERIALIZED_NAME_PRIVATE_HOST = "private_host";
+  @SerializedName(SERIALIZED_NAME_PRIVATE_HOST)
+  private String privateHost;
 
   public static final String SERIALIZED_NAME_DELETION_PROTECTION = "deletion_protection";
   @SerializedName(SERIALIZED_NAME_DELETION_PROTECTION)
@@ -232,6 +236,27 @@ public class IndexModel {
 
   public void setHost(String host) {
     this.host = host;
+  }
+
+
+  public IndexModel privateHost(String privateHost) {
+    
+    this.privateHost = privateHost;
+    return this;
+  }
+
+   /**
+   * The private endpoint URL of an index.
+   * @return privateHost
+  **/
+  @javax.annotation.Nullable
+  public String getPrivateHost() {
+    return privateHost;
+  }
+
+
+  public void setPrivateHost(String privateHost) {
+    this.privateHost = privateHost;
   }
 
 
@@ -427,6 +452,7 @@ public class IndexModel {
         Objects.equals(this.dimension, indexModel.dimension) &&
         Objects.equals(this.metric, indexModel.metric) &&
         Objects.equals(this.host, indexModel.host) &&
+        Objects.equals(this.privateHost, indexModel.privateHost) &&
         Objects.equals(this.deletionProtection, indexModel.deletionProtection) &&
         Objects.equals(this.tags, indexModel.tags) &&
         Objects.equals(this.embed, indexModel.embed) &&
@@ -438,7 +464,7 @@ public class IndexModel {
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, dimension, metric, host, deletionProtection, tags, embed, spec, status, vectorType, additionalProperties);
+    return Objects.hash(name, dimension, metric, host, privateHost, deletionProtection, tags, embed, spec, status, vectorType, additionalProperties);
   }
 
   @Override
@@ -449,6 +475,7 @@ public class IndexModel {
     sb.append("    dimension: ").append(toIndentedString(dimension)).append("\n");
     sb.append("    metric: ").append(toIndentedString(metric)).append("\n");
     sb.append("    host: ").append(toIndentedString(host)).append("\n");
+    sb.append("    privateHost: ").append(toIndentedString(privateHost)).append("\n");
     sb.append("    deletionProtection: ").append(toIndentedString(deletionProtection)).append("\n");
     sb.append("    tags: ").append(toIndentedString(tags)).append("\n");
     sb.append("    embed: ").append(toIndentedString(embed)).append("\n");
@@ -482,6 +509,7 @@ public class IndexModel {
     openapiFields.add("dimension");
     openapiFields.add("metric");
     openapiFields.add("host");
+    openapiFields.add("private_host");
     openapiFields.add("deletion_protection");
     openapiFields.add("tags");
     openapiFields.add("embed");
@@ -527,6 +555,9 @@ public class IndexModel {
       }
       if (!jsonObj.get("host").isJsonPrimitive()) {
         throw new IllegalArgumentException(String.format("Expected the field `host` to be a primitive type in the JSON string but got `%s`", jsonObj.get("host").toString()));
+      }
+      if ((jsonObj.get("private_host") != null && !jsonObj.get("private_host").isJsonNull()) && !jsonObj.get("private_host").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `private_host` to be a primitive type in the JSON string but got `%s`", jsonObj.get("private_host").toString()));
       }
       // validate the optional field `embed`
       if (jsonObj.get("embed") != null && !jsonObj.get("embed").isJsonNull()) {

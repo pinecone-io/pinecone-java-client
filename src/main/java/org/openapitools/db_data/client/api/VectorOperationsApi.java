@@ -731,7 +731,7 @@ public class VectorOperationsApi {
 
     /**
      * Search with a vector
-     * Search a namespace using a query vector. It retrieves the ids of the most similar items in a namespace, along with their similarity scores.  For guidance and examples, see [Search](https://docs.pinecone.io/guides/search/semantic-search).
+     * Search a namespace using a query vector. It retrieves the ids of the most similar items in a namespace, along with their similarity scores.  For guidance, examples, and limits, see [Search](https://docs.pinecone.io/guides/search/search-overview).
      * @param queryRequest  (required)
      * @return QueryResponse
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
@@ -751,7 +751,7 @@ public class VectorOperationsApi {
 
     /**
      * Search with a vector
-     * Search a namespace using a query vector. It retrieves the ids of the most similar items in a namespace, along with their similarity scores.  For guidance and examples, see [Search](https://docs.pinecone.io/guides/search/semantic-search).
+     * Search a namespace using a query vector. It retrieves the ids of the most similar items in a namespace, along with their similarity scores.  For guidance, examples, and limits, see [Search](https://docs.pinecone.io/guides/search/search-overview).
      * @param queryRequest  (required)
      * @return ApiResponse&lt;QueryResponse&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
@@ -772,7 +772,7 @@ public class VectorOperationsApi {
 
     /**
      * Search with a vector (asynchronously)
-     * Search a namespace using a query vector. It retrieves the ids of the most similar items in a namespace, along with their similarity scores.  For guidance and examples, see [Search](https://docs.pinecone.io/guides/search/semantic-search).
+     * Search a namespace using a query vector. It retrieves the ids of the most similar items in a namespace, along with their similarity scores.  For guidance, examples, and limits, see [Search](https://docs.pinecone.io/guides/search/search-overview).
      * @param queryRequest  (required)
      * @param _callback The callback to be executed when the API call finishes
      * @return The request call
@@ -873,7 +873,7 @@ public class VectorOperationsApi {
 
     /**
      * Search with text
-     * Search a namespace with a query text, query vector, or record ID and return the most similar records, along with their similarity scores. Optionally, rerank the initial results based on their relevance to the query.   Searching with text is supported only for [indexes with integrated embedding](https://docs.pinecone.io/guides/indexes/create-an-index#integrated-embedding). Searching with a query vector or record ID is supported for all indexes.   For guidance and examples, see [Search](https://docs.pinecone.io/guides/search/semantic-search).
+     * Search a namespace with a query text, query vector, or record ID and return the most similar records, along with their similarity scores. Optionally, rerank the initial results based on their relevance to the query.   Searching with text is supported only for [indexes with integrated embedding](https://docs.pinecone.io/guides/indexes/create-an-index#integrated-embedding). Searching with a query vector or record ID is supported for all indexes.   For guidance, examples, and limits, see [Search](https://docs.pinecone.io/guides/search/search-overview).
      * @param namespace The namespace to search. (required)
      * @param searchRecordsRequest  (required)
      * @return SearchRecordsResponse
@@ -894,7 +894,7 @@ public class VectorOperationsApi {
 
     /**
      * Search with text
-     * Search a namespace with a query text, query vector, or record ID and return the most similar records, along with their similarity scores. Optionally, rerank the initial results based on their relevance to the query.   Searching with text is supported only for [indexes with integrated embedding](https://docs.pinecone.io/guides/indexes/create-an-index#integrated-embedding). Searching with a query vector or record ID is supported for all indexes.   For guidance and examples, see [Search](https://docs.pinecone.io/guides/search/semantic-search).
+     * Search a namespace with a query text, query vector, or record ID and return the most similar records, along with their similarity scores. Optionally, rerank the initial results based on their relevance to the query.   Searching with text is supported only for [indexes with integrated embedding](https://docs.pinecone.io/guides/indexes/create-an-index#integrated-embedding). Searching with a query vector or record ID is supported for all indexes.   For guidance, examples, and limits, see [Search](https://docs.pinecone.io/guides/search/search-overview).
      * @param namespace The namespace to search. (required)
      * @param searchRecordsRequest  (required)
      * @return ApiResponse&lt;SearchRecordsResponse&gt;
@@ -916,7 +916,7 @@ public class VectorOperationsApi {
 
     /**
      * Search with text (asynchronously)
-     * Search a namespace with a query text, query vector, or record ID and return the most similar records, along with their similarity scores. Optionally, rerank the initial results based on their relevance to the query.   Searching with text is supported only for [indexes with integrated embedding](https://docs.pinecone.io/guides/indexes/create-an-index#integrated-embedding). Searching with a query vector or record ID is supported for all indexes.   For guidance and examples, see [Search](https://docs.pinecone.io/guides/search/semantic-search).
+     * Search a namespace with a query text, query vector, or record ID and return the most similar records, along with their similarity scores. Optionally, rerank the initial results based on their relevance to the query.   Searching with text is supported only for [indexes with integrated embedding](https://docs.pinecone.io/guides/indexes/create-an-index#integrated-embedding). Searching with a query vector or record ID is supported for all indexes.   For guidance, examples, and limits, see [Search](https://docs.pinecone.io/guides/search/search-overview).
      * @param namespace The namespace to search. (required)
      * @param searchRecordsRequest  (required)
      * @param _callback The callback to be executed when the API call finishes
@@ -1153,7 +1153,7 @@ public class VectorOperationsApi {
 
     /**
      * Upsert text
-     * Upsert text into a namespace. Pinecone converts the text to vectors automatically using the hosted embedding model associated with the index.  Upserting text is supported only for [indexes with integrated embedding](https://docs.pinecone.io/reference/api/2025-01/control-plane/create_for_model).  For guidance and examples, see [Upsert data](https://docs.pinecone.io/guides/index-data/upsert-data#upsert-text).
+     * Upsert text into a namespace. Pinecone converts the text to vectors automatically using the hosted embedding model associated with the index.  Upserting text is supported only for [indexes with integrated embedding](https://docs.pinecone.io/reference/api/2025-01/control-plane/create_for_model).  For guidance, examples, and limits, see [Upsert data](https://docs.pinecone.io/guides/index-data/upsert-data).
      * @param namespace The namespace to upsert records into. (required)
      * @param upsertRecord  (required)
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
@@ -1172,7 +1172,7 @@ public class VectorOperationsApi {
 
     /**
      * Upsert text
-     * Upsert text into a namespace. Pinecone converts the text to vectors automatically using the hosted embedding model associated with the index.  Upserting text is supported only for [indexes with integrated embedding](https://docs.pinecone.io/reference/api/2025-01/control-plane/create_for_model).  For guidance and examples, see [Upsert data](https://docs.pinecone.io/guides/index-data/upsert-data#upsert-text).
+     * Upsert text into a namespace. Pinecone converts the text to vectors automatically using the hosted embedding model associated with the index.  Upserting text is supported only for [indexes with integrated embedding](https://docs.pinecone.io/reference/api/2025-01/control-plane/create_for_model).  For guidance, examples, and limits, see [Upsert data](https://docs.pinecone.io/guides/index-data/upsert-data).
      * @param namespace The namespace to upsert records into. (required)
      * @param upsertRecord  (required)
      * @return ApiResponse&lt;Void&gt;
@@ -1193,7 +1193,7 @@ public class VectorOperationsApi {
 
     /**
      * Upsert text (asynchronously)
-     * Upsert text into a namespace. Pinecone converts the text to vectors automatically using the hosted embedding model associated with the index.  Upserting text is supported only for [indexes with integrated embedding](https://docs.pinecone.io/reference/api/2025-01/control-plane/create_for_model).  For guidance and examples, see [Upsert data](https://docs.pinecone.io/guides/index-data/upsert-data#upsert-text).
+     * Upsert text into a namespace. Pinecone converts the text to vectors automatically using the hosted embedding model associated with the index.  Upserting text is supported only for [indexes with integrated embedding](https://docs.pinecone.io/reference/api/2025-01/control-plane/create_for_model).  For guidance, examples, and limits, see [Upsert data](https://docs.pinecone.io/guides/index-data/upsert-data).
      * @param namespace The namespace to upsert records into. (required)
      * @param upsertRecord  (required)
      * @param _callback The callback to be executed when the API call finishes
@@ -1287,7 +1287,7 @@ public class VectorOperationsApi {
 
     /**
      * Upsert vectors
-     * Upsert vectors into a namespace. If a new value is upserted for an existing vector ID, it will overwrite the previous value.  For guidance and examples, see [Upsert data](https://docs.pinecone.io/guides/index-data/upsert-data#upsert-vectors).
+     * Upsert vectors into a namespace. If a new value is upserted for an existing vector ID, it will overwrite the previous value.  For guidance, examples, and limits, see [Upsert data](https://docs.pinecone.io/guides/index-data/upsert-data).
      * @param upsertRequest  (required)
      * @return UpsertResponse
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
@@ -1307,7 +1307,7 @@ public class VectorOperationsApi {
 
     /**
      * Upsert vectors
-     * Upsert vectors into a namespace. If a new value is upserted for an existing vector ID, it will overwrite the previous value.  For guidance and examples, see [Upsert data](https://docs.pinecone.io/guides/index-data/upsert-data#upsert-vectors).
+     * Upsert vectors into a namespace. If a new value is upserted for an existing vector ID, it will overwrite the previous value.  For guidance, examples, and limits, see [Upsert data](https://docs.pinecone.io/guides/index-data/upsert-data).
      * @param upsertRequest  (required)
      * @return ApiResponse&lt;UpsertResponse&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
@@ -1328,7 +1328,7 @@ public class VectorOperationsApi {
 
     /**
      * Upsert vectors (asynchronously)
-     * Upsert vectors into a namespace. If a new value is upserted for an existing vector ID, it will overwrite the previous value.  For guidance and examples, see [Upsert data](https://docs.pinecone.io/guides/index-data/upsert-data#upsert-vectors).
+     * Upsert vectors into a namespace. If a new value is upserted for an existing vector ID, it will overwrite the previous value.  For guidance, examples, and limits, see [Upsert data](https://docs.pinecone.io/guides/index-data/upsert-data).
      * @param upsertRequest  (required)
      * @param _callback The callback to be executed when the API call finishes
      * @return The request call

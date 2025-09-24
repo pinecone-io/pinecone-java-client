@@ -49,7 +49,7 @@ import org.openapitools.db_control.client.JSON;
 /**
  * Detailed information about the error that occurred.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-05-22T16:07:13.211110Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-09-22T16:03:26.361685Z[Etc/UTC]")
 public class ErrorResponseError {
   /**
    * Gets or Sets code

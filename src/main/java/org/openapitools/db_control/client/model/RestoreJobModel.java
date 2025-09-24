@@ -50,7 +50,7 @@ import org.openapitools.db_control.client.JSON;
 /**
  * The RestoreJobModel describes the status of a restore job.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-05-22T16:07:13.211110Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-09-22T16:03:26.361685Z[Etc/UTC]")
 public class RestoreJobModel {
   public static final String SERIALIZED_NAME_RESTORE_JOB_ID = "restore_job_id";
   @SerializedName(SERIALIZED_NAME_RESTORE_JOB_ID)

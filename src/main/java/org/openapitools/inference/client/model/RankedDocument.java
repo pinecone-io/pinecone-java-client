@@ -52,7 +52,7 @@ import org.openapitools.inference.client.JSON;
 /**
  * A ranked document with a relevance score and an index position.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-05-22T16:07:32.070880Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-09-22T16:03:29.854319Z[Etc/UTC]")
 public class RankedDocument {
   public static final String SERIALIZED_NAME_INDEX = "index";
   @SerializedName(SERIALIZED_NAME_INDEX)

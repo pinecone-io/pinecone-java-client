@@ -49,7 +49,7 @@ import org.openapitools.inference.client.JSON;
 /**
  * Usage statistics for the model inference.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-05-22T16:07:32.070880Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-09-22T16:03:29.854319Z[Etc/UTC]")
 public class RerankResultUsage {
   public static final String SERIALIZED_NAME_RERANK_UNITS = "rerank_units";
   @SerializedName(SERIALIZED_NAME_RERANK_UNITS)

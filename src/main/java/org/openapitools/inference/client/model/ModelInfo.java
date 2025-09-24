@@ -53,7 +53,7 @@ import org.openapitools.inference.client.JSON;
 /**
  * Represents the model configuration including model type, supported parameters, and other model details.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-05-22T16:07:32.070880Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-09-22T16:03:29.854319Z[Etc/UTC]")
 public class ModelInfo {
   public static final String SERIALIZED_NAME_MODEL = "model";
   @SerializedName(SERIALIZED_NAME_MODEL)

@@ -51,7 +51,7 @@ import org.openapitools.inference.client.JSON;
 /**
  * A sparse embedding of a single input
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-05-22T16:07:32.070880Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-09-22T16:03:29.854319Z[Etc/UTC]")
 public class SparseEmbedding {
   public static final String SERIALIZED_NAME_SPARSE_VALUES = "sparse_values";
   @SerializedName(SERIALIZED_NAME_SPARSE_VALUES)
