@@ -1,5 +1,5 @@
 plugins {
-    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'java-library'
     id 'maven-publish'
     id 'signing'
@@ -150,21 +150,21 @@ task integrationTest(type: Test) {
     outputs.upToDateWhen { false }
 }
 
-// Configure Auto Relocation
-import com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation
-
-task relocateShadowJar(type: ConfigureShadowRelocation) {
-    target = tasks.shadowJar
-    prefix = "io.pinecone.shadow" // Default value is "shadow"
-
-}
-
-tasks.shadowJar.dependsOn tasks.relocateShadowJar
-
-// Shadow META-INF directory
+// Configure Shadow JAR with relocations and transformers
 import com.github.jengelman.gradle.plugins.shadow.transformers.ServiceFileTransformer
 
 shadowJar {
+    relocate 'io.grpc', 'io.pinecone.shadow.io.grpc'
+    relocate 'com.google', 'io.pinecone.shadow.com.google'
+    relocate 'org.slf4j', 'io.pinecone.shadow.org.slf4j'
+    relocate 'okhttp3', 'io.pinecone.shadow.okhttp3'
+    relocate 'okio', 'io.pinecone.shadow.okio'
+    relocate 'com.fasterxml', 'io.pinecone.shadow.com.fasterxml'
+    relocate 'com.google.gson', 'io.pinecone.shadow.com.google.gson'
+    relocate 'io.gsonfire', 'io.pinecone.shadow.io.gsonfire'
+    relocate 'org.openapitools', 'io.pinecone.shadow.org.openapitools'
+    relocate 'com.google.protobuf', 'io.pinecone.shadow.com.google.protobuf'
+    relocate 'org.apache.tomcat', 'io.pinecone.shadow.org.apache.tomcat'
     transform(ServiceFileTransformer)
 }
 
