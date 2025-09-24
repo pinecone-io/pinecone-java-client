@@ -14,10 +14,10 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         versions: [
-            { java: 8, gradle: 7.6.4 },
-            { java: 11, gradle: 7.6.4 },
-            { java: 16, gradle: 7.6.4 },
-            { java: 17, gradle: 7.6.4 }
+            { java: 8, gradle: 8.5 },
+            { java: 11, gradle: 8.5 },
+            { java: 16, gradle: 8.5 },
+            { java: 17, gradle: 8.5 }
         ]
     runs-on: ${{ matrix.os }}
     steps:
@@ -55,8 +55,8 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         versions: [
-            { java: 8, gradle: 7.6.4 },
-            { java: 17, gradle: 7.6.4 }
+            { java: 8, gradle: 8.5 },
+            { java: 17, gradle: 8.5 }
         ]
     steps:
     - uses: actions/checkout@v4
