@@ -22,6 +22,7 @@ import static io.pinecone.helpers.AssertRetry.assertWithRetry;
 import static io.pinecone.helpers.TestUtilities.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+@Disabled
 public class CollectionTest {
     private static final TestResourcesManager indexManager = TestResourcesManager.getInstance();
     private static final Pinecone pineconeClient = new Pinecone

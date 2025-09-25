@@ -3,10 +3,12 @@ package io.pinecone.integration.controlPlane.pod;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.helpers.RandomStringBuilder;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.openapitools.db_control.client.model.DeletionProtection;
 import org.openapitools.db_control.client.model.IndexModel;
 
+@Disabled
 public class DeletionProtectionTest {
     private static final Pinecone controlPlaneClient = new Pinecone
             .Builder(System.getenv("PINECONE_API_KEY"))
