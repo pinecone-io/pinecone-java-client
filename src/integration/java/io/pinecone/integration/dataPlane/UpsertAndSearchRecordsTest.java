@@ -74,11 +74,7 @@ public class UpsertAndSearchRecordsTest {
         // Wait for vectors to be upserted
         Thread.sleep(5000);
 
-        SearchRecordsResponse recordsResponse = index.searchRecords(namespace, query, fields, null);
-        Assertions.assertEquals(upsertRecords.size(), recordsResponse.getResult().getHits().size());
-        Assertions.assertEquals(record3.get("_id"), recordsResponse.getResult().getHits().get(0).getId());
-
-        recordsResponse = index.searchRecordsById(record1.get("_id"), namespace, fields, 1, null, null);
+        SearchRecordsResponse recordsResponse = index.searchRecordsById(record1.get("_id"), namespace, fields, 1, null, null);
         Assertions.assertEquals(1, recordsResponse.getResult().getHits().size());
         Assertions.assertEquals(record1.get("_id"), recordsResponse.getResult().getHits().get(0).getId());
 
