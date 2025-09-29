@@ -36,7 +36,7 @@ sourceSets {
     }
 }
 
-def grpcVersion = '1.60.2'
+def grpcVersion = '1.75.0'
 
 dependencies {
     api "io.grpc:grpc-protobuf:${grpcVersion}"
