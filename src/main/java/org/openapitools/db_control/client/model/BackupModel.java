@@ -52,7 +52,7 @@ import org.openapitools.db_control.client.JSON;
 /**
  * The BackupModel describes the configuration and status of a Pinecone backup.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-10-23T14:25:31.700489Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-10-29T18:10:25.651367Z[Etc/UTC]")
 public class BackupModel {
   public static final String SERIALIZED_NAME_BACKUP_ID = "backup_id";
   @SerializedName(SERIALIZED_NAME_BACKUP_ID)

@@ -51,7 +51,7 @@ import org.openapitools.db_data.client.JSON;
 /**
  * Specifies which terms must be present in the text of each search hit based on the specified strategy. The match is performed against the text field specified in the integrated index &#x60;field_map&#x60; configuration.  Terms are normalized and tokenized into single tokens before matching, and order does not matter.  Example:    &#x60;\&quot;match_terms\&quot;: {\&quot;terms\&quot;: [\&quot;animal\&quot;, \&quot;CHARACTER\&quot;, \&quot;donald Duck\&quot;], \&quot;strategy\&quot;: \&quot;all\&quot;}&#x60; will tokenize   to &#x60;[\&quot;animal\&quot;, \&quot;character\&quot;, \&quot;donald\&quot;, \&quot;duck\&quot;]&#x60;, and would match   &#x60;\&quot;Donald F. Duck is a funny animal character\&quot;&#x60; but would not match &#x60;\&quot;A duck is a funny animal\&quot;&#x60;.  Match terms filtering is supported only for sparse indexes with [integrated embedding](https://docs.pinecone.io/guides/index-data/indexing-overview#vector-embedding) configured to use the [pinecone-sparse-english-v0](https://docs.pinecone.io/models/pinecone-sparse-english-v0) model.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-10-23T14:25:33.726901Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-10-29T18:10:27.510457Z[Etc/UTC]")
 public class SearchMatchTerms {
   public static final String SERIALIZED_NAME_STRATEGY = "strategy";
   @SerializedName(SERIALIZED_NAME_STRATEGY)

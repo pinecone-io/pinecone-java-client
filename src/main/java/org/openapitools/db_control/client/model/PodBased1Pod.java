@@ -49,7 +49,7 @@ import org.openapitools.db_control.client.JSON;
 /**
  * Updated configuration for pod-based indexes
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-10-23T14:25:31.700489Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-10-29T18:10:25.651367Z[Etc/UTC]")
 public class PodBased1Pod {
   public static final String SERIALIZED_NAME_REPLICAS = "replicas";
   @SerializedName(SERIALIZED_NAME_REPLICAS)

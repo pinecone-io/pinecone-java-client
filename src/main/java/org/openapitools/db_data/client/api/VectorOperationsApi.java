@@ -385,154 +385,6 @@ public class VectorOperationsApi {
         return localVarCall;
     }
     /**
-     * Build call for fetchByMetadata
-     * @param xPineconeApiVersion Required date-based version header (required)
-     * @param fetchByMetadataRequest  (required)
-     * @param _callback Callback for upload/download progress
-     * @return Call to execute
-     * @throws ApiException If fail to serialize the request body object
-     * @http.response.details
-     <table summary="Response Details" border="1">
-        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> A successful response. </td><td>  -  </td></tr>
-        <tr><td> 400 </td><td> Bad request. The request body included invalid request parameters. </td><td>  -  </td></tr>
-        <tr><td> 4XX </td><td> An unexpected error response. </td><td>  -  </td></tr>
-        <tr><td> 5XX </td><td> An unexpected error response. </td><td>  -  </td></tr>
-     </table>
-     */
-    public okhttp3.Call fetchByMetadataCall(String xPineconeApiVersion, FetchByMetadataRequest fetchByMetadataRequest, final ApiCallback _callback) throws ApiException {
-        String basePath = null;
-        // Operation Servers
-        String[] localBasePaths = new String[] {  };
-
-        // Determine Base Path to Use
-        if (localCustomBaseUrl != null){
-            basePath = localCustomBaseUrl;
-        } else if ( localBasePaths.length > 0 ) {
-            basePath = localBasePaths[localHostIndex];
-        } else {
-            basePath = null;
-        }
-
-        Object localVarPostBody = fetchByMetadataRequest;
-
-        // create path and map variables
-        String localVarPath = "/vectors/fetch_by_metadata";
-
-        List<Pair> localVarQueryParams = new ArrayList<Pair>();
-        List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
-        Map<String, String> localVarHeaderParams = new HashMap<String, String>();
-        Map<String, String> localVarCookieParams = new HashMap<String, String>();
-        Map<String, Object> localVarFormParams = new HashMap<String, Object>();
-
-        if (xPineconeApiVersion != null) {
-            localVarHeaderParams.put("X-Pinecone-Api-Version", localVarApiClient.parameterToString(xPineconeApiVersion));
-        }
-
-        final String[] localVarAccepts = {
-            "application/json"
-        };
-        final String localVarAccept = localVarApiClient.selectHeaderAccept(localVarAccepts);
-        if (localVarAccept != null) {
-            localVarHeaderParams.put("Accept", localVarAccept);
-        }
-
-        final String[] localVarContentTypes = {
-            "application/json"
-        };
-        final String localVarContentType = localVarApiClient.selectHeaderContentType(localVarContentTypes);
-        if (localVarContentType != null) {
-            localVarHeaderParams.put("Content-Type", localVarContentType);
-        }
-
-        String[] localVarAuthNames = new String[] { "ApiKeyAuth" };
-        return localVarApiClient.buildCall(basePath, localVarPath, "POST", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAuthNames, _callback);
-    }
-
-    @SuppressWarnings("rawtypes")
-    private okhttp3.Call fetchByMetadataValidateBeforeCall(String xPineconeApiVersion, FetchByMetadataRequest fetchByMetadataRequest, final ApiCallback _callback) throws ApiException {
-        // verify the required parameter 'xPineconeApiVersion' is set
-        if (xPineconeApiVersion == null) {
-            throw new ApiException("Missing the required parameter 'xPineconeApiVersion' when calling fetchByMetadata(Async)");
-        }
-
-        // verify the required parameter 'fetchByMetadataRequest' is set
-        if (fetchByMetadataRequest == null) {
-            throw new ApiException("Missing the required parameter 'fetchByMetadataRequest' when calling fetchByMetadata(Async)");
-        }
-
-        return fetchByMetadataCall(xPineconeApiVersion, fetchByMetadataRequest, _callback);
-
-    }
-
-    /**
-     * Fetch vectors by metadata
-     * Look up and return vectors by metadata filter from a single namespace. The returned vectors include the vector data and/or metadata. For guidance and examples, see [Fetch data](https://docs.pinecone.io/guides/manage-data/fetch-data).
-     * @param xPineconeApiVersion Required date-based version header (required)
-     * @param fetchByMetadataRequest  (required)
-     * @return FetchByMetadataResponse
-     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
-     * @http.response.details
-     <table summary="Response Details" border="1">
-        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> A successful response. </td><td>  -  </td></tr>
-        <tr><td> 400 </td><td> Bad request. The request body included invalid request parameters. </td><td>  -  </td></tr>
-        <tr><td> 4XX </td><td> An unexpected error response. </td><td>  -  </td></tr>
-        <tr><td> 5XX </td><td> An unexpected error response. </td><td>  -  </td></tr>
-     </table>
-     */
-    public FetchByMetadataResponse fetchByMetadata(String xPineconeApiVersion, FetchByMetadataRequest fetchByMetadataRequest) throws ApiException {
-        ApiResponse<FetchByMetadataResponse> localVarResp = fetchByMetadataWithHttpInfo(xPineconeApiVersion, fetchByMetadataRequest);
-        return localVarResp.getData();
-    }
-
-    /**
-     * Fetch vectors by metadata
-     * Look up and return vectors by metadata filter from a single namespace. The returned vectors include the vector data and/or metadata. For guidance and examples, see [Fetch data](https://docs.pinecone.io/guides/manage-data/fetch-data).
-     * @param xPineconeApiVersion Required date-based version header (required)
-     * @param fetchByMetadataRequest  (required)
-     * @return ApiResponse&lt;FetchByMetadataResponse&gt;
-     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
-     * @http.response.details
-     <table summary="Response Details" border="1">
-        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> A successful response. </td><td>  -  </td></tr>
-        <tr><td> 400 </td><td> Bad request. The request body included invalid request parameters. </td><td>  -  </td></tr>
-        <tr><td> 4XX </td><td> An unexpected error response. </td><td>  -  </td></tr>
-        <tr><td> 5XX </td><td> An unexpected error response. </td><td>  -  </td></tr>
-     </table>
-     */
-    public ApiResponse<FetchByMetadataResponse> fetchByMetadataWithHttpInfo(String xPineconeApiVersion, FetchByMetadataRequest fetchByMetadataRequest) throws ApiException {
-        okhttp3.Call localVarCall = fetchByMetadataValidateBeforeCall(xPineconeApiVersion, fetchByMetadataRequest, null);
-        Type localVarReturnType = new TypeToken<FetchByMetadataResponse>(){}.getType();
-        return localVarApiClient.execute(localVarCall, localVarReturnType);
-    }
-
-    /**
-     * Fetch vectors by metadata (asynchronously)
-     * Look up and return vectors by metadata filter from a single namespace. The returned vectors include the vector data and/or metadata. For guidance and examples, see [Fetch data](https://docs.pinecone.io/guides/manage-data/fetch-data).
-     * @param xPineconeApiVersion Required date-based version header (required)
-     * @param fetchByMetadataRequest  (required)
-     * @param _callback The callback to be executed when the API call finishes
-     * @return The request call
-     * @throws ApiException If fail to process the API call, e.g. serializing the request body object
-     * @http.response.details
-     <table summary="Response Details" border="1">
-        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> A successful response. </td><td>  -  </td></tr>
-        <tr><td> 400 </td><td> Bad request. The request body included invalid request parameters. </td><td>  -  </td></tr>
-        <tr><td> 4XX </td><td> An unexpected error response. </td><td>  -  </td></tr>
-        <tr><td> 5XX </td><td> An unexpected error response. </td><td>  -  </td></tr>
-     </table>
-     */
-    public okhttp3.Call fetchByMetadataAsync(String xPineconeApiVersion, FetchByMetadataRequest fetchByMetadataRequest, final ApiCallback<FetchByMetadataResponse> _callback) throws ApiException {
-
-        okhttp3.Call localVarCall = fetchByMetadataValidateBeforeCall(xPineconeApiVersion, fetchByMetadataRequest, _callback);
-        Type localVarReturnType = new TypeToken<FetchByMetadataResponse>(){}.getType();
-        localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
-        return localVarCall;
-    }
-    /**
      * Build call for fetchVectors
      * @param xPineconeApiVersion Required date-based version header (required)
      * @param ids The vector IDs to fetch. Does not accept values containing spaces. (required)
@@ -688,6 +540,154 @@ public class VectorOperationsApi {
 
         okhttp3.Call localVarCall = fetchVectorsValidateBeforeCall(xPineconeApiVersion, ids, namespace, _callback);
         Type localVarReturnType = new TypeToken<FetchResponse>(){}.getType();
+        localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
+        return localVarCall;
+    }
+    /**
+     * Build call for fetchVectorsByMetadata
+     * @param xPineconeApiVersion Required date-based version header (required)
+     * @param fetchByMetadataRequest  (required)
+     * @param _callback Callback for upload/download progress
+     * @return Call to execute
+     * @throws ApiException If fail to serialize the request body object
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> A successful response. </td><td>  -  </td></tr>
+        <tr><td> 400 </td><td> Bad request. The request body included invalid request parameters. </td><td>  -  </td></tr>
+        <tr><td> 4XX </td><td> An unexpected error response. </td><td>  -  </td></tr>
+        <tr><td> 5XX </td><td> An unexpected error response. </td><td>  -  </td></tr>
+     </table>
+     */
+    public okhttp3.Call fetchVectorsByMetadataCall(String xPineconeApiVersion, FetchByMetadataRequest fetchByMetadataRequest, final ApiCallback _callback) throws ApiException {
+        String basePath = null;
+        // Operation Servers
+        String[] localBasePaths = new String[] {  };
+
+        // Determine Base Path to Use
+        if (localCustomBaseUrl != null){
+            basePath = localCustomBaseUrl;
+        } else if ( localBasePaths.length > 0 ) {
+            basePath = localBasePaths[localHostIndex];
+        } else {
+            basePath = null;
+        }
+
+        Object localVarPostBody = fetchByMetadataRequest;
+
+        // create path and map variables
+        String localVarPath = "/vectors/fetch_by_metadata";
+
+        List<Pair> localVarQueryParams = new ArrayList<Pair>();
+        List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
+        Map<String, String> localVarHeaderParams = new HashMap<String, String>();
+        Map<String, String> localVarCookieParams = new HashMap<String, String>();
+        Map<String, Object> localVarFormParams = new HashMap<String, Object>();
+
+        if (xPineconeApiVersion != null) {
+            localVarHeaderParams.put("X-Pinecone-Api-Version", localVarApiClient.parameterToString(xPineconeApiVersion));
+        }
+
+        final String[] localVarAccepts = {
+            "application/json"
+        };
+        final String localVarAccept = localVarApiClient.selectHeaderAccept(localVarAccepts);
+        if (localVarAccept != null) {
+            localVarHeaderParams.put("Accept", localVarAccept);
+        }
+
+        final String[] localVarContentTypes = {
+            "application/json"
+        };
+        final String localVarContentType = localVarApiClient.selectHeaderContentType(localVarContentTypes);
+        if (localVarContentType != null) {
+            localVarHeaderParams.put("Content-Type", localVarContentType);
+        }
+
+        String[] localVarAuthNames = new String[] { "ApiKeyAuth" };
+        return localVarApiClient.buildCall(basePath, localVarPath, "POST", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAuthNames, _callback);
+    }
+
+    @SuppressWarnings("rawtypes")
+    private okhttp3.Call fetchVectorsByMetadataValidateBeforeCall(String xPineconeApiVersion, FetchByMetadataRequest fetchByMetadataRequest, final ApiCallback _callback) throws ApiException {
+        // verify the required parameter 'xPineconeApiVersion' is set
+        if (xPineconeApiVersion == null) {
+            throw new ApiException("Missing the required parameter 'xPineconeApiVersion' when calling fetchVectorsByMetadata(Async)");
+        }
+
+        // verify the required parameter 'fetchByMetadataRequest' is set
+        if (fetchByMetadataRequest == null) {
+            throw new ApiException("Missing the required parameter 'fetchByMetadataRequest' when calling fetchVectorsByMetadata(Async)");
+        }
+
+        return fetchVectorsByMetadataCall(xPineconeApiVersion, fetchByMetadataRequest, _callback);
+
+    }
+
+    /**
+     * Fetch vectors by metadata
+     * Look up and return vectors by metadata filter from a single namespace. The returned vectors include the vector data and/or metadata. For guidance and examples, see [Fetch data](https://docs.pinecone.io/guides/manage-data/fetch-data).
+     * @param xPineconeApiVersion Required date-based version header (required)
+     * @param fetchByMetadataRequest  (required)
+     * @return FetchByMetadataResponse
+     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> A successful response. </td><td>  -  </td></tr>
+        <tr><td> 400 </td><td> Bad request. The request body included invalid request parameters. </td><td>  -  </td></tr>
+        <tr><td> 4XX </td><td> An unexpected error response. </td><td>  -  </td></tr>
+        <tr><td> 5XX </td><td> An unexpected error response. </td><td>  -  </td></tr>
+     </table>
+     */
+    public FetchByMetadataResponse fetchVectorsByMetadata(String xPineconeApiVersion, FetchByMetadataRequest fetchByMetadataRequest) throws ApiException {
+        ApiResponse<FetchByMetadataResponse> localVarResp = fetchVectorsByMetadataWithHttpInfo(xPineconeApiVersion, fetchByMetadataRequest);
+        return localVarResp.getData();
+    }
+
+    /**
+     * Fetch vectors by metadata
+     * Look up and return vectors by metadata filter from a single namespace. The returned vectors include the vector data and/or metadata. For guidance and examples, see [Fetch data](https://docs.pinecone.io/guides/manage-data/fetch-data).
+     * @param xPineconeApiVersion Required date-based version header (required)
+     * @param fetchByMetadataRequest  (required)
+     * @return ApiResponse&lt;FetchByMetadataResponse&gt;
+     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> A successful response. </td><td>  -  </td></tr>
+        <tr><td> 400 </td><td> Bad request. The request body included invalid request parameters. </td><td>  -  </td></tr>
+        <tr><td> 4XX </td><td> An unexpected error response. </td><td>  -  </td></tr>
+        <tr><td> 5XX </td><td> An unexpected error response. </td><td>  -  </td></tr>
+     </table>
+     */
+    public ApiResponse<FetchByMetadataResponse> fetchVectorsByMetadataWithHttpInfo(String xPineconeApiVersion, FetchByMetadataRequest fetchByMetadataRequest) throws ApiException {
+        okhttp3.Call localVarCall = fetchVectorsByMetadataValidateBeforeCall(xPineconeApiVersion, fetchByMetadataRequest, null);
+        Type localVarReturnType = new TypeToken<FetchByMetadataResponse>(){}.getType();
+        return localVarApiClient.execute(localVarCall, localVarReturnType);
+    }
+
+    /**
+     * Fetch vectors by metadata (asynchronously)
+     * Look up and return vectors by metadata filter from a single namespace. The returned vectors include the vector data and/or metadata. For guidance and examples, see [Fetch data](https://docs.pinecone.io/guides/manage-data/fetch-data).
+     * @param xPineconeApiVersion Required date-based version header (required)
+     * @param fetchByMetadataRequest  (required)
+     * @param _callback The callback to be executed when the API call finishes
+     * @return The request call
+     * @throws ApiException If fail to process the API call, e.g. serializing the request body object
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> A successful response. </td><td>  -  </td></tr>
+        <tr><td> 400 </td><td> Bad request. The request body included invalid request parameters. </td><td>  -  </td></tr>
+        <tr><td> 4XX </td><td> An unexpected error response. </td><td>  -  </td></tr>
+        <tr><td> 5XX </td><td> An unexpected error response. </td><td>  -  </td></tr>
+     </table>
+     */
+    public okhttp3.Call fetchVectorsByMetadataAsync(String xPineconeApiVersion, FetchByMetadataRequest fetchByMetadataRequest, final ApiCallback<FetchByMetadataResponse> _callback) throws ApiException {
+
+        okhttp3.Call localVarCall = fetchVectorsByMetadataValidateBeforeCall(xPineconeApiVersion, fetchByMetadataRequest, _callback);
+        Type localVarReturnType = new TypeToken<FetchByMetadataResponse>(){}.getType();
         localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
         return localVarCall;
     }

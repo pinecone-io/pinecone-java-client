@@ -164,8 +164,8 @@ public class JSON {
         gsonBuilder.registerTypeAdapterFactory(new org.openapitools.db_control.client.model.ScalingConfigManual.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new org.openapitools.db_control.client.model.Serverless.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new org.openapitools.db_control.client.model.Serverless1.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new org.openapitools.db_control.client.model.Serverless1Serverless.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new org.openapitools.db_control.client.model.Serverless2.CustomTypeAdapterFactory());
-        gsonBuilder.registerTypeAdapterFactory(new org.openapitools.db_control.client.model.Serverless2Serverless.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new org.openapitools.db_control.client.model.ServerlessSpec.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new org.openapitools.db_control.client.model.ServerlessSpecResponse.CustomTypeAdapterFactory());
         gson = gsonBuilder.create();
