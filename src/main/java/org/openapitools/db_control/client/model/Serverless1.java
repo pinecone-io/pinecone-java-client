@@ -21,7 +21,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.util.Arrays;
-import org.openapitools.db_control.client.model.ServerlessSpecResponse;
+import org.openapitools.db_control.client.model.Serverless1Serverless;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -50,16 +50,16 @@ import org.openapitools.db_control.client.JSON;
 /**
  * Serverless1
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-10-23T14:25:31.700489Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-10-29T18:10:25.651367Z[Etc/UTC]")
 public class Serverless1 {
   public static final String SERIALIZED_NAME_SERVERLESS = "serverless";
   @SerializedName(SERIALIZED_NAME_SERVERLESS)
-  private ServerlessSpecResponse serverless;
+  private Serverless1Serverless serverless;
 
   public Serverless1() {
   }
 
-  public Serverless1 serverless(ServerlessSpecResponse serverless) {
+  public Serverless1 serverless(Serverless1Serverless serverless) {
     
     this.serverless = serverless;
     return this;
@@ -70,12 +70,12 @@ public class Serverless1 {
    * @return serverless
   **/
   @javax.annotation.Nonnull
-  public ServerlessSpecResponse getServerless() {
+  public Serverless1Serverless getServerless() {
     return serverless;
   }
 
 
-  public void setServerless(ServerlessSpecResponse serverless) {
+  public void setServerless(Serverless1Serverless serverless) {
     this.serverless = serverless;
   }
 
@@ -161,7 +161,7 @@ public class Serverless1 {
       }
         JsonObject jsonObj = jsonElement.getAsJsonObject();
       // validate the required field `serverless`
-      ServerlessSpecResponse.validateJsonElement(jsonObj.get("serverless"));
+      Serverless1Serverless.validateJsonElement(jsonObj.get("serverless"));
   }
 
   public static class CustomTypeAdapterFactory implements TypeAdapterFactory {

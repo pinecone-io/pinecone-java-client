@@ -52,7 +52,7 @@ import org.openapitools.db_data.client.JSON;
 /**
  * The request for the &#x60;upsert&#x60; operation.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-10-23T14:25:33.726901Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-10-29T18:10:27.510457Z[Etc/UTC]")
 public class UpsertRequest {
   public static final String SERIALIZED_NAME_VECTORS = "vectors";
   @SerializedName(SERIALIZED_NAME_VECTORS)

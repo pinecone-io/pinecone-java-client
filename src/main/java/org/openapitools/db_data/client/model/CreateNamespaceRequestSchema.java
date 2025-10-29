@@ -52,7 +52,7 @@ import org.openapitools.db_data.client.JSON;
 /**
  * Schema for the behavior of Pinecone&#39;s internal metadata index. By default, all metadata is indexed; when &#x60;schema&#x60; is present, only fields which are present in the &#x60;fields&#x60; object with a &#x60;filterable: true&#x60; are indexed. Note that &#x60;filterable: false&#x60; is not currently supported.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-10-23T14:25:33.726901Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-10-29T18:10:27.510457Z[Etc/UTC]")
 public class CreateNamespaceRequestSchema {
   public static final String SERIALIZED_NAME_FIELDS = "fields";
   @SerializedName(SERIALIZED_NAME_FIELDS)

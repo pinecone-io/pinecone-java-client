@@ -25,7 +25,7 @@ import org.openapitools.db_control.client.model.BYOC;
 import org.openapitools.db_control.client.model.ByocSpec;
 import org.openapitools.db_control.client.model.PodBased;
 import org.openapitools.db_control.client.model.PodSpec;
-import org.openapitools.db_control.client.model.Serverless1;
+import org.openapitools.db_control.client.model.Serverless;
 import org.openapitools.db_control.client.model.ServerlessSpecResponse;
 
 
@@ -63,7 +63,7 @@ import com.google.gson.JsonParseException;
 
 import org.openapitools.db_control.client.JSON;
 
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-10-23T14:25:31.700489Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-10-29T18:10:25.651367Z[Etc/UTC]")
 public class IndexModelSpec extends AbstractOpenApiSchema {
     private static final Logger log = Logger.getLogger(IndexModelSpec.class.getName());
 
@@ -75,7 +75,7 @@ public class IndexModelSpec extends AbstractOpenApiSchema {
                 return null; // this class only serializes 'IndexModelSpec' and its subtypes
             }
             final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
-            final TypeAdapter<Serverless1> adapterServerless1 = gson.getDelegateAdapter(this, TypeToken.get(Serverless1.class));
+            final TypeAdapter<Serverless> adapterServerless = gson.getDelegateAdapter(this, TypeToken.get(Serverless.class));
             final TypeAdapter<PodBased> adapterPodBased = gson.getDelegateAdapter(this, TypeToken.get(PodBased.class));
             final TypeAdapter<BYOC> adapterBYOC = gson.getDelegateAdapter(this, TypeToken.get(BYOC.class));
 
@@ -87,9 +87,9 @@ public class IndexModelSpec extends AbstractOpenApiSchema {
                         return;
                     }
 
-                    // check if the actual instance is of the type `Serverless1`
-                    if (value.getActualInstance() instanceof Serverless1) {
-                      JsonElement element = adapterServerless1.toJsonTree((Serverless1)value.getActualInstance());
+                    // check if the actual instance is of the type `Serverless`
+                    if (value.getActualInstance() instanceof Serverless) {
+                      JsonElement element = adapterServerless.toJsonTree((Serverless)value.getActualInstance());
                       elementAdapter.write(out, element);
                       return;
                     }
@@ -105,7 +105,7 @@ public class IndexModelSpec extends AbstractOpenApiSchema {
                       elementAdapter.write(out, element);
                       return;
                     }
-                    throw new IOException("Failed to serialize as the type doesn't match oneOf schemas: BYOC, PodBased, Serverless1");
+                    throw new IOException("Failed to serialize as the type doesn't match oneOf schemas: BYOC, PodBased, Serverless");
                 }
 
                 @Override
@@ -117,17 +117,17 @@ public class IndexModelSpec extends AbstractOpenApiSchema {
                     ArrayList<String> errorMessages = new ArrayList<>();
                     TypeAdapter actualAdapter = elementAdapter;
 
-                    // deserialize Serverless1
+                    // deserialize Serverless
                     try {
                       // validate the JSON object to see if any exception is thrown
-                      Serverless1.validateJsonElement(jsonElement);
-                      actualAdapter = adapterServerless1;
+                      Serverless.validateJsonElement(jsonElement);
+                      actualAdapter = adapterServerless;
                       match++;
-                      log.log(Level.FINER, "Input data matches schema 'Serverless1'");
+                      log.log(Level.FINER, "Input data matches schema 'Serverless'");
                     } catch (Exception e) {
                       // deserialization failed, continue
-                      errorMessages.add(String.format("Deserialization for Serverless1 failed with `%s`.", e.getMessage()));
-                      log.log(Level.FINER, "Input data does not match schema 'Serverless1'", e);
+                      errorMessages.add(String.format("Deserialization for Serverless failed with `%s`.", e.getMessage()));
+                      log.log(Level.FINER, "Input data does not match schema 'Serverless'", e);
                     }
                     // deserialize PodBased
                     try {
@@ -183,13 +183,13 @@ public class IndexModelSpec extends AbstractOpenApiSchema {
         setActualInstance(o);
     }
 
-    public IndexModelSpec(Serverless1 o) {
+    public IndexModelSpec(Serverless o) {
         super("oneOf", Boolean.FALSE);
         setActualInstance(o);
     }
 
     static {
-        schemas.put("Serverless1", Serverless1.class);
+        schemas.put("Serverless", Serverless.class);
         schemas.put("PodBased", PodBased.class);
         schemas.put("BYOC", BYOC.class);
     }
@@ -202,13 +202,13 @@ public class IndexModelSpec extends AbstractOpenApiSchema {
     /**
      * Set the instance that matches the oneOf child schema, check
      * the instance parameter is valid against the oneOf child schemas:
-     * BYOC, PodBased, Serverless1
+     * BYOC, PodBased, Serverless
      *
      * It could be an instance of the 'oneOf' schemas.
      */
     @Override
     public void setActualInstance(Object instance) {
-        if (instance instanceof Serverless1) {
+        if (instance instanceof Serverless) {
             super.setActualInstance(instance);
             return;
         }
@@ -223,14 +223,14 @@ public class IndexModelSpec extends AbstractOpenApiSchema {
             return;
         }
 
-        throw new RuntimeException("Invalid instance type. Must be BYOC, PodBased, Serverless1");
+        throw new RuntimeException("Invalid instance type. Must be BYOC, PodBased, Serverless");
     }
 
     /**
      * Get the actual instance, which can be the following:
-     * BYOC, PodBased, Serverless1
+     * BYOC, PodBased, Serverless
      *
-     * @return The actual instance (BYOC, PodBased, Serverless1)
+     * @return The actual instance (BYOC, PodBased, Serverless)
      */
     @Override
     public Object getActualInstance() {
@@ -238,14 +238,14 @@ public class IndexModelSpec extends AbstractOpenApiSchema {
     }
 
     /**
-     * Get the actual instance of `Serverless1`. If the actual instance is not `Serverless1`,
+     * Get the actual instance of `Serverless`. If the actual instance is not `Serverless`,
      * the ClassCastException will be thrown.
      *
-     * @return The actual instance of `Serverless1`
-     * @throws ClassCastException if the instance is not `Serverless1`
+     * @return The actual instance of `Serverless`
+     * @throws ClassCastException if the instance is not `Serverless`
      */
-    public Serverless1 getServerless1() throws ClassCastException {
-        return (Serverless1)super.getActualInstance();
+    public Serverless getServerless() throws ClassCastException {
+        return (Serverless)super.getActualInstance();
     }
     /**
      * Get the actual instance of `PodBased`. If the actual instance is not `PodBased`,
@@ -278,12 +278,12 @@ public class IndexModelSpec extends AbstractOpenApiSchema {
     // validate oneOf schemas one by one
     int validCount = 0;
     ArrayList<String> errorMessages = new ArrayList<>();
-    // validate the json string with Serverless1
+    // validate the json string with Serverless
     try {
-      Serverless1.validateJsonElement(jsonElement);
+      Serverless.validateJsonElement(jsonElement);
       validCount++;
     } catch (Exception e) {
-      errorMessages.add(String.format("Deserialization for Serverless1 failed with `%s`.", e.getMessage()));
+      errorMessages.add(String.format("Deserialization for Serverless failed with `%s`.", e.getMessage()));
       // continue to the next one
     }
     // validate the json string with PodBased
@@ -303,7 +303,7 @@ public class IndexModelSpec extends AbstractOpenApiSchema {
       // continue to the next one
     }
     if (validCount != 1) {
-      throw new IOException(String.format("The JSON string is invalid for IndexModelSpec with oneOf schemas: BYOC, PodBased, Serverless1. %d class(es) match the result, expected 1. Detailed failure message for oneOf schemas: %s. JSON: %s", validCount, errorMessages, jsonElement.toString()));
+      throw new IOException(String.format("The JSON string is invalid for IndexModelSpec with oneOf schemas: BYOC, PodBased, Serverless. %d class(es) match the result, expected 1. Detailed failure message for oneOf schemas: %s. JSON: %s", validCount, errorMessages, jsonElement.toString()));
     }
   }
 

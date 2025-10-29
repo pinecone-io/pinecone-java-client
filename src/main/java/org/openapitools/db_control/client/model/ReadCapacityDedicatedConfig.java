@@ -50,7 +50,7 @@ import org.openapitools.db_control.client.JSON;
 /**
  * Configuration for dedicated read capacity. See  [this guide](https://docs.pinecone.io/guides/index-data/dedicated-read-nodes) for more details on  how to configure dedicated read capacity.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-10-23T14:25:31.700489Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-10-29T18:10:25.651367Z[Etc/UTC]")
 public class ReadCapacityDedicatedConfig {
   public static final String SERIALIZED_NAME_NODE_TYPE = "node_type";
   @SerializedName(SERIALIZED_NAME_NODE_TYPE)

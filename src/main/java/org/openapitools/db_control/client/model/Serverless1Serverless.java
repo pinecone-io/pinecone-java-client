@@ -50,16 +50,16 @@ import org.openapitools.db_control.client.JSON;
 /**
  * Updated configuration for serverless indexes
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-10-23T14:25:31.700489Z[Etc/UTC]")
-public class Serverless2Serverless {
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-10-29T18:10:25.651367Z[Etc/UTC]")
+public class Serverless1Serverless {
   public static final String SERIALIZED_NAME_READ_CAPACITY = "read_capacity";
   @SerializedName(SERIALIZED_NAME_READ_CAPACITY)
   private ReadCapacity readCapacity;
 
-  public Serverless2Serverless() {
+  public Serverless1Serverless() {
   }
 
-  public Serverless2Serverless readCapacity(ReadCapacity readCapacity) {
+  public Serverless1Serverless readCapacity(ReadCapacity readCapacity) {
     
     this.readCapacity = readCapacity;
     return this;
@@ -92,9 +92,9 @@ public class Serverless2Serverless {
    *
    * @param key name of the property
    * @param value value of the property
-   * @return the Serverless2Serverless instance itself
+   * @return the Serverless1Serverless instance itself
    */
-  public Serverless2Serverless putAdditionalProperty(String key, Object value) {
+  public Serverless1Serverless putAdditionalProperty(String key, Object value) {
     if (this.additionalProperties == null) {
         this.additionalProperties = new HashMap<String, Object>();
     }
@@ -133,9 +133,9 @@ public class Serverless2Serverless {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    Serverless2Serverless serverless2Serverless = (Serverless2Serverless) o;
-    return Objects.equals(this.readCapacity, serverless2Serverless.readCapacity)&&
-        Objects.equals(this.additionalProperties, serverless2Serverless.additionalProperties);
+    Serverless1Serverless serverless1Serverless = (Serverless1Serverless) o;
+    return Objects.equals(this.readCapacity, serverless1Serverless.readCapacity)&&
+        Objects.equals(this.additionalProperties, serverless1Serverless.additionalProperties);
   }
 
   @Override
@@ -146,7 +146,7 @@ public class Serverless2Serverless {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class Serverless2Serverless {\n");
+    sb.append("class Serverless1Serverless {\n");
     sb.append("    readCapacity: ").append(toIndentedString(readCapacity)).append("\n");
     sb.append("    additionalProperties: ").append(toIndentedString(additionalProperties)).append("\n");
     sb.append("}");
@@ -181,12 +181,12 @@ public class Serverless2Serverless {
   * Validates the JSON Element and throws an exception if issues found
   *
   * @param jsonElement JSON Element
-  * @throws IOException if the JSON Element is invalid with respect to Serverless2Serverless
+  * @throws IOException if the JSON Element is invalid with respect to Serverless1Serverless
   */
   public static void validateJsonElement(JsonElement jsonElement) throws IOException {
       if (jsonElement == null) {
-        if (!Serverless2Serverless.openapiRequiredFields.isEmpty()) { // has required fields but JSON element is null
-          throw new IllegalArgumentException(String.format("The required field(s) %s in Serverless2Serverless is not found in the empty JSON string", Serverless2Serverless.openapiRequiredFields.toString()));
+        if (!Serverless1Serverless.openapiRequiredFields.isEmpty()) { // has required fields but JSON element is null
+          throw new IllegalArgumentException(String.format("The required field(s) %s in Serverless1Serverless is not found in the empty JSON string", Serverless1Serverless.openapiRequiredFields.toString()));
         }
       }
         JsonObject jsonObj = jsonElement.getAsJsonObject();
@@ -200,16 +200,16 @@ public class Serverless2Serverless {
     @SuppressWarnings("unchecked")
     @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-       if (!Serverless2Serverless.class.isAssignableFrom(type.getRawType())) {
-         return null; // this class only serializes 'Serverless2Serverless' and its subtypes
+       if (!Serverless1Serverless.class.isAssignableFrom(type.getRawType())) {
+         return null; // this class only serializes 'Serverless1Serverless' and its subtypes
        }
        final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
-       final TypeAdapter<Serverless2Serverless> thisAdapter
-                        = gson.getDelegateAdapter(this, TypeToken.get(Serverless2Serverless.class));
+       final TypeAdapter<Serverless1Serverless> thisAdapter
+                        = gson.getDelegateAdapter(this, TypeToken.get(Serverless1Serverless.class));
 
-       return (TypeAdapter<T>) new TypeAdapter<Serverless2Serverless>() {
+       return (TypeAdapter<T>) new TypeAdapter<Serverless1Serverless>() {
            @Override
-           public void write(JsonWriter out, Serverless2Serverless value) throws IOException {
+           public void write(JsonWriter out, Serverless1Serverless value) throws IOException {
              JsonObject obj = thisAdapter.toJsonTree(value).getAsJsonObject();
              obj.remove("additionalProperties");
              // serialize additional properties
@@ -232,12 +232,12 @@ public class Serverless2Serverless {
            }
 
            @Override
-           public Serverless2Serverless read(JsonReader in) throws IOException {
+           public Serverless1Serverless read(JsonReader in) throws IOException {
              JsonElement jsonElement = elementAdapter.read(in);
              validateJsonElement(jsonElement);
              JsonObject jsonObj = jsonElement.getAsJsonObject();
              // store additional fields in the deserialized instance
-             Serverless2Serverless instance = thisAdapter.fromJsonTree(jsonObj);
+             Serverless1Serverless instance = thisAdapter.fromJsonTree(jsonObj);
              for (Map.Entry<String, JsonElement> entry : jsonObj.entrySet()) {
                if (!openapiFields.contains(entry.getKey())) {
                  if (entry.getValue().isJsonPrimitive()) { // primitive type
@@ -264,18 +264,18 @@ public class Serverless2Serverless {
   }
 
  /**
-  * Create an instance of Serverless2Serverless given an JSON string
+  * Create an instance of Serverless1Serverless given an JSON string
   *
   * @param jsonString JSON string
-  * @return An instance of Serverless2Serverless
-  * @throws IOException if the JSON string is invalid with respect to Serverless2Serverless
+  * @return An instance of Serverless1Serverless
+  * @throws IOException if the JSON string is invalid with respect to Serverless1Serverless
   */
-  public static Serverless2Serverless fromJson(String jsonString) throws IOException {
-    return JSON.getGson().fromJson(jsonString, Serverless2Serverless.class);
+  public static Serverless1Serverless fromJson(String jsonString) throws IOException {
+    return JSON.getGson().fromJson(jsonString, Serverless1Serverless.class);
   }
 
  /**
-  * Convert an instance of Serverless2Serverless to an JSON string
+  * Convert an instance of Serverless1Serverless to an JSON string
   *
   * @return JSON string
   */
