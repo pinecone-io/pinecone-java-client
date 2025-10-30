@@ -51,10 +51,10 @@ public class TestResourcesManager {
             ? "us-east4-gcp"
             : System.getenv("PINECONE_ENVIRONMENT");
     private static final String metric = System.getenv("METRIC") == null
-            ? IndexModel.MetricEnum.DOTPRODUCT.toString()
-            : IndexModel.MetricEnum.valueOf(System.getenv("METRIC")).toString();
+            ? "dotproduct"
+            : System.getenv("METRIC");
     private static final String cloud = System.getenv("CLOUD") == null
-            ? ServerlessSpec.CloudEnum.AWS.toString()
+            ? "aws"
             : System.getenv("CLOUD");
     private static final String region = System.getenv("REGION") == null
             ? "us-west-2"
@@ -320,7 +320,7 @@ public class TestResourcesManager {
         tags.put("env", "testing");
         
         serverlessIndexModel = pineconeClient.createServerlessIndex(indexName, metric, dimension, cloud,
-                region, DeletionProtection.DISABLED, tags);
+                region, "disabled", tags);
         waitUntilIndexIsReady(pineconeClient, indexName);
 
         // Explicitly wait after ready to avoid the "no healthy upstream" issue
@@ -357,8 +357,8 @@ public class TestResourcesManager {
 
         // Wait until collection is ready
         int timeWaited = 0;
-        CollectionModel.StatusEnum collectionReady = collectionModel.getStatus();
-        while (collectionReady != CollectionModel.StatusEnum.READY && timeWaited < 120000) {
+        String collectionReady = collectionModel.getStatus().toLowerCase();
+        while (collectionReady != "ready" && timeWaited < 120000) {
             logger.info("Waiting for collection " + collectionName + " to be ready. Waited " + timeWaited + " " +
                     "milliseconds...");
             Thread.sleep(5000);

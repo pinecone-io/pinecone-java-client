@@ -14,6 +14,7 @@ import io.pinecone.proto.ListResponse;
 import io.pinecone.proto.NamespaceDescription;
 import io.pinecone.proto.QueryRequest;
 import io.pinecone.proto.UpdateRequest;
+import io.pinecone.proto.UpdateResponse;
 import io.pinecone.proto.UpsertRequest;
 import io.pinecone.proto.UpsertResponse;
 import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
@@ -1107,7 +1108,7 @@ public class Index implements IndexInterface<UpsertResponse,
 
             records.add(upsertRecord);
         }
-        vectorOperations.upsertRecordsNamespace(namespace, records);
+        vectorOperations.upsertRecordsNamespace(Configuration.VERSION, namespace, records);
     }
 
     /**
@@ -1154,7 +1155,7 @@ public class Index implements IndexInterface<UpsertResponse,
                 .fields(fields)
                 .rerank(rerank);
 
-        return vectorOperations.searchRecordsNamespace(namespace, request);
+        return vectorOperations.searchRecordsNamespace(Configuration.VERSION, namespace, request);
     }
 
     /**
@@ -1208,7 +1209,7 @@ public class Index implements IndexInterface<UpsertResponse,
                 .fields(fields)
                 .rerank(rerank);
 
-        return vectorOperations.searchRecordsNamespace(namespace, request);
+        return vectorOperations.searchRecordsNamespace(Configuration.VERSION, namespace, request);
     }
 
     /**
@@ -1270,7 +1271,7 @@ public class Index implements IndexInterface<UpsertResponse,
                 .fields(fields)
                 .rerank(rerank);
 
-        return vectorOperations.searchRecordsNamespace(namespace, request);
+        return vectorOperations.searchRecordsNamespace(Configuration.VERSION, namespace, request);
     }
 
     /**
@@ -1324,7 +1325,7 @@ public class Index implements IndexInterface<UpsertResponse,
                 .fields(fields)
                 .rerank(rerank);
 
-        return vectorOperations.searchRecordsNamespace(namespace, request);
+        return vectorOperations.searchRecordsNamespace(Configuration.VERSION, namespace, request);
     }
 
     /**

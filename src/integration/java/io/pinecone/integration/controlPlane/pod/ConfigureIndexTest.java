@@ -8,7 +8,6 @@ import io.pinecone.helpers.TestResourcesManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.openapitools.db_control.client.model.DeletionProtection;
 import org.openapitools.db_control.client.model.IndexModel;
 import org.openapitools.db_control.client.model.IndexModelStatus;
 import org.openapitools.db_control.client.model.PodSpec;
@@ -37,7 +36,7 @@ public class ConfigureIndexTest {
         int timeWaited = 0;
         IndexModel index = controlPlaneClient.describeIndex(indexName);
 
-        while (index.getStatus().getState() != IndexModelStatus.StateEnum.READY && timeWaited <= timeToWaitMs) {
+        while (index.getStatus().getState() != "ready" && timeWaited <= timeToWaitMs) {
             Thread.sleep(2000);
             timeWaited += 2000;
             logger.info("waited 2000ms for index to upgrade, time waited: " + timeWaited);
@@ -56,7 +55,7 @@ public class ConfigureIndexTest {
     @Test
     public void configureIndexWithInvalidIndexName() {
         try {
-            controlPlaneClient.configurePodsIndex("non-existent-index", 3, DeletionProtection.DISABLED);
+            controlPlaneClient.configurePodsIndex("non-existent-index", 3, "disabled");
 
             fail("Expected to throw PineconeNotFoundException");
         } catch (PineconeNotFoundException expected) {
@@ -67,7 +66,7 @@ public class ConfigureIndexTest {
     @Test
     public void configureIndexExceedingQuota() {
         try {
-            controlPlaneClient.configurePodsIndex(indexName, 30, DeletionProtection.DISABLED);
+            controlPlaneClient.configurePodsIndex(indexName, 30, "disabled");
             fail("Expected to throw PineconeForbiddenException");
         } catch (PineconeForbiddenException expected) {
             assertTrue(expected.getLocalizedMessage().contains("reached the max pods allowed"));
@@ -82,7 +81,7 @@ public class ConfigureIndexTest {
 
         // Verify the scaled up replicas
         assertWithRetry(() -> {
-            controlPlaneClient.configurePodsIndex(indexName, 3, DeletionProtection.DISABLED);
+            controlPlaneClient.configurePodsIndex(indexName, 3, "disabled");
             PodSpec podSpec = controlPlaneClient.describeIndex(indexName).getSpec().getPod();
             assertNotNull(podSpec);
             assertEquals(podSpec.getReplicas(), 3);
@@ -92,7 +91,7 @@ public class ConfigureIndexTest {
 
         // Verify replicas were scaled down
         assertWithRetry(() -> {
-            controlPlaneClient.configurePodsIndex(indexName, 1, DeletionProtection.DISABLED);
+            controlPlaneClient.configurePodsIndex(indexName, 1, "disabled");
             PodSpec podSpec = controlPlaneClient.describeIndex(indexName).getSpec().getPod();
             assertNotNull(podSpec);
             assertEquals(podSpec.getReplicas(), 1);

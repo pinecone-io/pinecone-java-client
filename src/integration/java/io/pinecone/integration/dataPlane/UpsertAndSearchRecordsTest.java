@@ -5,9 +5,7 @@ import io.pinecone.clients.Pinecone;
 import io.pinecone.helpers.RandomStringBuilder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.openapitools.db_control.client.model.CreateIndexForModelRequest;
 import org.openapitools.db_control.client.model.CreateIndexForModelRequestEmbed;
-import org.openapitools.db_control.client.model.DeletionProtection;
 import org.openapitools.db_data.client.ApiException;
 import org.openapitools.db_data.client.model.SearchRecordsRequestQuery;
 import org.openapitools.db_data.client.model.SearchRecordsRequestRerank;
@@ -25,7 +23,7 @@ public class UpsertAndSearchRecordsTest {
         CreateIndexForModelRequestEmbed embed = new CreateIndexForModelRequestEmbed()
                 .model("multilingual-e5-large")
                 .fieldMap(fieldMap);
-        pinecone.createIndexForModel(indexName, CreateIndexForModelRequest.CloudEnum.AWS, "us-west-2", embed, DeletionProtection.DISABLED, new HashMap<>());
+        pinecone.createIndexForModel(indexName, "aws", "us-west-2", embed, "disabled", new HashMap<>());
 
         // Wait for index to be created
         Thread.sleep(10000);

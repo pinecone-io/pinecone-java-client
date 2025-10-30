@@ -4,7 +4,6 @@ import io.pinecone.clients.Pinecone;
 import io.pinecone.helpers.RandomStringBuilder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.openapitools.db_control.client.model.DeletionProtection;
 import org.openapitools.db_control.client.model.IndexModel;
 
 import java.util.HashMap;
@@ -22,11 +21,11 @@ public class DeletionProtectionTest {
         HashMap<String, String> expectedTags = new HashMap<>();
         expectedTags.put("test", "deletion-protection-enabled");
         // Create serverless index with deletion protection enabled
-        controlPlaneClient.createServerlessIndex(indexName, "cosine", 3, "aws", "us-west-2", DeletionProtection.ENABLED, expectedTags);
+        controlPlaneClient.createServerlessIndex(indexName, "cosine", 3, "aws", "us-west-2", "enabled", expectedTags);
         // Describe index to verify deletion protection is enabled
         IndexModel indexModel = controlPlaneClient.describeIndex(indexName);
-        DeletionProtection deletionProtection = indexModel.getDeletionProtection();
-        Assertions.assertEquals(deletionProtection, DeletionProtection.ENABLED);
+        String deletionProtection = indexModel.getDeletionProtection();
+        Assertions.assertEquals(deletionProtection, "enabled");
         Map<String, String> actualTags = indexModel.getTags();
         Assertions.assertEquals(expectedTags, actualTags);
     }
@@ -37,19 +36,19 @@ public class DeletionProtectionTest {
         HashMap<String, String> expectedTags = new HashMap<>();
         expectedTags.put("test", "deletion-protection-disabled");
         // Create serverless index with deletion protection disabled
-        controlPlaneClient.createServerlessIndex(indexName, "cosine", 3, "aws", "us-west-2", DeletionProtection.DISABLED, expectedTags);
+        controlPlaneClient.createServerlessIndex(indexName, "cosine", 3, "aws", "us-west-2", "disabled", expectedTags);
         IndexModel indexModel = controlPlaneClient.describeIndex(indexName);
-        DeletionProtection deletionProtection = indexModel.getDeletionProtection();
-        Assertions.assertEquals(deletionProtection, DeletionProtection.DISABLED);
+        String deletionProtection = indexModel.getDeletionProtection();
+        Assertions.assertEquals("disabled", deletionProtection);
         Map<String, String> actualTags = indexModel.getTags();
         Assertions.assertEquals(expectedTags, actualTags);
         // Configure index to enable deletionProtection
-        controlPlaneClient.configureServerlessIndex(indexName, DeletionProtection.ENABLED, expectedTags, null);
+        controlPlaneClient.configureServerlessIndex(indexName, "enabled", expectedTags, null);
         indexModel = controlPlaneClient.describeIndex(indexName);
         deletionProtection = indexModel.getDeletionProtection();
-        Assertions.assertEquals(deletionProtection, DeletionProtection.ENABLED);
+        Assertions.assertEquals("enabled", deletionProtection);
         // Configure index to disable deletionProtection
-        controlPlaneClient.configureServerlessIndex(indexName, DeletionProtection.DISABLED, expectedTags, null);
+        controlPlaneClient.configureServerlessIndex(indexName, "disabled", expectedTags, null);
         // Delete index
         controlPlaneClient.deleteIndex(indexName);
     }

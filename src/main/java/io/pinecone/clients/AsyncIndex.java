@@ -18,6 +18,7 @@ import io.pinecone.proto.NamespaceDescription;
 import io.pinecone.proto.QueryRequest;
 import io.pinecone.proto.QueryResponse;
 import io.pinecone.proto.UpdateRequest;
+import io.pinecone.proto.UpdateResponse;
 import io.pinecone.proto.UpsertRequest;
 import io.pinecone.proto.UpsertResponse;
 import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
@@ -1180,7 +1181,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      * @throws ApiException if there are issues processing the request or communicating with the server.
      *         This includes network issues, server errors, or serialization issues with the request or response.
      */
-    public StartImportResponse startImport(String uri, String integrationId, ImportErrorMode.OnErrorEnum errorMode) throws ApiException {
+    public StartImportResponse startImport(String uri, String integrationId, String errorMode) throws ApiException {
         StartImportRequest importRequest = new StartImportRequest();
         importRequest.setUri(uri);
         if(integrationId != null && !integrationId.isEmpty()) {
@@ -1191,7 +1192,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
             importRequest.setErrorMode(importErrorMode);
         }
 
-        return bulkOperations.startBulkImport(importRequest);
+        return bulkOperations.startBulkImport(Configuration.VERSION, importRequest);
     }
 
     /**
@@ -1270,7 +1271,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      *         This includes network issues, server errors, or serialization issues with the request or response.
      */
     public ListImportsResponse listImports(Integer limit, String paginationToken) throws ApiException {
-        return bulkOperations.listBulkImports(limit, paginationToken);
+        return bulkOperations.listBulkImports(Configuration.VERSION, limit, paginationToken);
     }
 
     /**
@@ -1296,7 +1297,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      *         This includes network issues, server errors, or serialization issues with the request or response.
      */
     public ImportModel describeImport(String id) throws ApiException {
-        return bulkOperations.describeBulkImport(id);
+        return bulkOperations.describeBulkImport(Configuration.VERSION, id);
     }
 
     /**
@@ -1319,7 +1320,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      *         This includes network issues, server errors, or serialization issues with the request or response.
      */
     public void cancelImport(String id) throws ApiException {
-        bulkOperations.cancelBulkImport(id);
+        bulkOperations.cancelBulkImport(Configuration.VERSION, id);
     }
 
     /**

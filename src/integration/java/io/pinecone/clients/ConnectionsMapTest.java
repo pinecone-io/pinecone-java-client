@@ -6,7 +6,6 @@ import io.pinecone.exceptions.PineconeNotFoundException;
 import io.pinecone.helpers.RandomStringBuilder;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.openapitools.db_control.client.model.DeletionProtection;
 import org.openapitools.db_control.client.model.IndexModel;
 
 import java.util.HashMap;
@@ -49,7 +48,7 @@ public class ConnectionsMapTest {
                 3,
                 "aws",
                 "us-east-1",
-                DeletionProtection.DISABLED,
+                "disabled",
                 tags);
 
         // Wait for index to be ready
@@ -68,7 +67,7 @@ public class ConnectionsMapTest {
                 3,
                 "aws",
                 "us-east-1",
-                DeletionProtection.DISABLED,
+                "disabled",
                 tags);
 
         // Wait for index to be ready

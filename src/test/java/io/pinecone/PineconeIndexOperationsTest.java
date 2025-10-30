@@ -65,42 +65,42 @@ public class PineconeIndexOperationsTest {
 
         Pinecone client = new Pinecone.Builder("testAPiKey").withOkHttpClient(mockClient).build();
 
-        client.createServerlessIndex("testServerlessIndex", "cosine", 3, "aws", "us-west-2", DeletionProtection.DISABLED, Collections.EMPTY_MAP);
+        client.createServerlessIndex("testServerlessIndex", "cosine", 3, "aws", "us-west-2", "disabled", Collections.EMPTY_MAP);
         verify(mockCall, times(1)).execute();
 
         PineconeValidationException thrownEmptyIndexName = assertThrows(PineconeValidationException.class,
-                () -> client.createServerlessIndex("", "cosine", 3, "aws", "us-west-2", DeletionProtection.DISABLED, Collections.EMPTY_MAP));
+                () -> client.createServerlessIndex("", "cosine", 3, "aws", "us-west-2", "disabled", Collections.EMPTY_MAP));
         assertEquals("Index name cannot be null or empty", thrownEmptyIndexName.getMessage());
 
         PineconeValidationException thrownNullIndexName = assertThrows(PineconeValidationException.class,
-                () -> client.createServerlessIndex(null, "cosine", 3, "aws", "us-west-2", DeletionProtection.DISABLED, Collections.EMPTY_MAP));
+                () -> client.createServerlessIndex(null, "cosine", 3, "aws", "us-west-2", "disabled", Collections.EMPTY_MAP));
         assertEquals("Index name cannot be null or empty", thrownNullIndexName.getMessage());
 
         PineconeValidationException thrownNegativeDimension = assertThrows(PineconeValidationException.class,
-                () -> client.createServerlessIndex("testServerlessIndex", "cosine", -3, "aws", "us-west-2", DeletionProtection.DISABLED, Collections.EMPTY_MAP));
+                () -> client.createServerlessIndex("testServerlessIndex", "cosine", -3, "aws", "us-west-2", "disabled", Collections.EMPTY_MAP));
         assertEquals("Dimension must be greater than 0. See limits for more info: https://docs.pinecone.io/reference/limits", thrownNegativeDimension.getMessage());
 
         PineconeValidationException thrownEmptyCloud = assertThrows(PineconeValidationException.class,
-                () -> client.createServerlessIndex("testServerlessIndex", "cosine", 3, "", "us-west-2", DeletionProtection.DISABLED, Collections.EMPTY_MAP));
-        assertEquals("Cloud cannot be null or empty. Must be one of " + Arrays.toString(ServerlessSpec.CloudEnum.values()),
+                () -> client.createServerlessIndex("testServerlessIndex", "cosine", 3, "", "us-west-2", "disabled", Collections.EMPTY_MAP));
+        assertEquals("Cloud cannot be null or empty",
                 thrownEmptyCloud.getMessage());
 
         PineconeValidationException thrownNullCloud = assertThrows(PineconeValidationException.class,
-                () -> client.createServerlessIndex("testServerlessIndex", "cosine", 3, null, "us-west-2", DeletionProtection.DISABLED, Collections.EMPTY_MAP));
-        assertEquals("Cloud cannot be null or empty. Must be one of " + Arrays.toString(ServerlessSpec.CloudEnum.values()),
+                () -> client.createServerlessIndex("testServerlessIndex", "cosine", 3, null, "us-west-2", "disabled", Collections.EMPTY_MAP));
+        assertEquals("Cloud cannot be null or empty",
                 thrownNullCloud.getMessage());
 
         PineconeValidationException thrownInvalidCloud = assertThrows(PineconeValidationException.class,
-                () -> client.createServerlessIndex("testServerlessIndex", "cosine", 3, "wooooo", "us-west-2", DeletionProtection.DISABLED, Collections.EMPTY_MAP));
-        assertEquals("Cloud cannot be null or empty. Must be one of " + Arrays.toString(ServerlessSpec.CloudEnum.values()),
+                () -> client.createServerlessIndex("testServerlessIndex", "cosine", 3, "wooooo", "us-west-2", "disabled", Collections.EMPTY_MAP));
+        assertEquals("Cloud cannot be null or empty",
                 thrownInvalidCloud.getMessage());
 
         PineconeValidationException thrownEmptyRegion = assertThrows(PineconeValidationException.class,
-                () -> client.createServerlessIndex("testServerlessIndex", "cosine", 3, "aws", "", DeletionProtection.DISABLED, Collections.EMPTY_MAP));
+                () -> client.createServerlessIndex("testServerlessIndex", "cosine", 3, "aws", "", "disabled", Collections.EMPTY_MAP));
         assertEquals("Region cannot be null or empty", thrownEmptyRegion.getMessage());
 
         PineconeValidationException thrownNullRegion = assertThrows(PineconeValidationException.class,
-                () -> client.createServerlessIndex("testServerlessIndex", "cosine", 3, "aws", null, DeletionProtection.DISABLED, Collections.EMPTY_MAP));
+                () -> client.createServerlessIndex("testServerlessIndex", "cosine", 3, "aws", null, "disabled", Collections.EMPTY_MAP));
         assertEquals("Region cannot be null or empty", thrownNullRegion.getMessage());
     }
 
@@ -133,7 +133,7 @@ public class PineconeIndexOperationsTest {
                 2,
                 new PodSpecMetadataConfig(),
                 "some-source-collection",
-                DeletionProtection.DISABLED,
+                "disabled",
                 null);
 
         ArgumentCaptor<Request> requestCaptor = ArgumentCaptor.forClass(Request.class);
@@ -203,7 +203,7 @@ public class PineconeIndexOperationsTest {
                 () -> Pinecone.validatePodIndexParams("test-index", 3, "some-environment", "p1.x1", "", null,
                         null,
                         null));
-        assertEquals("Metric cannot be null or empty. Must be one of " + Arrays.toString(IndexModel.MetricEnum.values()), thrownEmptyMetric.getMessage());
+        assertEquals("Metric cannot be null or empty. Must be cosine, euclidean, or dotproduct.", thrownEmptyMetric.getMessage());
 
         // Replicas
         PineconeValidationException thrownNegativeReplicas = assertThrows(PineconeValidationException.class,
@@ -318,7 +318,7 @@ public class PineconeIndexOperationsTest {
         OkHttpClient mockClient = mock(OkHttpClient.class);
         when(mockClient.newCall(any(Request.class))).thenReturn(mockCall);
         Pinecone client = new Pinecone.Builder("testAPiKey").withOkHttpClient(mockClient).build();
-        IndexModel configuredIndex = client.configurePodsIndex("testPodIndex", 3, DeletionProtection.DISABLED);
+        IndexModel configuredIndex = client.configurePodsIndex("testPodIndex", 3, "disabled");
 
         verify(mockCall, times(1)).execute();
         assertEquals(expectedConfiguredIndex, configuredIndex);
@@ -326,17 +326,17 @@ public class PineconeIndexOperationsTest {
         // Test for empty string for index name
         PineconeValidationException thrownEmptyIndexName = assertThrows(PineconeValidationException.class,
                 () -> client.configurePodsIndex("",
-                        3, DeletionProtection.DISABLED));
+                        3, "disabled"));
         assertEquals("indexName cannot be null or empty", thrownEmptyIndexName.getMessage());
 
         // Test for null as index name
         PineconeValidationException thrownNullIndexName = assertThrows(PineconeValidationException.class, () -> client.configurePodsIndex(null,
-                3, DeletionProtection.DISABLED));
+                3, "disabled"));
         assertEquals("indexName cannot be null or empty", thrownNullIndexName.getMessage());
 
         // Test for invalid number of replicas
         PineconeValidationException thrownZeroReplicas = assertThrows(PineconeValidationException.class,
-                () -> client.configurePodsIndex("testPodIndex", 0, DeletionProtection.DISABLED));
+                () -> client.configurePodsIndex("testPodIndex", 0, "disabled"));
         assertEquals("Number of replicas must be >= 1", thrownZeroReplicas.getMessage());
     }
 
