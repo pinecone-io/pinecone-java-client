@@ -7,7 +7,6 @@ import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.UpsertResponse;
 import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
 import org.junit.jupiter.api.*;
-import org.openapitools.db_control.client.model.DeletionProtection;
 import org.openapitools.db_control.client.model.IndexModel;
 
 import java.util.*;
@@ -39,14 +38,14 @@ public class SparseIndexTest {
         IndexModel indexModel = pinecone.createSparseServelessIndex(indexName,
                 "aws",
                 "us-east-1",
-                DeletionProtection.ENABLED,
+                "enabled",
                 tags,
                 "sparse");
 
         assertNotNull(indexModel);
         assertEquals(indexName, indexModel.getName());
-        assertEquals(IndexModel.MetricEnum.DOTPRODUCT, indexModel.getMetric());
-        assertEquals(indexModel.getDeletionProtection(), DeletionProtection.ENABLED);
+        assertEquals("dotproduct", indexModel.getMetric());
+        assertEquals(indexModel.getDeletionProtection(), "enabled");
         assertEquals(indexModel.getTags(), tags);
         assertEquals(indexModel.getVectorType(), "sparse");
     }
@@ -63,12 +62,12 @@ public class SparseIndexTest {
         waitUntilIndexIsReady(pinecone, indexName, 200000);
 
         // Disable deletion protection and add more index tags
-        pinecone.configureServerlessIndex(indexName, DeletionProtection.DISABLED, tags, null);
+        pinecone.configureServerlessIndex(indexName, "disabled", tags, null);
         Thread.sleep(7000);
 
         // Describe index to confirm deletion protection is disabled
         IndexModel indexModel = pinecone.describeIndex(indexName);
-        assertEquals(indexModel.getDeletionProtection(), DeletionProtection.DISABLED);
+        assertEquals(indexModel.getDeletionProtection(), "disabled");
         assert indexModel.getTags() != null;
         assertEquals(indexModel.getTags().get(key), value);
     }

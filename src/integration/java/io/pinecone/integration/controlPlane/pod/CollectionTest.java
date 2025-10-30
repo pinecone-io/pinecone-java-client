@@ -77,9 +77,9 @@ public class CollectionTest {
         // Verify collection can be described
         collection = pineconeClient.describeCollection(collectionName);
 
-        assertEquals(collection.getStatus(), CollectionModel.StatusEnum.READY);
-        assertEquals(collection.getDimension(), dimension);
-        assertNotEquals(collection.getVectorCount(), null);
+        assertEquals("ready", collection.getStatus());
+        assertEquals(dimension, collection.getDimension());
+        assertNotEquals(null, collection.getVectorCount());
         assertTrue(collection.getSize() > 0);
 
         // Create index from collection
@@ -100,7 +100,7 @@ public class CollectionTest {
         Thread.sleep(30000);
 
         // If the index is ready, validate contents
-        if (indexDescription.getStatus().getState() == IndexModelStatus.StateEnum.READY) {
+        if (indexDescription.getStatus().getState().equals("ready")) {
             // Set up new index data plane connection
             Index indexClient = pineconeClient.getIndexConnection(newIndexName);
 
@@ -118,11 +118,11 @@ public class CollectionTest {
     public void testCreateIndexFromCollectionWithDiffMetric() throws InterruptedException {
         // Use a different metric than the source index
         String[] metrics = {
-                IndexModel.MetricEnum.COSINE.toString(),
-                IndexModel.MetricEnum.EUCLIDEAN.toString(),
-                IndexModel.MetricEnum.DOTPRODUCT.toString()
+                "cosine",
+                "euclidean",
+                "dotproduct"
         };
-        String targetMetric = IndexModel.MetricEnum.COSINE.toString();
+        String targetMetric = "cosine";
         for (String metric : metrics) {
             if (!metric.equals(sourceIndexMetric)) {
                 targetMetric = metric;
