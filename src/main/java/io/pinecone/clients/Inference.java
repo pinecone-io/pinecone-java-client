@@ -54,7 +54,7 @@ public class Inference {
                 .parameters(parameters)
                 .inputs(convertToEmbedInputs(inputs));
 
-        return inferenceApi.embed(embedRequest);
+        return inferenceApi.embed(Configuration.VERSION, embedRequest);
     }
 
     /**
@@ -113,7 +113,7 @@ public class Inference {
                 .returnDocuments(returnDocuments)
                 .parameters(parameters);
 
-        return inferenceApi.rerank(rerankRequest);
+        return inferenceApi.rerank(Configuration.VERSION, rerankRequest);
     }
 
     /**
@@ -122,7 +122,7 @@ public class Inference {
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      */
     public ModelInfoList listModels() throws ApiException {
-        return inferenceApi.listModels(null, null);
+        return inferenceApi.listModels(Configuration.VERSION, null, null);
     }
 
     /**
@@ -132,7 +132,7 @@ public class Inference {
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      */
     public ModelInfoList listModels(String type) throws ApiException {
-        return inferenceApi.listModels(type, null);
+        return inferenceApi.listModels(Configuration.VERSION, type, null);
     }
 
     /**
@@ -143,7 +143,7 @@ public class Inference {
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      */
     public ModelInfoList listModels(String type, String vectorType) throws ApiException {
-        return inferenceApi.listModels(type, vectorType);
+        return inferenceApi.listModels(Configuration.VERSION, type, vectorType);
     }
 
     /**
@@ -153,7 +153,7 @@ public class Inference {
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      */
     public ModelInfo describeModel(String modelName) throws ApiException {
-        return inferenceApi.getModel(modelName);
+        return inferenceApi.getModel(Configuration.VERSION, modelName);
     }
 
     /**
