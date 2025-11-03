@@ -21,7 +21,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.util.Arrays;
-import org.openapitools.db_control.client.model.ServerlessSpecResponse;
+import org.openapitools.db_control.client.model.ByocSpec;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -48,35 +48,35 @@ import java.util.Set;
 import org.openapitools.db_control.client.JSON;
 
 /**
- * Serverless
+ * IndexModelBYOC
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-10-29T18:10:25.651367Z[Etc/UTC]")
-public class Serverless {
-  public static final String SERIALIZED_NAME_SERVERLESS = "serverless";
-  @SerializedName(SERIALIZED_NAME_SERVERLESS)
-  private ServerlessSpecResponse serverless;
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-11-03T18:50:11.354821Z[Etc/UTC]")
+public class IndexModelBYOC {
+  public static final String SERIALIZED_NAME_BYOC = "byoc";
+  @SerializedName(SERIALIZED_NAME_BYOC)
+  private ByocSpec byoc;
 
-  public Serverless() {
+  public IndexModelBYOC() {
   }
 
-  public Serverless serverless(ServerlessSpecResponse serverless) {
+  public IndexModelBYOC byoc(ByocSpec byoc) {
     
-    this.serverless = serverless;
+    this.byoc = byoc;
     return this;
   }
 
    /**
-   * Get serverless
-   * @return serverless
+   * Get byoc
+   * @return byoc
   **/
   @javax.annotation.Nonnull
-  public ServerlessSpecResponse getServerless() {
-    return serverless;
+  public ByocSpec getByoc() {
+    return byoc;
   }
 
 
-  public void setServerless(ServerlessSpecResponse serverless) {
-    this.serverless = serverless;
+  public void setByoc(ByocSpec byoc) {
+    this.byoc = byoc;
   }
 
 
@@ -89,20 +89,20 @@ public class Serverless {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    Serverless serverless = (Serverless) o;
-    return Objects.equals(this.serverless, serverless.serverless);
+    IndexModelBYOC indexModelBYOC = (IndexModelBYOC) o;
+    return Objects.equals(this.byoc, indexModelBYOC.byoc);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(serverless);
+    return Objects.hash(byoc);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class Serverless {\n");
-    sb.append("    serverless: ").append(toIndentedString(serverless)).append("\n");
+    sb.append("class IndexModelBYOC {\n");
+    sb.append("    byoc: ").append(toIndentedString(byoc)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -125,65 +125,65 @@ public class Serverless {
   static {
     // a set of all properties/fields (JSON key names)
     openapiFields = new HashSet<String>();
-    openapiFields.add("serverless");
+    openapiFields.add("byoc");
 
     // a set of required properties/fields (JSON key names)
     openapiRequiredFields = new HashSet<String>();
-    openapiRequiredFields.add("serverless");
+    openapiRequiredFields.add("byoc");
   }
 
  /**
   * Validates the JSON Element and throws an exception if issues found
   *
   * @param jsonElement JSON Element
-  * @throws IOException if the JSON Element is invalid with respect to Serverless
+  * @throws IOException if the JSON Element is invalid with respect to IndexModelBYOC
   */
   public static void validateJsonElement(JsonElement jsonElement) throws IOException {
       if (jsonElement == null) {
-        if (!Serverless.openapiRequiredFields.isEmpty()) { // has required fields but JSON element is null
-          throw new IllegalArgumentException(String.format("The required field(s) %s in Serverless is not found in the empty JSON string", Serverless.openapiRequiredFields.toString()));
+        if (!IndexModelBYOC.openapiRequiredFields.isEmpty()) { // has required fields but JSON element is null
+          throw new IllegalArgumentException(String.format("The required field(s) %s in IndexModelBYOC is not found in the empty JSON string", IndexModelBYOC.openapiRequiredFields.toString()));
         }
       }
 
       Set<Map.Entry<String, JsonElement>> entries = jsonElement.getAsJsonObject().entrySet();
       // check to see if the JSON string contains additional fields
       for (Map.Entry<String, JsonElement> entry : entries) {
-        if (!Serverless.openapiFields.contains(entry.getKey())) {
-          throw new IllegalArgumentException(String.format("The field `%s` in the JSON string is not defined in the `Serverless` properties. JSON: %s", entry.getKey(), jsonElement.toString()));
+        if (!IndexModelBYOC.openapiFields.contains(entry.getKey())) {
+          throw new IllegalArgumentException(String.format("The field `%s` in the JSON string is not defined in the `IndexModelBYOC` properties. JSON: %s", entry.getKey(), jsonElement.toString()));
         }
       }
 
       // check to make sure all required properties/fields are present in the JSON string
-      for (String requiredField : Serverless.openapiRequiredFields) {
+      for (String requiredField : IndexModelBYOC.openapiRequiredFields) {
         if (jsonElement.getAsJsonObject().get(requiredField) == null) {
           throw new IllegalArgumentException(String.format("The required field `%s` is not found in the JSON string: %s", requiredField, jsonElement.toString()));
         }
       }
         JsonObject jsonObj = jsonElement.getAsJsonObject();
-      // validate the required field `serverless`
-      ServerlessSpecResponse.validateJsonElement(jsonObj.get("serverless"));
+      // validate the required field `byoc`
+      ByocSpec.validateJsonElement(jsonObj.get("byoc"));
   }
 
   public static class CustomTypeAdapterFactory implements TypeAdapterFactory {
     @SuppressWarnings("unchecked")
     @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-       if (!Serverless.class.isAssignableFrom(type.getRawType())) {
-         return null; // this class only serializes 'Serverless' and its subtypes
+       if (!IndexModelBYOC.class.isAssignableFrom(type.getRawType())) {
+         return null; // this class only serializes 'IndexModelBYOC' and its subtypes
        }
        final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
-       final TypeAdapter<Serverless> thisAdapter
-                        = gson.getDelegateAdapter(this, TypeToken.get(Serverless.class));
+       final TypeAdapter<IndexModelBYOC> thisAdapter
+                        = gson.getDelegateAdapter(this, TypeToken.get(IndexModelBYOC.class));
 
-       return (TypeAdapter<T>) new TypeAdapter<Serverless>() {
+       return (TypeAdapter<T>) new TypeAdapter<IndexModelBYOC>() {
            @Override
-           public void write(JsonWriter out, Serverless value) throws IOException {
+           public void write(JsonWriter out, IndexModelBYOC value) throws IOException {
              JsonObject obj = thisAdapter.toJsonTree(value).getAsJsonObject();
              elementAdapter.write(out, obj);
            }
 
            @Override
-           public Serverless read(JsonReader in) throws IOException {
+           public IndexModelBYOC read(JsonReader in) throws IOException {
              JsonElement jsonElement = elementAdapter.read(in);
              validateJsonElement(jsonElement);
              return thisAdapter.fromJsonTree(jsonElement);
@@ -194,18 +194,18 @@ public class Serverless {
   }
 
  /**
-  * Create an instance of Serverless given an JSON string
+  * Create an instance of IndexModelBYOC given an JSON string
   *
   * @param jsonString JSON string
-  * @return An instance of Serverless
-  * @throws IOException if the JSON string is invalid with respect to Serverless
+  * @return An instance of IndexModelBYOC
+  * @throws IOException if the JSON string is invalid with respect to IndexModelBYOC
   */
-  public static Serverless fromJson(String jsonString) throws IOException {
-    return JSON.getGson().fromJson(jsonString, Serverless.class);
+  public static IndexModelBYOC fromJson(String jsonString) throws IOException {
+    return JSON.getGson().fromJson(jsonString, IndexModelBYOC.class);
   }
 
  /**
-  * Convert an instance of Serverless to an JSON string
+  * Convert an instance of IndexModelBYOC to an JSON string
   *
   * @return JSON string
   */

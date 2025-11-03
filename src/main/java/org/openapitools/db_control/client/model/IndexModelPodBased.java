@@ -21,6 +21,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.util.Arrays;
+import org.openapitools.db_control.client.model.PodSpec;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -47,35 +48,35 @@ import java.util.Set;
 import org.openapitools.db_control.client.JSON;
 
 /**
- * ReadCapacityOnDemandSpec
+ * IndexModelPodBased
  */
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-11-03T18:50:11.354821Z[Etc/UTC]")
-public class ReadCapacityOnDemandSpec {
-  public static final String SERIALIZED_NAME_MODE = "mode";
-  @SerializedName(SERIALIZED_NAME_MODE)
-  private String mode;
+public class IndexModelPodBased {
+  public static final String SERIALIZED_NAME_POD = "pod";
+  @SerializedName(SERIALIZED_NAME_POD)
+  private PodSpec pod;
 
-  public ReadCapacityOnDemandSpec() {
+  public IndexModelPodBased() {
   }
 
-  public ReadCapacityOnDemandSpec mode(String mode) {
+  public IndexModelPodBased pod(PodSpec pod) {
     
-    this.mode = mode;
+    this.pod = pod;
     return this;
   }
 
    /**
-   * The mode of the index. Possible values: &#x60;OnDemand&#x60; or &#x60;Dedicated&#x60;. Defaults to &#x60;OnDemand&#x60;. If set to &#x60;Dedicated&#x60;, &#x60;dedicated.node_type&#x60;, and &#x60;dedicated.scaling&#x60; must be specified.
-   * @return mode
+   * Get pod
+   * @return pod
   **/
   @javax.annotation.Nonnull
-  public String getMode() {
-    return mode;
+  public PodSpec getPod() {
+    return pod;
   }
 
 
-  public void setMode(String mode) {
-    this.mode = mode;
+  public void setPod(PodSpec pod) {
+    this.pod = pod;
   }
 
 
@@ -88,20 +89,20 @@ public class ReadCapacityOnDemandSpec {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    ReadCapacityOnDemandSpec readCapacityOnDemandSpec = (ReadCapacityOnDemandSpec) o;
-    return Objects.equals(this.mode, readCapacityOnDemandSpec.mode);
+    IndexModelPodBased indexModelPodBased = (IndexModelPodBased) o;
+    return Objects.equals(this.pod, indexModelPodBased.pod);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(mode);
+    return Objects.hash(pod);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class ReadCapacityOnDemandSpec {\n");
-    sb.append("    mode: ").append(toIndentedString(mode)).append("\n");
+    sb.append("class IndexModelPodBased {\n");
+    sb.append("    pod: ").append(toIndentedString(pod)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -124,66 +125,65 @@ public class ReadCapacityOnDemandSpec {
   static {
     // a set of all properties/fields (JSON key names)
     openapiFields = new HashSet<String>();
-    openapiFields.add("mode");
+    openapiFields.add("pod");
 
     // a set of required properties/fields (JSON key names)
     openapiRequiredFields = new HashSet<String>();
-    openapiRequiredFields.add("mode");
+    openapiRequiredFields.add("pod");
   }
 
  /**
   * Validates the JSON Element and throws an exception if issues found
   *
   * @param jsonElement JSON Element
-  * @throws IOException if the JSON Element is invalid with respect to ReadCapacityOnDemandSpec
+  * @throws IOException if the JSON Element is invalid with respect to IndexModelPodBased
   */
   public static void validateJsonElement(JsonElement jsonElement) throws IOException {
       if (jsonElement == null) {
-        if (!ReadCapacityOnDemandSpec.openapiRequiredFields.isEmpty()) { // has required fields but JSON element is null
-          throw new IllegalArgumentException(String.format("The required field(s) %s in ReadCapacityOnDemandSpec is not found in the empty JSON string", ReadCapacityOnDemandSpec.openapiRequiredFields.toString()));
+        if (!IndexModelPodBased.openapiRequiredFields.isEmpty()) { // has required fields but JSON element is null
+          throw new IllegalArgumentException(String.format("The required field(s) %s in IndexModelPodBased is not found in the empty JSON string", IndexModelPodBased.openapiRequiredFields.toString()));
         }
       }
 
       Set<Map.Entry<String, JsonElement>> entries = jsonElement.getAsJsonObject().entrySet();
       // check to see if the JSON string contains additional fields
       for (Map.Entry<String, JsonElement> entry : entries) {
-        if (!ReadCapacityOnDemandSpec.openapiFields.contains(entry.getKey())) {
-          throw new IllegalArgumentException(String.format("The field `%s` in the JSON string is not defined in the `ReadCapacityOnDemandSpec` properties. JSON: %s", entry.getKey(), jsonElement.toString()));
+        if (!IndexModelPodBased.openapiFields.contains(entry.getKey())) {
+          throw new IllegalArgumentException(String.format("The field `%s` in the JSON string is not defined in the `IndexModelPodBased` properties. JSON: %s", entry.getKey(), jsonElement.toString()));
         }
       }
 
       // check to make sure all required properties/fields are present in the JSON string
-      for (String requiredField : ReadCapacityOnDemandSpec.openapiRequiredFields) {
+      for (String requiredField : IndexModelPodBased.openapiRequiredFields) {
         if (jsonElement.getAsJsonObject().get(requiredField) == null) {
           throw new IllegalArgumentException(String.format("The required field `%s` is not found in the JSON string: %s", requiredField, jsonElement.toString()));
         }
       }
         JsonObject jsonObj = jsonElement.getAsJsonObject();
-      if (!jsonObj.get("mode").isJsonPrimitive()) {
-        throw new IllegalArgumentException(String.format("Expected the field `mode` to be a primitive type in the JSON string but got `%s`", jsonObj.get("mode").toString()));
-      }
+      // validate the required field `pod`
+      PodSpec.validateJsonElement(jsonObj.get("pod"));
   }
 
   public static class CustomTypeAdapterFactory implements TypeAdapterFactory {
     @SuppressWarnings("unchecked")
     @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-       if (!ReadCapacityOnDemandSpec.class.isAssignableFrom(type.getRawType())) {
-         return null; // this class only serializes 'ReadCapacityOnDemandSpec' and its subtypes
+       if (!IndexModelPodBased.class.isAssignableFrom(type.getRawType())) {
+         return null; // this class only serializes 'IndexModelPodBased' and its subtypes
        }
        final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
-       final TypeAdapter<ReadCapacityOnDemandSpec> thisAdapter
-                        = gson.getDelegateAdapter(this, TypeToken.get(ReadCapacityOnDemandSpec.class));
+       final TypeAdapter<IndexModelPodBased> thisAdapter
+                        = gson.getDelegateAdapter(this, TypeToken.get(IndexModelPodBased.class));
 
-       return (TypeAdapter<T>) new TypeAdapter<ReadCapacityOnDemandSpec>() {
+       return (TypeAdapter<T>) new TypeAdapter<IndexModelPodBased>() {
            @Override
-           public void write(JsonWriter out, ReadCapacityOnDemandSpec value) throws IOException {
+           public void write(JsonWriter out, IndexModelPodBased value) throws IOException {
              JsonObject obj = thisAdapter.toJsonTree(value).getAsJsonObject();
              elementAdapter.write(out, obj);
            }
 
            @Override
-           public ReadCapacityOnDemandSpec read(JsonReader in) throws IOException {
+           public IndexModelPodBased read(JsonReader in) throws IOException {
              JsonElement jsonElement = elementAdapter.read(in);
              validateJsonElement(jsonElement);
              return thisAdapter.fromJsonTree(jsonElement);
@@ -194,18 +194,18 @@ public class ReadCapacityOnDemandSpec {
   }
 
  /**
-  * Create an instance of ReadCapacityOnDemandSpec given an JSON string
+  * Create an instance of IndexModelPodBased given an JSON string
   *
   * @param jsonString JSON string
-  * @return An instance of ReadCapacityOnDemandSpec
-  * @throws IOException if the JSON string is invalid with respect to ReadCapacityOnDemandSpec
+  * @return An instance of IndexModelPodBased
+  * @throws IOException if the JSON string is invalid with respect to IndexModelPodBased
   */
-  public static ReadCapacityOnDemandSpec fromJson(String jsonString) throws IOException {
-    return JSON.getGson().fromJson(jsonString, ReadCapacityOnDemandSpec.class);
+  public static IndexModelPodBased fromJson(String jsonString) throws IOException {
+    return JSON.getGson().fromJson(jsonString, IndexModelPodBased.class);
   }
 
  /**
-  * Convert an instance of ReadCapacityOnDemandSpec to an JSON string
+  * Convert an instance of IndexModelPodBased to an JSON string
   *
   * @return JSON string
   */

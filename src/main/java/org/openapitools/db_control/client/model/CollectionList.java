@@ -52,7 +52,7 @@ import org.openapitools.db_control.client.JSON;
 /**
  * The list of collections that exist in the project.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-10-29T18:10:25.651367Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-11-03T18:50:11.354821Z[Etc/UTC]")
 public class CollectionList {
   public static final String SERIALIZED_NAME_COLLECTIONS = "collections";
   @SerializedName(SERIALIZED_NAME_COLLECTIONS)

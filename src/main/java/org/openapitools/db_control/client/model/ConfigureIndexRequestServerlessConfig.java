@@ -21,6 +21,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.util.Arrays;
+import org.openapitools.db_control.client.model.ReadCapacity;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -47,61 +48,35 @@ import java.util.Set;
 import org.openapitools.db_control.client.JSON;
 
 /**
- * Updated configuration for pod-based indexes
+ * Updated configuration for serverless indexes
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-10-29T18:10:25.651367Z[Etc/UTC]")
-public class PodBased1Pod {
-  public static final String SERIALIZED_NAME_REPLICAS = "replicas";
-  @SerializedName(SERIALIZED_NAME_REPLICAS)
-  private Integer replicas = 1;
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-11-03T18:50:11.354821Z[Etc/UTC]")
+public class ConfigureIndexRequestServerlessConfig {
+  public static final String SERIALIZED_NAME_READ_CAPACITY = "read_capacity";
+  @SerializedName(SERIALIZED_NAME_READ_CAPACITY)
+  private ReadCapacity readCapacity;
 
-  public static final String SERIALIZED_NAME_POD_TYPE = "pod_type";
-  @SerializedName(SERIALIZED_NAME_POD_TYPE)
-  private String podType = "p1.x1";
-
-  public PodBased1Pod() {
+  public ConfigureIndexRequestServerlessConfig() {
   }
 
-  public PodBased1Pod replicas(Integer replicas) {
+  public ConfigureIndexRequestServerlessConfig readCapacity(ReadCapacity readCapacity) {
     
-    this.replicas = replicas;
+    this.readCapacity = readCapacity;
     return this;
   }
 
    /**
-   * The number of replicas. Replicas duplicate your index. They provide higher availability and throughput. Replicas can be scaled up or down as your needs change.
-   * minimum: 1
-   * @return replicas
+   * Get readCapacity
+   * @return readCapacity
   **/
   @javax.annotation.Nullable
-  public Integer getReplicas() {
-    return replicas;
+  public ReadCapacity getReadCapacity() {
+    return readCapacity;
   }
 
 
-  public void setReplicas(Integer replicas) {
-    this.replicas = replicas;
-  }
-
-
-  public PodBased1Pod podType(String podType) {
-    
-    this.podType = podType;
-    return this;
-  }
-
-   /**
-   * The type of pod to use. One of &#x60;s1&#x60;, &#x60;p1&#x60;, or &#x60;p2&#x60; appended with &#x60;.&#x60; and one of &#x60;x1&#x60;, &#x60;x2&#x60;, &#x60;x4&#x60;, or &#x60;x8&#x60;.
-   * @return podType
-  **/
-  @javax.annotation.Nullable
-  public String getPodType() {
-    return podType;
-  }
-
-
-  public void setPodType(String podType) {
-    this.podType = podType;
+  public void setReadCapacity(ReadCapacity readCapacity) {
+    this.readCapacity = readCapacity;
   }
 
   /**
@@ -117,9 +92,9 @@ public class PodBased1Pod {
    *
    * @param key name of the property
    * @param value value of the property
-   * @return the PodBased1Pod instance itself
+   * @return the ConfigureIndexRequestServerlessConfig instance itself
    */
-  public PodBased1Pod putAdditionalProperty(String key, Object value) {
+  public ConfigureIndexRequestServerlessConfig putAdditionalProperty(String key, Object value) {
     if (this.additionalProperties == null) {
         this.additionalProperties = new HashMap<String, Object>();
     }
@@ -158,23 +133,21 @@ public class PodBased1Pod {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    PodBased1Pod podBased1Pod = (PodBased1Pod) o;
-    return Objects.equals(this.replicas, podBased1Pod.replicas) &&
-        Objects.equals(this.podType, podBased1Pod.podType)&&
-        Objects.equals(this.additionalProperties, podBased1Pod.additionalProperties);
+    ConfigureIndexRequestServerlessConfig configureIndexRequestServerlessConfig = (ConfigureIndexRequestServerlessConfig) o;
+    return Objects.equals(this.readCapacity, configureIndexRequestServerlessConfig.readCapacity)&&
+        Objects.equals(this.additionalProperties, configureIndexRequestServerlessConfig.additionalProperties);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(replicas, podType, additionalProperties);
+    return Objects.hash(readCapacity, additionalProperties);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class PodBased1Pod {\n");
-    sb.append("    replicas: ").append(toIndentedString(replicas)).append("\n");
-    sb.append("    podType: ").append(toIndentedString(podType)).append("\n");
+    sb.append("class ConfigureIndexRequestServerlessConfig {\n");
+    sb.append("    readCapacity: ").append(toIndentedString(readCapacity)).append("\n");
     sb.append("    additionalProperties: ").append(toIndentedString(additionalProperties)).append("\n");
     sb.append("}");
     return sb.toString();
@@ -198,8 +171,7 @@ public class PodBased1Pod {
   static {
     // a set of all properties/fields (JSON key names)
     openapiFields = new HashSet<String>();
-    openapiFields.add("replicas");
-    openapiFields.add("pod_type");
+    openapiFields.add("read_capacity");
 
     // a set of required properties/fields (JSON key names)
     openapiRequiredFields = new HashSet<String>();
@@ -209,17 +181,18 @@ public class PodBased1Pod {
   * Validates the JSON Element and throws an exception if issues found
   *
   * @param jsonElement JSON Element
-  * @throws IOException if the JSON Element is invalid with respect to PodBased1Pod
+  * @throws IOException if the JSON Element is invalid with respect to ConfigureIndexRequestServerlessConfig
   */
   public static void validateJsonElement(JsonElement jsonElement) throws IOException {
       if (jsonElement == null) {
-        if (!PodBased1Pod.openapiRequiredFields.isEmpty()) { // has required fields but JSON element is null
-          throw new IllegalArgumentException(String.format("The required field(s) %s in PodBased1Pod is not found in the empty JSON string", PodBased1Pod.openapiRequiredFields.toString()));
+        if (!ConfigureIndexRequestServerlessConfig.openapiRequiredFields.isEmpty()) { // has required fields but JSON element is null
+          throw new IllegalArgumentException(String.format("The required field(s) %s in ConfigureIndexRequestServerlessConfig is not found in the empty JSON string", ConfigureIndexRequestServerlessConfig.openapiRequiredFields.toString()));
         }
       }
         JsonObject jsonObj = jsonElement.getAsJsonObject();
-      if ((jsonObj.get("pod_type") != null && !jsonObj.get("pod_type").isJsonNull()) && !jsonObj.get("pod_type").isJsonPrimitive()) {
-        throw new IllegalArgumentException(String.format("Expected the field `pod_type` to be a primitive type in the JSON string but got `%s`", jsonObj.get("pod_type").toString()));
+      // validate the optional field `read_capacity`
+      if (jsonObj.get("read_capacity") != null && !jsonObj.get("read_capacity").isJsonNull()) {
+        ReadCapacity.validateJsonElement(jsonObj.get("read_capacity"));
       }
   }
 
@@ -227,16 +200,16 @@ public class PodBased1Pod {
     @SuppressWarnings("unchecked")
     @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-       if (!PodBased1Pod.class.isAssignableFrom(type.getRawType())) {
-         return null; // this class only serializes 'PodBased1Pod' and its subtypes
+       if (!ConfigureIndexRequestServerlessConfig.class.isAssignableFrom(type.getRawType())) {
+         return null; // this class only serializes 'ConfigureIndexRequestServerlessConfig' and its subtypes
        }
        final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
-       final TypeAdapter<PodBased1Pod> thisAdapter
-                        = gson.getDelegateAdapter(this, TypeToken.get(PodBased1Pod.class));
+       final TypeAdapter<ConfigureIndexRequestServerlessConfig> thisAdapter
+                        = gson.getDelegateAdapter(this, TypeToken.get(ConfigureIndexRequestServerlessConfig.class));
 
-       return (TypeAdapter<T>) new TypeAdapter<PodBased1Pod>() {
+       return (TypeAdapter<T>) new TypeAdapter<ConfigureIndexRequestServerlessConfig>() {
            @Override
-           public void write(JsonWriter out, PodBased1Pod value) throws IOException {
+           public void write(JsonWriter out, ConfigureIndexRequestServerlessConfig value) throws IOException {
              JsonObject obj = thisAdapter.toJsonTree(value).getAsJsonObject();
              obj.remove("additionalProperties");
              // serialize additional properties
@@ -259,12 +232,12 @@ public class PodBased1Pod {
            }
 
            @Override
-           public PodBased1Pod read(JsonReader in) throws IOException {
+           public ConfigureIndexRequestServerlessConfig read(JsonReader in) throws IOException {
              JsonElement jsonElement = elementAdapter.read(in);
              validateJsonElement(jsonElement);
              JsonObject jsonObj = jsonElement.getAsJsonObject();
              // store additional fields in the deserialized instance
-             PodBased1Pod instance = thisAdapter.fromJsonTree(jsonObj);
+             ConfigureIndexRequestServerlessConfig instance = thisAdapter.fromJsonTree(jsonObj);
              for (Map.Entry<String, JsonElement> entry : jsonObj.entrySet()) {
                if (!openapiFields.contains(entry.getKey())) {
                  if (entry.getValue().isJsonPrimitive()) { // primitive type
@@ -291,18 +264,18 @@ public class PodBased1Pod {
   }
 
  /**
-  * Create an instance of PodBased1Pod given an JSON string
+  * Create an instance of ConfigureIndexRequestServerlessConfig given an JSON string
   *
   * @param jsonString JSON string
-  * @return An instance of PodBased1Pod
-  * @throws IOException if the JSON string is invalid with respect to PodBased1Pod
+  * @return An instance of ConfigureIndexRequestServerlessConfig
+  * @throws IOException if the JSON string is invalid with respect to ConfigureIndexRequestServerlessConfig
   */
-  public static PodBased1Pod fromJson(String jsonString) throws IOException {
-    return JSON.getGson().fromJson(jsonString, PodBased1Pod.class);
+  public static ConfigureIndexRequestServerlessConfig fromJson(String jsonString) throws IOException {
+    return JSON.getGson().fromJson(jsonString, ConfigureIndexRequestServerlessConfig.class);
   }
 
  /**
-  * Convert an instance of PodBased1Pod to an JSON string
+  * Convert an instance of ConfigureIndexRequestServerlessConfig to an JSON string
   *
   * @return JSON string
   */

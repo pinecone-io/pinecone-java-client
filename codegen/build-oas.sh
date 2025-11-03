@@ -97,11 +97,28 @@ generate_client() {
   fi
 }
 
-update_apis_repo
+process_oas_files() {
+	local version=$1
+	echo "Making oneOf titles unique in OAS files"
+	oas_dir="codegen/apis/_build/${version}"
+	codegen/make_oneof_titles_unique.sh "$oas_dir" --pattern "*_${version}.oas.yaml"
+	
+	echo "Adding titles to nested objects in ConfigureIndexRequest"
+	# Only process db_control file
+	db_control_file="${oas_dir}/db_control_${version}.oas.yaml"
+	if [ -f "$db_control_file" ]; then
+		codegen/add_configure_index_request_titles.sh "$db_control_file"
+	else
+		echo "  db_control_${version}.oas.yaml not found, skipping"
+	fi
+}
+
+update_apis_repo $version
 verify_spec_version $version
 
 rm -rf "${destination}"
 mkdir -p "${destination}"
+process_oas_files $version
 
 for module in "${modules[@]}"; do
 	generate_client $module

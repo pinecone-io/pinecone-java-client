@@ -48,18 +48,18 @@ import java.util.Set;
 import org.openapitools.db_control.client.JSON;
 
 /**
- * Serverless2
+ * IndexSpecServerless
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-10-29T18:10:25.651367Z[Etc/UTC]")
-public class Serverless2 {
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-11-03T18:50:11.354821Z[Etc/UTC]")
+public class IndexSpecServerless {
   public static final String SERIALIZED_NAME_SERVERLESS = "serverless";
   @SerializedName(SERIALIZED_NAME_SERVERLESS)
   private ServerlessSpec serverless;
 
-  public Serverless2() {
+  public IndexSpecServerless() {
   }
 
-  public Serverless2 serverless(ServerlessSpec serverless) {
+  public IndexSpecServerless serverless(ServerlessSpec serverless) {
     
     this.serverless = serverless;
     return this;
@@ -89,8 +89,8 @@ public class Serverless2 {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    Serverless2 serverless2 = (Serverless2) o;
-    return Objects.equals(this.serverless, serverless2.serverless);
+    IndexSpecServerless indexSpecServerless = (IndexSpecServerless) o;
+    return Objects.equals(this.serverless, indexSpecServerless.serverless);
   }
 
   @Override
@@ -101,7 +101,7 @@ public class Serverless2 {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class Serverless2 {\n");
+    sb.append("class IndexSpecServerless {\n");
     sb.append("    serverless: ").append(toIndentedString(serverless)).append("\n");
     sb.append("}");
     return sb.toString();
@@ -136,25 +136,25 @@ public class Serverless2 {
   * Validates the JSON Element and throws an exception if issues found
   *
   * @param jsonElement JSON Element
-  * @throws IOException if the JSON Element is invalid with respect to Serverless2
+  * @throws IOException if the JSON Element is invalid with respect to IndexSpecServerless
   */
   public static void validateJsonElement(JsonElement jsonElement) throws IOException {
       if (jsonElement == null) {
-        if (!Serverless2.openapiRequiredFields.isEmpty()) { // has required fields but JSON element is null
-          throw new IllegalArgumentException(String.format("The required field(s) %s in Serverless2 is not found in the empty JSON string", Serverless2.openapiRequiredFields.toString()));
+        if (!IndexSpecServerless.openapiRequiredFields.isEmpty()) { // has required fields but JSON element is null
+          throw new IllegalArgumentException(String.format("The required field(s) %s in IndexSpecServerless is not found in the empty JSON string", IndexSpecServerless.openapiRequiredFields.toString()));
         }
       }
 
       Set<Map.Entry<String, JsonElement>> entries = jsonElement.getAsJsonObject().entrySet();
       // check to see if the JSON string contains additional fields
       for (Map.Entry<String, JsonElement> entry : entries) {
-        if (!Serverless2.openapiFields.contains(entry.getKey())) {
-          throw new IllegalArgumentException(String.format("The field `%s` in the JSON string is not defined in the `Serverless2` properties. JSON: %s", entry.getKey(), jsonElement.toString()));
+        if (!IndexSpecServerless.openapiFields.contains(entry.getKey())) {
+          throw new IllegalArgumentException(String.format("The field `%s` in the JSON string is not defined in the `IndexSpecServerless` properties. JSON: %s", entry.getKey(), jsonElement.toString()));
         }
       }
 
       // check to make sure all required properties/fields are present in the JSON string
-      for (String requiredField : Serverless2.openapiRequiredFields) {
+      for (String requiredField : IndexSpecServerless.openapiRequiredFields) {
         if (jsonElement.getAsJsonObject().get(requiredField) == null) {
           throw new IllegalArgumentException(String.format("The required field `%s` is not found in the JSON string: %s", requiredField, jsonElement.toString()));
         }
@@ -168,22 +168,22 @@ public class Serverless2 {
     @SuppressWarnings("unchecked")
     @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-       if (!Serverless2.class.isAssignableFrom(type.getRawType())) {
-         return null; // this class only serializes 'Serverless2' and its subtypes
+       if (!IndexSpecServerless.class.isAssignableFrom(type.getRawType())) {
+         return null; // this class only serializes 'IndexSpecServerless' and its subtypes
        }
        final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
-       final TypeAdapter<Serverless2> thisAdapter
-                        = gson.getDelegateAdapter(this, TypeToken.get(Serverless2.class));
+       final TypeAdapter<IndexSpecServerless> thisAdapter
+                        = gson.getDelegateAdapter(this, TypeToken.get(IndexSpecServerless.class));
 
-       return (TypeAdapter<T>) new TypeAdapter<Serverless2>() {
+       return (TypeAdapter<T>) new TypeAdapter<IndexSpecServerless>() {
            @Override
-           public void write(JsonWriter out, Serverless2 value) throws IOException {
+           public void write(JsonWriter out, IndexSpecServerless value) throws IOException {
              JsonObject obj = thisAdapter.toJsonTree(value).getAsJsonObject();
              elementAdapter.write(out, obj);
            }
 
            @Override
-           public Serverless2 read(JsonReader in) throws IOException {
+           public IndexSpecServerless read(JsonReader in) throws IOException {
              JsonElement jsonElement = elementAdapter.read(in);
              validateJsonElement(jsonElement);
              return thisAdapter.fromJsonTree(jsonElement);
@@ -194,18 +194,18 @@ public class Serverless2 {
   }
 
  /**
-  * Create an instance of Serverless2 given an JSON string
+  * Create an instance of IndexSpecServerless given an JSON string
   *
   * @param jsonString JSON string
-  * @return An instance of Serverless2
-  * @throws IOException if the JSON string is invalid with respect to Serverless2
+  * @return An instance of IndexSpecServerless
+  * @throws IOException if the JSON string is invalid with respect to IndexSpecServerless
   */
-  public static Serverless2 fromJson(String jsonString) throws IOException {
-    return JSON.getGson().fromJson(jsonString, Serverless2.class);
+  public static IndexSpecServerless fromJson(String jsonString) throws IOException {
+    return JSON.getGson().fromJson(jsonString, IndexSpecServerless.class);
   }
 
  /**
-  * Convert an instance of Serverless2 to an JSON string
+  * Convert an instance of IndexSpecServerless to an JSON string
   *
   * @return JSON string
   */

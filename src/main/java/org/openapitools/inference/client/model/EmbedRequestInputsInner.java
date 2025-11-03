@@ -49,7 +49,7 @@ import org.openapitools.inference.client.JSON;
 /**
  * EmbedRequestInputsInner
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-10-29T18:10:29.208830Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-11-03T18:50:15.202691Z[Etc/UTC]")
 public class EmbedRequestInputsInner {
   public static final String SERIALIZED_NAME_TEXT = "text";
   @SerializedName(SERIALIZED_NAME_TEXT)

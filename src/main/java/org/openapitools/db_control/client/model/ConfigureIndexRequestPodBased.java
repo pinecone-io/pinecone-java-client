@@ -21,7 +21,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.util.Arrays;
-import org.openapitools.db_control.client.model.PodSpec;
+import org.openapitools.db_control.client.model.ConfigureIndexRequestPodBasedConfig;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -48,18 +48,18 @@ import java.util.Set;
 import org.openapitools.db_control.client.JSON;
 
 /**
- * PodBased
+ * ConfigureIndexRequestPodBased
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-10-29T18:10:25.651367Z[Etc/UTC]")
-public class PodBased {
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-11-03T18:50:11.354821Z[Etc/UTC]")
+public class ConfigureIndexRequestPodBased {
   public static final String SERIALIZED_NAME_POD = "pod";
   @SerializedName(SERIALIZED_NAME_POD)
-  private PodSpec pod;
+  private ConfigureIndexRequestPodBasedConfig pod;
 
-  public PodBased() {
+  public ConfigureIndexRequestPodBased() {
   }
 
-  public PodBased pod(PodSpec pod) {
+  public ConfigureIndexRequestPodBased pod(ConfigureIndexRequestPodBasedConfig pod) {
     
     this.pod = pod;
     return this;
@@ -70,12 +70,12 @@ public class PodBased {
    * @return pod
   **/
   @javax.annotation.Nonnull
-  public PodSpec getPod() {
+  public ConfigureIndexRequestPodBasedConfig getPod() {
     return pod;
   }
 
 
-  public void setPod(PodSpec pod) {
+  public void setPod(ConfigureIndexRequestPodBasedConfig pod) {
     this.pod = pod;
   }
 
@@ -89,8 +89,8 @@ public class PodBased {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    PodBased podBased = (PodBased) o;
-    return Objects.equals(this.pod, podBased.pod);
+    ConfigureIndexRequestPodBased configureIndexRequestPodBased = (ConfigureIndexRequestPodBased) o;
+    return Objects.equals(this.pod, configureIndexRequestPodBased.pod);
   }
 
   @Override
@@ -101,7 +101,7 @@ public class PodBased {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class PodBased {\n");
+    sb.append("class ConfigureIndexRequestPodBased {\n");
     sb.append("    pod: ").append(toIndentedString(pod)).append("\n");
     sb.append("}");
     return sb.toString();
@@ -136,54 +136,54 @@ public class PodBased {
   * Validates the JSON Element and throws an exception if issues found
   *
   * @param jsonElement JSON Element
-  * @throws IOException if the JSON Element is invalid with respect to PodBased
+  * @throws IOException if the JSON Element is invalid with respect to ConfigureIndexRequestPodBased
   */
   public static void validateJsonElement(JsonElement jsonElement) throws IOException {
       if (jsonElement == null) {
-        if (!PodBased.openapiRequiredFields.isEmpty()) { // has required fields but JSON element is null
-          throw new IllegalArgumentException(String.format("The required field(s) %s in PodBased is not found in the empty JSON string", PodBased.openapiRequiredFields.toString()));
+        if (!ConfigureIndexRequestPodBased.openapiRequiredFields.isEmpty()) { // has required fields but JSON element is null
+          throw new IllegalArgumentException(String.format("The required field(s) %s in ConfigureIndexRequestPodBased is not found in the empty JSON string", ConfigureIndexRequestPodBased.openapiRequiredFields.toString()));
         }
       }
 
       Set<Map.Entry<String, JsonElement>> entries = jsonElement.getAsJsonObject().entrySet();
       // check to see if the JSON string contains additional fields
       for (Map.Entry<String, JsonElement> entry : entries) {
-        if (!PodBased.openapiFields.contains(entry.getKey())) {
-          throw new IllegalArgumentException(String.format("The field `%s` in the JSON string is not defined in the `PodBased` properties. JSON: %s", entry.getKey(), jsonElement.toString()));
+        if (!ConfigureIndexRequestPodBased.openapiFields.contains(entry.getKey())) {
+          throw new IllegalArgumentException(String.format("The field `%s` in the JSON string is not defined in the `ConfigureIndexRequestPodBased` properties. JSON: %s", entry.getKey(), jsonElement.toString()));
         }
       }
 
       // check to make sure all required properties/fields are present in the JSON string
-      for (String requiredField : PodBased.openapiRequiredFields) {
+      for (String requiredField : ConfigureIndexRequestPodBased.openapiRequiredFields) {
         if (jsonElement.getAsJsonObject().get(requiredField) == null) {
           throw new IllegalArgumentException(String.format("The required field `%s` is not found in the JSON string: %s", requiredField, jsonElement.toString()));
         }
       }
         JsonObject jsonObj = jsonElement.getAsJsonObject();
       // validate the required field `pod`
-      PodSpec.validateJsonElement(jsonObj.get("pod"));
+      ConfigureIndexRequestPodBasedConfig.validateJsonElement(jsonObj.get("pod"));
   }
 
   public static class CustomTypeAdapterFactory implements TypeAdapterFactory {
     @SuppressWarnings("unchecked")
     @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-       if (!PodBased.class.isAssignableFrom(type.getRawType())) {
-         return null; // this class only serializes 'PodBased' and its subtypes
+       if (!ConfigureIndexRequestPodBased.class.isAssignableFrom(type.getRawType())) {
+         return null; // this class only serializes 'ConfigureIndexRequestPodBased' and its subtypes
        }
        final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
-       final TypeAdapter<PodBased> thisAdapter
-                        = gson.getDelegateAdapter(this, TypeToken.get(PodBased.class));
+       final TypeAdapter<ConfigureIndexRequestPodBased> thisAdapter
+                        = gson.getDelegateAdapter(this, TypeToken.get(ConfigureIndexRequestPodBased.class));
 
-       return (TypeAdapter<T>) new TypeAdapter<PodBased>() {
+       return (TypeAdapter<T>) new TypeAdapter<ConfigureIndexRequestPodBased>() {
            @Override
-           public void write(JsonWriter out, PodBased value) throws IOException {
+           public void write(JsonWriter out, ConfigureIndexRequestPodBased value) throws IOException {
              JsonObject obj = thisAdapter.toJsonTree(value).getAsJsonObject();
              elementAdapter.write(out, obj);
            }
 
            @Override
-           public PodBased read(JsonReader in) throws IOException {
+           public ConfigureIndexRequestPodBased read(JsonReader in) throws IOException {
              JsonElement jsonElement = elementAdapter.read(in);
              validateJsonElement(jsonElement);
              return thisAdapter.fromJsonTree(jsonElement);
@@ -194,18 +194,18 @@ public class PodBased {
   }
 
  /**
-  * Create an instance of PodBased given an JSON string
+  * Create an instance of ConfigureIndexRequestPodBased given an JSON string
   *
   * @param jsonString JSON string
-  * @return An instance of PodBased
-  * @throws IOException if the JSON string is invalid with respect to PodBased
+  * @return An instance of ConfigureIndexRequestPodBased
+  * @throws IOException if the JSON string is invalid with respect to ConfigureIndexRequestPodBased
   */
-  public static PodBased fromJson(String jsonString) throws IOException {
-    return JSON.getGson().fromJson(jsonString, PodBased.class);
+  public static ConfigureIndexRequestPodBased fromJson(String jsonString) throws IOException {
+    return JSON.getGson().fromJson(jsonString, ConfigureIndexRequestPodBased.class);
   }
 
  /**
-  * Convert an instance of PodBased to an JSON string
+  * Convert an instance of ConfigureIndexRequestPodBased to an JSON string
   *
   * @return JSON string
   */
