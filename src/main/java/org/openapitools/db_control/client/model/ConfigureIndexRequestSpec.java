@@ -21,10 +21,10 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.util.Arrays;
-import org.openapitools.db_control.client.model.PodBased1;
-import org.openapitools.db_control.client.model.PodBased1Pod;
-import org.openapitools.db_control.client.model.Serverless1;
-import org.openapitools.db_control.client.model.Serverless1Serverless;
+import org.openapitools.db_control.client.model.ConfigureIndexRequestPodBased;
+import org.openapitools.db_control.client.model.ConfigureIndexRequestPodBasedConfig;
+import org.openapitools.db_control.client.model.ConfigureIndexRequestServerless;
+import org.openapitools.db_control.client.model.ConfigureIndexRequestServerlessConfig;
 
 
 
@@ -61,7 +61,7 @@ import com.google.gson.JsonParseException;
 
 import org.openapitools.db_control.client.JSON;
 
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-10-29T18:10:25.651367Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-11-03T18:50:11.354821Z[Etc/UTC]")
 public class ConfigureIndexRequestSpec extends AbstractOpenApiSchema {
     private static final Logger log = Logger.getLogger(ConfigureIndexRequestSpec.class.getName());
 
@@ -73,8 +73,8 @@ public class ConfigureIndexRequestSpec extends AbstractOpenApiSchema {
                 return null; // this class only serializes 'ConfigureIndexRequestSpec' and its subtypes
             }
             final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
-            final TypeAdapter<Serverless1> adapterServerless1 = gson.getDelegateAdapter(this, TypeToken.get(Serverless1.class));
-            final TypeAdapter<PodBased1> adapterPodBased1 = gson.getDelegateAdapter(this, TypeToken.get(PodBased1.class));
+            final TypeAdapter<ConfigureIndexRequestServerless> adapterConfigureIndexRequestServerless = gson.getDelegateAdapter(this, TypeToken.get(ConfigureIndexRequestServerless.class));
+            final TypeAdapter<ConfigureIndexRequestPodBased> adapterConfigureIndexRequestPodBased = gson.getDelegateAdapter(this, TypeToken.get(ConfigureIndexRequestPodBased.class));
 
             return (TypeAdapter<T>) new TypeAdapter<ConfigureIndexRequestSpec>() {
                 @Override
@@ -84,19 +84,19 @@ public class ConfigureIndexRequestSpec extends AbstractOpenApiSchema {
                         return;
                     }
 
-                    // check if the actual instance is of the type `Serverless1`
-                    if (value.getActualInstance() instanceof Serverless1) {
-                      JsonElement element = adapterServerless1.toJsonTree((Serverless1)value.getActualInstance());
+                    // check if the actual instance is of the type `ConfigureIndexRequestServerless`
+                    if (value.getActualInstance() instanceof ConfigureIndexRequestServerless) {
+                      JsonElement element = adapterConfigureIndexRequestServerless.toJsonTree((ConfigureIndexRequestServerless)value.getActualInstance());
                       elementAdapter.write(out, element);
                       return;
                     }
-                    // check if the actual instance is of the type `PodBased1`
-                    if (value.getActualInstance() instanceof PodBased1) {
-                      JsonElement element = adapterPodBased1.toJsonTree((PodBased1)value.getActualInstance());
+                    // check if the actual instance is of the type `ConfigureIndexRequestPodBased`
+                    if (value.getActualInstance() instanceof ConfigureIndexRequestPodBased) {
+                      JsonElement element = adapterConfigureIndexRequestPodBased.toJsonTree((ConfigureIndexRequestPodBased)value.getActualInstance());
                       elementAdapter.write(out, element);
                       return;
                     }
-                    throw new IOException("Failed to serialize as the type doesn't match oneOf schemas: PodBased1, Serverless1");
+                    throw new IOException("Failed to serialize as the type doesn't match oneOf schemas: ConfigureIndexRequestPodBased, ConfigureIndexRequestServerless");
                 }
 
                 @Override
@@ -108,29 +108,29 @@ public class ConfigureIndexRequestSpec extends AbstractOpenApiSchema {
                     ArrayList<String> errorMessages = new ArrayList<>();
                     TypeAdapter actualAdapter = elementAdapter;
 
-                    // deserialize Serverless1
+                    // deserialize ConfigureIndexRequestServerless
                     try {
                       // validate the JSON object to see if any exception is thrown
-                      Serverless1.validateJsonElement(jsonElement);
-                      actualAdapter = adapterServerless1;
+                      ConfigureIndexRequestServerless.validateJsonElement(jsonElement);
+                      actualAdapter = adapterConfigureIndexRequestServerless;
                       match++;
-                      log.log(Level.FINER, "Input data matches schema 'Serverless1'");
+                      log.log(Level.FINER, "Input data matches schema 'ConfigureIndexRequestServerless'");
                     } catch (Exception e) {
                       // deserialization failed, continue
-                      errorMessages.add(String.format("Deserialization for Serverless1 failed with `%s`.", e.getMessage()));
-                      log.log(Level.FINER, "Input data does not match schema 'Serverless1'", e);
+                      errorMessages.add(String.format("Deserialization for ConfigureIndexRequestServerless failed with `%s`.", e.getMessage()));
+                      log.log(Level.FINER, "Input data does not match schema 'ConfigureIndexRequestServerless'", e);
                     }
-                    // deserialize PodBased1
+                    // deserialize ConfigureIndexRequestPodBased
                     try {
                       // validate the JSON object to see if any exception is thrown
-                      PodBased1.validateJsonElement(jsonElement);
-                      actualAdapter = adapterPodBased1;
+                      ConfigureIndexRequestPodBased.validateJsonElement(jsonElement);
+                      actualAdapter = adapterConfigureIndexRequestPodBased;
                       match++;
-                      log.log(Level.FINER, "Input data matches schema 'PodBased1'");
+                      log.log(Level.FINER, "Input data matches schema 'ConfigureIndexRequestPodBased'");
                     } catch (Exception e) {
                       // deserialization failed, continue
-                      errorMessages.add(String.format("Deserialization for PodBased1 failed with `%s`.", e.getMessage()));
-                      log.log(Level.FINER, "Input data does not match schema 'PodBased1'", e);
+                      errorMessages.add(String.format("Deserialization for ConfigureIndexRequestPodBased failed with `%s`.", e.getMessage()));
+                      log.log(Level.FINER, "Input data does not match schema 'ConfigureIndexRequestPodBased'", e);
                     }
 
                     if (match == 1) {
@@ -152,19 +152,19 @@ public class ConfigureIndexRequestSpec extends AbstractOpenApiSchema {
         super("oneOf", Boolean.FALSE);
     }
 
-    public ConfigureIndexRequestSpec(PodBased1 o) {
+    public ConfigureIndexRequestSpec(ConfigureIndexRequestPodBased o) {
         super("oneOf", Boolean.FALSE);
         setActualInstance(o);
     }
 
-    public ConfigureIndexRequestSpec(Serverless1 o) {
+    public ConfigureIndexRequestSpec(ConfigureIndexRequestServerless o) {
         super("oneOf", Boolean.FALSE);
         setActualInstance(o);
     }
 
     static {
-        schemas.put("Serverless1", Serverless1.class);
-        schemas.put("PodBased1", PodBased1.class);
+        schemas.put("ConfigureIndexRequestServerless", ConfigureIndexRequestServerless.class);
+        schemas.put("ConfigureIndexRequestPodBased", ConfigureIndexRequestPodBased.class);
     }
 
     @Override
@@ -175,30 +175,30 @@ public class ConfigureIndexRequestSpec extends AbstractOpenApiSchema {
     /**
      * Set the instance that matches the oneOf child schema, check
      * the instance parameter is valid against the oneOf child schemas:
-     * PodBased1, Serverless1
+     * ConfigureIndexRequestPodBased, ConfigureIndexRequestServerless
      *
      * It could be an instance of the 'oneOf' schemas.
      */
     @Override
     public void setActualInstance(Object instance) {
-        if (instance instanceof Serverless1) {
+        if (instance instanceof ConfigureIndexRequestServerless) {
             super.setActualInstance(instance);
             return;
         }
 
-        if (instance instanceof PodBased1) {
+        if (instance instanceof ConfigureIndexRequestPodBased) {
             super.setActualInstance(instance);
             return;
         }
 
-        throw new RuntimeException("Invalid instance type. Must be PodBased1, Serverless1");
+        throw new RuntimeException("Invalid instance type. Must be ConfigureIndexRequestPodBased, ConfigureIndexRequestServerless");
     }
 
     /**
      * Get the actual instance, which can be the following:
-     * PodBased1, Serverless1
+     * ConfigureIndexRequestPodBased, ConfigureIndexRequestServerless
      *
-     * @return The actual instance (PodBased1, Serverless1)
+     * @return The actual instance (ConfigureIndexRequestPodBased, ConfigureIndexRequestServerless)
      */
     @Override
     public Object getActualInstance() {
@@ -206,24 +206,24 @@ public class ConfigureIndexRequestSpec extends AbstractOpenApiSchema {
     }
 
     /**
-     * Get the actual instance of `Serverless1`. If the actual instance is not `Serverless1`,
+     * Get the actual instance of `ConfigureIndexRequestServerless`. If the actual instance is not `ConfigureIndexRequestServerless`,
      * the ClassCastException will be thrown.
      *
-     * @return The actual instance of `Serverless1`
-     * @throws ClassCastException if the instance is not `Serverless1`
+     * @return The actual instance of `ConfigureIndexRequestServerless`
+     * @throws ClassCastException if the instance is not `ConfigureIndexRequestServerless`
      */
-    public Serverless1 getServerless1() throws ClassCastException {
-        return (Serverless1)super.getActualInstance();
+    public ConfigureIndexRequestServerless getConfigureIndexRequestServerless() throws ClassCastException {
+        return (ConfigureIndexRequestServerless)super.getActualInstance();
     }
     /**
-     * Get the actual instance of `PodBased1`. If the actual instance is not `PodBased1`,
+     * Get the actual instance of `ConfigureIndexRequestPodBased`. If the actual instance is not `ConfigureIndexRequestPodBased`,
      * the ClassCastException will be thrown.
      *
-     * @return The actual instance of `PodBased1`
-     * @throws ClassCastException if the instance is not `PodBased1`
+     * @return The actual instance of `ConfigureIndexRequestPodBased`
+     * @throws ClassCastException if the instance is not `ConfigureIndexRequestPodBased`
      */
-    public PodBased1 getPodBased1() throws ClassCastException {
-        return (PodBased1)super.getActualInstance();
+    public ConfigureIndexRequestPodBased getConfigureIndexRequestPodBased() throws ClassCastException {
+        return (ConfigureIndexRequestPodBased)super.getActualInstance();
     }
 
  /**
@@ -236,24 +236,24 @@ public class ConfigureIndexRequestSpec extends AbstractOpenApiSchema {
     // validate oneOf schemas one by one
     int validCount = 0;
     ArrayList<String> errorMessages = new ArrayList<>();
-    // validate the json string with Serverless1
+    // validate the json string with ConfigureIndexRequestServerless
     try {
-      Serverless1.validateJsonElement(jsonElement);
+      ConfigureIndexRequestServerless.validateJsonElement(jsonElement);
       validCount++;
     } catch (Exception e) {
-      errorMessages.add(String.format("Deserialization for Serverless1 failed with `%s`.", e.getMessage()));
+      errorMessages.add(String.format("Deserialization for ConfigureIndexRequestServerless failed with `%s`.", e.getMessage()));
       // continue to the next one
     }
-    // validate the json string with PodBased1
+    // validate the json string with ConfigureIndexRequestPodBased
     try {
-      PodBased1.validateJsonElement(jsonElement);
+      ConfigureIndexRequestPodBased.validateJsonElement(jsonElement);
       validCount++;
     } catch (Exception e) {
-      errorMessages.add(String.format("Deserialization for PodBased1 failed with `%s`.", e.getMessage()));
+      errorMessages.add(String.format("Deserialization for ConfigureIndexRequestPodBased failed with `%s`.", e.getMessage()));
       // continue to the next one
     }
     if (validCount != 1) {
-      throw new IOException(String.format("The JSON string is invalid for ConfigureIndexRequestSpec with oneOf schemas: PodBased1, Serverless1. %d class(es) match the result, expected 1. Detailed failure message for oneOf schemas: %s. JSON: %s", validCount, errorMessages, jsonElement.toString()));
+      throw new IOException(String.format("The JSON string is invalid for ConfigureIndexRequestSpec with oneOf schemas: ConfigureIndexRequestPodBased, ConfigureIndexRequestServerless. %d class(es) match the result, expected 1. Detailed failure message for oneOf schemas: %s. JSON: %s", validCount, errorMessages, jsonElement.toString()));
     }
   }
 

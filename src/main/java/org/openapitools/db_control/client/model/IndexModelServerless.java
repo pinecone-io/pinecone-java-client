@@ -21,7 +21,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.util.Arrays;
-import org.openapitools.db_control.client.model.PodBased1Pod;
+import org.openapitools.db_control.client.model.ServerlessSpecResponse;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -48,35 +48,35 @@ import java.util.Set;
 import org.openapitools.db_control.client.JSON;
 
 /**
- * PodBased1
+ * IndexModelServerless
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-10-29T18:10:25.651367Z[Etc/UTC]")
-public class PodBased1 {
-  public static final String SERIALIZED_NAME_POD = "pod";
-  @SerializedName(SERIALIZED_NAME_POD)
-  private PodBased1Pod pod;
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-11-03T18:50:11.354821Z[Etc/UTC]")
+public class IndexModelServerless {
+  public static final String SERIALIZED_NAME_SERVERLESS = "serverless";
+  @SerializedName(SERIALIZED_NAME_SERVERLESS)
+  private ServerlessSpecResponse serverless;
 
-  public PodBased1() {
+  public IndexModelServerless() {
   }
 
-  public PodBased1 pod(PodBased1Pod pod) {
+  public IndexModelServerless serverless(ServerlessSpecResponse serverless) {
     
-    this.pod = pod;
+    this.serverless = serverless;
     return this;
   }
 
    /**
-   * Get pod
-   * @return pod
+   * Get serverless
+   * @return serverless
   **/
   @javax.annotation.Nonnull
-  public PodBased1Pod getPod() {
-    return pod;
+  public ServerlessSpecResponse getServerless() {
+    return serverless;
   }
 
 
-  public void setPod(PodBased1Pod pod) {
-    this.pod = pod;
+  public void setServerless(ServerlessSpecResponse serverless) {
+    this.serverless = serverless;
   }
 
 
@@ -89,20 +89,20 @@ public class PodBased1 {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    PodBased1 podBased1 = (PodBased1) o;
-    return Objects.equals(this.pod, podBased1.pod);
+    IndexModelServerless indexModelServerless = (IndexModelServerless) o;
+    return Objects.equals(this.serverless, indexModelServerless.serverless);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(pod);
+    return Objects.hash(serverless);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class PodBased1 {\n");
-    sb.append("    pod: ").append(toIndentedString(pod)).append("\n");
+    sb.append("class IndexModelServerless {\n");
+    sb.append("    serverless: ").append(toIndentedString(serverless)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -125,65 +125,65 @@ public class PodBased1 {
   static {
     // a set of all properties/fields (JSON key names)
     openapiFields = new HashSet<String>();
-    openapiFields.add("pod");
+    openapiFields.add("serverless");
 
     // a set of required properties/fields (JSON key names)
     openapiRequiredFields = new HashSet<String>();
-    openapiRequiredFields.add("pod");
+    openapiRequiredFields.add("serverless");
   }
 
  /**
   * Validates the JSON Element and throws an exception if issues found
   *
   * @param jsonElement JSON Element
-  * @throws IOException if the JSON Element is invalid with respect to PodBased1
+  * @throws IOException if the JSON Element is invalid with respect to IndexModelServerless
   */
   public static void validateJsonElement(JsonElement jsonElement) throws IOException {
       if (jsonElement == null) {
-        if (!PodBased1.openapiRequiredFields.isEmpty()) { // has required fields but JSON element is null
-          throw new IllegalArgumentException(String.format("The required field(s) %s in PodBased1 is not found in the empty JSON string", PodBased1.openapiRequiredFields.toString()));
+        if (!IndexModelServerless.openapiRequiredFields.isEmpty()) { // has required fields but JSON element is null
+          throw new IllegalArgumentException(String.format("The required field(s) %s in IndexModelServerless is not found in the empty JSON string", IndexModelServerless.openapiRequiredFields.toString()));
         }
       }
 
       Set<Map.Entry<String, JsonElement>> entries = jsonElement.getAsJsonObject().entrySet();
       // check to see if the JSON string contains additional fields
       for (Map.Entry<String, JsonElement> entry : entries) {
-        if (!PodBased1.openapiFields.contains(entry.getKey())) {
-          throw new IllegalArgumentException(String.format("The field `%s` in the JSON string is not defined in the `PodBased1` properties. JSON: %s", entry.getKey(), jsonElement.toString()));
+        if (!IndexModelServerless.openapiFields.contains(entry.getKey())) {
+          throw new IllegalArgumentException(String.format("The field `%s` in the JSON string is not defined in the `IndexModelServerless` properties. JSON: %s", entry.getKey(), jsonElement.toString()));
         }
       }
 
       // check to make sure all required properties/fields are present in the JSON string
-      for (String requiredField : PodBased1.openapiRequiredFields) {
+      for (String requiredField : IndexModelServerless.openapiRequiredFields) {
         if (jsonElement.getAsJsonObject().get(requiredField) == null) {
           throw new IllegalArgumentException(String.format("The required field `%s` is not found in the JSON string: %s", requiredField, jsonElement.toString()));
         }
       }
         JsonObject jsonObj = jsonElement.getAsJsonObject();
-      // validate the required field `pod`
-      PodBased1Pod.validateJsonElement(jsonObj.get("pod"));
+      // validate the required field `serverless`
+      ServerlessSpecResponse.validateJsonElement(jsonObj.get("serverless"));
   }
 
   public static class CustomTypeAdapterFactory implements TypeAdapterFactory {
     @SuppressWarnings("unchecked")
     @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-       if (!PodBased1.class.isAssignableFrom(type.getRawType())) {
-         return null; // this class only serializes 'PodBased1' and its subtypes
+       if (!IndexModelServerless.class.isAssignableFrom(type.getRawType())) {
+         return null; // this class only serializes 'IndexModelServerless' and its subtypes
        }
        final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
-       final TypeAdapter<PodBased1> thisAdapter
-                        = gson.getDelegateAdapter(this, TypeToken.get(PodBased1.class));
+       final TypeAdapter<IndexModelServerless> thisAdapter
+                        = gson.getDelegateAdapter(this, TypeToken.get(IndexModelServerless.class));
 
-       return (TypeAdapter<T>) new TypeAdapter<PodBased1>() {
+       return (TypeAdapter<T>) new TypeAdapter<IndexModelServerless>() {
            @Override
-           public void write(JsonWriter out, PodBased1 value) throws IOException {
+           public void write(JsonWriter out, IndexModelServerless value) throws IOException {
              JsonObject obj = thisAdapter.toJsonTree(value).getAsJsonObject();
              elementAdapter.write(out, obj);
            }
 
            @Override
-           public PodBased1 read(JsonReader in) throws IOException {
+           public IndexModelServerless read(JsonReader in) throws IOException {
              JsonElement jsonElement = elementAdapter.read(in);
              validateJsonElement(jsonElement);
              return thisAdapter.fromJsonTree(jsonElement);
@@ -194,18 +194,18 @@ public class PodBased1 {
   }
 
  /**
-  * Create an instance of PodBased1 given an JSON string
+  * Create an instance of IndexModelServerless given an JSON string
   *
   * @param jsonString JSON string
-  * @return An instance of PodBased1
-  * @throws IOException if the JSON string is invalid with respect to PodBased1
+  * @return An instance of IndexModelServerless
+  * @throws IOException if the JSON string is invalid with respect to IndexModelServerless
   */
-  public static PodBased1 fromJson(String jsonString) throws IOException {
-    return JSON.getGson().fromJson(jsonString, PodBased1.class);
+  public static IndexModelServerless fromJson(String jsonString) throws IOException {
+    return JSON.getGson().fromJson(jsonString, IndexModelServerless.class);
   }
 
  /**
-  * Convert an instance of PodBased1 to an JSON string
+  * Convert an instance of IndexModelServerless to an JSON string
   *
   * @return JSON string
   */

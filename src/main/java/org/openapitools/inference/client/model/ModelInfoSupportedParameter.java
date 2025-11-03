@@ -54,7 +54,7 @@ import org.openapitools.inference.client.JSON;
 /**
  * Describes a parameter supported by the model, including parameter value constraints.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-10-29T18:10:29.208830Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-11-03T18:50:15.202691Z[Etc/UTC]")
 public class ModelInfoSupportedParameter {
   public static final String SERIALIZED_NAME_PARAMETER = "parameter";
   @SerializedName(SERIALIZED_NAME_PARAMETER)

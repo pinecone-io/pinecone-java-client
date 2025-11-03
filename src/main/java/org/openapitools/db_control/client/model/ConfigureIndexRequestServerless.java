@@ -21,7 +21,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.util.Arrays;
-import org.openapitools.db_control.client.model.Serverless1Serverless;
+import org.openapitools.db_control.client.model.ConfigureIndexRequestServerlessConfig;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -48,18 +48,18 @@ import java.util.Set;
 import org.openapitools.db_control.client.JSON;
 
 /**
- * Serverless1
+ * ConfigureIndexRequestServerless
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-10-29T18:10:25.651367Z[Etc/UTC]")
-public class Serverless1 {
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-11-03T18:50:11.354821Z[Etc/UTC]")
+public class ConfigureIndexRequestServerless {
   public static final String SERIALIZED_NAME_SERVERLESS = "serverless";
   @SerializedName(SERIALIZED_NAME_SERVERLESS)
-  private Serverless1Serverless serverless;
+  private ConfigureIndexRequestServerlessConfig serverless;
 
-  public Serverless1() {
+  public ConfigureIndexRequestServerless() {
   }
 
-  public Serverless1 serverless(Serverless1Serverless serverless) {
+  public ConfigureIndexRequestServerless serverless(ConfigureIndexRequestServerlessConfig serverless) {
     
     this.serverless = serverless;
     return this;
@@ -70,12 +70,12 @@ public class Serverless1 {
    * @return serverless
   **/
   @javax.annotation.Nonnull
-  public Serverless1Serverless getServerless() {
+  public ConfigureIndexRequestServerlessConfig getServerless() {
     return serverless;
   }
 
 
-  public void setServerless(Serverless1Serverless serverless) {
+  public void setServerless(ConfigureIndexRequestServerlessConfig serverless) {
     this.serverless = serverless;
   }
 
@@ -89,8 +89,8 @@ public class Serverless1 {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    Serverless1 serverless1 = (Serverless1) o;
-    return Objects.equals(this.serverless, serverless1.serverless);
+    ConfigureIndexRequestServerless configureIndexRequestServerless = (ConfigureIndexRequestServerless) o;
+    return Objects.equals(this.serverless, configureIndexRequestServerless.serverless);
   }
 
   @Override
@@ -101,7 +101,7 @@ public class Serverless1 {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class Serverless1 {\n");
+    sb.append("class ConfigureIndexRequestServerless {\n");
     sb.append("    serverless: ").append(toIndentedString(serverless)).append("\n");
     sb.append("}");
     return sb.toString();
@@ -136,54 +136,54 @@ public class Serverless1 {
   * Validates the JSON Element and throws an exception if issues found
   *
   * @param jsonElement JSON Element
-  * @throws IOException if the JSON Element is invalid with respect to Serverless1
+  * @throws IOException if the JSON Element is invalid with respect to ConfigureIndexRequestServerless
   */
   public static void validateJsonElement(JsonElement jsonElement) throws IOException {
       if (jsonElement == null) {
-        if (!Serverless1.openapiRequiredFields.isEmpty()) { // has required fields but JSON element is null
-          throw new IllegalArgumentException(String.format("The required field(s) %s in Serverless1 is not found in the empty JSON string", Serverless1.openapiRequiredFields.toString()));
+        if (!ConfigureIndexRequestServerless.openapiRequiredFields.isEmpty()) { // has required fields but JSON element is null
+          throw new IllegalArgumentException(String.format("The required field(s) %s in ConfigureIndexRequestServerless is not found in the empty JSON string", ConfigureIndexRequestServerless.openapiRequiredFields.toString()));
         }
       }
 
       Set<Map.Entry<String, JsonElement>> entries = jsonElement.getAsJsonObject().entrySet();
       // check to see if the JSON string contains additional fields
       for (Map.Entry<String, JsonElement> entry : entries) {
-        if (!Serverless1.openapiFields.contains(entry.getKey())) {
-          throw new IllegalArgumentException(String.format("The field `%s` in the JSON string is not defined in the `Serverless1` properties. JSON: %s", entry.getKey(), jsonElement.toString()));
+        if (!ConfigureIndexRequestServerless.openapiFields.contains(entry.getKey())) {
+          throw new IllegalArgumentException(String.format("The field `%s` in the JSON string is not defined in the `ConfigureIndexRequestServerless` properties. JSON: %s", entry.getKey(), jsonElement.toString()));
         }
       }
 
       // check to make sure all required properties/fields are present in the JSON string
-      for (String requiredField : Serverless1.openapiRequiredFields) {
+      for (String requiredField : ConfigureIndexRequestServerless.openapiRequiredFields) {
         if (jsonElement.getAsJsonObject().get(requiredField) == null) {
           throw new IllegalArgumentException(String.format("The required field `%s` is not found in the JSON string: %s", requiredField, jsonElement.toString()));
         }
       }
         JsonObject jsonObj = jsonElement.getAsJsonObject();
       // validate the required field `serverless`
-      Serverless1Serverless.validateJsonElement(jsonObj.get("serverless"));
+      ConfigureIndexRequestServerlessConfig.validateJsonElement(jsonObj.get("serverless"));
   }
 
   public static class CustomTypeAdapterFactory implements TypeAdapterFactory {
     @SuppressWarnings("unchecked")
     @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-       if (!Serverless1.class.isAssignableFrom(type.getRawType())) {
-         return null; // this class only serializes 'Serverless1' and its subtypes
+       if (!ConfigureIndexRequestServerless.class.isAssignableFrom(type.getRawType())) {
+         return null; // this class only serializes 'ConfigureIndexRequestServerless' and its subtypes
        }
        final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
-       final TypeAdapter<Serverless1> thisAdapter
-                        = gson.getDelegateAdapter(this, TypeToken.get(Serverless1.class));
+       final TypeAdapter<ConfigureIndexRequestServerless> thisAdapter
+                        = gson.getDelegateAdapter(this, TypeToken.get(ConfigureIndexRequestServerless.class));
 
-       return (TypeAdapter<T>) new TypeAdapter<Serverless1>() {
+       return (TypeAdapter<T>) new TypeAdapter<ConfigureIndexRequestServerless>() {
            @Override
-           public void write(JsonWriter out, Serverless1 value) throws IOException {
+           public void write(JsonWriter out, ConfigureIndexRequestServerless value) throws IOException {
              JsonObject obj = thisAdapter.toJsonTree(value).getAsJsonObject();
              elementAdapter.write(out, obj);
            }
 
            @Override
-           public Serverless1 read(JsonReader in) throws IOException {
+           public ConfigureIndexRequestServerless read(JsonReader in) throws IOException {
              JsonElement jsonElement = elementAdapter.read(in);
              validateJsonElement(jsonElement);
              return thisAdapter.fromJsonTree(jsonElement);
@@ -194,18 +194,18 @@ public class Serverless1 {
   }
 
  /**
-  * Create an instance of Serverless1 given an JSON string
+  * Create an instance of ConfigureIndexRequestServerless given an JSON string
   *
   * @param jsonString JSON string
-  * @return An instance of Serverless1
-  * @throws IOException if the JSON string is invalid with respect to Serverless1
+  * @return An instance of ConfigureIndexRequestServerless
+  * @throws IOException if the JSON string is invalid with respect to ConfigureIndexRequestServerless
   */
-  public static Serverless1 fromJson(String jsonString) throws IOException {
-    return JSON.getGson().fromJson(jsonString, Serverless1.class);
+  public static ConfigureIndexRequestServerless fromJson(String jsonString) throws IOException {
+    return JSON.getGson().fromJson(jsonString, ConfigureIndexRequestServerless.class);
   }
 
  /**
-  * Convert an instance of Serverless1 to an JSON string
+  * Convert an instance of ConfigureIndexRequestServerless to an JSON string
   *
   * @return JSON string
   */

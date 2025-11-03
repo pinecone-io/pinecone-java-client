@@ -49,7 +49,7 @@ import org.openapitools.db_data.client.JSON;
 /**
  * CreateNamespaceRequestSchemaFieldsValue
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-10-29T18:10:27.510457Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-11-03T18:50:13.248007Z[Etc/UTC]")
 public class CreateNamespaceRequestSchemaFieldsValue {
   public static final String SERIALIZED_NAME_FILTERABLE = "filterable";
   @SerializedName(SERIALIZED_NAME_FILTERABLE)
