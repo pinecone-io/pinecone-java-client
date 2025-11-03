@@ -16,13 +16,13 @@ public class TestUtilities {
         int waitedTimeMs = 0;
         int intervalMs = 2000;
 
-        while (index.getStatus().getState() != IndexModelStatus.StateEnum.READY) {
+        while (!index.getStatus().getState().equals("Ready")) {
             index = pineconeClient.describeIndex(indexName);
             if (waitedTimeMs >= totalMsToWait) {
                 logger.info("WARNING: Index " + indexName + " not ready after " + waitedTimeMs + "ms");
                 break;
             }
-            if (index.getStatus().getState() == IndexModelStatus.StateEnum.READY) {
+            if (index.getStatus().getState().equals("Ready")) {
                 logger.info("Index " + indexName + " is ready after " + waitedTimeMs + "ms");
                 Thread.sleep(20000);
                 break;
@@ -41,13 +41,13 @@ public class TestUtilities {
     public static CollectionModel createCollection(Pinecone pineconeClient, String collectionName, String indexName, boolean waitUntilReady) throws InterruptedException {
         CollectionModel collection = pineconeClient.createCollection(collectionName, indexName);
 
-        assertEquals(collection.getStatus(), CollectionModel.StatusEnum.INITIALIZING);
+        assertEquals("Initializing", collection.getStatus());
 
         // Wait until collection is ready
         if (waitUntilReady) {
             int timeWaited = 0;
-            CollectionModel.StatusEnum collectionReady = collection.getStatus();
-            while (collectionReady != CollectionModel.StatusEnum.READY && timeWaited < 120000) {
+            String collectionReady = collection.getStatus();
+            while (!collectionReady.equals("Ready") && timeWaited < 120000) {
                 logger.info("Waiting for collection " + collectionName + " to be ready. Waited " + timeWaited + " " +
                         "milliseconds...");
                 Thread.sleep(5000);
