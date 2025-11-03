@@ -10,7 +10,13 @@
   "spec": {
     "serverless": {
       "cloud": "aws",
-      "region": "us-east2-gcp"
+      "region": "us-east2-gcp",
+      "read_capacity": {
+        "mode": "OnDemand",
+        "status": {
+          "state": "Ready"
+        }
+      }
     }
   },
   "vector_type": "dense"

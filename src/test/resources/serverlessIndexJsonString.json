@@ -6,7 +6,18 @@
   "spec": {
     "serverless": {
       "cloud": "aws",
-      "region": "us-west-2"
+      "region": "us-west-2",
+      "read_capacity": {
+        "mode": "OnDemand",
+        "status": {
+          "state": "Ready",
+          "current_replicas": null,
+          "current_shards": null,
+          "error_message": null
+        }
+      },
+      "source_collection": null,
+      "schema": null
     }
   },
   "status": {
