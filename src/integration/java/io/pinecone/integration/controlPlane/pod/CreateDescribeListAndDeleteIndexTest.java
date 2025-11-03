@@ -26,7 +26,7 @@ public class CreateDescribeListAndDeleteIndexTest {
         indexName = indexManager.getOrCreatePodIndex();
         indexDimension = indexManager.getDimension();
         IndexModel podIndex = indexManager.getOrCreatePodIndexModel();
-        indexPodType = podIndex.getSpec().getPod().getPodType();
+        indexPodType = podIndex.getSpec().getIndexModelPodBased().getPod().getPodType();
     }
 
     @Test
@@ -36,9 +36,9 @@ public class CreateDescribeListAndDeleteIndexTest {
         assertNotNull(indexModel);
         assertEquals(indexDimension, indexModel.getDimension());
         assertEquals(indexName, indexModel.getName());
-        assertEquals(IndexModel.MetricEnum.DOTPRODUCT, indexModel.getMetric());
-        assertNotNull(indexModel.getSpec().getPod());
-        assertEquals(indexPodType, indexModel.getSpec().getPod().getPodType());
+        assertEquals("dotproduct", indexModel.getMetric());
+        assertNotNull(indexModel.getSpec().getIndexModelPodBased().getPod());
+        assertEquals(indexPodType, indexModel.getSpec().getIndexModelPodBased().getPod().getPodType());
 
         // List the index
         IndexList indexList = controlPlaneClient.listIndexes();
@@ -58,17 +58,17 @@ public class CreateDescribeListAndDeleteIndexTest {
 
         assertEquals(podIndexName, podsIndex.getName());
         assertEquals(dimension, podsIndex.getDimension());
-        assertEquals(environment, podsIndex.getSpec().getPod().getEnvironment());
+        assertEquals(environment, podsIndex.getSpec().getIndexModelPodBased().getPod().getEnvironment());
         assertEquals(metric, podsIndex.getMetric().toString());
-        assertEquals(podType, podsIndex.getSpec().getPod().getPodType());
+        assertEquals(podType, podsIndex.getSpec().getIndexModelPodBased().getPod().getPodType());
 
         // Confirm defaults are put in by the backend when not supplied by the user
-        assertEquals(IndexModel.MetricEnum.COSINE, podsIndex.getMetric());
-        assertEquals(1, podsIndex.getSpec().getPod().getPods());
-        assertEquals(1, podsIndex.getSpec().getPod().getReplicas());
-        assertEquals(1, podsIndex.getSpec().getPod().getShards());
-        assertNull(podsIndex.getSpec().getPod().getMetadataConfig());
-        assertNull(podsIndex.getSpec().getPod().getSourceCollection());
+        assertEquals("cosine", podsIndex.getMetric());
+        assertEquals(1, podsIndex.getSpec().getIndexModelPodBased().getPod().getPods());
+        assertEquals(1, podsIndex.getSpec().getIndexModelPodBased().getPod().getReplicas());
+        assertEquals(1, podsIndex.getSpec().getIndexModelPodBased().getPod().getShards());
+        assertNull(podsIndex.getSpec().getIndexModelPodBased().getPod().getMetadataConfig());
+        assertNull(podsIndex.getSpec().getIndexModelPodBased().getPod().getSourceCollection());
 
         // Cleanup
         controlPlaneClient.deleteIndex(podIndexName);

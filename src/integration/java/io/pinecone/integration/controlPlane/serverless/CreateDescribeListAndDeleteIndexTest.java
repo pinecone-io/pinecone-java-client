@@ -38,7 +38,7 @@ public class CreateDescribeListAndDeleteIndexTest {
         assertEquals(dimension, indexModel.getDimension());
         assertEquals(indexName, indexModel.getName());
         assertEquals("dotproduct", indexModel.getMetric());
-        assertNotNull(indexModel.getSpec().getServerless());
+        assertNotNull(indexModel.getSpec().getIndexModelServerless());
 
         // List the index
         IndexList indexList = controlPlaneClient.listIndexes();

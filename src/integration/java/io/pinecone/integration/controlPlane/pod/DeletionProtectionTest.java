@@ -5,7 +5,6 @@ import io.pinecone.helpers.RandomStringBuilder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.openapitools.db_control.client.model.DeletionProtection;
 import org.openapitools.db_control.client.model.IndexModel;
 
 @Disabled
@@ -19,12 +18,12 @@ public class DeletionProtectionTest {
     public void createPodIndexWithDeletionProtectionEnabled() {
         String indexName = RandomStringBuilder.build("create-pod", 8);
         // Create pod index with deletion protection enabled
-        controlPlaneClient.createPodsIndex(indexName, 3, "us-east-1-aws", "p1.x1", DeletionProtection.ENABLED);
+        controlPlaneClient.createPodsIndex(indexName, 3, "us-east-1-aws", "p1.x1", "enabled");
         IndexModel indexModel = controlPlaneClient.describeIndex(indexName);
-        DeletionProtection deletionProtection = indexModel.getDeletionProtection();
-        Assertions.assertEquals(deletionProtection, DeletionProtection.ENABLED);
+        String deletionProtection = indexModel.getDeletionProtection();
+        Assertions.assertEquals("enabled", deletionProtection);
         // Configure index to disable deletionProtection
-        controlPlaneClient.configurePodsIndex(indexName, DeletionProtection.DISABLED);
+        controlPlaneClient.configurePodsIndex(indexName, "disabled");
         // Delete index
         controlPlaneClient.deleteIndex(indexName);
     }
@@ -35,15 +34,15 @@ public class DeletionProtectionTest {
         // Create pod index with deletion protection disabled
         controlPlaneClient.createPodsIndex(indexName, 3, "us-east-1-aws", "p1.x1");
         IndexModel indexModel = controlPlaneClient.describeIndex(indexName);
-        DeletionProtection deletionProtection = indexModel.getDeletionProtection();
-        Assertions.assertEquals(deletionProtection, DeletionProtection.DISABLED);
+        String deletionProtection = indexModel.getDeletionProtection();
+        Assertions.assertEquals("disabled", deletionProtection);
         // Configure index to enable deletionProtection
-        controlPlaneClient.configurePodsIndex(indexName, DeletionProtection.ENABLED);
+        controlPlaneClient.configurePodsIndex(indexName, "enabled");
         indexModel = controlPlaneClient.describeIndex(indexName);
         deletionProtection = indexModel.getDeletionProtection();
-        Assertions.assertEquals(deletionProtection, DeletionProtection.ENABLED);
+        Assertions.assertEquals("enabled", deletionProtection);
         // Configure index to disable deletionProtection
-        controlPlaneClient.configurePodsIndex(indexName, DeletionProtection.DISABLED);
+        controlPlaneClient.configurePodsIndex(indexName, "disabled");
         // Delete index
         controlPlaneClient.deleteIndex(indexName);
     }

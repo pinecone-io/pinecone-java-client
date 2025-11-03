@@ -9,7 +9,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.openapitools.db_control.client.model.IndexModel;
-import org.openapitools.db_control.client.model.IndexModelStatus;
 import org.openapitools.db_control.client.model.PodSpec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,15 +75,15 @@ public class ConfigureIndexTest {
     @Test
     public void scaleUpAndDown() throws InterruptedException {
         IndexModel indexModel = controlPlaneClient.describeIndex(indexName);
-        assertNotNull(indexModel.getSpec().getPod());
-        assertEquals(1, indexModel.getSpec().getPod().getReplicas());
+        assertNotNull(indexModel.getSpec().getIndexModelPodBased().getPod());
+        assertEquals(1, indexModel.getSpec().getIndexModelPodBased().getPod().getReplicas());
 
         // Verify the scaled up replicas
         assertWithRetry(() -> {
             controlPlaneClient.configurePodsIndex(indexName, 3, "disabled");
-            PodSpec podSpec = controlPlaneClient.describeIndex(indexName).getSpec().getPod();
+            PodSpec podSpec = controlPlaneClient.describeIndex(indexName).getSpec().getIndexModelPodBased().getPod();
             assertNotNull(podSpec);
-            assertEquals(podSpec.getReplicas(), 3);
+            assertEquals(3, podSpec.getReplicas());
         });
 
         waitUntilIndexStateIsReady(indexName);
@@ -92,9 +91,9 @@ public class ConfigureIndexTest {
         // Verify replicas were scaled down
         assertWithRetry(() -> {
             controlPlaneClient.configurePodsIndex(indexName, 1, "disabled");
-            PodSpec podSpec = controlPlaneClient.describeIndex(indexName).getSpec().getPod();
+            PodSpec podSpec = controlPlaneClient.describeIndex(indexName).getSpec().getIndexModelPodBased().getPod();
             assertNotNull(podSpec);
-            assertEquals(podSpec.getReplicas(), 1);
+            assertEquals(1, podSpec.getReplicas());
         });
     }
 
@@ -103,8 +102,8 @@ public class ConfigureIndexTest {
         try {
             // Verify the starting state
             IndexModel indexModel = controlPlaneClient.describeIndex(indexName);
-            assertNotNull(indexModel.getSpec().getPod());
-            assertEquals(1, indexModel.getSpec().getPod().getReplicas());
+            assertNotNull(indexModel.getSpec().getIndexModelPodBased().getPod());
+            assertEquals(1, indexModel.getSpec().getIndexModelPodBased().getPod().getReplicas());
 
             // Try to change the base pod type
             controlPlaneClient.configurePodsIndex(indexName, "p2.x2");
@@ -119,16 +118,16 @@ public class ConfigureIndexTest {
     public void sizeIncrease() throws InterruptedException {
         // Verify the starting state
         IndexModel indexModel = controlPlaneClient.describeIndex(indexName);
-        assertNotNull(indexModel.getSpec().getPod());
-        assertEquals("p1.x1", indexModel.getSpec().getPod().getPodType());
+        assertNotNull(indexModel.getSpec().getIndexModelPodBased().getPod());
+        assertEquals("p1.x1", indexModel.getSpec().getIndexModelPodBased().getPod().getPodType());
 
         // Change the pod type to a larger one
         // Get the index description to verify the new pod type
         assertWithRetry(() -> {
             controlPlaneClient.configurePodsIndex(indexName, "p1.x2");
-            PodSpec podSpec = controlPlaneClient.describeIndex(indexName).getSpec().getPod();
+            PodSpec podSpec = controlPlaneClient.describeIndex(indexName).getSpec().getIndexModelPodBased().getPod();
             assertNotNull(podSpec);
-            assertEquals(podSpec.getPodType(), "p1.x2");
+            assertEquals("p1.x2", podSpec.getPodType());
         });
     }
 }
