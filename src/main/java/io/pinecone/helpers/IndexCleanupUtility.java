@@ -16,8 +16,11 @@ public class IndexCleanupUtility {
             for(IndexModel model : pinecone.listIndexes().getIndexes()) {
                 String indexName = model.getName();
                 if(model.getDeletionProtection().equals("enabled")) {
-                    if(model.getSpec().getPod() != null) {
+                    try {
+                        model.getSpec().getIndexModelPodBased();
                         pinecone.configurePodsIndex(indexName, "disabled");
+                    } catch (ClassCastException e) {
+                        // Not a pod-based index, continue
                     }
                     pinecone.configureServerlessIndex(indexName, "disabled", null, null);
                 }

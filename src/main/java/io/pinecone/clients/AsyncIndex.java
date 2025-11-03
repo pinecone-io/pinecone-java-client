@@ -1171,12 +1171,12 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      *
      *     String uri = "s3://path/to/file.parquet";
      *     String integrationId = "123-456-789";
-     *     StartImportResponse response = asyncIndex.startImport(uri, integrationId, ImportErrorMode.OnErrorEnum.CONTINUE);
+     *     StartImportResponse response = asyncIndex.startImport(uri, integrationId, "continue");
      *  }</pre>
      *
      * @param uri The URI prefix under which the data to import is available.
      * @param integrationId The ID of the storage integration to access the data. Can be null or empty.
-     * @param errorMode Indicates how to respond to errors during the import process. Can be null.
+     * @param errorMode Indicates how to respond to errors during the import process. Possible values: &#x60;abort&#x60; or &#x60;continue&#x60;
      * @return {@link StartImportResponse} containing the details of the initiated import operation.
      * @throws ApiException if there are issues processing the request or communicating with the server.
      *         This includes network issues, server errors, or serialization issues with the request or response.

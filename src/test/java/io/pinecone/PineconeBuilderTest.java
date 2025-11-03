@@ -6,7 +6,6 @@ import org.mockito.ArgumentCaptor;
 import org.openapitools.db_control.client.model.*;
 import okhttp3.*;
 import org.junit.jupiter.api.Test;
-import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -18,7 +17,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class PineconeBuilderTest {
-    private static final Gson gson = new Gson();
 
     private static AbstractMap.SimpleEntry<Call, OkHttpClient> buildMockCallAndClient(ResponseBody response) throws IOException {
         Response mockResponse = new Response.Builder()
@@ -40,29 +38,24 @@ public class PineconeBuilderTest {
 
     @Test
     public void PineconeWithNullApiKey() {
-        try {
+        PineconeConfigurationException exception = assertThrows(PineconeConfigurationException.class, () -> {
             new Pinecone.Builder(null).build();
-        }
-        catch(PineconeConfigurationException expected) {
-            assertTrue(expected.getLocalizedMessage().contains("The API key is required and must not be empty or null"));
-        }
+        });
+        assertTrue(exception.getLocalizedMessage().contains("The API key is required and must not be empty or null"));
     }
 
     @Test
     public void PineconeWithEmptyApiKey() {
-        try {
+        PineconeConfigurationException exception = assertThrows(PineconeConfigurationException.class, () -> {
             new Pinecone.Builder("").build();
-        }
-        catch(PineconeConfigurationException expected) {
-            assertTrue(expected.getLocalizedMessage().contains("The API key is required and must not be empty or null"));
-        }
+        });
+        assertTrue(exception.getLocalizedMessage().contains("The API key is required and must not be empty or null"));
     }
 
     @Test
     public void PineconeWithOkHttpClientAndUserAgent() throws IOException {
         String filePath = "src/test/resources/serverlessIndexJsonString.json";
         String indexJsonStringServerless = new String(Files.readAllBytes(Paths.get(filePath)));
-        IndexModel expectedIndex = gson.fromJson(indexJsonStringServerless, IndexModel.class);
 
         AbstractMap.SimpleEntry<Call, OkHttpClient> mockCallAndClient =
                 buildMockCallAndClient(ResponseBody.create(
@@ -74,6 +67,8 @@ public class PineconeBuilderTest {
         Pinecone client = new Pinecone.Builder("testAPiKey")
                 .withOkHttpClient(mockClient)
                 .build();
+        // Create expected index after client creation to ensure JSON class is initialized
+        IndexModel expectedIndex = IndexModel.fromJson(indexJsonStringServerless);
         IndexModel index = client.describeIndex("testIndex");
 
         ArgumentCaptor<Request> requestCaptor = ArgumentCaptor.forClass(Request.class);
@@ -87,7 +82,6 @@ public class PineconeBuilderTest {
     public void PineconeWithSourceTag()  throws IOException {
         String filePath = "src/test/resources/serverlessIndexJsonString.json";
         String indexJsonStringServerless = new String(Files.readAllBytes(Paths.get(filePath)));
-        IndexModel expectedIndex = gson.fromJson(indexJsonStringServerless, IndexModel.class);
 
         AbstractMap.SimpleEntry<Call, OkHttpClient> mockCallAndClient =
                 buildMockCallAndClient(ResponseBody.create(
@@ -100,6 +94,8 @@ public class PineconeBuilderTest {
                 .withSourceTag("testSourceTag")
                 .withOkHttpClient(mockClient)
                 .build();
+        // Create expected index after client creation to ensure JSON class is initialized
+        IndexModel expectedIndex = IndexModel.fromJson(indexJsonStringServerless);
         IndexModel index = client.describeIndex("testIndex");
 
         ArgumentCaptor<Request> requestCaptor = ArgumentCaptor.forClass(Request.class);

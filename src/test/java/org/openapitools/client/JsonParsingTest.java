@@ -6,9 +6,9 @@ import org.junit.jupiter.api.Test;
 import org.openapitools.db_control.client.api.ManageIndexesApi;
 import org.openapitools.db_control.client.model.*;
 import org.openapitools.db_control.client.ApiClient;
+import org.openapitools.db_control.client.Configuration;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -53,12 +53,12 @@ public class JsonParsingTest {
         String jsonResponse = readJsonFromFile("src/test/resources/describeIndexResponse.valid.json");
         setupMockResponse(jsonResponse);
 
-        IndexModel indexModel = api.describeIndex("test-index");
+        IndexModel indexModel = api.describeIndex(Configuration.VERSION, "test-index");
 
         // Don't need a ton of assertions here. The point is the code didn't blow up
         // due to parsing the JSON response.
         assertEquals("test-index", indexModel.getName());
-        assertEquals("Ready", indexModel.getStatus().getState().getValue());
+        assertEquals("Ready", indexModel.getStatus().getState());
     }
 
     @Test
@@ -66,10 +66,10 @@ public class JsonParsingTest {
         String jsonResponse = readJsonFromFile("src/test/resources/describeIndexResponse.withUnknownProperties.json");
         setupMockResponse(jsonResponse);
 
-        IndexModel indexModel = api.describeIndex("test-index");
+        IndexModel indexModel = api.describeIndex(Configuration.VERSION, "test-index");
 
         assertEquals("test-index", indexModel.getName());
-        assertEquals("Ready", indexModel.getStatus().getState().getValue());
+        assertEquals("Ready", indexModel.getStatus().getState());
     }
 
     @Test
@@ -80,12 +80,12 @@ public class JsonParsingTest {
         CreateIndexRequest createIndexRequest = new CreateIndexRequest();
         createIndexRequest.setName("test-index");
         createIndexRequest.setDimension(1536);
-        createIndexRequest.setMetric(CreateIndexRequest.MetricEnum.COSINE);
+        createIndexRequest.setMetric("cosine");
         createIndexRequest.setSpec(new IndexSpec());
-        IndexModel indexModel = api.createIndex(createIndexRequest);
+        IndexModel indexModel = api.createIndex(Configuration.VERSION, createIndexRequest);
 
         assertEquals("serverless-index", indexModel.getName());
-        assertEquals("Ready", indexModel.getStatus().getState().getValue());
+        assertEquals("Ready", indexModel.getStatus().getState());
     }
 
     @Test
@@ -96,12 +96,12 @@ public class JsonParsingTest {
         CreateIndexRequest createIndexRequest = new CreateIndexRequest();
         createIndexRequest.setName("test-index");
         createIndexRequest.setDimension(1536);
-        createIndexRequest.setMetric(CreateIndexRequest.MetricEnum.COSINE);
+        createIndexRequest.setMetric("cosine");
         createIndexRequest.setSpec(new IndexSpec());
-        IndexModel indexModel = api.createIndex(createIndexRequest);
+        IndexModel indexModel = api.createIndex(Configuration.VERSION, createIndexRequest);
 
         assertEquals("serverless-index", indexModel.getName());
-        assertEquals("Ready", indexModel.getStatus().getState().getValue());
+        assertEquals("Ready", indexModel.getStatus().getState());
     }
 
     @Test
@@ -109,9 +109,9 @@ public class JsonParsingTest {
         String jsonResponse = readJsonFromFile("src/test/resources/describeCollection.valid.json");
         setupMockResponse(jsonResponse);
 
-        CollectionModel collectionModel = api.describeCollection("tiny-collection");
+        CollectionModel collectionModel = api.describeCollection(Configuration.VERSION, "tiny-collection");
 
         assertEquals("tiny-collection", collectionModel.getName());
-        assertEquals("Ready", collectionModel.getStatus().getValue());
+        assertEquals("Ready", collectionModel.getStatus());
     }
 }

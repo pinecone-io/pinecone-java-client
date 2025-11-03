@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.openapitools.db_data.client.ApiException;
+import org.openapitools.db_data.client.Configuration;
 import org.openapitools.db_data.client.api.BulkOperationsApi;
 import org.openapitools.db_data.client.model.*;
 
@@ -17,6 +18,7 @@ import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.eq;
 
 public class ImportsTest {
 
@@ -46,7 +48,7 @@ public class ImportsTest {
         StartImportResponse mockResponse = new StartImportResponse();
         mockResponse.setId("1");
 
-        when(bulkOperationsApiMock.startBulkImport(any(StartImportRequest.class)))
+        when(bulkOperationsApiMock.startBulkImport(eq(Configuration.VERSION), any(StartImportRequest.class)))
                 .thenReturn(mockResponse);
 
         StartImportResponse response = asyncIndex.startImport("s3://path/to/file.parquet", null, null);
@@ -59,7 +61,7 @@ public class ImportsTest {
         StartImportResponse mockResponse = new StartImportResponse();
         mockResponse.setId("1");
 
-        when(bulkOperationsApiMock.startBulkImport(any(StartImportRequest.class)))
+        when(bulkOperationsApiMock.startBulkImport(eq(Configuration.VERSION), any(StartImportRequest.class)))
                 .thenReturn(mockResponse);
 
         StartImportResponse response = asyncIndex.startImport("s3://path/to/file.parquet", "integration-123", null);
@@ -67,7 +69,7 @@ public class ImportsTest {
         assertEquals("1", response.getId());
 
         ArgumentCaptor<StartImportRequest> requestCaptor = ArgumentCaptor.forClass(StartImportRequest.class);
-        verify(bulkOperationsApiMock).startBulkImport(requestCaptor.capture());
+        verify(bulkOperationsApiMock).startBulkImport(eq(Configuration.VERSION), requestCaptor.capture());
         StartImportRequest capturedRequest = requestCaptor.getValue();
 
         assertEquals("s3://path/to/file.parquet", capturedRequest.getUri());
@@ -79,24 +81,24 @@ public class ImportsTest {
         StartImportResponse mockResponse = new StartImportResponse();
         mockResponse.setId("1");
 
-        when(bulkOperationsApiMock.startBulkImport(any(StartImportRequest.class)))
+        when(bulkOperationsApiMock.startBulkImport(eq(Configuration.VERSION), any(StartImportRequest.class)))
                 .thenReturn(mockResponse);
 
-        StartImportResponse response = asyncIndex.startImport("s3://path/to/file.parquet", null, ImportErrorMode.OnErrorEnum.CONTINUE);
+        StartImportResponse response = asyncIndex.startImport("s3://path/to/file.parquet", null, "continue");
 
         assertEquals("1", response.getId());
 
         ArgumentCaptor<StartImportRequest> requestCaptor = ArgumentCaptor.forClass(StartImportRequest.class);
-        verify(bulkOperationsApiMock).startBulkImport(requestCaptor.capture());
+        verify(bulkOperationsApiMock).startBulkImport(eq(Configuration.VERSION), requestCaptor.capture());
         StartImportRequest capturedRequest = requestCaptor.getValue();
 
-        assertEquals(ImportErrorMode.OnErrorEnum.CONTINUE, capturedRequest.getErrorMode().getOnError());
+        assertEquals("continue", capturedRequest.getErrorMode().getOnError());
     }
 
     @Test
     public void testStartImportWithInvalidUri() throws ApiException {
         ApiException exception = new ApiException(400, "Invalid URI");
-        when(bulkOperationsApiMock.startBulkImport(any(StartImportRequest.class)))
+        when(bulkOperationsApiMock.startBulkImport(eq(Configuration.VERSION), any(StartImportRequest.class)))
                 .thenThrow(exception);
 
         ApiException thrownException = assertThrows(ApiException.class, () -> {
@@ -119,27 +121,28 @@ public class ImportsTest {
         mockResponse.setId("1");
         mockResponse.setRecordsImported(1000L);
         mockResponse.setUri(uri);
-        mockResponse.setStatus(ImportModel.StatusEnum.INPROGRESS);
+        //The status of the operation. Possible values: &#x60;Pending&#x60;, &#x60;InProgress&#x60;, &#x60;Failed&#x60;, &#x60;Completed&#x60;, or &#x60;Cancelled&#x60;.
+        mockResponse.setStatus("InProgress");
         mockResponse.setError(errorMode);
         mockResponse.setCreatedAt(createdAt);
         mockResponse.setFinishedAt(finishedAt);
         mockResponse.setPercentComplete(43.2f);
 
-        when(bulkOperationsApiMock.describeBulkImport("1")).thenReturn(mockResponse);
+        when(bulkOperationsApiMock.describeBulkImport(Configuration.VERSION,"1")).thenReturn(mockResponse);
 
         ImportModel response = asyncIndex.describeImport("1");
 
         assertEquals("1", response.getId());
         assertEquals(1000, response.getRecordsImported());
         assertEquals(uri, response.getUri());
-        assertEquals("InProgress", response.getStatus().getValue());
+        assertEquals("InProgress", response.getStatus());
         assertEquals(errorMode, response.getError());
         assertEquals(createdAt, response.getCreatedAt());
         assertEquals(finishedAt, response.getFinishedAt());
         assertEquals(percentComplete, response.getPercentComplete());
 
         // Verify that the describeBulkImport method was called once
-        verify(bulkOperationsApiMock, times(1)).describeBulkImport("1");
+        verify(bulkOperationsApiMock, times(1)).describeBulkImport(eq(Configuration.VERSION), eq("1"));
     }
 
     @Test
@@ -148,7 +151,7 @@ public class ImportsTest {
         mockResponse.setData(Collections.singletonList(new ImportModel()));
         mockResponse.setPagination(new Pagination());
 
-        when(bulkOperationsApiMock.listBulkImports(anyInt(), anyString())).thenReturn(mockResponse);
+        when(bulkOperationsApiMock.listBulkImports(eq(Configuration.VERSION), anyInt(), anyString())).thenReturn(mockResponse);
 
         ListImportsResponse response = asyncIndex.listImports(10, "next-token");
 
@@ -156,6 +159,6 @@ public class ImportsTest {
         assertEquals(1, response.getData().size());
         assertNotNull(response.getPagination());
         verify(bulkOperationsApiMock, times(1))
-                .listBulkImports(10, "next-token");
+                .listBulkImports(eq(Configuration.VERSION), eq(10), eq("next-token"));
     }
 }

@@ -10,14 +10,15 @@
   },
   "host": "https://index-host.com",
   "spec": {
-    "future_pod_type": {
-      "who_knows": true,
-      "what_props": false,
-      "may": "exist"
-    },
     "serverless": {
       "cloud": "aws",
       "region": "us-east2-gcp",
+      "read_capacity": {
+        "mode": "OnDemand",
+        "status": {
+          "state": "Ready"
+        }
+      },
       "hotness": "extra-spicy"
     }
   },

@@ -5,6 +5,7 @@ import io.pinecone.configs.PineconeConnection;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.openapitools.db_control.client.ApiException;
+import org.openapitools.db_control.client.Configuration;
 import org.openapitools.db_control.client.api.ManageIndexesApi;
 import org.openapitools.db_control.client.model.IndexModel;
 
@@ -113,7 +114,7 @@ public class ConnectionsMapTest {
         config.setHost(host);
         Pinecone pinecone = new Pinecone(config, manageIndexesApi);
 
-        when(manageIndexesApi.describeIndex(indexName)).thenReturn(indexModel);
+        when(manageIndexesApi.describeIndex(Configuration.VERSION, indexName)).thenReturn(indexModel);
 
         Index index = pinecone.getIndexConnection(indexName);
 
@@ -142,7 +143,7 @@ public class ConnectionsMapTest {
         config.setHost(host);
         Pinecone pinecone = new Pinecone(config, manageIndexesApi);
 
-        when(manageIndexesApi.describeIndex(indexName)).thenReturn(indexModel);
+        when(manageIndexesApi.describeIndex(Configuration.VERSION, indexName)).thenReturn(indexModel);
 
         AsyncIndex asyncIndex = pinecone.getAsyncIndexConnection(indexName);
 

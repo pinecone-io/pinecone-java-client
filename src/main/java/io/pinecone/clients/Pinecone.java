@@ -103,7 +103,7 @@ public class Pinecone {
         }
 
         ServerlessSpec serverlessSpec = new ServerlessSpec().cloud(cloud).region(region);
-        IndexSpec createServerlessIndexRequestSpec = new IndexSpec().serverless(serverlessSpec);
+        IndexSpec createServerlessIndexRequestSpec = new IndexSpec(new IndexSpecServerless().serverless(serverlessSpec));
 
         IndexModel indexModel = null;
 
@@ -166,7 +166,7 @@ public class Pinecone {
         }
 
         ServerlessSpec serverlessSpec = new ServerlessSpec().cloud(cloud).region(region);
-        IndexSpec createServerlessIndexRequestSpec = new IndexSpec().serverless(serverlessSpec);
+        IndexSpec createServerlessIndexRequestSpec = new IndexSpec(new IndexSpecServerless().serverless(serverlessSpec));
 
         IndexModel indexModel = null;
 
@@ -490,7 +490,7 @@ public class Pinecone {
                 .pods(pods)
                 .metadataConfig(metadataConfig)
                 .sourceCollection(sourceCollection);
-        IndexSpec createIndexRequestSpec = new IndexSpec().pod(podSpec);
+        IndexSpec createIndexRequestSpec = new IndexSpec(new IndexSpecPodBased().pod(podSpec));
         CreateIndexRequest createIndexRequest = new CreateIndexRequest()
                 .name(indexName)
                 .dimension(dimension)
@@ -622,12 +622,13 @@ public class Pinecone {
 
         // Build ConfigureIndexRequest object
         ConfigureIndexRequest configureIndexRequest = new ConfigureIndexRequest()
-                .spec(new ConfigureIndexRequestSpec()
-                        .pod(new ConfigureIndexRequestSpecPod()
-                                .replicas(replicas)
-                                .podType(podType)
-                        )
-                ).deletionProtection(deletionProtection);
+                .spec(new ConfigureIndexRequestSpec(
+                        new ConfigureIndexRequestPodBased()
+                                .pod(new ConfigureIndexRequestPodBasedConfig()
+                                        .replicas(replicas)
+                                        .podType(podType)
+                                )
+                )).deletionProtection(deletionProtection);
 
         if(tags != null && !tags.isEmpty()) {
             configureIndexRequest.tags(tags);

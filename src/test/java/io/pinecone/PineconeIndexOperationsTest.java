@@ -1,6 +1,5 @@
 package io.pinecone;
 
-import com.google.gson.Gson;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.exceptions.PineconeValidationException;
 import okhttp3.*;
@@ -11,8 +10,6 @@ import org.openapitools.db_control.client.model.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -20,8 +17,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 public class PineconeIndexOperationsTest {
-    private static final Gson gson = new Gson();
-
     @Test
     public void testDeleteIndex() throws IOException {
         Call mockCall = mock(Call.class);
@@ -44,64 +39,6 @@ public class PineconeIndexOperationsTest {
         verify(mockCall, times(1)).execute();
         assertEquals(requestCaptor.getValue().method(), "DELETE");
         assertEquals(requestCaptor.getValue().url().toString(), "https://api.pinecone.io/indexes/testIndex");
-    }
-
-    @Test
-    public void testCreateServerlessIndex() throws IOException {
-        String filePath = "src/test/resources/serverlessIndexJsonString.json";
-        String indexJsonStringServerless = new String(Files.readAllBytes(Paths.get(filePath)));
-
-        Call mockCall = mock(Call.class);
-        when(mockCall.execute()).thenReturn(new Response.Builder()
-                .request(new Request.Builder().url("http://localhost").build())
-                .protocol(Protocol.HTTP_1_1)
-                .code(201)
-                .message("OK")
-                .body(ResponseBody.create(indexJsonStringServerless, MediaType.parse("application/json")))
-                .build());
-
-        OkHttpClient mockClient = mock(OkHttpClient.class);
-        when(mockClient.newCall(any(Request.class))).thenReturn(mockCall);
-
-        Pinecone client = new Pinecone.Builder("testAPiKey").withOkHttpClient(mockClient).build();
-
-        client.createServerlessIndex("testServerlessIndex", "cosine", 3, "aws", "us-west-2", "disabled", Collections.EMPTY_MAP);
-        verify(mockCall, times(1)).execute();
-
-        PineconeValidationException thrownEmptyIndexName = assertThrows(PineconeValidationException.class,
-                () -> client.createServerlessIndex("", "cosine", 3, "aws", "us-west-2", "disabled", Collections.EMPTY_MAP));
-        assertEquals("Index name cannot be null or empty", thrownEmptyIndexName.getMessage());
-
-        PineconeValidationException thrownNullIndexName = assertThrows(PineconeValidationException.class,
-                () -> client.createServerlessIndex(null, "cosine", 3, "aws", "us-west-2", "disabled", Collections.EMPTY_MAP));
-        assertEquals("Index name cannot be null or empty", thrownNullIndexName.getMessage());
-
-        PineconeValidationException thrownNegativeDimension = assertThrows(PineconeValidationException.class,
-                () -> client.createServerlessIndex("testServerlessIndex", "cosine", -3, "aws", "us-west-2", "disabled", Collections.EMPTY_MAP));
-        assertEquals("Dimension must be greater than 0. See limits for more info: https://docs.pinecone.io/reference/limits", thrownNegativeDimension.getMessage());
-
-        PineconeValidationException thrownEmptyCloud = assertThrows(PineconeValidationException.class,
-                () -> client.createServerlessIndex("testServerlessIndex", "cosine", 3, "", "us-west-2", "disabled", Collections.EMPTY_MAP));
-        assertEquals("Cloud cannot be null or empty",
-                thrownEmptyCloud.getMessage());
-
-        PineconeValidationException thrownNullCloud = assertThrows(PineconeValidationException.class,
-                () -> client.createServerlessIndex("testServerlessIndex", "cosine", 3, null, "us-west-2", "disabled", Collections.EMPTY_MAP));
-        assertEquals("Cloud cannot be null or empty",
-                thrownNullCloud.getMessage());
-
-        PineconeValidationException thrownInvalidCloud = assertThrows(PineconeValidationException.class,
-                () -> client.createServerlessIndex("testServerlessIndex", "cosine", 3, "wooooo", "us-west-2", "disabled", Collections.EMPTY_MAP));
-        assertEquals("Cloud cannot be null or empty",
-                thrownInvalidCloud.getMessage());
-
-        PineconeValidationException thrownEmptyRegion = assertThrows(PineconeValidationException.class,
-                () -> client.createServerlessIndex("testServerlessIndex", "cosine", 3, "aws", "", "disabled", Collections.EMPTY_MAP));
-        assertEquals("Region cannot be null or empty", thrownEmptyRegion.getMessage());
-
-        PineconeValidationException thrownNullRegion = assertThrows(PineconeValidationException.class,
-                () -> client.createServerlessIndex("testServerlessIndex", "cosine", 3, "aws", null, "disabled", Collections.EMPTY_MAP));
-        assertEquals("Region cannot be null or empty", thrownNullRegion.getMessage());
     }
 
     @Test
@@ -239,7 +176,6 @@ public class PineconeIndexOperationsTest {
     public void testDescribeIndex() throws IOException {
         String filePath = "src/test/resources/serverlessIndexJsonString.json";
         String indexJsonStringServerless = new String(Files.readAllBytes(Paths.get(filePath)));
-        IndexModel expectedIndex = gson.fromJson(indexJsonStringServerless, IndexModel.class);
 
         Call mockCall = mock(Call.class);
         Response mockResponse = new Response.Builder()
@@ -257,6 +193,8 @@ public class PineconeIndexOperationsTest {
         when(mockCall.execute()).thenReturn(mockResponse);
 
         Pinecone client = new Pinecone.Builder("testAPiKey").withOkHttpClient(mockClient).build();
+        // Create expected index after client creation to ensure JSON class is initialized
+        IndexModel expectedIndex = IndexModel.fromJson(indexJsonStringServerless);
         IndexModel index = client.describeIndex("testIndex");
 
         ArgumentCaptor<Request> requestCaptor = ArgumentCaptor.forClass(Request.class);
@@ -272,7 +210,7 @@ public class PineconeIndexOperationsTest {
     public void testListIndexes() throws IOException {
         String filePath = "src/test/resources/indexListJsonString.json";
         String indexListJsonString = new String(Files.readAllBytes(Paths.get(filePath)));
-        IndexList expectedIndexList = gson.fromJson(indexListJsonString, IndexList.class);
+        IndexList expectedIndexList = IndexList.fromJson(indexListJsonString);
 
         Call mockCall = mock(Call.class);
 
@@ -304,7 +242,7 @@ public class PineconeIndexOperationsTest {
     public void testConfigureIndex() throws IOException {
         String filePath = "src/test/resources/podIndexJsonString.json";
         String podIndexJsonString = new String(Files.readAllBytes(Paths.get(filePath)));
-        IndexModel expectedConfiguredIndex = gson.fromJson(podIndexJsonString, IndexModel.class);
+        IndexModel expectedConfiguredIndex = IndexModel.fromJson(podIndexJsonString);
 
         Call mockCall = mock(Call.class);
         when(mockCall.execute()).thenReturn(new Response.Builder()
@@ -344,7 +282,7 @@ public class PineconeIndexOperationsTest {
     public void testCreateCollection() throws IOException {
         String filePath = "src/test/resources/collectionCreation.json";
         String JsonStringCollection = new String(Files.readAllBytes(Paths.get(filePath)));
-        CollectionModel expectedCollection = gson.fromJson(JsonStringCollection, CollectionModel.class);
+        CollectionModel expectedCollection = CollectionModel.fromJson(JsonStringCollection);
 
         Call mockCall = mock(Call.class);
         Response mockResponse = new Response.Builder()

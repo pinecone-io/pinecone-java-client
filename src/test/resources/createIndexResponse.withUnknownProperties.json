@@ -13,6 +13,12 @@
     "serverless": {
       "region": "us-west-2",
       "cloud": "aws",
+      "read_capacity": {
+        "mode": "OnDemand",
+        "status": {
+          "state": "Ready"
+        }
+      },
       "weather_forecast": "partly sunny"
     }
   },
