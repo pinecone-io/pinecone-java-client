@@ -53,8 +53,9 @@ public class CreateDescribeListAndDeleteIndexTest {
         String environment = "us-east-1-aws";
         String podType = "p1.x1";
         String metric = "cosine";
+        PodSpecMetadataConfig metadataConfig = null;
         IndexModel podsIndex = controlPlaneClient.createPodsIndex(podIndexName, dimension, environment, podType,
-                metric);
+                metric, metadataConfig);
 
         assertEquals(podIndexName, podsIndex.getName());
         assertEquals(dimension, podsIndex.getDimension());

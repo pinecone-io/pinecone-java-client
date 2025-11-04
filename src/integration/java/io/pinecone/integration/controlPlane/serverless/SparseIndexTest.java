@@ -86,12 +86,12 @@ public class SparseIndexTest {
         values.add(2f);
 
         UpsertResponse upsertResponse = index.upsert("v1", Collections.emptyList(), indices, values, null, "");
-        assertEquals(upsertResponse.getUpsertedCount(), 1);
+        assertEquals(1, upsertResponse.getUpsertedCount());
 
         // Query by vector id
         QueryResponseWithUnsignedIndices queryResponse = index.queryByVectorId(1, id, true, false);
-        assertEquals(queryResponse.getMatchesList().size(), 1);
-        assertEquals(queryResponse.getMatches(0).getId(), id);
+        assertEquals(1, queryResponse.getMatchesList().size());
+        assertEquals(id, queryResponse.getMatches(0).getId());
         assertEquals(queryResponse.getMatches(0).getSparseValuesWithUnsignedIndices().getIndicesWithUnsigned32IntList(), indices);
         assertEquals(queryResponse.getMatches(0).getSparseValuesWithUnsignedIndices().getValuesList(), values);
     }

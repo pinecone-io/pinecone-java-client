@@ -106,7 +106,7 @@ public class ConfigureIndexTest {
             assertEquals(1, indexModel.getSpec().getIndexModelPodBased().getPod().getReplicas());
 
             // Try to change the base pod type
-            controlPlaneClient.configurePodsIndex(indexName, "p2.x2");
+            controlPlaneClient.configurePodsIndex(indexName, "p2.x2", null, "disabled", null);
 
             fail("Expected to throw PineconeBadRequestException");
         } catch (PineconeBadRequestException expected) {
@@ -124,7 +124,7 @@ public class ConfigureIndexTest {
         // Change the pod type to a larger one
         // Get the index description to verify the new pod type
         assertWithRetry(() -> {
-            controlPlaneClient.configurePodsIndex(indexName, "p1.x2");
+            controlPlaneClient.configurePodsIndex(indexName, "p1.x2", null, "disabled", null);
             PodSpec podSpec = controlPlaneClient.describeIndex(indexName).getSpec().getIndexModelPodBased().getPod();
             assertNotNull(podSpec);
             assertEquals("p1.x2", podSpec.getPodType());

@@ -287,7 +287,8 @@ public class TestResourcesManager {
 
         String indexName = RandomStringBuilder.build("pod-index", 8);
 
-        podIndexModel = pineconeClient.createPodsIndex(indexName, dimension, environment, "p1.x1", metric);
+        PodSpecMetadataConfig metadataConfig = null;
+        podIndexModel = pineconeClient.createPodsIndex(indexName, dimension, environment, "p1.x1", metric, metadataConfig);
         waitUntilIndexIsReady(pineconeClient, indexName);
 
         // Additional sleep after index marked as ready to avoid "no healthy upstream" error
