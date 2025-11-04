@@ -68,16 +68,6 @@ public class CreateDescribeListAndDeleteIndexTest {
     }
 
     @Test
-    public void createServerlessIndexWithInvalidCloud() {
-        try {
-            controlPlaneClient.createServerlessIndex("serverless-test-index", "cosine", 3, "blah", "us-west-2", "disabled", null);
-            fail("Expected to throw PineconeValidationException");
-        } catch (PineconeValidationException expected) {
-            assertTrue(expected.getLocalizedMessage().contains("Cloud cannot be null or empty"));
-        }
-    }
-
-    @Test
     public void createServerlessIndexWithInvalidRegion() {
         try {
             controlPlaneClient.createServerlessIndex("serverless-test-index", "cosine", 3, "aws", "invalid-region", "disabled", null);

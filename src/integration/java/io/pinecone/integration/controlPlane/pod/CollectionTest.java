@@ -94,7 +94,7 @@ public class CollectionTest {
 
         IndexModel indexDescription = pineconeClient.describeIndex(newIndexName);
         assertEquals(indexDescription.getName(), newIndexName);
-        assertEquals(indexDescription.getSpec().getPod().getSourceCollection(), collectionName);
+        assertEquals(indexDescription.getSpec().getIndexModelPodBased().getPod().getSourceCollection(), collectionName);
 
         // Wait to try and avoid "no healthy upstream" before interacting with the new index
         Thread.sleep(30000);
