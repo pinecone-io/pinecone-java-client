@@ -49,7 +49,7 @@ import org.openapitools.db_control.client.JSON;
 /**
  * Configuration needed to deploy a serverless index.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-05-22T16:07:13.211110Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-09-22T16:03:26.361685Z[Etc/UTC]")
 public class ServerlessSpec {
   /**
    * The public cloud where you would like your index hosted.
@@ -108,6 +108,10 @@ public class ServerlessSpec {
   @SerializedName(SERIALIZED_NAME_REGION)
   private String region;
 
+  public static final String SERIALIZED_NAME_SOURCE_COLLECTION = "source_collection";
+  @SerializedName(SERIALIZED_NAME_SOURCE_COLLECTION)
+  private String sourceCollection;
+
   public ServerlessSpec() {
   }
 
@@ -150,6 +154,27 @@ public class ServerlessSpec {
 
   public void setRegion(String region) {
     this.region = region;
+  }
+
+
+  public ServerlessSpec sourceCollection(String sourceCollection) {
+    
+    this.sourceCollection = sourceCollection;
+    return this;
+  }
+
+   /**
+   * The name of the collection to be used as the source for the index.
+   * @return sourceCollection
+  **/
+  @javax.annotation.Nullable
+  public String getSourceCollection() {
+    return sourceCollection;
+  }
+
+
+  public void setSourceCollection(String sourceCollection) {
+    this.sourceCollection = sourceCollection;
   }
 
   /**
@@ -208,13 +233,14 @@ public class ServerlessSpec {
     }
     ServerlessSpec serverlessSpec = (ServerlessSpec) o;
     return Objects.equals(this.cloud, serverlessSpec.cloud) &&
-        Objects.equals(this.region, serverlessSpec.region)&&
+        Objects.equals(this.region, serverlessSpec.region) &&
+        Objects.equals(this.sourceCollection, serverlessSpec.sourceCollection)&&
         Objects.equals(this.additionalProperties, serverlessSpec.additionalProperties);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(cloud, region, additionalProperties);
+    return Objects.hash(cloud, region, sourceCollection, additionalProperties);
   }
 
   @Override
@@ -223,6 +249,7 @@ public class ServerlessSpec {
     sb.append("class ServerlessSpec {\n");
     sb.append("    cloud: ").append(toIndentedString(cloud)).append("\n");
     sb.append("    region: ").append(toIndentedString(region)).append("\n");
+    sb.append("    sourceCollection: ").append(toIndentedString(sourceCollection)).append("\n");
     sb.append("    additionalProperties: ").append(toIndentedString(additionalProperties)).append("\n");
     sb.append("}");
     return sb.toString();
@@ -248,6 +275,7 @@ public class ServerlessSpec {
     openapiFields = new HashSet<String>();
     openapiFields.add("cloud");
     openapiFields.add("region");
+    openapiFields.add("source_collection");
 
     // a set of required properties/fields (JSON key names)
     openapiRequiredFields = new HashSet<String>();
@@ -280,6 +308,9 @@ public class ServerlessSpec {
       }
       if (!jsonObj.get("region").isJsonPrimitive()) {
         throw new IllegalArgumentException(String.format("Expected the field `region` to be a primitive type in the JSON string but got `%s`", jsonObj.get("region").toString()));
+      }
+      if ((jsonObj.get("source_collection") != null && !jsonObj.get("source_collection").isJsonNull()) && !jsonObj.get("source_collection").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `source_collection` to be a primitive type in the JSON string but got `%s`", jsonObj.get("source_collection").toString()));
       }
   }
 

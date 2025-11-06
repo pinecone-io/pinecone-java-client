@@ -36,7 +36,7 @@ public class ListEndpointTest {
     public void testSyncListEndpoint() throws InterruptedException {
         // Confirm default vector IDs are returned when no namespace is specified
         ListResponse listResponseNoArgs = indexConnection.list();
-        assertEquals(listResponseNoArgs.getVectorsList().size(), 4);
+        assertEquals(4, listResponseNoArgs.getVectorsList().size());
         assertTrue(listResponseNoArgs.getVectorsList().toString().contains("def-id1"));
         assertTrue(listResponseNoArgs.getVectorsList().toString().contains("def-id2"));
         assertTrue(listResponseNoArgs.getVectorsList().toString().contains("def-prefix-id3"));
@@ -44,7 +44,7 @@ public class ListEndpointTest {
 
         // Confirm all vector IDs from custom namespace are returned when pass customNamespace
         ListResponse listResponseCustomNamespace = indexConnection.list(customNamespace);
-        assertEquals(listResponseCustomNamespace.getVectorsList().size(), 4);
+        assertEquals(4, listResponseCustomNamespace.getVectorsList().size());
         assertTrue(listResponseCustomNamespace.getVectorsList().toString().contains("cus-id1"));
         assertTrue(listResponseCustomNamespace.getVectorsList().toString().contains("cus-id2"));
         assertTrue(listResponseCustomNamespace.getVectorsList().toString().contains("cus-prefix-id3"));
@@ -52,7 +52,7 @@ public class ListEndpointTest {
 
         // Confirm all vector IDs from custom namespace are returned, filtered by given prefix
         ListResponse listResponseCustomNamespaceWithPrefix = indexConnection.list(customNamespace, "cus-prefix-");
-        assertEquals(listResponseCustomNamespaceWithPrefix.getVectorsList().size(), 2);
+        assertEquals(2, listResponseCustomNamespaceWithPrefix.getVectorsList().size());
         assertTrue(listResponseCustomNamespaceWithPrefix.getVectorsList().toString().contains("cus-prefix-id3"));
         assertTrue(listResponseCustomNamespaceWithPrefix.getVectorsList().toString().contains("cus-prefix-id4"));
 
@@ -62,13 +62,13 @@ public class ListEndpointTest {
 
         // Confirm all vector IDs from custom namespace are returned using pagination
         ListResponse listResponseWithPaginationNoPrefix1 = indexConnection.list(customNamespace, 2);
-        assertEquals(listResponseWithPaginationNoPrefix1.getVectorsList().size(), 2);
+        assertEquals(2, listResponseWithPaginationNoPrefix1.getVectorsList().size());
         ListResponse listResponseWithPaginationNoPrefix2 = indexConnection.list(
                 customNamespace,
                 2,
                 listResponseWithPaginationNoPrefix1.getPagination().getNext()
         );
-        assertEquals(listResponseWithPaginationNoPrefix2.getVectorsList().size(), 2);
+        assertEquals(2, listResponseWithPaginationNoPrefix2.getVectorsList().size());
     }
 
     @Test
@@ -76,7 +76,7 @@ public class ListEndpointTest {
         // Confirm default vector IDs are returned when no namespace is specified
         ListenableFuture<ListResponse> futureResponseNoArgs = asyncIndexConnection.list();
         ListResponse asyncListResponseNoArgs = Futures.getUnchecked(futureResponseNoArgs);
-        assertEquals(asyncListResponseNoArgs.getVectorsList().size(), 4);
+        assertEquals(4, asyncListResponseNoArgs.getVectorsList().size());
         assertTrue(asyncListResponseNoArgs.getVectorsList().toString().contains("def-id1"));
         assertTrue(asyncListResponseNoArgs.getVectorsList().toString().contains("def-id2"));
         assertTrue(asyncListResponseNoArgs.getVectorsList().toString().contains("def-prefix-id3"));
@@ -94,7 +94,7 @@ public class ListEndpointTest {
         ListenableFuture<ListResponse> futureResponseCustomNamespaceWithPrefix =
                 asyncIndexConnection.list(customNamespace, "cus-prefix-");
         ListResponse asyncListResponseCustomNamespaceWithPrefix = Futures.getUnchecked(futureResponseCustomNamespaceWithPrefix);
-        assertEquals(asyncListResponseCustomNamespaceWithPrefix.getVectorsList().size(), 2);
+        assertEquals(2, asyncListResponseCustomNamespaceWithPrefix.getVectorsList().size());
         assertTrue(asyncListResponseCustomNamespaceWithPrefix.getVectorsList().toString().contains("cus-prefix-id3"));
         assertTrue(asyncListResponseCustomNamespaceWithPrefix.getVectorsList().toString().contains("cus-prefix-id4"));
 
@@ -106,13 +106,13 @@ public class ListEndpointTest {
         // Confirm all vector IDs from custom namespace are returned using pagination
         ListenableFuture<ListResponse> futureResponseWithPaginationNoPrefix1 = asyncIndexConnection.list(customNamespace, 2);
         ListResponse asyncListResponseWithPaginationNoPrefix1 = Futures.getUnchecked(futureResponseWithPaginationNoPrefix1);
-        assertEquals(asyncListResponseWithPaginationNoPrefix1.getVectorsList().size(), 2);
+        assertEquals(2, asyncListResponseWithPaginationNoPrefix1.getVectorsList().size());
         ListenableFuture<ListResponse> futureResponseWithPaginationNoPrefix2 = asyncIndexConnection.list(
                 customNamespace,
                 2,
                 asyncListResponseWithPaginationNoPrefix1.getPagination().getNext()
         );
         ListResponse asyncListResponseWithPaginationNoPrefix2 = Futures.getUnchecked(futureResponseWithPaginationNoPrefix2);
-        assertEquals(asyncListResponseWithPaginationNoPrefix2.getVectorsList().size(), 2);
+        assertEquals(2, asyncListResponseWithPaginationNoPrefix2.getVectorsList().size());
     }
 }

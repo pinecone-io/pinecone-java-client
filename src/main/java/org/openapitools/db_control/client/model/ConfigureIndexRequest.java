@@ -54,7 +54,7 @@ import org.openapitools.db_control.client.JSON;
 /**
  * Configuration used to scale an index.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-05-22T16:07:13.211110Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-09-22T16:03:26.361685Z[Etc/UTC]")
 public class ConfigureIndexRequest {
   public static final String SERIALIZED_NAME_SPEC = "spec";
   @SerializedName(SERIALIZED_NAME_SPEC)
