@@ -186,6 +186,105 @@ tags.put("env", "test");
 IndexModel indexModel = pinecone.createServerlessIndex(indexName, similarityMetric, dimension, cloud, region, "enabled", tags);
 ```
 
+### Create a serverless index with dedicated read capacity
+
+The following example creates a serverless index with dedicated read capacity nodes for better performance and cost predictability. For more information, see [Dedicated Read Nodes](https://docs.pinecone.io/guides/index-data/dedicated-read-nodes).
+
+```java
+import io.pinecone.clients.Pinecone;
+import org.openapitools.db_control.client.model.IndexModel;
+import org.openapitools.db_control.client.model.ReadCapacity;
+import org.openapitools.db_control.client.model.ReadCapacityDedicatedSpec;
+import org.openapitools.db_control.client.model.ReadCapacityDedicatedConfig;
+import org.openapitools.db_control.client.model.ScalingConfigManual;
+import java.util.HashMap;
+...
+
+Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+        
+String indexName = "example-index";
+String similarityMetric = "cosine";
+int dimension = 1538;
+String cloud = "aws";
+String region = "us-west-2";
+HashMap<String, String> tags = new HashMap<>();
+tags.put("env", "test");
+
+// Configure dedicated read capacity with manual scaling
+ScalingConfigManual manual = new ScalingConfigManual().shards(2).replicas(2);
+ReadCapacityDedicatedConfig dedicated = new ReadCapacityDedicatedConfig()
+    .nodeType("t1")
+    .scaling("Manual")
+    .manual(manual);
+ReadCapacity readCapacity = new ReadCapacity(
+    new ReadCapacityDedicatedSpec().mode("Dedicated").dedicated(dedicated));
+
+IndexModel indexModel = pinecone.createServerlessIndex(indexName, similarityMetric, dimension, 
+    cloud, region, "enabled", tags, readCapacity, null);
+```
+
+### Create a serverless index with OnDemand read capacity
+
+The following example explicitly creates a serverless index with OnDemand read capacity (the default mode). OnDemand provides pay-per-use pricing with automatic scaling.
+
+```java
+import io.pinecone.clients.Pinecone;
+import org.openapitools.db_control.client.model.IndexModel;
+import org.openapitools.db_control.client.model.ReadCapacity;
+import org.openapitools.db_control.client.model.ReadCapacityOnDemandSpec;
+import java.util.HashMap;
+...
+
+Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+        
+String indexName = "example-index";
+String similarityMetric = "cosine";
+int dimension = 1538;
+String cloud = "aws";
+String region = "us-west-2";
+HashMap<String, String> tags = new HashMap<>();
+tags.put("env", "test");
+
+// Configure OnDemand read capacity (optional - this is the default)
+ReadCapacity readCapacity = new ReadCapacity(new ReadCapacityOnDemandSpec().mode("OnDemand"));
+
+IndexModel indexModel = pinecone.createServerlessIndex(indexName, similarityMetric, dimension, 
+    cloud, region, "enabled", tags, readCapacity, null);
+```
+
+### Create a serverless index with metadata schema
+
+The following example creates a serverless index with metadata schema configuration to limit metadata indexing to specific fields for improved performance.
+
+```java
+import io.pinecone.clients.Pinecone;
+import org.openapitools.db_control.client.model.IndexModel;
+import org.openapitools.db_control.client.model.BackupModelSchema;
+import org.openapitools.db_control.client.model.BackupModelSchemaFieldsValue;
+import java.util.HashMap;
+...
+
+Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+        
+String indexName = "example-index";
+String similarityMetric = "cosine";
+int dimension = 1538;
+String cloud = "aws";
+String region = "us-west-2";
+HashMap<String, String> tags = new HashMap<>();
+tags.put("env", "test");
+
+// Configure metadata schema to only index specific fields
+HashMap<String, BackupModelSchemaFieldsValue> fields = new HashMap<>();
+fields.put("genre", new BackupModelSchemaFieldsValue().filterable(true));
+fields.put("year", new BackupModelSchemaFieldsValue().filterable(true));
+fields.put("description", new BackupModelSchemaFieldsValue().filterable(true));
+BackupModelSchema schema = new BackupModelSchema().fields(fields);
+
+IndexModel indexModel = pinecone.createServerlessIndex(indexName, similarityMetric, dimension, 
+    cloud, region, "enabled", tags, null, schema);
+```
+
 ### Create a sparse serverless index
 
 The following is an example of creating a sparse serverless index in the `us-east-1` region of AWS. For more information on
@@ -339,6 +438,38 @@ HashMap<String, String> tags = new HashMap<>();
 tags.put("env", "test");
 
 pinecone.configureServerlessIndex(indexName, "enabled", tags);
+```
+
+### Configure read capacity on an existing serverless index
+
+The following example shows how to configure or change the read capacity mode of an existing serverless index. You can switch between OnDemand and Dedicated modes, or scale dedicated read nodes.
+
+**Note:** Read capacity settings can only be updated once per hour per index.
+
+```java
+import io.pinecone.clients.Pinecone;
+import org.openapitools.db_control.client.model.IndexModel;
+import java.util.HashMap;
+...
+
+Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+
+String indexName = "example-index";
+HashMap<String, String> tags = new HashMap<>();
+tags.put("env", "test");
+
+// Switch to Dedicated read capacity with manual scaling
+// Parameters: indexName, deletionProtection, tags, embed, readCapacityMode, nodeType, shards, replicas
+IndexModel indexModel = pinecone.configureServerlessIndex(
+    indexName, "enabled", tags, null, "Dedicated", "t1", 3, 2);
+
+// Switch to OnDemand read capacity
+IndexModel onDemandIndex = pinecone.configureServerlessIndex(
+    indexName, "enabled", tags, null, "OnDemand", null, null, null);
+
+// Verify the configuration was applied
+IndexModel desc = pinecone.describeIndex(indexName);
+// Check desc.getSpec().getServerless().getReadCapacity()...
 ```
 
 ## Describe index statistics
