@@ -170,7 +170,6 @@ serverless and regional availability, see [Understanding indexes](https://docs.p
 ```java
 import io.pinecone.clients.Pinecone;
 import org.openapitools.db_control.client.model.IndexModel;
-import org.openapitools.db_control.client.model.DeletionProtection;
 import java.util.HashMap;
 ...
 
@@ -184,7 +183,7 @@ String region = "us-west-2";
 HashMap<String, String> tags = new HashMap<>();
 tags.put("env", "test");
 
-IndexModel indexModel = pinecone.createServerlessIndex(indexName, similarityMetric, dimension, cloud, region, DeletionProtection.ENABLED, tags);
+IndexModel indexModel = pinecone.createServerlessIndex(indexName, similarityMetric, dimension, cloud, region, "enabled", tags);
 ```
 
 ### Create a sparse serverless index
@@ -195,7 +194,6 @@ serverless and regional availability, see [Understanding indexes](https://docs.p
 ```java
 import io.pinecone.clients.Pinecone;
 import org.openapitools.db_control.client.model.IndexModel;
-import org.openapitools.db_control.client.model.DeletionProtection;
 import java.util.HashMap;
 ...
 
@@ -208,7 +206,7 @@ HashMap<String, String> tags = new HashMap<>();
 tags.put("env", "test");
 String vectorType = "sparse";
 
-IndexModel indexModel = pinecone.createSparseServelessIndex(indexName, cloud, region, DeletionProtection.ENABLED, tags, vectorType);
+IndexModel indexModel = pinecone.createSparseServelessIndex(indexName, cloud, region, "enabled", tags, vectorType);
 ```
 
 ### Create a pod index
@@ -224,12 +222,11 @@ import org.openapitools.db_control.client.model.IndexModel;
 Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
         
 String indexName = "example-index";
-String similarityMetric = "cosine"; // Optional; defaults to cosine similarity
 int dimension = 1538;
 String environment = "us-east-1-aws";
 String podType = "p1.x1";
 
-IndexModel indexModel = pinecone.createPodsIndex(indexName, dimension, environment, podType, similarityMetric);
+IndexModel indexModel = pinecone.createPodsIndex(indexName, dimension, environment, podType);
 ```
 
 ### Create a pod index with deletion protection enabled
@@ -239,8 +236,7 @@ configuration options, see `main/java/io/pinecone/clients/Pinecone.java`.
 
 ```java
 import io.pinecone.clients.Pinecone;
-import org.openapitools.client.model.IndexModel;
-import org.openapitools.control.client.model.DeletionProtection;
+import org.openapitools.db_control.client.model.IndexModel;
 ...
         
 Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
@@ -250,7 +246,7 @@ int dimension = 1538;
 String environment = "us-east-1-aws";
 String podType = "p1.x1";
 
-IndexModel indexModel = pinecone.createPodsIndex(indexName, dimension, environment, podType, DeletionProtection.ENABLED);
+IndexModel indexModel = pinecone.createPodsIndex(indexName, dimension, environment, podType, "enabled");
 ```
 
 ## List indexes
@@ -299,7 +295,6 @@ Note: scaling replicas is only applicable to pod-based indexes.
 
 ```java
 import io.pinecone.clients.Pinecone;
-import org.openapitools.db_control.client.model.DeletionProtection;
 ...
         
 Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
@@ -307,7 +302,7 @@ Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
 String indexName = "example-index";
 String podType = "p1.x1";
 int newNumberOfReplicas = 7;
-DeletionProtection deletionProtection = DeletionProtection.DISABLED;
+String deletionProtection = "disabled";
 
 pinecone.configurePodsIndex(indexName, podType, newNumberOfReplicas, deletionProtection);
 ```
@@ -318,13 +313,12 @@ The following example enables deletion protection for a pod-based index.
 
 ```java
 import io.pinecone.clients.Pinecone;
-import org.openapitools.db_control.client.model.DeletionProtection;
 ...
         
 Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
 
 String indexName = "example-index";
-DeletionProtection deletionProtection = DeletionProtection.ENABLED;
+String deletionProtection = "enabled";
 
 pinecone.configurePodsIndex(indexName, deletionProtection);
 ```
@@ -335,7 +329,6 @@ The following example enables deletion protection for a serverless index.
 
 ```java
 import io.pinecone.clients.Pinecone;
-import org.openapitools.db_control.client.model.DeletionProtection;
 import java.util.HashMap;
 ...
         
@@ -345,7 +338,7 @@ String indexName = "example-index";
 HashMap<String, String> tags = new HashMap<>();
 tags.put("env", "test");
 
-pinecone.configureServerlessIndex(indexName, DeletionProtection.ENABLED, tags);
+pinecone.configureServerlessIndex(indexName, "enabled", tags);
 ```
 
 ## Describe index statistics
@@ -797,7 +790,6 @@ The following example initiates an asynchronous import of vectors from object st
 import io.pinecone.clients.Pinecone;
 import io.pinecone.clients.AsyncIndex;
 import org.openapitools.db_data.client.ApiException;
-import org.openapitools.db_data.client.model.ImportErrorMode;
 import org.openapitools.db_data.client.model.StartImportResponse;
 ...
 
@@ -810,7 +802,7 @@ AsyncIndex asyncIndex = pinecone.getAsyncIndexConnection("PINECONE_INDEX_NAME");
 String uri = "s3://path/to/file.parquet";
 
 // Start an import
-StartImportResponse response = asyncIndex.startImport(uri, "123-456-789", ImportErrorMode.OnErrorEnum.CONTINUE);
+StartImportResponse response = asyncIndex.startImport(uri, "123-456-789", "continue");
 ```
 
 ## List imports
