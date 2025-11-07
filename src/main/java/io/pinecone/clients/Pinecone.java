@@ -82,6 +82,82 @@ public class Pinecone {
                                             String region,
                                             String deletionProtection,
                                             Map<String, String> tags) throws PineconeException {
+        return createServerlessIndex(indexName, metric, dimension, cloud, region, deletionProtection, tags, null, null);
+    }
+
+    /**
+     * Creates a new serverless index with the specified parameters, including optional read capacity and metadata schema configuration.
+     * <p>
+     * This method allows you to configure dedicated read capacity nodes for better performance and cost predictability,
+     * and to limit metadata indexing to specific fields for improved performance.
+     * <p>
+     * Example - Create index with OnDemand read capacity (default):
+     * <pre>{@code
+     *     import org.openapitools.db_control.client.model.ReadCapacity;
+     *     import org.openapitools.db_control.client.model.ReadCapacityOnDemandSpec;
+     *     ...
+     *     
+     *     ReadCapacity readCapacity = new ReadCapacity(new ReadCapacityOnDemandSpec().mode("OnDemand"));
+     *     client.createServerlessIndex("YOUR-INDEX", "cosine", 1536, "aws", "us-west-2", 
+     *                                  DeletionProtection.ENABLED, null, readCapacity, null);
+     * }</pre>
+     * <p>
+     * Example - Create index with Dedicated read capacity:
+     * <pre>{@code
+     *     import org.openapitools.db_control.client.model.ReadCapacity;
+     *     import org.openapitools.db_control.client.model.ReadCapacityDedicatedSpec;
+     *     import org.openapitools.db_control.client.model.ReadCapacityDedicatedConfig;
+     *     import org.openapitools.db_control.client.model.ScalingConfigManual;
+     *     ...
+     *     
+     *     ScalingConfigManual manual = new ScalingConfigManual().shards(2).replicas(2);
+     *     ReadCapacityDedicatedConfig dedicated = new ReadCapacityDedicatedConfig()
+     *         .nodeType("t1")
+     *         .scaling("Manual")
+     *         .manual(manual);
+     *     ReadCapacity readCapacity = new ReadCapacity(
+     *         new ReadCapacityDedicatedSpec().mode("Dedicated").dedicated(dedicated));
+     *     client.createServerlessIndex("YOUR-INDEX", "cosine", 1536, "aws", "us-west-2", 
+     *                                  DeletionProtection.ENABLED, null, readCapacity, null);
+     * }</pre>
+     * <p>
+     * Example - Create index with metadata schema:
+     * <pre>{@code
+     *     import org.openapitools.db_control.client.model.BackupModelSchema;
+     *     import org.openapitools.db_control.client.model.BackupModelSchemaFieldsValue;
+     *     ...
+     *     
+     *     Map<String, BackupModelSchemaFieldsValue> fields = new HashMap<>();
+     *     fields.put("genre", new BackupModelSchemaFieldsValue().filterable(true));
+     *     fields.put("year", new BackupModelSchemaFieldsValue().filterable(true));
+     *     BackupModelSchema schema = new BackupModelSchema().fields(fields);
+     *     client.createServerlessIndex("YOUR-INDEX", "cosine", 1536, "aws", "us-west-2", 
+     *                                  DeletionProtection.ENABLED, null, null, schema);
+     * }</pre>
+     *
+     * @param indexName The name of the index to be created.
+     * @param metric The metric type for the index. Must be one of "cosine", "euclidean", or "dotproduct".
+     * @param dimension The number of dimensions for the index.
+     * @param cloud The cloud provider for the index.
+     * @param region The cloud region for the index.
+     * @param deletionProtection Enable or disable deletion protection for the index.
+     * @param tags A map of tags to associate with the Index.
+     * @param readCapacity The read capacity configuration. If null, defaults to OnDemand mode.
+     *                     Use {@link ReadCapacityOnDemandSpec} for OnDemand or {@link ReadCapacityDedicatedSpec} for Dedicated mode.
+     * @param schema The metadata schema configuration. If null, all metadata fields are indexed.
+     *               Use this to limit metadata indexing to specific fields for improved performance.
+     * @return {@link IndexModel} representing the created serverless index.
+     * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
+     */
+    public IndexModel createServerlessIndex(String indexName,
+                                            String metric,
+                                            int dimension,
+                                            String cloud,
+                                            String region,
+                                            String deletionProtection,
+                                            Map<String, String> tags,
+                                            ReadCapacity readCapacity,
+                                            BackupModelSchema schema) throws PineconeException {
         if (indexName == null || indexName.isEmpty()) {
             throw new PineconeValidationException("Index name cannot be null or empty");
         }
@@ -103,6 +179,15 @@ public class Pinecone {
         }
 
         ServerlessSpec serverlessSpec = new ServerlessSpec().cloud(cloud).region(region);
+        
+        if (readCapacity != null) {
+            serverlessSpec.readCapacity(readCapacity);
+        }
+        
+        if (schema != null) {
+            serverlessSpec.schema(schema);
+        }
+        
         IndexSpec createServerlessIndexRequestSpec = new IndexSpec(new IndexSpecServerless().serverless(serverlessSpec));
 
         IndexModel indexModel = null;
@@ -221,6 +306,91 @@ public class Pinecone {
                                                      CreateIndexForModelRequestEmbed embed,
                                                      String deletionProtection,
                                                      Map<String, String> tags) throws PineconeException, ApiException {
+        return createIndexForModel(name, cloud, region, embed, deletionProtection, tags, null, null);
+    }
+
+    /**
+     * Creates a new serverless index with an associated embedding model, including optional read capacity and metadata schema configuration.
+     * <p>
+     * This method allows you to configure dedicated read capacity nodes for better performance and cost predictability,
+     * and to limit metadata indexing to specific fields for improved performance.
+     * <p>
+     * Example - Create index for model with Dedicated read capacity:
+     * <pre>{@code
+     *     import org.openapitools.db_control.client.model.ReadCapacity;
+     *     import org.openapitools.db_control.client.model.ReadCapacityDedicatedSpec;
+     *     import org.openapitools.db_control.client.model.ReadCapacityDedicatedConfig;
+     *     import org.openapitools.db_control.client.model.ScalingConfigManual;
+     *     ...
+     *     
+     *     ScalingConfigManual manual = new ScalingConfigManual().shards(1).replicas(1);
+     *     ReadCapacityDedicatedConfig dedicated = new ReadCapacityDedicatedConfig()
+     *         .nodeType("t1")
+     *         .scaling("Manual")
+     *         .manual(manual);
+     *     ReadCapacity readCapacity = new ReadCapacity(
+     *         new ReadCapacityDedicatedSpec().mode("Dedicated").dedicated(dedicated));
+     *     
+     *     CreateIndexForModelRequestEmbed embed = new CreateIndexForModelRequestEmbed();
+     *     embed.model("multilingual-e5-large");
+     *     Map<String, String> fieldMap = new HashMap<>();
+     *     fieldMap.put("text", "my-sample-text");
+     *     embed.fieldMap(fieldMap);
+     *     
+     *     client.createIndexForModel("my-index", "aws", "us-east-1", embed, 
+     *                                DeletionProtection.DISABLED, null, readCapacity, null);
+     * }</pre>
+     * <p>
+     * Example - Create index for model with metadata schema:
+     * <pre>{@code
+     *     import org.openapitools.db_control.client.model.BackupModelSchema;
+     *     import org.openapitools.db_control.client.model.BackupModelSchemaFieldsValue;
+     *     ...
+     *     
+     *     Map<String, BackupModelSchemaFieldsValue> fields = new HashMap<>();
+     *     fields.put("category", new BackupModelSchemaFieldsValue().filterable(true));
+     *     fields.put("tags", new BackupModelSchemaFieldsValue().filterable(true));
+     *     BackupModelSchema schema = new BackupModelSchema().fields(fields);
+     *     
+     *     CreateIndexForModelRequestEmbed embed = new CreateIndexForModelRequestEmbed();
+     *     embed.model("multilingual-e5-large");
+     *     Map<String, String> fieldMap = new HashMap<>();
+     *     fieldMap.put("text", "my-sample-text");
+     *     embed.fieldMap(fieldMap);
+     *     
+     *     client.createIndexForModel("my-index", "aws", "us-east-1", embed, 
+     *                                DeletionProtection.DISABLED, null, null, schema);
+     * }</pre>
+     *
+     * @param name The name of the index to be created. The name must be between 1 and 45 characters,
+     *             start and end with an alphanumeric character, and consist only of lowercase alphanumeric
+     *             characters or hyphens ('-').
+     * @param cloud The cloud provider where the index will be hosted. Must be one of the supported cloud providers.
+     * @param region The cloud region where the index will be created.
+     * @param embed The embedding model configuration. Once set, the model cannot be changed, but configurations
+     *              such as field map and parameters can be updated.
+     * @param deletionProtection Whether deletion protection is enabled for the index. If enabled, the index
+     *                           cannot be deleted. Defaults to disabled if not provided.
+     * @param tags A map of custom user tags to associate with the index. Keys must be alphanumeric or contain
+     *             underscores ('_') or hyphens ('-'). Values must be alphanumeric, or contain characters such
+     *             as ';', '@', '_', '-', '.', '+', or spaces.
+     * @param readCapacity The read capacity configuration. If null, defaults to OnDemand mode.
+     *                     Use {@link ReadCapacityOnDemandSpec} for OnDemand or {@link ReadCapacityDedicatedSpec} for Dedicated mode.
+     * @param schema The metadata schema configuration. If null, all metadata fields are indexed.
+     *               Use this to limit metadata indexing to specific fields for improved performance.
+     * @return {@link IndexModel} representing the created serverless index with the associated embedding model.
+     * @throws PineconeException if the API encounters an error during index creation, or if any of the arguments
+     *                           are invalid.
+     * @throws ApiException if an error occurs while communicating with the API.
+     */
+    public IndexModel createIndexForModel(String name,
+                                          String cloud,
+                                          String region,
+                                          CreateIndexForModelRequestEmbed embed,
+                                          String deletionProtection,
+                                          Map<String, String> tags,
+                                          ReadCapacity readCapacity,
+                                          BackupModelSchema schema) throws PineconeException, ApiException {
 
         CreateIndexForModelRequest createIndexForModelRequest = new CreateIndexForModelRequest()
                 .name(name)
@@ -229,6 +399,14 @@ public class Pinecone {
                 .embed(embed)
                 .deletionProtection(deletionProtection)
                 .tags(tags);
+
+        if (readCapacity != null) {
+            createIndexForModelRequest.readCapacity(readCapacity);
+        }
+
+        if (schema != null) {
+            createIndexForModelRequest.schema(schema);
+        }
 
         return manageIndexesApi.createIndexForModel(Configuration.VERSION, createIndexForModelRequest);
     }
@@ -721,6 +899,56 @@ public class Pinecone {
                                                String deletionProtection,
                                                Map<String, String> tags,
                                                ConfigureIndexRequestEmbed embed) throws PineconeException {
+        return configureServerlessIndex(indexName, deletionProtection, tags, embed, null, null, null, null);
+    }
+
+    /**
+     * Configures an existing serverless index with deletion protection, tags, embed settings, and optional read capacity configuration.
+     * <p>
+     * This method allows you to configure or change the read capacity mode of an existing serverless index.
+     * You can switch between OnDemand and Dedicated modes, or scale dedicated read nodes.
+     * <p>
+     * Example - Switch to OnDemand read capacity:
+     * <pre>{@code
+     *     client.configureServerlessIndex("my-index", "enabled", null, null, "OnDemand", null, null, null);
+     * }</pre>
+     * <p>
+     * Example - Switch to Dedicated read capacity with manual scaling:
+     * <pre>{@code
+     *     client.configureServerlessIndex("my-index", "enabled", null, null, "Dedicated", "t1", 2, 2);
+     * }</pre>
+     * <p>
+     * Example - Scale up dedicated read capacity:
+     * <pre>{@code
+     *     // Scale up by increasing shards and replicas
+     *     client.configureServerlessIndex("my-index", "enabled", null, null, "Dedicated", "t1", 4, 3);
+     *     
+     *     // Verify the configuration was applied
+     *     IndexModel desc = client.describeIndex("my-index");
+     *     // Check desc.getSpec().getServerless().getReadCapacity()...
+     * }</pre>
+     *
+     * @param indexName The name of the index to configure.
+     * @param deletionProtection Enable or disable deletion protection for the index.
+     * @param tags A map of tags to associate with the Index.
+     * @param embed Convert an existing index to an integrated index by specifying the embedding model and field_map.
+     *              The index vector type and dimension must match the model vector type and dimension, and the index
+     *              similarity metric must be supported by the model
+     * @param readCapacityMode The read capacity mode. Must be "OnDemand" or "Dedicated". If null, read capacity is not changed.
+     * @param nodeType The node type for Dedicated mode (e.g., "t1"). Required if readCapacityMode is "Dedicated", ignored otherwise.
+     * @param shards The number of shards for Dedicated mode. Required if readCapacityMode is "Dedicated", ignored otherwise.
+     * @param replicas The number of replicas for Dedicated mode. Required if readCapacityMode is "Dedicated", ignored otherwise.
+     * @return {@link IndexModel} representing the configured index.
+     * @throws PineconeException if an error occurs during the operation, the index does not exist, or if any of the arguments are invalid.
+     */
+    public IndexModel configureServerlessIndex(String indexName,
+                                               String deletionProtection,
+                                               Map<String, String> tags,
+                                               ConfigureIndexRequestEmbed embed,
+                                               String readCapacityMode,
+                                               String nodeType,
+                                               Integer shards,
+                                               Integer replicas) throws PineconeException {
         if (indexName == null || indexName.isEmpty()) {
             throw new PineconeValidationException("indexName cannot be null or empty");
         }
@@ -735,6 +963,44 @@ public class Pinecone {
 
         if(embed != null) {
             configureIndexRequest.embed(embed);
+        }
+
+        // Build ReadCapacity from primitive parameters if readCapacityMode is provided
+        ReadCapacity readCapacity = null;
+        if (readCapacityMode != null) {
+            if ("OnDemand".equals(readCapacityMode)) {
+                readCapacity = new ReadCapacity(new ReadCapacityOnDemandSpec().mode("OnDemand"));
+            } else if ("Dedicated".equals(readCapacityMode)) {
+                if (nodeType == null || nodeType.isEmpty()) {
+                    throw new PineconeValidationException("nodeType is required when readCapacityMode is 'Dedicated'");
+                }
+                if (shards == null || shards < 1) {
+                    throw new PineconeValidationException("shards must be at least 1 when readCapacityMode is 'Dedicated'");
+                }
+                if (replicas == null || replicas < 1) {
+                    throw new PineconeValidationException("replicas must be at least 1 when readCapacityMode is 'Dedicated'");
+                }
+                
+                ScalingConfigManual manual = new ScalingConfigManual().shards(shards).replicas(replicas);
+                ReadCapacityDedicatedConfig dedicated = new ReadCapacityDedicatedConfig()
+                        .nodeType(nodeType)
+                        .scaling("Manual")
+                        .manual(manual);
+                readCapacity = new ReadCapacity(
+                        new ReadCapacityDedicatedSpec().mode("Dedicated").dedicated(dedicated));
+            } else {
+                throw new PineconeValidationException("readCapacityMode must be 'OnDemand' or 'Dedicated'");
+            }
+        }
+
+        // If readCapacity is provided, configure it via spec
+        if (readCapacity != null) {
+            ConfigureIndexRequestServerlessConfig serverlessConfig = new ConfigureIndexRequestServerlessConfig()
+                    .readCapacity(readCapacity);
+            ConfigureIndexRequestServerless serverless = new ConfigureIndexRequestServerless()
+                    .serverless(serverlessConfig);
+            ConfigureIndexRequestSpec spec = new ConfigureIndexRequestSpec(serverless);
+            configureIndexRequest.spec(spec);
         }
 
         IndexModel indexModel = null;
