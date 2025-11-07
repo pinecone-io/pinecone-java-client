@@ -412,6 +412,114 @@ public class Pinecone {
     }
 
     /**
+     * Creates a new BYOC (Bring Your Own Cloud) index with minimal required parameters.
+     * <p>
+     * BYOC indexes allow you to deploy Pinecone indexes in your own cloud infrastructure.
+     * You must have a BYOC environment set up with Pinecone before creating a BYOC index.
+     * <p>
+     * Example:
+     * <pre>{@code
+     *     client.createByocIndex("YOUR-INDEX", "cosine", 1536, "your-byoc-environment");
+     * }</pre>
+     *
+     * @param indexName The name of the index to be created.
+     * @param metric The metric type for the index. Must be one of "cosine", "euclidean", or "dotproduct".
+     * @param dimension The number of dimensions for the index.
+     * @param environment The BYOC environment where the index will be hosted. This is provided during BYOC onboarding.
+     * @return {@link IndexModel} representing the created BYOC index.
+     * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
+     */
+    public IndexModel createByocIndex(String indexName,
+                                      String metric,
+                                      int dimension,
+                                      String environment) throws PineconeException {
+        return createByocIndex(indexName, metric, dimension, environment, "disabled", null, null);
+    }
+
+    /**
+     * Creates a new BYOC (Bring Your Own Cloud) index with the specified parameters, including optional deletion protection, tags, and metadata schema configuration.
+     * <p>
+     * BYOC indexes allow you to deploy Pinecone indexes in your own cloud infrastructure.
+     * You must have a BYOC environment set up with Pinecone before creating a BYOC index.
+     * <p>
+     * Example with metadata schema:
+     * <pre>{@code
+     *     import org.openapitools.db_control.client.model.BackupModelSchema;
+     *     import org.openapitools.db_control.client.model.BackupModelSchemaFieldsValue;
+     *     ...
+     *
+     *     Map<String, BackupModelSchemaFieldsValue> fields = new HashMap<>();
+     *     fields.put("genre", new BackupModelSchemaFieldsValue().filterable(true));
+     *     fields.put("year", new BackupModelSchemaFieldsValue().filterable(true));
+     *     BackupModelSchema schema = new BackupModelSchema().fields(fields);
+     *     client.createByocIndex("YOUR-INDEX", "cosine", 1536, "aws-us-east-1-b921",
+     *                            DeletionProtection.ENABLED, null, schema);
+     * }</pre>
+     *
+     * @param indexName The name of the index to be created.
+     * @param metric The metric type for the index. Must be one of "cosine", "euclidean", or "dotproduct".
+     * @param dimension The number of dimensions for the index.
+     * @param environment The BYOC environment where the index will be hosted. This is provided during BYOC onboarding.
+     * @param deletionProtection Enable or disable deletion protection for the index.
+     * @param tags A map of tags to associate with the Index.
+     * @param schema The metadata schema configuration. If null, all metadata fields are indexed.
+     *               Use this to limit metadata indexing to specific fields for improved performance.
+     * @return {@link IndexModel} representing the created BYOC index.
+     * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
+     */
+    public IndexModel createByocIndex(String indexName,
+                                      String metric,
+                                      int dimension,
+                                      String environment,
+                                      String deletionProtection,
+                                      Map<String, String> tags,
+                                      BackupModelSchema schema) throws PineconeException {
+        if (indexName == null || indexName.isEmpty()) {
+            throw new PineconeValidationException("Index name cannot be null or empty");
+        }
+
+        if (metric == null || metric.isEmpty()) {
+            metric = "cosine";
+        }
+
+        if (dimension < 1) {
+            throw new PineconeValidationException("Dimension must be greater than 0. See limits for more info: https://docs.pinecone.io/reference/limits");
+        }
+
+        if (environment == null || environment.isEmpty()) {
+            throw new PineconeValidationException("Environment cannot be null or empty");
+        }
+
+        ByocSpec byocSpec = new ByocSpec().environment(environment);
+
+        if (schema != null) {
+            byocSpec.schema(schema);
+        }
+
+        IndexSpec createByocIndexRequestSpec = new IndexSpec(new IndexSpecBYOC().byoc(byocSpec));
+
+        IndexModel indexModel = null;
+
+        try {
+            CreateIndexRequest createIndexRequest = new CreateIndexRequest()
+                    .name(indexName)
+                    .metric(metric)
+                    .dimension(dimension)
+                    .spec(createByocIndexRequestSpec)
+                    .deletionProtection(deletionProtection);
+
+            if(tags != null && !tags.isEmpty()) {
+                createIndexRequest.tags(tags);
+            }
+
+            indexModel = manageIndexesApi.createIndex(Configuration.VERSION, createIndexRequest);
+        } catch (ApiException apiException) {
+            handleApiException(apiException);
+        }
+        return indexModel;
+    }
+
+    /**
      * Overload for creating a new pods index with environment and podType, the minimum required parameters.
      * <p>
      * Example:
