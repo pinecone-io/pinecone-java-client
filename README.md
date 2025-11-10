@@ -348,6 +348,58 @@ String podType = "p1.x1";
 IndexModel indexModel = pinecone.createPodsIndex(indexName, dimension, environment, podType, "enabled");
 ```
 
+### Create a BYOC index
+
+The following is an example of creating a BYOC (Bring Your Own Cloud) index. BYOC indexes allow you to deploy Pinecone indexes in your own cloud infrastructure. You must have a BYOC environment set up with Pinecone before creating a BYOC index. The BYOC environment name is provided during BYOC onboarding.
+
+```java
+import io.pinecone.clients.Pinecone;
+import org.openapitools.db_control.client.model.IndexModel;
+...
+        
+Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+        
+String indexName = "example-index";
+String similarityMetric = "cosine";
+int dimension = 1538;
+String byocEnvironment = "your-byoc-environment";
+
+IndexModel indexModel = pinecone.createByocIndex(indexName, similarityMetric, dimension, byocEnvironment);
+```
+
+### Create a BYOC index with metadata schema
+
+The following example creates a BYOC index with metadata schema configuration to limit metadata indexing to specific fields for improved performance.
+
+```java
+import io.pinecone.clients.Pinecone;
+import org.openapitools.db_control.client.model.IndexModel;
+import org.openapitools.db_control.client.model.BackupModelSchema;
+import org.openapitools.db_control.client.model.BackupModelSchemaFieldsValue;
+import java.util.HashMap;
+import java.util.Map;
+...
+        
+Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+        
+String indexName = "example-index";
+String similarityMetric = "cosine";
+int dimension = 1538;
+String byocEnvironment = "your-byoc-environment";
+HashMap<String, String> tags = new HashMap<>();
+tags.put("env", "production");
+
+// Configure metadata schema
+Map<String, BackupModelSchemaFieldsValue> fields = new HashMap<>();
+fields.put("genre", new BackupModelSchemaFieldsValue().filterable(true));
+fields.put("year", new BackupModelSchemaFieldsValue().filterable(true));
+fields.put("description", new BackupModelSchemaFieldsValue().filterable(true));
+BackupModelSchema schema = new BackupModelSchema().fields(fields);
+
+IndexModel indexModel = pinecone.createByocIndex(
+    indexName, similarityMetric, dimension, byocEnvironment, "enabled", tags, schema);
+```
+
 ## List indexes
 
 The following example returns all indexes (and their corresponding metadata) in your project.
