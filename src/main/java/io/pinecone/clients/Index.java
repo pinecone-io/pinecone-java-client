@@ -6,11 +6,13 @@ import io.pinecone.configs.PineconeConfig;
 import io.pinecone.configs.PineconeConnection;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.proto.*;
+import io.pinecone.proto.CreateNamespaceRequest;
 import io.pinecone.proto.DeleteRequest;
 import io.pinecone.proto.DescribeIndexStatsRequest;
 import io.pinecone.proto.FetchResponse;
 import io.pinecone.proto.ListNamespacesResponse;
 import io.pinecone.proto.ListResponse;
+import io.pinecone.proto.MetadataSchema;
 import io.pinecone.proto.NamespaceDescription;
 import io.pinecone.proto.QueryRequest;
 import io.pinecone.proto.UpdateRequest;
@@ -1032,6 +1034,66 @@ public class Index implements IndexInterface<UpsertResponse,
             listNamespacesRequest.setPaginationToken(paginationToken);
         }
         return blockingStub.listNamespaces(listNamespacesRequest.build());
+    }
+
+    /**
+     * <pre>
+     * Get list of all namespaces within an index with optional prefix filtering, pagination token, and limit.
+     * @param prefix The prefix to filter namespaces by. Only namespaces starting with this prefix will be returned.
+     *               If null, no prefix filtering is applied.
+     * @param paginationToken The token to paginate through the list of namespaces. If null, it'll be ignored.
+     * @param limit The maximum number of namespaces you want to retrieve.
+     * @return {@link ListNamespacesResponse} The response for the list namespace operation. The totalCount field
+     *         indicates the total number of namespaces matching the prefix (if provided).
+     * </pre>
+     */
+    @Override
+    public ListNamespacesResponse listNamespaces(String prefix, String paginationToken, int limit) {
+        ListNamespacesRequest.Builder listNamespacesRequest = ListNamespacesRequest
+                .newBuilder()
+                .setLimit(limit);
+        if(prefix != null && !prefix.isEmpty()) {
+            listNamespacesRequest.setPrefix(prefix);
+        }
+        if(paginationToken != null) {
+            listNamespacesRequest.setPaginationToken(paginationToken);
+        }
+        return blockingStub.listNamespaces(listNamespacesRequest.build());
+    }
+
+    /**
+     * <pre>
+     * Create a namespace within an index.
+     * @param name The name of the namespace to create.
+     * @return {@link NamespaceDescription} The response for the create namespace operation.
+     * </pre>
+     */
+    @Override
+    public NamespaceDescription createNamespace(String name) {
+        CreateNamespaceRequest createNamespaceRequest = CreateNamespaceRequest
+                .newBuilder()
+                .setName(name)
+                .build();
+        return blockingStub.createNamespace(createNamespaceRequest);
+    }
+
+    /**
+     * <pre>
+     * Create a namespace within an index with a metadata schema.
+     * @param name The name of the namespace to create.
+     * @param schema The metadata schema for the namespace.
+     * @return {@link NamespaceDescription} The response for the create namespace operation.
+     * </pre>
+     */
+    @Override
+    public NamespaceDescription createNamespace(String name, MetadataSchema schema) {
+        CreateNamespaceRequest.Builder builder = CreateNamespaceRequest
+                .newBuilder()
+                .setName(name);
+        if (schema != null) {
+            builder.setSchema(schema);
+        }
+        return blockingStub.createNamespace(builder.build());
     }
 
     /**
