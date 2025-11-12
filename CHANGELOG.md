@@ -2,6 +2,15 @@
 
 [comment]: <> (When bumping [pc:VERSION_LATEST_RELEASE] create a new entry below)
 ### Unreleased version
+### 6.0.0
+- Add support for:
+  - dedicated read nodes
+  - byoc
+  - create namespace and enhance list namespaces
+  - update and fetch by metadata
+  - metadata indexing
+- Generate code based on 2025-10 api spec
+
 ### 5.1.0
 - Add support for models api
 
