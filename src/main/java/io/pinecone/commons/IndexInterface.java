@@ -3,6 +3,8 @@ package io.pinecone.commons;
 import com.google.protobuf.Struct;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.proto.*;
+import io.pinecone.proto.FetchByMetadataRequest;
+import io.pinecone.proto.FetchByMetadataResponse;
 import io.pinecone.unsigned_indices_model.SparseValuesWithUnsignedIndices;
 import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
 
@@ -278,6 +280,42 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
     }
 
     /**
+     * Validates and constructs a fetch by metadata request for retrieving vectors that match a metadata filter.
+     *
+     * @param namespace The namespace to fetch vectors from.
+     * @param filter A metadata filter expression. Only vectors matching this filter will be returned.
+     * @param limit The maximum number of vectors to return.
+     * @param paginationToken The token to continue a previous listing operation.
+     * @return A {@link FetchByMetadataRequest} object constructed from the provided parameters.
+     * @throws PineconeValidationException if the namespace is not provided.
+     */
+    default FetchByMetadataRequest validateFetchByMetadataRequest(String namespace,
+                                                                  Struct filter,
+                                                                  Integer limit,
+                                                                  String paginationToken) {
+        FetchByMetadataRequest.Builder fetchByMetadataRequest = FetchByMetadataRequest.newBuilder();
+
+        if (namespace == null || namespace.isEmpty()) {
+            throw new PineconeValidationException("Invalid fetch by metadata request. Namespace must be present");
+        }
+        fetchByMetadataRequest.setNamespace(namespace);
+
+        if (filter != null) {
+            fetchByMetadataRequest.setFilter(filter);
+        }
+
+        if (limit != null && limit > 0) {
+            fetchByMetadataRequest.setLimit(limit);
+        }
+
+        if (paginationToken != null && !paginationToken.isEmpty()) {
+            fetchByMetadataRequest.setPaginationToken(paginationToken);
+        }
+
+        return fetchByMetadataRequest.build();
+    }
+
+    /**
      * Validates and constructs an update request for modifying an existing vector.
      *
      * @param id The unique ID of the vector to update.
@@ -329,6 +367,44 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
                     .addAllValues(sparseValues)
                     .build());
         }
+        return updateRequest.build();
+    }
+
+    /**
+     * Validates and constructs an update request for modifying vectors by metadata filter.
+     *
+     * @param filter A metadata filter expression. When updating metadata across records in a namespace,
+     *               the update is applied to all records that match the filter.
+     * @param metadata The new metadata to set for the vectors. If provided, it replaces the existing metadata.
+     * @param namespace The namespace containing the records to update.
+     * @param dryRun If true, return the number of records that match the filter, but do not execute the update.
+     *               Default is false.
+     * @return An {@link UpdateRequest} object constructed from the provided parameters.
+     * @throws PineconeValidationException if there are invalid arguments.
+     */
+    default UpdateRequest validateUpdateByMetadataRequest(Struct filter,
+                                                          Struct metadata,
+                                                          String namespace,
+                                                          Boolean dryRun) {
+        UpdateRequest.Builder updateRequest = UpdateRequest.newBuilder();
+
+        if (filter == null) {
+            throw new PineconeValidationException("Invalid update by metadata request. Filter must be present");
+        }
+        updateRequest.setFilter(filter);
+
+        if (metadata != null) {
+            updateRequest.setSetMetadata(metadata);
+        }
+
+        if (namespace != null) {
+            updateRequest.setNamespace(namespace);
+        }
+
+        if (dryRun != null) {
+            updateRequest.setDryRun(dryRun);
+        }
+
         return updateRequest.build();
     }
 
@@ -596,6 +672,7 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
      */
     V fetch(List<String> ids, String namespace);
 
+
     /**
      * Updates an existing vector by ID with new values in the default namespace.
      *
@@ -629,6 +706,29 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
      */
     W update(String id, List<Float> values, Struct metadata, String namespace, List<Long> sparseIndices,
              List<Float> sparseValues);
+
+    /**
+     * Updates vectors by metadata filter in a specified namespace. The update is applied to all records that match the filter.
+     *
+     * @param filter A metadata filter expression. The update is applied to all records that match the filter.
+     * @param metadata The new metadata to set for the vectors. If provided, it replaces the existing metadata.
+     * @param namespace The namespace containing the records to update.
+     * @return A generic type {@code W} representing the result of the update operation.
+     */
+    W updateByMetadata(Struct filter, Struct metadata, String namespace);
+
+    /**
+     * Updates vectors by metadata filter in a specified namespace with optional dry run mode.
+     * The update is applied to all records that match the filter.
+     *
+     * @param filter A metadata filter expression. The update is applied to all records that match the filter.
+     * @param metadata The new metadata to set for the vectors. If provided, it replaces the existing metadata.
+     * @param namespace The namespace containing the records to update.
+     * @param dryRun If true, return the number of records that match the filter, but do not execute the update.
+     *               Default is false.
+     * @return A generic type {@code W} representing the result of the update operation.
+     */
+    W updateByMetadata(Struct filter, Struct metadata, String namespace, boolean dryRun);
 
     /**
      * Deletes a list of vectors by ID from the default namespace.
