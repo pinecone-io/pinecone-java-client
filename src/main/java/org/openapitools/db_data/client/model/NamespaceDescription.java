@@ -22,6 +22,7 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.util.Arrays;
 import org.openapitools.db_data.client.model.CreateNamespaceRequestSchema;
+import org.openapitools.db_data.client.model.NamespaceDescriptionIndexedFields;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -50,7 +51,7 @@ import org.openapitools.db_data.client.JSON;
 /**
  * A description of a namespace, including the name and record count.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-11-03T18:50:13.248007Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-11-12T17:52:31.689858Z[Etc/UTC]")
 public class NamespaceDescription {
   public static final String SERIALIZED_NAME_NAME = "name";
   @SerializedName(SERIALIZED_NAME_NAME)
@@ -64,9 +65,9 @@ public class NamespaceDescription {
   @SerializedName(SERIALIZED_NAME_SCHEMA)
   private CreateNamespaceRequestSchema schema;
 
-  public static final String SERIALIZED_NAME_TOTAL_COUNT = "total_count";
-  @SerializedName(SERIALIZED_NAME_TOTAL_COUNT)
-  private Integer totalCount;
+  public static final String SERIALIZED_NAME_INDEXED_FIELDS = "indexed_fields";
+  @SerializedName(SERIALIZED_NAME_INDEXED_FIELDS)
+  private NamespaceDescriptionIndexedFields indexedFields;
 
   public NamespaceDescription() {
   }
@@ -134,24 +135,24 @@ public class NamespaceDescription {
   }
 
 
-  public NamespaceDescription totalCount(Integer totalCount) {
+  public NamespaceDescription indexedFields(NamespaceDescriptionIndexedFields indexedFields) {
     
-    this.totalCount = totalCount;
+    this.indexedFields = indexedFields;
     return this;
   }
 
    /**
-   * The total number of namespaces in the index matching the prefix
-   * @return totalCount
+   * Get indexedFields
+   * @return indexedFields
   **/
   @javax.annotation.Nullable
-  public Integer getTotalCount() {
-    return totalCount;
+  public NamespaceDescriptionIndexedFields getIndexedFields() {
+    return indexedFields;
   }
 
 
-  public void setTotalCount(Integer totalCount) {
-    this.totalCount = totalCount;
+  public void setIndexedFields(NamespaceDescriptionIndexedFields indexedFields) {
+    this.indexedFields = indexedFields;
   }
 
   /**
@@ -212,13 +213,13 @@ public class NamespaceDescription {
     return Objects.equals(this.name, namespaceDescription.name) &&
         Objects.equals(this.recordCount, namespaceDescription.recordCount) &&
         Objects.equals(this.schema, namespaceDescription.schema) &&
-        Objects.equals(this.totalCount, namespaceDescription.totalCount)&&
+        Objects.equals(this.indexedFields, namespaceDescription.indexedFields)&&
         Objects.equals(this.additionalProperties, namespaceDescription.additionalProperties);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, recordCount, schema, totalCount, additionalProperties);
+    return Objects.hash(name, recordCount, schema, indexedFields, additionalProperties);
   }
 
   @Override
@@ -228,7 +229,7 @@ public class NamespaceDescription {
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
     sb.append("    recordCount: ").append(toIndentedString(recordCount)).append("\n");
     sb.append("    schema: ").append(toIndentedString(schema)).append("\n");
-    sb.append("    totalCount: ").append(toIndentedString(totalCount)).append("\n");
+    sb.append("    indexedFields: ").append(toIndentedString(indexedFields)).append("\n");
     sb.append("    additionalProperties: ").append(toIndentedString(additionalProperties)).append("\n");
     sb.append("}");
     return sb.toString();
@@ -255,7 +256,7 @@ public class NamespaceDescription {
     openapiFields.add("name");
     openapiFields.add("record_count");
     openapiFields.add("schema");
-    openapiFields.add("total_count");
+    openapiFields.add("indexed_fields");
 
     // a set of required properties/fields (JSON key names)
     openapiRequiredFields = new HashSet<String>();
@@ -280,6 +281,10 @@ public class NamespaceDescription {
       // validate the optional field `schema`
       if (jsonObj.get("schema") != null && !jsonObj.get("schema").isJsonNull()) {
         CreateNamespaceRequestSchema.validateJsonElement(jsonObj.get("schema"));
+      }
+      // validate the optional field `indexed_fields`
+      if (jsonObj.get("indexed_fields") != null && !jsonObj.get("indexed_fields").isJsonNull()) {
+        NamespaceDescriptionIndexedFields.validateJsonElement(jsonObj.get("indexed_fields"));
       }
   }
 

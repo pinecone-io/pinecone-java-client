@@ -20,7 +20,9 @@ import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -47,35 +49,43 @@ import java.util.Set;
 import org.openapitools.db_data.client.JSON;
 
 /**
- * The response for the &#x60;start_import&#x60; operation.
+ * A list of all indexed metatadata fields in the namespace
  */
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-11-12T17:52:31.689858Z[Etc/UTC]")
-public class StartImportResponse {
-  public static final String SERIALIZED_NAME_ID = "id";
-  @SerializedName(SERIALIZED_NAME_ID)
-  private String id;
+public class NamespaceDescriptionIndexedFields {
+  public static final String SERIALIZED_NAME_FIELDS = "fields";
+  @SerializedName(SERIALIZED_NAME_FIELDS)
+  private List<String> fields;
 
-  public StartImportResponse() {
+  public NamespaceDescriptionIndexedFields() {
   }
 
-  public StartImportResponse id(String id) {
+  public NamespaceDescriptionIndexedFields fields(List<String> fields) {
     
-    this.id = id;
+    this.fields = fields;
+    return this;
+  }
+
+  public NamespaceDescriptionIndexedFields addFieldsItem(String fieldsItem) {
+    if (this.fields == null) {
+      this.fields = new ArrayList<>();
+    }
+    this.fields.add(fieldsItem);
     return this;
   }
 
    /**
-   * Unique identifier for the import operation.
-   * @return id
+   * Get fields
+   * @return fields
   **/
   @javax.annotation.Nullable
-  public String getId() {
-    return id;
+  public List<String> getFields() {
+    return fields;
   }
 
 
-  public void setId(String id) {
-    this.id = id;
+  public void setFields(List<String> fields) {
+    this.fields = fields;
   }
 
   /**
@@ -91,9 +101,9 @@ public class StartImportResponse {
    *
    * @param key name of the property
    * @param value value of the property
-   * @return the StartImportResponse instance itself
+   * @return the NamespaceDescriptionIndexedFields instance itself
    */
-  public StartImportResponse putAdditionalProperty(String key, Object value) {
+  public NamespaceDescriptionIndexedFields putAdditionalProperty(String key, Object value) {
     if (this.additionalProperties == null) {
         this.additionalProperties = new HashMap<String, Object>();
     }
@@ -132,21 +142,21 @@ public class StartImportResponse {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    StartImportResponse startImportResponse = (StartImportResponse) o;
-    return Objects.equals(this.id, startImportResponse.id)&&
-        Objects.equals(this.additionalProperties, startImportResponse.additionalProperties);
+    NamespaceDescriptionIndexedFields namespaceDescriptionIndexedFields = (NamespaceDescriptionIndexedFields) o;
+    return Objects.equals(this.fields, namespaceDescriptionIndexedFields.fields)&&
+        Objects.equals(this.additionalProperties, namespaceDescriptionIndexedFields.additionalProperties);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, additionalProperties);
+    return Objects.hash(fields, additionalProperties);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class StartImportResponse {\n");
-    sb.append("    id: ").append(toIndentedString(id)).append("\n");
+    sb.append("class NamespaceDescriptionIndexedFields {\n");
+    sb.append("    fields: ").append(toIndentedString(fields)).append("\n");
     sb.append("    additionalProperties: ").append(toIndentedString(additionalProperties)).append("\n");
     sb.append("}");
     return sb.toString();
@@ -170,7 +180,7 @@ public class StartImportResponse {
   static {
     // a set of all properties/fields (JSON key names)
     openapiFields = new HashSet<String>();
-    openapiFields.add("id");
+    openapiFields.add("fields");
 
     // a set of required properties/fields (JSON key names)
     openapiRequiredFields = new HashSet<String>();
@@ -180,17 +190,18 @@ public class StartImportResponse {
   * Validates the JSON Element and throws an exception if issues found
   *
   * @param jsonElement JSON Element
-  * @throws IOException if the JSON Element is invalid with respect to StartImportResponse
+  * @throws IOException if the JSON Element is invalid with respect to NamespaceDescriptionIndexedFields
   */
   public static void validateJsonElement(JsonElement jsonElement) throws IOException {
       if (jsonElement == null) {
-        if (!StartImportResponse.openapiRequiredFields.isEmpty()) { // has required fields but JSON element is null
-          throw new IllegalArgumentException(String.format("The required field(s) %s in StartImportResponse is not found in the empty JSON string", StartImportResponse.openapiRequiredFields.toString()));
+        if (!NamespaceDescriptionIndexedFields.openapiRequiredFields.isEmpty()) { // has required fields but JSON element is null
+          throw new IllegalArgumentException(String.format("The required field(s) %s in NamespaceDescriptionIndexedFields is not found in the empty JSON string", NamespaceDescriptionIndexedFields.openapiRequiredFields.toString()));
         }
       }
         JsonObject jsonObj = jsonElement.getAsJsonObject();
-      if ((jsonObj.get("id") != null && !jsonObj.get("id").isJsonNull()) && !jsonObj.get("id").isJsonPrimitive()) {
-        throw new IllegalArgumentException(String.format("Expected the field `id` to be a primitive type in the JSON string but got `%s`", jsonObj.get("id").toString()));
+      // ensure the optional json data is an array if present
+      if (jsonObj.get("fields") != null && !jsonObj.get("fields").isJsonNull() && !jsonObj.get("fields").isJsonArray()) {
+        throw new IllegalArgumentException(String.format("Expected the field `fields` to be an array in the JSON string but got `%s`", jsonObj.get("fields").toString()));
       }
   }
 
@@ -198,16 +209,16 @@ public class StartImportResponse {
     @SuppressWarnings("unchecked")
     @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-       if (!StartImportResponse.class.isAssignableFrom(type.getRawType())) {
-         return null; // this class only serializes 'StartImportResponse' and its subtypes
+       if (!NamespaceDescriptionIndexedFields.class.isAssignableFrom(type.getRawType())) {
+         return null; // this class only serializes 'NamespaceDescriptionIndexedFields' and its subtypes
        }
        final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
-       final TypeAdapter<StartImportResponse> thisAdapter
-                        = gson.getDelegateAdapter(this, TypeToken.get(StartImportResponse.class));
+       final TypeAdapter<NamespaceDescriptionIndexedFields> thisAdapter
+                        = gson.getDelegateAdapter(this, TypeToken.get(NamespaceDescriptionIndexedFields.class));
 
-       return (TypeAdapter<T>) new TypeAdapter<StartImportResponse>() {
+       return (TypeAdapter<T>) new TypeAdapter<NamespaceDescriptionIndexedFields>() {
            @Override
-           public void write(JsonWriter out, StartImportResponse value) throws IOException {
+           public void write(JsonWriter out, NamespaceDescriptionIndexedFields value) throws IOException {
              JsonObject obj = thisAdapter.toJsonTree(value).getAsJsonObject();
              obj.remove("additionalProperties");
              // serialize additional properties
@@ -230,12 +241,12 @@ public class StartImportResponse {
            }
 
            @Override
-           public StartImportResponse read(JsonReader in) throws IOException {
+           public NamespaceDescriptionIndexedFields read(JsonReader in) throws IOException {
              JsonElement jsonElement = elementAdapter.read(in);
              validateJsonElement(jsonElement);
              JsonObject jsonObj = jsonElement.getAsJsonObject();
              // store additional fields in the deserialized instance
-             StartImportResponse instance = thisAdapter.fromJsonTree(jsonObj);
+             NamespaceDescriptionIndexedFields instance = thisAdapter.fromJsonTree(jsonObj);
              for (Map.Entry<String, JsonElement> entry : jsonObj.entrySet()) {
                if (!openapiFields.contains(entry.getKey())) {
                  if (entry.getValue().isJsonPrimitive()) { // primitive type
@@ -262,18 +273,18 @@ public class StartImportResponse {
   }
 
  /**
-  * Create an instance of StartImportResponse given an JSON string
+  * Create an instance of NamespaceDescriptionIndexedFields given an JSON string
   *
   * @param jsonString JSON string
-  * @return An instance of StartImportResponse
-  * @throws IOException if the JSON string is invalid with respect to StartImportResponse
+  * @return An instance of NamespaceDescriptionIndexedFields
+  * @throws IOException if the JSON string is invalid with respect to NamespaceDescriptionIndexedFields
   */
-  public static StartImportResponse fromJson(String jsonString) throws IOException {
-    return JSON.getGson().fromJson(jsonString, StartImportResponse.class);
+  public static NamespaceDescriptionIndexedFields fromJson(String jsonString) throws IOException {
+    return JSON.getGson().fromJson(jsonString, NamespaceDescriptionIndexedFields.class);
   }
 
  /**
-  * Convert an instance of StartImportResponse to an JSON string
+  * Convert an instance of NamespaceDescriptionIndexedFields to an JSON string
   *
   * @return JSON string
   */

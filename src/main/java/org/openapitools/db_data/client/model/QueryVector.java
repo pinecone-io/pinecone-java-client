@@ -54,7 +54,7 @@ import org.openapitools.db_data.client.JSON;
  * @deprecated
  */
 @Deprecated
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-11-03T18:50:13.248007Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-11-12T17:52:31.689858Z[Etc/UTC]")
 public class QueryVector {
   public static final String SERIALIZED_NAME_VALUES = "values";
   @SerializedName(SERIALIZED_NAME_VALUES)

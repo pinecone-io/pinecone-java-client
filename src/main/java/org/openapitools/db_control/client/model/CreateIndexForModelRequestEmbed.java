@@ -49,7 +49,7 @@ import org.openapitools.db_control.client.JSON;
 /**
  * Specify the integrated inference embedding configuration for the index.  Once set the model cannot be changed, but you can later update the embedding configuration for an integrated inference index including field map, read parameters, or write parameters.  Refer to the [model guide](https://docs.pinecone.io/guides/index-data/create-an-index#embedding-models) for available models and model details.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-11-03T18:50:11.354821Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-11-12T17:52:29.716713Z[Etc/UTC]")
 public class CreateIndexForModelRequestEmbed {
   public static final String SERIALIZED_NAME_MODEL = "model";
   @SerializedName(SERIALIZED_NAME_MODEL)
