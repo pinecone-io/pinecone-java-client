@@ -15,7 +15,7 @@ Maven:
 <dependency>
   <groupId>io.pinecone</groupId>
   <artifactId>pinecone-client</artifactId>
-  <version>5.0.0</version>
+  <version>6.0.0</version>
 </dependency>
 ```
 
@@ -23,12 +23,12 @@ Maven:
 
 Gradle:
 ```
-implementation "io.pinecone:pinecone-client:5.0.0"
+implementation "io.pinecone:pinecone-client:6.0.0"
 ```
 
 [comment]: <> (^ [pc:VERSION_LATEST_RELEASE])
 
-Alternatively, you can use our standalone uberjar [pinecone-client-5.0.0-all.jar](https://repo1.maven.org/maven2/io/pinecone/pinecone-client/5.0.0/pinecone-client-5.0.0-all.jar), which bundles the Pinecone
+Alternatively, you can use our standalone uberjar [pinecone-client-6.0.0-all.jar](https://repo1.maven.org/maven2/io/pinecone/pinecone-client/6.0.0/pinecone-client-6.0.0-all.jar), which bundles the Pinecone
 SDK and all dependencies together. You can include this in your classpath like you do with any 3rd party JAR without
 having to obtain the *pinecone-client* dependencies separately.
 
