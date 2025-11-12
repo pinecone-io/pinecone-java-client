@@ -752,6 +752,19 @@ listNamespacesResponse = index.listNamespaces("some-pagination-token");
 
 // list namespaces with pagination token and a custom limit of 5
 listNamespacesResponse = index.listNamespaces("some-pagination-token", 5);
+
+// The totalCount field returns the total number of namespaces in the index
+// When prefix filtering is used, it returns the count of namespaces matching the prefix
+int totalCount = listNamespacesResponse.getTotalCount();
+
+// list namespaces with prefix filtering
+// Prefix filtering allows you to filter namespaces that start with a specific prefix
+listNamespacesResponse = index.listNamespaces("test-", null, 10);
+totalCount = listNamespacesResponse.getTotalCount(); // Total count of namespaces matching "test-" prefix
+
+// list namespaces with prefix, pagination token, and limit
+listNamespacesResponse = index.listNamespaces("test-", "some-pagination-token", 10);
+totalCount = listNamespacesResponse.getTotalCount();
 ```
 
 ## Describe namespace

@@ -1038,6 +1038,31 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * <pre>
+     * Get list of all namespaces within an index with optional prefix filtering, pagination token, and limit.
+     * @param prefix The prefix to filter namespaces by. Only namespaces starting with this prefix will be returned.
+     *               If null, no prefix filtering is applied.
+     * @param paginationToken The token to paginate through the list of namespaces. If null, it'll be ignored.
+     * @param limit The maximum number of namespaces you want to retrieve.
+     * @return {@link ListNamespacesResponse} The response for the list namespace operation. The totalCount field
+     *         indicates the total number of namespaces matching the prefix (if provided).
+     * </pre>
+     */
+    @Override
+    public ListNamespacesResponse listNamespaces(String prefix, String paginationToken, int limit) {
+        ListNamespacesRequest.Builder listNamespacesRequest = ListNamespacesRequest
+                .newBuilder()
+                .setLimit(limit);
+        if(prefix != null && !prefix.isEmpty()) {
+            listNamespacesRequest.setPrefix(prefix);
+        }
+        if(paginationToken != null) {
+            listNamespacesRequest.setPaginationToken(paginationToken);
+        }
+        return blockingStub.listNamespaces(listNamespacesRequest.build());
+    }
+
+    /**
+     * <pre>
      * Create a namespace within an index.
      * @param name The name of the namespace to create.
      * @return {@link NamespaceDescription} The response for the create namespace operation.
