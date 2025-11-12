@@ -53,7 +53,7 @@ import org.openapitools.db_data.client.JSON;
 /**
  * ListNamespacesResponse
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-11-03T18:50:13.248007Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-11-12T17:52:31.689858Z[Etc/UTC]")
 public class ListNamespacesResponse {
   public static final String SERIALIZED_NAME_NAMESPACES = "namespaces";
   @SerializedName(SERIALIZED_NAME_NAMESPACES)
@@ -62,6 +62,10 @@ public class ListNamespacesResponse {
   public static final String SERIALIZED_NAME_PAGINATION = "pagination";
   @SerializedName(SERIALIZED_NAME_PAGINATION)
   private Pagination pagination;
+
+  public static final String SERIALIZED_NAME_TOTAL_COUNT = "total_count";
+  @SerializedName(SERIALIZED_NAME_TOTAL_COUNT)
+  private Integer totalCount;
 
   public ListNamespacesResponse() {
   }
@@ -113,6 +117,27 @@ public class ListNamespacesResponse {
 
   public void setPagination(Pagination pagination) {
     this.pagination = pagination;
+  }
+
+
+  public ListNamespacesResponse totalCount(Integer totalCount) {
+    
+    this.totalCount = totalCount;
+    return this;
+  }
+
+   /**
+   * The total number of namespaces in the index matching the prefix
+   * @return totalCount
+  **/
+  @javax.annotation.Nullable
+  public Integer getTotalCount() {
+    return totalCount;
+  }
+
+
+  public void setTotalCount(Integer totalCount) {
+    this.totalCount = totalCount;
   }
 
   /**
@@ -171,13 +196,14 @@ public class ListNamespacesResponse {
     }
     ListNamespacesResponse listNamespacesResponse = (ListNamespacesResponse) o;
     return Objects.equals(this.namespaces, listNamespacesResponse.namespaces) &&
-        Objects.equals(this.pagination, listNamespacesResponse.pagination)&&
+        Objects.equals(this.pagination, listNamespacesResponse.pagination) &&
+        Objects.equals(this.totalCount, listNamespacesResponse.totalCount)&&
         Objects.equals(this.additionalProperties, listNamespacesResponse.additionalProperties);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(namespaces, pagination, additionalProperties);
+    return Objects.hash(namespaces, pagination, totalCount, additionalProperties);
   }
 
   @Override
@@ -186,6 +212,7 @@ public class ListNamespacesResponse {
     sb.append("class ListNamespacesResponse {\n");
     sb.append("    namespaces: ").append(toIndentedString(namespaces)).append("\n");
     sb.append("    pagination: ").append(toIndentedString(pagination)).append("\n");
+    sb.append("    totalCount: ").append(toIndentedString(totalCount)).append("\n");
     sb.append("    additionalProperties: ").append(toIndentedString(additionalProperties)).append("\n");
     sb.append("}");
     return sb.toString();
@@ -211,6 +238,7 @@ public class ListNamespacesResponse {
     openapiFields = new HashSet<String>();
     openapiFields.add("namespaces");
     openapiFields.add("pagination");
+    openapiFields.add("total_count");
 
     // a set of required properties/fields (JSON key names)
     openapiRequiredFields = new HashSet<String>();

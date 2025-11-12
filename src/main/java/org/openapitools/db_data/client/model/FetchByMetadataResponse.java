@@ -54,7 +54,7 @@ import org.openapitools.db_data.client.JSON;
 /**
  * The response for the &#x60;fetch_by_metadata&#x60; operation.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-11-03T18:50:13.248007Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-11-12T17:52:31.689858Z[Etc/UTC]")
 public class FetchByMetadataResponse {
   public static final String SERIALIZED_NAME_VECTORS = "vectors";
   @SerializedName(SERIALIZED_NAME_VECTORS)

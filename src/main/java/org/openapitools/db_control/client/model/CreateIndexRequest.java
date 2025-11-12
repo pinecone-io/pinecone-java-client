@@ -52,7 +52,7 @@ import org.openapitools.db_control.client.JSON;
 /**
  * The configuration needed to create a Pinecone index.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-11-03T18:50:11.354821Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-11-12T17:52:29.716713Z[Etc/UTC]")
 public class CreateIndexRequest {
   public static final String SERIALIZED_NAME_NAME = "name";
   @SerializedName(SERIALIZED_NAME_NAME)

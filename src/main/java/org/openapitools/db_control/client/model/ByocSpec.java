@@ -50,7 +50,7 @@ import org.openapitools.db_control.client.JSON;
 /**
  * Configuration needed to deploy an index in a BYOC environment.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-11-03T18:50:11.354821Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-11-12T17:52:29.716713Z[Etc/UTC]")
 public class ByocSpec {
   public static final String SERIALIZED_NAME_ENVIRONMENT = "environment";
   @SerializedName(SERIALIZED_NAME_ENVIRONMENT)

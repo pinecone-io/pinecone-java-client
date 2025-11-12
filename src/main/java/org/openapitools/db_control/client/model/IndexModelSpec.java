@@ -63,7 +63,7 @@ import com.google.gson.JsonParseException;
 
 import org.openapitools.db_control.client.JSON;
 
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-11-03T18:50:11.354821Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2025-11-12T17:52:29.716713Z[Etc/UTC]")
 public class IndexModelSpec extends AbstractOpenApiSchema {
     private static final Logger log = Logger.getLogger(IndexModelSpec.class.getName());
 
