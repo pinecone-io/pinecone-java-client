@@ -856,6 +856,38 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
 
     /**
      * <pre>
+     * Get list of all namespaces within an index with optional prefix filtering, pagination token, and limit.
+     * @param prefix The prefix to filter namespaces by. Only namespaces starting with this prefix will be returned.
+     *               If null, no prefix filtering is applied.
+     * @param paginationToken The token to paginate through the list of namespaces. If null, it'll be ignored.
+     * @param limit The maximum number of namespaces you want to retrieve.
+     * @return {@link ListNamespacesResponse} The response for the list namespace operation. The totalCount field
+     *         indicates the total number of namespaces matching the prefix (if provided).
+     * </pre>
+     */
+    A listNamespaces(String prefix, String paginationToken, int limit);
+
+    /**
+     * <pre>
+     * Create a namespace within an index.
+     * @param name The name of the namespace to create.
+     * @return {@link NamespaceDescription} The response for the create namespace operation.
+     * </pre>
+     */
+    B createNamespace(String name);
+
+    /**
+     * <pre>
+     * Create a namespace within an index with a metadata schema.
+     * @param name The name of the namespace to create.
+     * @param schema The metadata schema for the namespace.
+     * @return {@link NamespaceDescription} The response for the create namespace operation.
+     * </pre>
+     */
+    B createNamespace(String name, io.pinecone.proto.MetadataSchema schema);
+
+    /**
+     * <pre>
      * Describe a namespace within an index, showing the vector count within the namespace.
      * @param namespace The namespace to describe.
      * @return {@link NamespaceDescription} The response for the describe namespace operation.

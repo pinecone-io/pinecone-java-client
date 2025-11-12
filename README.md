@@ -697,6 +697,36 @@ List<Float> values = Arrays.asList(1F, 2F, 3F);
 UpdateResponse updateResponse = index.update("v1", values, "example-namespace");
 ```
 
+## Create namespace
+
+The following example shows how to create a namespace.
+
+```java
+import io.pinecone.clients.AsyncIndex;
+import io.pinecone.clients.Index;
+import io.pinecone.clients.Pinecone;
+import io.pinecone.proto.MetadataFieldProperties;
+import io.pinecone.proto.MetadataSchema;
+import io.pinecone.proto.NamespaceDescription;
+
+import java.util.concurrent.ExecutionException;
+...
+
+String indexName = "PINECONE_INDEX_NAME";
+Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+Index index = pinecone.getIndexConnection(indexName);
+
+// create a namespace
+NamespaceDescription namespaceDescription = index.createNamespace("some-namespace");
+
+// create a namespace with metadata schema
+MetadataSchema schema = MetadataSchema.newBuilder()
+    .putFields("genre", MetadataFieldProperties.newBuilder().setFilterable(true).build())
+    .putFields("year", MetadataFieldProperties.newBuilder().setFilterable(true).build())
+    .build();
+NamespaceDescription namespaceWithSchema = index.createNamespace("some-namespace", schema);
+```
+
 ## List namespaces
 
 The following example shows various methods to list namespaces.
@@ -722,6 +752,19 @@ listNamespacesResponse = index.listNamespaces("some-pagination-token");
 
 // list namespaces with pagination token and a custom limit of 5
 listNamespacesResponse = index.listNamespaces("some-pagination-token", 5);
+
+// The totalCount field returns the total number of namespaces in the index
+// When prefix filtering is used, it returns the count of namespaces matching the prefix
+int totalCount = listNamespacesResponse.getTotalCount();
+
+// list namespaces with prefix filtering
+// Prefix filtering allows you to filter namespaces that start with a specific prefix
+listNamespacesResponse = index.listNamespaces("test-", null, 10);
+totalCount = listNamespacesResponse.getTotalCount(); // Total count of namespaces matching "test-" prefix
+
+// list namespaces with prefix, pagination token, and limit
+listNamespacesResponse = index.listNamespaces("test-", "some-pagination-token", 10);
+totalCount = listNamespacesResponse.getTotalCount();
 ```
 
 ## Describe namespace
