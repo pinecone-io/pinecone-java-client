@@ -13,6 +13,8 @@ import io.pinecone.proto.CreateNamespaceRequest;
 import io.pinecone.proto.DeleteRequest;
 import io.pinecone.proto.DescribeIndexStatsRequest;
 import io.pinecone.proto.FetchResponse;
+import io.pinecone.proto.FetchByMetadataRequest;
+import io.pinecone.proto.FetchByMetadataResponse;
 import io.pinecone.proto.ListNamespacesResponse;
 import io.pinecone.proto.ListResponse;
 import io.pinecone.proto.MetadataSchema;
@@ -639,6 +641,80 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
     }
 
     /**
+     * Fetches vectors by metadata filter from a specified namespace.
+     * <p>
+     * Example:
+     * <pre>{@code
+     *     import io.pinecone.proto.FetchByMetadataResponse;
+     *     import com.google.protobuf.Struct;
+     *     import com.google.protobuf.Value;
+     *     import com.google.common.util.concurrent.ListenableFuture;
+     *
+     *     ...
+     *
+     *     Struct filter = Struct.newBuilder()
+     *         .putFields("genre", Value.newBuilder().setStringValue("action").build())
+     *         .build();
+     *
+     *     ListenableFuture<FetchByMetadataResponse> futureResponse =
+     *     asyncIndex.fetchByMetadata("example-namespace", filter);
+     * }</pre>
+     *
+     * @param namespace The namespace to fetch vectors from.
+     * @param filter A metadata filter expression. Only vectors matching this filter will be returned.
+     * @return A {@link ListenableFuture} of {@link FetchByMetadataResponse} containing the fetched vectors that match the filter.
+     */
+    public ListenableFuture<FetchByMetadataResponse> fetchByMetadata(String namespace, Struct filter) {
+        return fetchByMetadata(namespace, filter, null, null);
+    }
+
+    /**
+     * Fetches vectors by metadata filter from a specified namespace with optional limit and pagination.
+     * <p>
+     * Example:
+     * <pre>{@code
+     *     import io.pinecone.proto.FetchByMetadataResponse;
+     *     import com.google.protobuf.Struct;
+     *     import com.google.protobuf.Value;
+     *     import com.google.common.util.concurrent.ListenableFuture;
+     *     import com.google.common.util.concurrent.Futures;
+     *
+     *     ...
+     *
+     *     Struct filter = Struct.newBuilder()
+     *         .putFields("genre", Value.newBuilder().setStringValue("action").build())
+     *         .build();
+     *
+     *     // Fetch with limit
+     *     ListenableFuture<FetchByMetadataResponse> futureResponse =
+     *     asyncIndex.fetchByMetadata("example-namespace", filter, 100, null);
+     *
+     *     // Fetch with pagination
+     *     String paginationToken = null;
+     *     ListenableFuture<FetchByMetadataResponse> futureResponse =
+     *     asyncIndex.fetchByMetadata("example-namespace", filter, 100, paginationToken);
+     *     FetchByMetadataResponse fetchResponse = Futures.getUnchecked(futureResponse);
+     *
+     *     // Continue pagination if needed
+     *     if (fetchResponse.hasPagination() && !fetchResponse.getPagination().getNext().isEmpty()) {
+     *         ListenableFuture<FetchByMetadataResponse> nextPageFuture =
+     *         asyncIndex.fetchByMetadata("example-namespace", filter, 100, fetchResponse.getPagination().getNext());
+     *     }
+     * }</pre>
+     *
+     * @param namespace The namespace to fetch vectors from.
+     * @param filter A metadata filter expression. Only vectors matching this filter will be returned.
+     * @param limit The maximum number of vectors to return. If null, no limit is applied.
+     * @param paginationToken The token to continue a previous listing operation. If null, starts from the beginning.
+     * @return A {@link ListenableFuture} of {@link FetchByMetadataResponse} containing the fetched vectors that match the filter.
+     */
+    public ListenableFuture<FetchByMetadataResponse> fetchByMetadata(String namespace, Struct filter, Integer limit, String paginationToken) {
+        FetchByMetadataRequest fetchByMetadataRequest = validateFetchByMetadataRequest(namespace, filter, limit, paginationToken);
+
+        return asyncStub.fetchByMetadata(fetchByMetadataRequest);
+    }
+
+    /**
      * {@inheritDoc}
      * <p>
      * Example:
@@ -713,6 +789,79 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
                                                    List<Float> sparseValues) {
         UpdateRequest updateRequest = validateUpdateRequest(id, values, metadata, namespace, sparseIndices,
                 sparseValues);
+
+        return asyncStub.update(updateRequest);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Example:
+     * <pre>{@code
+     *     import io.pinecone.proto.UpdateResponse;
+     *     import com.google.protobuf.Struct;
+     *     import com.google.protobuf.Value;
+     *     import com.google.common.util.concurrent.ListenableFuture;
+     *
+     *     ...
+     *
+     *     Struct filter = Struct.newBuilder()
+     *         .putFields("genre", Value.newBuilder().setStringValue("action").build())
+     *         .build();
+     *
+     *     Struct metadata = Struct.newBuilder()
+     *         .putFields("year", Value.newBuilder().setNumberValue(2020).build())
+     *         .build();
+     *
+     *     ListenableFuture<UpdateResponse> listenableFuture =
+     *     asyncIndex.updateByMetadata(filter, metadata, "example-namespace");
+     * }</pre>
+     */
+    @Override
+    public ListenableFuture<UpdateResponse> updateByMetadata(Struct filter,
+                                                            Struct metadata,
+                                                            String namespace) {
+        return updateByMetadata(filter, metadata, namespace, false);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Example:
+     * <pre>{@code
+     *     import io.pinecone.proto.UpdateResponse;
+     *     import com.google.protobuf.Struct;
+     *     import com.google.protobuf.Value;
+     *     import com.google.common.util.concurrent.ListenableFuture;
+     *     import com.google.common.util.concurrent.Futures;
+     *
+     *     ...
+     *
+     *     Struct filter = Struct.newBuilder()
+     *         .putFields("genre", Value.newBuilder().setStringValue("action").build())
+     *         .build();
+     *
+     *     Struct metadata = Struct.newBuilder()
+     *         .putFields("year", Value.newBuilder().setNumberValue(2020).build())
+     *         .build();
+     *
+     *     // Dry run to check how many records would be updated
+     *     ListenableFuture<UpdateResponse> futureResponse =
+     *     asyncIndex.updateByMetadata(filter, metadata, "example-namespace", true);
+     *     UpdateResponse updateResponse = Futures.getUnchecked(futureResponse);
+     *     int matchedRecords = updateResponse.getMatchedRecords();
+     *
+     *     // Actually perform the update
+     *     ListenableFuture<UpdateResponse> actualFutureResponse =
+     *     asyncIndex.updateByMetadata(filter, metadata, "example-namespace", false);
+     * }</pre>
+     */
+    @Override
+    public ListenableFuture<UpdateResponse> updateByMetadata(Struct filter,
+                                                            Struct metadata,
+                                                            String namespace,
+                                                            boolean dryRun) {
+        UpdateRequest updateRequest = validateUpdateByMetadataRequest(filter, metadata, namespace, dryRun);
 
         return asyncStub.update(updateRequest);
     }

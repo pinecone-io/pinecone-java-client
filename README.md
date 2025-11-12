@@ -697,6 +697,86 @@ List<Float> values = Arrays.asList(1F, 2F, 3F);
 UpdateResponse updateResponse = index.update("v1", values, "example-namespace");
 ```
 
+## Fetch vectors by metadata
+
+The following example fetches vectors by metadata filter.
+
+```java
+import io.pinecone.clients.Index;
+import io.pinecone.clients.Pinecone;
+import io.pinecone.proto.FetchByMetadataResponse;
+import com.google.protobuf.Struct;
+import com.google.protobuf.Value;
+...
+
+Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+Index index = pinecone.getIndexConnection("example-index");
+
+// Create a metadata filter
+Struct filter = Struct.newBuilder()
+    .putFields("genre", Value.newBuilder()
+        .setStructValue(Struct.newBuilder()
+            .putFields("$eq", Value.newBuilder()
+                .setStringValue("action")
+                .build()))
+        .build())
+    .build();
+
+// Fetch vectors by metadata with limit
+FetchByMetadataResponse response = index.fetchByMetadata("example-namespace", filter, 10, null);
+
+// Fetch with pagination
+String paginationToken = null;
+FetchByMetadataResponse fetchResponse = index.fetchByMetadata("example-namespace", filter, 100, paginationToken);
+
+// Continue pagination if needed
+if (fetchResponse.hasPagination() && 
+    fetchResponse.getPagination().getNext() != null && 
+    !fetchResponse.getPagination().getNext().isEmpty()) {
+    FetchByMetadataResponse nextPage = index.fetchByMetadata(
+        "example-namespace", filter, 100, fetchResponse.getPagination().getNext());
+}
+```
+
+## Update vectors by metadata
+
+The following example updates vectors by metadata filter.
+
+```java
+import io.pinecone.clients.Index;
+import io.pinecone.clients.Pinecone;
+import io.pinecone.proto.UpdateResponse;
+import com.google.protobuf.Struct;
+import com.google.protobuf.Value;
+...
+
+Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+Index index = pinecone.getIndexConnection("example-index");
+
+// Create a filter to match vectors
+Struct filter = Struct.newBuilder()
+    .putFields("genre", Value.newBuilder()
+        .setStructValue(Struct.newBuilder()
+            .putFields("$eq", Value.newBuilder()
+                .setStringValue("action")
+                .build()))
+        .build())
+    .build();
+
+// Create new metadata to apply
+Struct newMetadata = Struct.newBuilder()
+    .putFields("updated", Value.newBuilder().setStringValue("true").build())
+    .putFields("year", Value.newBuilder().setStringValue("2024").build())
+    .build();
+
+// Dry run to check how many records would be updated
+UpdateResponse dryRunResponse = index.updateByMetadata(filter, newMetadata, "example-namespace", true);
+int matchedRecords = dryRunResponse.getMatchedRecords();
+
+// Actually perform the update
+UpdateResponse updateResponse = index.updateByMetadata(filter, newMetadata, "example-namespace", false);
+```
+
 ## Create namespace
 
 The following example shows how to create a namespace.
