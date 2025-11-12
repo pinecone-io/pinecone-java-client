@@ -9,11 +9,13 @@ import io.pinecone.configs.PineconeConfig;
 import io.pinecone.configs.PineconeConnection;
 import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.proto.*;
+import io.pinecone.proto.CreateNamespaceRequest;
 import io.pinecone.proto.DeleteRequest;
 import io.pinecone.proto.DescribeIndexStatsRequest;
 import io.pinecone.proto.FetchResponse;
 import io.pinecone.proto.ListNamespacesResponse;
 import io.pinecone.proto.ListResponse;
+import io.pinecone.proto.MetadataSchema;
 import io.pinecone.proto.NamespaceDescription;
 import io.pinecone.proto.QueryRequest;
 import io.pinecone.proto.QueryResponse;
@@ -1122,6 +1124,41 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
             listNamespacesRequest.setPaginationToken(paginationToken);
         }
         return asyncStub.listNamespaces(listNamespacesRequest.build());
+    }
+
+    /**
+     * <pre>
+     * Create a namespace within an index.
+     * @param name The name of the namespace to create.
+     * @return {@link ListenableFuture<NamespaceDescription>} The response for the create namespace operation.
+     * </pre>
+     */
+    @Override
+    public ListenableFuture<NamespaceDescription> createNamespace(String name) {
+        CreateNamespaceRequest createNamespaceRequest = CreateNamespaceRequest
+                .newBuilder()
+                .setName(name)
+                .build();
+        return asyncStub.createNamespace(createNamespaceRequest);
+    }
+
+    /**
+     * <pre>
+     * Create a namespace within an index with a metadata schema.
+     * @param name The name of the namespace to create.
+     * @param schema The metadata schema for the namespace.
+     * @return {@link ListenableFuture<NamespaceDescription>} The response for the create namespace operation.
+     * </pre>
+     */
+    @Override
+    public ListenableFuture<NamespaceDescription> createNamespace(String name, MetadataSchema schema) {
+        CreateNamespaceRequest.Builder builder = CreateNamespaceRequest
+                .newBuilder()
+                .setName(name);
+        if (schema != null) {
+            builder.setSchema(schema);
+        }
+        return asyncStub.createNamespace(builder.build());
     }
 
     /**

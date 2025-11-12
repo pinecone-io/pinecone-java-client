@@ -856,6 +856,25 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
 
     /**
      * <pre>
+     * Create a namespace within an index.
+     * @param name The name of the namespace to create.
+     * @return {@link NamespaceDescription} The response for the create namespace operation.
+     * </pre>
+     */
+    B createNamespace(String name);
+
+    /**
+     * <pre>
+     * Create a namespace within an index with a metadata schema.
+     * @param name The name of the namespace to create.
+     * @param schema The metadata schema for the namespace.
+     * @return {@link NamespaceDescription} The response for the create namespace operation.
+     * </pre>
+     */
+    B createNamespace(String name, io.pinecone.proto.MetadataSchema schema);
+
+    /**
+     * <pre>
      * Describe a namespace within an index, showing the vector count within the namespace.
      * @param namespace The namespace to describe.
      * @return {@link NamespaceDescription} The response for the describe namespace operation.
