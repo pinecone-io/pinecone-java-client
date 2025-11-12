@@ -6,16 +6,12 @@
 package io.pinecone.proto;
 
 /**
- * <pre>
- * The request for the describe namespace operation.
- * </pre>
- *
- * Protobuf type {@code DescribeNamespaceRequest}
+ * Protobuf type {@code IndexedFields}
  */
-public final class DescribeNamespaceRequest extends
+public final class IndexedFields extends
     com.google.protobuf.GeneratedMessage implements
-    // @@protoc_insertion_point(message_implements:DescribeNamespaceRequest)
-    DescribeNamespaceRequestOrBuilder {
+    // @@protoc_insertion_point(message_implements:IndexedFields)
+    IndexedFieldsOrBuilder {
 private static final long serialVersionUID = 0L;
   static {
     com.google.protobuf.RuntimeVersion.validateProtobufGencodeVersion(
@@ -24,74 +20,65 @@ private static final long serialVersionUID = 0L;
       /* minor= */ 29,
       /* patch= */ 3,
       /* suffix= */ "",
-      DescribeNamespaceRequest.class.getName());
+      IndexedFields.class.getName());
   }
-  // Use DescribeNamespaceRequest.newBuilder() to construct.
-  private DescribeNamespaceRequest(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+  // Use IndexedFields.newBuilder() to construct.
+  private IndexedFields(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
     super(builder);
   }
-  private DescribeNamespaceRequest() {
-    namespace_ = "";
+  private IndexedFields() {
+    fields_ =
+        com.google.protobuf.LazyStringArrayList.emptyList();
   }
 
   public static final com.google.protobuf.Descriptors.Descriptor
       getDescriptor() {
-    return io.pinecone.proto.DbData202510.internal_static_DescribeNamespaceRequest_descriptor;
+    return io.pinecone.proto.DbData202510.internal_static_IndexedFields_descriptor;
   }
 
   @java.lang.Override
   protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internalGetFieldAccessorTable() {
-    return io.pinecone.proto.DbData202510.internal_static_DescribeNamespaceRequest_fieldAccessorTable
+    return io.pinecone.proto.DbData202510.internal_static_IndexedFields_fieldAccessorTable
         .ensureFieldAccessorsInitialized(
-            io.pinecone.proto.DescribeNamespaceRequest.class, io.pinecone.proto.DescribeNamespaceRequest.Builder.class);
+            io.pinecone.proto.IndexedFields.class, io.pinecone.proto.IndexedFields.Builder.class);
   }
 
-  public static final int NAMESPACE_FIELD_NUMBER = 1;
+  public static final int FIELDS_FIELD_NUMBER = 1;
   @SuppressWarnings("serial")
-  private volatile java.lang.Object namespace_ = "";
+  private com.google.protobuf.LazyStringArrayList fields_ =
+      com.google.protobuf.LazyStringArrayList.emptyList();
   /**
-   * <pre>
-   * The namespace to describe
-   * </pre>
-   *
-   * <code>string namespace = 1 [json_name = "namespace"];</code>
-   * @return The namespace.
+   * <code>repeated string fields = 1 [json_name = "fields"];</code>
+   * @return A list containing the fields.
    */
-  @java.lang.Override
-  public java.lang.String getNamespace() {
-    java.lang.Object ref = namespace_;
-    if (ref instanceof java.lang.String) {
-      return (java.lang.String) ref;
-    } else {
-      com.google.protobuf.ByteString bs = 
-          (com.google.protobuf.ByteString) ref;
-      java.lang.String s = bs.toStringUtf8();
-      namespace_ = s;
-      return s;
-    }
+  public com.google.protobuf.ProtocolStringList
+      getFieldsList() {
+    return fields_;
   }
   /**
-   * <pre>
-   * The namespace to describe
-   * </pre>
-   *
-   * <code>string namespace = 1 [json_name = "namespace"];</code>
-   * @return The bytes for namespace.
+   * <code>repeated string fields = 1 [json_name = "fields"];</code>
+   * @return The count of fields.
    */
-  @java.lang.Override
+  public int getFieldsCount() {
+    return fields_.size();
+  }
+  /**
+   * <code>repeated string fields = 1 [json_name = "fields"];</code>
+   * @param index The index of the element to return.
+   * @return The fields at the given index.
+   */
+  public java.lang.String getFields(int index) {
+    return fields_.get(index);
+  }
+  /**
+   * <code>repeated string fields = 1 [json_name = "fields"];</code>
+   * @param index The index of the value to return.
+   * @return The bytes of the fields at the given index.
+   */
   public com.google.protobuf.ByteString
-      getNamespaceBytes() {
-    java.lang.Object ref = namespace_;
-    if (ref instanceof java.lang.String) {
-      com.google.protobuf.ByteString b = 
-          com.google.protobuf.ByteString.copyFromUtf8(
-              (java.lang.String) ref);
-      namespace_ = b;
-      return b;
-    } else {
-      return (com.google.protobuf.ByteString) ref;
-    }
+      getFieldsBytes(int index) {
+    return fields_.getByteString(index);
   }
 
   private byte memoizedIsInitialized = -1;
@@ -108,8 +95,8 @@ private static final long serialVersionUID = 0L;
   @java.lang.Override
   public void writeTo(com.google.protobuf.CodedOutputStream output)
                       throws java.io.IOException {
-    if (!com.google.protobuf.GeneratedMessage.isStringEmpty(namespace_)) {
-      com.google.protobuf.GeneratedMessage.writeString(output, 1, namespace_);
+    for (int i = 0; i < fields_.size(); i++) {
+      com.google.protobuf.GeneratedMessage.writeString(output, 1, fields_.getRaw(i));
     }
     getUnknownFields().writeTo(output);
   }
@@ -120,8 +107,13 @@ private static final long serialVersionUID = 0L;
     if (size != -1) return size;
 
     size = 0;
-    if (!com.google.protobuf.GeneratedMessage.isStringEmpty(namespace_)) {
-      size += com.google.protobuf.GeneratedMessage.computeStringSize(1, namespace_);
+    {
+      int dataSize = 0;
+      for (int i = 0; i < fields_.size(); i++) {
+        dataSize += computeStringSizeNoTag(fields_.getRaw(i));
+      }
+      size += dataSize;
+      size += 1 * getFieldsList().size();
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
@@ -133,13 +125,13 @@ private static final long serialVersionUID = 0L;
     if (obj == this) {
      return true;
     }
-    if (!(obj instanceof io.pinecone.proto.DescribeNamespaceRequest)) {
+    if (!(obj instanceof io.pinecone.proto.IndexedFields)) {
       return super.equals(obj);
     }
-    io.pinecone.proto.DescribeNamespaceRequest other = (io.pinecone.proto.DescribeNamespaceRequest) obj;
+    io.pinecone.proto.IndexedFields other = (io.pinecone.proto.IndexedFields) obj;
 
-    if (!getNamespace()
-        .equals(other.getNamespace())) return false;
+    if (!getFieldsList()
+        .equals(other.getFieldsList())) return false;
     if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
@@ -151,51 +143,53 @@ private static final long serialVersionUID = 0L;
     }
     int hash = 41;
     hash = (19 * hash) + getDescriptor().hashCode();
-    hash = (37 * hash) + NAMESPACE_FIELD_NUMBER;
-    hash = (53 * hash) + getNamespace().hashCode();
+    if (getFieldsCount() > 0) {
+      hash = (37 * hash) + FIELDS_FIELD_NUMBER;
+      hash = (53 * hash) + getFieldsList().hashCode();
+    }
     hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
     return hash;
   }
 
-  public static io.pinecone.proto.DescribeNamespaceRequest parseFrom(
+  public static io.pinecone.proto.IndexedFields parseFrom(
       java.nio.ByteBuffer data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static io.pinecone.proto.DescribeNamespaceRequest parseFrom(
+  public static io.pinecone.proto.IndexedFields parseFrom(
       java.nio.ByteBuffer data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static io.pinecone.proto.DescribeNamespaceRequest parseFrom(
+  public static io.pinecone.proto.IndexedFields parseFrom(
       com.google.protobuf.ByteString data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static io.pinecone.proto.DescribeNamespaceRequest parseFrom(
+  public static io.pinecone.proto.IndexedFields parseFrom(
       com.google.protobuf.ByteString data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static io.pinecone.proto.DescribeNamespaceRequest parseFrom(byte[] data)
+  public static io.pinecone.proto.IndexedFields parseFrom(byte[] data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static io.pinecone.proto.DescribeNamespaceRequest parseFrom(
+  public static io.pinecone.proto.IndexedFields parseFrom(
       byte[] data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static io.pinecone.proto.DescribeNamespaceRequest parseFrom(java.io.InputStream input)
+  public static io.pinecone.proto.IndexedFields parseFrom(java.io.InputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessage
         .parseWithIOException(PARSER, input);
   }
-  public static io.pinecone.proto.DescribeNamespaceRequest parseFrom(
+  public static io.pinecone.proto.IndexedFields parseFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
@@ -203,26 +197,26 @@ private static final long serialVersionUID = 0L;
         .parseWithIOException(PARSER, input, extensionRegistry);
   }
 
-  public static io.pinecone.proto.DescribeNamespaceRequest parseDelimitedFrom(java.io.InputStream input)
+  public static io.pinecone.proto.IndexedFields parseDelimitedFrom(java.io.InputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessage
         .parseDelimitedWithIOException(PARSER, input);
   }
 
-  public static io.pinecone.proto.DescribeNamespaceRequest parseDelimitedFrom(
+  public static io.pinecone.proto.IndexedFields parseDelimitedFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessage
         .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
   }
-  public static io.pinecone.proto.DescribeNamespaceRequest parseFrom(
+  public static io.pinecone.proto.IndexedFields parseFrom(
       com.google.protobuf.CodedInputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessage
         .parseWithIOException(PARSER, input);
   }
-  public static io.pinecone.proto.DescribeNamespaceRequest parseFrom(
+  public static io.pinecone.proto.IndexedFields parseFrom(
       com.google.protobuf.CodedInputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
@@ -235,7 +229,7 @@ private static final long serialVersionUID = 0L;
   public static Builder newBuilder() {
     return DEFAULT_INSTANCE.toBuilder();
   }
-  public static Builder newBuilder(io.pinecone.proto.DescribeNamespaceRequest prototype) {
+  public static Builder newBuilder(io.pinecone.proto.IndexedFields prototype) {
     return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
   }
   @java.lang.Override
@@ -251,30 +245,26 @@ private static final long serialVersionUID = 0L;
     return builder;
   }
   /**
-   * <pre>
-   * The request for the describe namespace operation.
-   * </pre>
-   *
-   * Protobuf type {@code DescribeNamespaceRequest}
+   * Protobuf type {@code IndexedFields}
    */
   public static final class Builder extends
       com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-      // @@protoc_insertion_point(builder_implements:DescribeNamespaceRequest)
-      io.pinecone.proto.DescribeNamespaceRequestOrBuilder {
+      // @@protoc_insertion_point(builder_implements:IndexedFields)
+      io.pinecone.proto.IndexedFieldsOrBuilder {
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return io.pinecone.proto.DbData202510.internal_static_DescribeNamespaceRequest_descriptor;
+      return io.pinecone.proto.DbData202510.internal_static_IndexedFields_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return io.pinecone.proto.DbData202510.internal_static_DescribeNamespaceRequest_fieldAccessorTable
+      return io.pinecone.proto.DbData202510.internal_static_IndexedFields_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              io.pinecone.proto.DescribeNamespaceRequest.class, io.pinecone.proto.DescribeNamespaceRequest.Builder.class);
+              io.pinecone.proto.IndexedFields.class, io.pinecone.proto.IndexedFields.Builder.class);
     }
 
-    // Construct using io.pinecone.proto.DescribeNamespaceRequest.newBuilder()
+    // Construct using io.pinecone.proto.IndexedFields.newBuilder()
     private Builder() {
 
     }
@@ -288,24 +278,25 @@ private static final long serialVersionUID = 0L;
     public Builder clear() {
       super.clear();
       bitField0_ = 0;
-      namespace_ = "";
+      fields_ =
+          com.google.protobuf.LazyStringArrayList.emptyList();
       return this;
     }
 
     @java.lang.Override
     public com.google.protobuf.Descriptors.Descriptor
         getDescriptorForType() {
-      return io.pinecone.proto.DbData202510.internal_static_DescribeNamespaceRequest_descriptor;
+      return io.pinecone.proto.DbData202510.internal_static_IndexedFields_descriptor;
     }
 
     @java.lang.Override
-    public io.pinecone.proto.DescribeNamespaceRequest getDefaultInstanceForType() {
-      return io.pinecone.proto.DescribeNamespaceRequest.getDefaultInstance();
+    public io.pinecone.proto.IndexedFields getDefaultInstanceForType() {
+      return io.pinecone.proto.IndexedFields.getDefaultInstance();
     }
 
     @java.lang.Override
-    public io.pinecone.proto.DescribeNamespaceRequest build() {
-      io.pinecone.proto.DescribeNamespaceRequest result = buildPartial();
+    public io.pinecone.proto.IndexedFields build() {
+      io.pinecone.proto.IndexedFields result = buildPartial();
       if (!result.isInitialized()) {
         throw newUninitializedMessageException(result);
       }
@@ -313,35 +304,41 @@ private static final long serialVersionUID = 0L;
     }
 
     @java.lang.Override
-    public io.pinecone.proto.DescribeNamespaceRequest buildPartial() {
-      io.pinecone.proto.DescribeNamespaceRequest result = new io.pinecone.proto.DescribeNamespaceRequest(this);
+    public io.pinecone.proto.IndexedFields buildPartial() {
+      io.pinecone.proto.IndexedFields result = new io.pinecone.proto.IndexedFields(this);
       if (bitField0_ != 0) { buildPartial0(result); }
       onBuilt();
       return result;
     }
 
-    private void buildPartial0(io.pinecone.proto.DescribeNamespaceRequest result) {
+    private void buildPartial0(io.pinecone.proto.IndexedFields result) {
       int from_bitField0_ = bitField0_;
       if (((from_bitField0_ & 0x00000001) != 0)) {
-        result.namespace_ = namespace_;
+        fields_.makeImmutable();
+        result.fields_ = fields_;
       }
     }
 
     @java.lang.Override
     public Builder mergeFrom(com.google.protobuf.Message other) {
-      if (other instanceof io.pinecone.proto.DescribeNamespaceRequest) {
-        return mergeFrom((io.pinecone.proto.DescribeNamespaceRequest)other);
+      if (other instanceof io.pinecone.proto.IndexedFields) {
+        return mergeFrom((io.pinecone.proto.IndexedFields)other);
       } else {
         super.mergeFrom(other);
         return this;
       }
     }
 
-    public Builder mergeFrom(io.pinecone.proto.DescribeNamespaceRequest other) {
-      if (other == io.pinecone.proto.DescribeNamespaceRequest.getDefaultInstance()) return this;
-      if (!other.getNamespace().isEmpty()) {
-        namespace_ = other.namespace_;
-        bitField0_ |= 0x00000001;
+    public Builder mergeFrom(io.pinecone.proto.IndexedFields other) {
+      if (other == io.pinecone.proto.IndexedFields.getDefaultInstance()) return this;
+      if (!other.fields_.isEmpty()) {
+        if (fields_.isEmpty()) {
+          fields_ = other.fields_;
+          bitField0_ |= 0x00000001;
+        } else {
+          ensureFieldsIsMutable();
+          fields_.addAll(other.fields_);
+        }
         onChanged();
       }
       this.mergeUnknownFields(other.getUnknownFields());
@@ -371,8 +368,9 @@ private static final long serialVersionUID = 0L;
               done = true;
               break;
             case 10: {
-              namespace_ = input.readStringRequireUtf8();
-              bitField0_ |= 0x00000001;
+              java.lang.String s = input.readStringRequireUtf8();
+              ensureFieldsIsMutable();
+              fields_.add(s);
               break;
             } // case 10
             default: {
@@ -392,115 +390,134 @@ private static final long serialVersionUID = 0L;
     }
     private int bitField0_;
 
-    private java.lang.Object namespace_ = "";
-    /**
-     * <pre>
-     * The namespace to describe
-     * </pre>
-     *
-     * <code>string namespace = 1 [json_name = "namespace"];</code>
-     * @return The namespace.
-     */
-    public java.lang.String getNamespace() {
-      java.lang.Object ref = namespace_;
-      if (!(ref instanceof java.lang.String)) {
-        com.google.protobuf.ByteString bs =
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        namespace_ = s;
-        return s;
-      } else {
-        return (java.lang.String) ref;
+    private com.google.protobuf.LazyStringArrayList fields_ =
+        com.google.protobuf.LazyStringArrayList.emptyList();
+    private void ensureFieldsIsMutable() {
+      if (!fields_.isModifiable()) {
+        fields_ = new com.google.protobuf.LazyStringArrayList(fields_);
       }
+      bitField0_ |= 0x00000001;
     }
     /**
-     * <pre>
-     * The namespace to describe
-     * </pre>
-     *
-     * <code>string namespace = 1 [json_name = "namespace"];</code>
-     * @return The bytes for namespace.
+     * <code>repeated string fields = 1 [json_name = "fields"];</code>
+     * @return A list containing the fields.
+     */
+    public com.google.protobuf.ProtocolStringList
+        getFieldsList() {
+      fields_.makeImmutable();
+      return fields_;
+    }
+    /**
+     * <code>repeated string fields = 1 [json_name = "fields"];</code>
+     * @return The count of fields.
+     */
+    public int getFieldsCount() {
+      return fields_.size();
+    }
+    /**
+     * <code>repeated string fields = 1 [json_name = "fields"];</code>
+     * @param index The index of the element to return.
+     * @return The fields at the given index.
+     */
+    public java.lang.String getFields(int index) {
+      return fields_.get(index);
+    }
+    /**
+     * <code>repeated string fields = 1 [json_name = "fields"];</code>
+     * @param index The index of the value to return.
+     * @return The bytes of the fields at the given index.
      */
     public com.google.protobuf.ByteString
-        getNamespaceBytes() {
-      java.lang.Object ref = namespace_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        namespace_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
+        getFieldsBytes(int index) {
+      return fields_.getByteString(index);
     }
     /**
-     * <pre>
-     * The namespace to describe
-     * </pre>
-     *
-     * <code>string namespace = 1 [json_name = "namespace"];</code>
-     * @param value The namespace to set.
+     * <code>repeated string fields = 1 [json_name = "fields"];</code>
+     * @param index The index to set the value at.
+     * @param value The fields to set.
      * @return This builder for chaining.
      */
-    public Builder setNamespace(
-        java.lang.String value) {
+    public Builder setFields(
+        int index, java.lang.String value) {
       if (value == null) { throw new NullPointerException(); }
-      namespace_ = value;
+      ensureFieldsIsMutable();
+      fields_.set(index, value);
       bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
     /**
-     * <pre>
-     * The namespace to describe
-     * </pre>
-     *
-     * <code>string namespace = 1 [json_name = "namespace"];</code>
+     * <code>repeated string fields = 1 [json_name = "fields"];</code>
+     * @param value The fields to add.
      * @return This builder for chaining.
      */
-    public Builder clearNamespace() {
-      namespace_ = getDefaultInstance().getNamespace();
-      bitField0_ = (bitField0_ & ~0x00000001);
+    public Builder addFields(
+        java.lang.String value) {
+      if (value == null) { throw new NullPointerException(); }
+      ensureFieldsIsMutable();
+      fields_.add(value);
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
     /**
-     * <pre>
-     * The namespace to describe
-     * </pre>
-     *
-     * <code>string namespace = 1 [json_name = "namespace"];</code>
-     * @param value The bytes for namespace to set.
+     * <code>repeated string fields = 1 [json_name = "fields"];</code>
+     * @param values The fields to add.
      * @return This builder for chaining.
      */
-    public Builder setNamespaceBytes(
+    public Builder addAllFields(
+        java.lang.Iterable<java.lang.String> values) {
+      ensureFieldsIsMutable();
+      com.google.protobuf.AbstractMessageLite.Builder.addAll(
+          values, fields_);
+      bitField0_ |= 0x00000001;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>repeated string fields = 1 [json_name = "fields"];</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearFields() {
+      fields_ =
+        com.google.protobuf.LazyStringArrayList.emptyList();
+      bitField0_ = (bitField0_ & ~0x00000001);;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>repeated string fields = 1 [json_name = "fields"];</code>
+     * @param value The bytes of the fields to add.
+     * @return This builder for chaining.
+     */
+    public Builder addFieldsBytes(
         com.google.protobuf.ByteString value) {
       if (value == null) { throw new NullPointerException(); }
       checkByteStringIsUtf8(value);
-      namespace_ = value;
+      ensureFieldsIsMutable();
+      fields_.add(value);
       bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
 
-    // @@protoc_insertion_point(builder_scope:DescribeNamespaceRequest)
+    // @@protoc_insertion_point(builder_scope:IndexedFields)
   }
 
-  // @@protoc_insertion_point(class_scope:DescribeNamespaceRequest)
-  private static final io.pinecone.proto.DescribeNamespaceRequest DEFAULT_INSTANCE;
+  // @@protoc_insertion_point(class_scope:IndexedFields)
+  private static final io.pinecone.proto.IndexedFields DEFAULT_INSTANCE;
   static {
-    DEFAULT_INSTANCE = new io.pinecone.proto.DescribeNamespaceRequest();
+    DEFAULT_INSTANCE = new io.pinecone.proto.IndexedFields();
   }
 
-  public static io.pinecone.proto.DescribeNamespaceRequest getDefaultInstance() {
+  public static io.pinecone.proto.IndexedFields getDefaultInstance() {
     return DEFAULT_INSTANCE;
   }
 
-  private static final com.google.protobuf.Parser<DescribeNamespaceRequest>
-      PARSER = new com.google.protobuf.AbstractParser<DescribeNamespaceRequest>() {
+  private static final com.google.protobuf.Parser<IndexedFields>
+      PARSER = new com.google.protobuf.AbstractParser<IndexedFields>() {
     @java.lang.Override
-    public DescribeNamespaceRequest parsePartialFrom(
+    public IndexedFields parsePartialFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -519,17 +536,17 @@ private static final long serialVersionUID = 0L;
     }
   };
 
-  public static com.google.protobuf.Parser<DescribeNamespaceRequest> parser() {
+  public static com.google.protobuf.Parser<IndexedFields> parser() {
     return PARSER;
   }
 
   @java.lang.Override
-  public com.google.protobuf.Parser<DescribeNamespaceRequest> getParserForType() {
+  public com.google.protobuf.Parser<IndexedFields> getParserForType() {
     return PARSER;
   }
 
   @java.lang.Override
-  public io.pinecone.proto.DescribeNamespaceRequest getDefaultInstanceForType() {
+  public io.pinecone.proto.IndexedFields getDefaultInstanceForType() {
     return DEFAULT_INSTANCE;
   }
 

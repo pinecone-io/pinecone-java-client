@@ -10,12 +10,12 @@ package io.pinecone.proto;
  * The response for the `FetchByMetadata` operation.
  * </pre>
  *
- * Protobuf type {@code FetchResponse}
+ * Protobuf type {@code FetchByMetadataResponse}
  */
-public final class FetchResponse extends
+public final class FetchByMetadataResponse extends
     com.google.protobuf.GeneratedMessage implements
-    // @@protoc_insertion_point(message_implements:FetchResponse)
-    FetchResponseOrBuilder {
+    // @@protoc_insertion_point(message_implements:FetchByMetadataResponse)
+    FetchByMetadataResponseOrBuilder {
 private static final long serialVersionUID = 0L;
   static {
     com.google.protobuf.RuntimeVersion.validateProtobufGencodeVersion(
@@ -24,19 +24,19 @@ private static final long serialVersionUID = 0L;
       /* minor= */ 29,
       /* patch= */ 3,
       /* suffix= */ "",
-      FetchResponse.class.getName());
+      FetchByMetadataResponse.class.getName());
   }
-  // Use FetchResponse.newBuilder() to construct.
-  private FetchResponse(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+  // Use FetchByMetadataResponse.newBuilder() to construct.
+  private FetchByMetadataResponse(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
     super(builder);
   }
-  private FetchResponse() {
+  private FetchByMetadataResponse() {
     namespace_ = "";
   }
 
   public static final com.google.protobuf.Descriptors.Descriptor
       getDescriptor() {
-    return io.pinecone.proto.DbData202510.internal_static_FetchResponse_descriptor;
+    return io.pinecone.proto.DbData202510.internal_static_FetchByMetadataResponse_descriptor;
   }
 
   @SuppressWarnings({"rawtypes"})
@@ -54,9 +54,9 @@ private static final long serialVersionUID = 0L;
   @java.lang.Override
   protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internalGetFieldAccessorTable() {
-    return io.pinecone.proto.DbData202510.internal_static_FetchResponse_fieldAccessorTable
+    return io.pinecone.proto.DbData202510.internal_static_FetchByMetadataResponse_fieldAccessorTable
         .ensureFieldAccessorsInitialized(
-            io.pinecone.proto.FetchResponse.class, io.pinecone.proto.FetchResponse.Builder.class);
+            io.pinecone.proto.FetchByMetadataResponse.class, io.pinecone.proto.FetchByMetadataResponse.Builder.class);
   }
 
   private int bitField0_;
@@ -66,7 +66,7 @@ private static final long serialVersionUID = 0L;
         java.lang.String, io.pinecone.proto.Vector> defaultEntry =
             com.google.protobuf.MapEntry
             .<java.lang.String, io.pinecone.proto.Vector>newDefaultInstance(
-                io.pinecone.proto.DbData202510.internal_static_FetchResponse_VectorsEntry_descriptor, 
+                io.pinecone.proto.DbData202510.internal_static_FetchByMetadataResponse_VectorsEntry_descriptor, 
                 com.google.protobuf.WireFormat.FieldType.STRING,
                 "",
                 com.google.protobuf.WireFormat.FieldType.MESSAGE,
@@ -240,6 +240,44 @@ io.pinecone.proto.Vector defaultValue) {
     return usage_ == null ? io.pinecone.proto.Usage.getDefaultInstance() : usage_;
   }
 
+  public static final int PAGINATION_FIELD_NUMBER = 4;
+  private io.pinecone.proto.Pagination pagination_;
+  /**
+   * <pre>
+   * Pagination token to continue past this listing
+   * </pre>
+   *
+   * <code>optional .Pagination pagination = 4 [json_name = "pagination"];</code>
+   * @return Whether the pagination field is set.
+   */
+  @java.lang.Override
+  public boolean hasPagination() {
+    return ((bitField0_ & 0x00000002) != 0);
+  }
+  /**
+   * <pre>
+   * Pagination token to continue past this listing
+   * </pre>
+   *
+   * <code>optional .Pagination pagination = 4 [json_name = "pagination"];</code>
+   * @return The pagination.
+   */
+  @java.lang.Override
+  public io.pinecone.proto.Pagination getPagination() {
+    return pagination_ == null ? io.pinecone.proto.Pagination.getDefaultInstance() : pagination_;
+  }
+  /**
+   * <pre>
+   * Pagination token to continue past this listing
+   * </pre>
+   *
+   * <code>optional .Pagination pagination = 4 [json_name = "pagination"];</code>
+   */
+  @java.lang.Override
+  public io.pinecone.proto.PaginationOrBuilder getPaginationOrBuilder() {
+    return pagination_ == null ? io.pinecone.proto.Pagination.getDefaultInstance() : pagination_;
+  }
+
   private byte memoizedIsInitialized = -1;
   @java.lang.Override
   public final boolean isInitialized() {
@@ -265,6 +303,9 @@ io.pinecone.proto.Vector defaultValue) {
     }
     if (((bitField0_ & 0x00000001) != 0)) {
       output.writeMessage(3, getUsage());
+    }
+    if (((bitField0_ & 0x00000002) != 0)) {
+      output.writeMessage(4, getPagination());
     }
     getUnknownFields().writeTo(output);
   }
@@ -292,6 +333,10 @@ io.pinecone.proto.Vector defaultValue) {
       size += com.google.protobuf.CodedOutputStream
         .computeMessageSize(3, getUsage());
     }
+    if (((bitField0_ & 0x00000002) != 0)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(4, getPagination());
+    }
     size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
     return size;
@@ -302,10 +347,10 @@ io.pinecone.proto.Vector defaultValue) {
     if (obj == this) {
      return true;
     }
-    if (!(obj instanceof io.pinecone.proto.FetchResponse)) {
+    if (!(obj instanceof io.pinecone.proto.FetchByMetadataResponse)) {
       return super.equals(obj);
     }
-    io.pinecone.proto.FetchResponse other = (io.pinecone.proto.FetchResponse) obj;
+    io.pinecone.proto.FetchByMetadataResponse other = (io.pinecone.proto.FetchByMetadataResponse) obj;
 
     if (!internalGetVectors().equals(
         other.internalGetVectors())) return false;
@@ -315,6 +360,11 @@ io.pinecone.proto.Vector defaultValue) {
     if (hasUsage()) {
       if (!getUsage()
           .equals(other.getUsage())) return false;
+    }
+    if (hasPagination() != other.hasPagination()) return false;
+    if (hasPagination()) {
+      if (!getPagination()
+          .equals(other.getPagination())) return false;
     }
     if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
@@ -337,49 +387,53 @@ io.pinecone.proto.Vector defaultValue) {
       hash = (37 * hash) + USAGE_FIELD_NUMBER;
       hash = (53 * hash) + getUsage().hashCode();
     }
+    if (hasPagination()) {
+      hash = (37 * hash) + PAGINATION_FIELD_NUMBER;
+      hash = (53 * hash) + getPagination().hashCode();
+    }
     hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
     return hash;
   }
 
-  public static io.pinecone.proto.FetchResponse parseFrom(
+  public static io.pinecone.proto.FetchByMetadataResponse parseFrom(
       java.nio.ByteBuffer data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static io.pinecone.proto.FetchResponse parseFrom(
+  public static io.pinecone.proto.FetchByMetadataResponse parseFrom(
       java.nio.ByteBuffer data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static io.pinecone.proto.FetchResponse parseFrom(
+  public static io.pinecone.proto.FetchByMetadataResponse parseFrom(
       com.google.protobuf.ByteString data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static io.pinecone.proto.FetchResponse parseFrom(
+  public static io.pinecone.proto.FetchByMetadataResponse parseFrom(
       com.google.protobuf.ByteString data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static io.pinecone.proto.FetchResponse parseFrom(byte[] data)
+  public static io.pinecone.proto.FetchByMetadataResponse parseFrom(byte[] data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static io.pinecone.proto.FetchResponse parseFrom(
+  public static io.pinecone.proto.FetchByMetadataResponse parseFrom(
       byte[] data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static io.pinecone.proto.FetchResponse parseFrom(java.io.InputStream input)
+  public static io.pinecone.proto.FetchByMetadataResponse parseFrom(java.io.InputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessage
         .parseWithIOException(PARSER, input);
   }
-  public static io.pinecone.proto.FetchResponse parseFrom(
+  public static io.pinecone.proto.FetchByMetadataResponse parseFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
@@ -387,26 +441,26 @@ io.pinecone.proto.Vector defaultValue) {
         .parseWithIOException(PARSER, input, extensionRegistry);
   }
 
-  public static io.pinecone.proto.FetchResponse parseDelimitedFrom(java.io.InputStream input)
+  public static io.pinecone.proto.FetchByMetadataResponse parseDelimitedFrom(java.io.InputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessage
         .parseDelimitedWithIOException(PARSER, input);
   }
 
-  public static io.pinecone.proto.FetchResponse parseDelimitedFrom(
+  public static io.pinecone.proto.FetchByMetadataResponse parseDelimitedFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessage
         .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
   }
-  public static io.pinecone.proto.FetchResponse parseFrom(
+  public static io.pinecone.proto.FetchByMetadataResponse parseFrom(
       com.google.protobuf.CodedInputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessage
         .parseWithIOException(PARSER, input);
   }
-  public static io.pinecone.proto.FetchResponse parseFrom(
+  public static io.pinecone.proto.FetchByMetadataResponse parseFrom(
       com.google.protobuf.CodedInputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
@@ -419,7 +473,7 @@ io.pinecone.proto.Vector defaultValue) {
   public static Builder newBuilder() {
     return DEFAULT_INSTANCE.toBuilder();
   }
-  public static Builder newBuilder(io.pinecone.proto.FetchResponse prototype) {
+  public static Builder newBuilder(io.pinecone.proto.FetchByMetadataResponse prototype) {
     return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
   }
   @java.lang.Override
@@ -439,15 +493,15 @@ io.pinecone.proto.Vector defaultValue) {
    * The response for the `FetchByMetadata` operation.
    * </pre>
    *
-   * Protobuf type {@code FetchResponse}
+   * Protobuf type {@code FetchByMetadataResponse}
    */
   public static final class Builder extends
       com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-      // @@protoc_insertion_point(builder_implements:FetchResponse)
-      io.pinecone.proto.FetchResponseOrBuilder {
+      // @@protoc_insertion_point(builder_implements:FetchByMetadataResponse)
+      io.pinecone.proto.FetchByMetadataResponseOrBuilder {
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return io.pinecone.proto.DbData202510.internal_static_FetchResponse_descriptor;
+      return io.pinecone.proto.DbData202510.internal_static_FetchByMetadataResponse_descriptor;
     }
 
     @SuppressWarnings({"rawtypes"})
@@ -475,12 +529,12 @@ io.pinecone.proto.Vector defaultValue) {
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return io.pinecone.proto.DbData202510.internal_static_FetchResponse_fieldAccessorTable
+      return io.pinecone.proto.DbData202510.internal_static_FetchByMetadataResponse_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              io.pinecone.proto.FetchResponse.class, io.pinecone.proto.FetchResponse.Builder.class);
+              io.pinecone.proto.FetchByMetadataResponse.class, io.pinecone.proto.FetchByMetadataResponse.Builder.class);
     }
 
-    // Construct using io.pinecone.proto.FetchResponse.newBuilder()
+    // Construct using io.pinecone.proto.FetchByMetadataResponse.newBuilder()
     private Builder() {
       maybeForceBuilderInitialization();
     }
@@ -494,6 +548,7 @@ io.pinecone.proto.Vector defaultValue) {
       if (com.google.protobuf.GeneratedMessage
               .alwaysUseFieldBuilders) {
         getUsageFieldBuilder();
+        getPaginationFieldBuilder();
       }
     }
     @java.lang.Override
@@ -507,23 +562,28 @@ io.pinecone.proto.Vector defaultValue) {
         usageBuilder_.dispose();
         usageBuilder_ = null;
       }
+      pagination_ = null;
+      if (paginationBuilder_ != null) {
+        paginationBuilder_.dispose();
+        paginationBuilder_ = null;
+      }
       return this;
     }
 
     @java.lang.Override
     public com.google.protobuf.Descriptors.Descriptor
         getDescriptorForType() {
-      return io.pinecone.proto.DbData202510.internal_static_FetchResponse_descriptor;
+      return io.pinecone.proto.DbData202510.internal_static_FetchByMetadataResponse_descriptor;
     }
 
     @java.lang.Override
-    public io.pinecone.proto.FetchResponse getDefaultInstanceForType() {
-      return io.pinecone.proto.FetchResponse.getDefaultInstance();
+    public io.pinecone.proto.FetchByMetadataResponse getDefaultInstanceForType() {
+      return io.pinecone.proto.FetchByMetadataResponse.getDefaultInstance();
     }
 
     @java.lang.Override
-    public io.pinecone.proto.FetchResponse build() {
-      io.pinecone.proto.FetchResponse result = buildPartial();
+    public io.pinecone.proto.FetchByMetadataResponse build() {
+      io.pinecone.proto.FetchByMetadataResponse result = buildPartial();
       if (!result.isInitialized()) {
         throw newUninitializedMessageException(result);
       }
@@ -531,14 +591,14 @@ io.pinecone.proto.Vector defaultValue) {
     }
 
     @java.lang.Override
-    public io.pinecone.proto.FetchResponse buildPartial() {
-      io.pinecone.proto.FetchResponse result = new io.pinecone.proto.FetchResponse(this);
+    public io.pinecone.proto.FetchByMetadataResponse buildPartial() {
+      io.pinecone.proto.FetchByMetadataResponse result = new io.pinecone.proto.FetchByMetadataResponse(this);
       if (bitField0_ != 0) { buildPartial0(result); }
       onBuilt();
       return result;
     }
 
-    private void buildPartial0(io.pinecone.proto.FetchResponse result) {
+    private void buildPartial0(io.pinecone.proto.FetchByMetadataResponse result) {
       int from_bitField0_ = bitField0_;
       if (((from_bitField0_ & 0x00000001) != 0)) {
         result.vectors_ = internalGetVectors().build(VectorsDefaultEntryHolder.defaultEntry);
@@ -553,21 +613,27 @@ io.pinecone.proto.Vector defaultValue) {
             : usageBuilder_.build();
         to_bitField0_ |= 0x00000001;
       }
+      if (((from_bitField0_ & 0x00000008) != 0)) {
+        result.pagination_ = paginationBuilder_ == null
+            ? pagination_
+            : paginationBuilder_.build();
+        to_bitField0_ |= 0x00000002;
+      }
       result.bitField0_ |= to_bitField0_;
     }
 
     @java.lang.Override
     public Builder mergeFrom(com.google.protobuf.Message other) {
-      if (other instanceof io.pinecone.proto.FetchResponse) {
-        return mergeFrom((io.pinecone.proto.FetchResponse)other);
+      if (other instanceof io.pinecone.proto.FetchByMetadataResponse) {
+        return mergeFrom((io.pinecone.proto.FetchByMetadataResponse)other);
       } else {
         super.mergeFrom(other);
         return this;
       }
     }
 
-    public Builder mergeFrom(io.pinecone.proto.FetchResponse other) {
-      if (other == io.pinecone.proto.FetchResponse.getDefaultInstance()) return this;
+    public Builder mergeFrom(io.pinecone.proto.FetchByMetadataResponse other) {
+      if (other == io.pinecone.proto.FetchByMetadataResponse.getDefaultInstance()) return this;
       internalGetMutableVectors().mergeFrom(
           other.internalGetVectors());
       bitField0_ |= 0x00000001;
@@ -578,6 +644,9 @@ io.pinecone.proto.Vector defaultValue) {
       }
       if (other.hasUsage()) {
         mergeUsage(other.getUsage());
+      }
+      if (other.hasPagination()) {
+        mergePagination(other.getPagination());
       }
       this.mergeUnknownFields(other.getUnknownFields());
       onChanged();
@@ -626,6 +695,13 @@ io.pinecone.proto.Vector defaultValue) {
               bitField0_ |= 0x00000004;
               break;
             } // case 26
+            case 34: {
+              input.readMessage(
+                  getPaginationFieldBuilder().getBuilder(),
+                  extensionRegistry);
+              bitField0_ |= 0x00000008;
+              break;
+            } // case 34
             default: {
               if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                 done = true; // was an endgroup tag
@@ -1079,23 +1155,180 @@ io.pinecone.proto.Vector defaultValue) {
       return usageBuilder_;
     }
 
-    // @@protoc_insertion_point(builder_scope:FetchResponse)
+    private io.pinecone.proto.Pagination pagination_;
+    private com.google.protobuf.SingleFieldBuilder<
+        io.pinecone.proto.Pagination, io.pinecone.proto.Pagination.Builder, io.pinecone.proto.PaginationOrBuilder> paginationBuilder_;
+    /**
+     * <pre>
+     * Pagination token to continue past this listing
+     * </pre>
+     *
+     * <code>optional .Pagination pagination = 4 [json_name = "pagination"];</code>
+     * @return Whether the pagination field is set.
+     */
+    public boolean hasPagination() {
+      return ((bitField0_ & 0x00000008) != 0);
+    }
+    /**
+     * <pre>
+     * Pagination token to continue past this listing
+     * </pre>
+     *
+     * <code>optional .Pagination pagination = 4 [json_name = "pagination"];</code>
+     * @return The pagination.
+     */
+    public io.pinecone.proto.Pagination getPagination() {
+      if (paginationBuilder_ == null) {
+        return pagination_ == null ? io.pinecone.proto.Pagination.getDefaultInstance() : pagination_;
+      } else {
+        return paginationBuilder_.getMessage();
+      }
+    }
+    /**
+     * <pre>
+     * Pagination token to continue past this listing
+     * </pre>
+     *
+     * <code>optional .Pagination pagination = 4 [json_name = "pagination"];</code>
+     */
+    public Builder setPagination(io.pinecone.proto.Pagination value) {
+      if (paginationBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        pagination_ = value;
+      } else {
+        paginationBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x00000008;
+      onChanged();
+      return this;
+    }
+    /**
+     * <pre>
+     * Pagination token to continue past this listing
+     * </pre>
+     *
+     * <code>optional .Pagination pagination = 4 [json_name = "pagination"];</code>
+     */
+    public Builder setPagination(
+        io.pinecone.proto.Pagination.Builder builderForValue) {
+      if (paginationBuilder_ == null) {
+        pagination_ = builderForValue.build();
+      } else {
+        paginationBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x00000008;
+      onChanged();
+      return this;
+    }
+    /**
+     * <pre>
+     * Pagination token to continue past this listing
+     * </pre>
+     *
+     * <code>optional .Pagination pagination = 4 [json_name = "pagination"];</code>
+     */
+    public Builder mergePagination(io.pinecone.proto.Pagination value) {
+      if (paginationBuilder_ == null) {
+        if (((bitField0_ & 0x00000008) != 0) &&
+          pagination_ != null &&
+          pagination_ != io.pinecone.proto.Pagination.getDefaultInstance()) {
+          getPaginationBuilder().mergeFrom(value);
+        } else {
+          pagination_ = value;
+        }
+      } else {
+        paginationBuilder_.mergeFrom(value);
+      }
+      if (pagination_ != null) {
+        bitField0_ |= 0x00000008;
+        onChanged();
+      }
+      return this;
+    }
+    /**
+     * <pre>
+     * Pagination token to continue past this listing
+     * </pre>
+     *
+     * <code>optional .Pagination pagination = 4 [json_name = "pagination"];</code>
+     */
+    public Builder clearPagination() {
+      bitField0_ = (bitField0_ & ~0x00000008);
+      pagination_ = null;
+      if (paginationBuilder_ != null) {
+        paginationBuilder_.dispose();
+        paginationBuilder_ = null;
+      }
+      onChanged();
+      return this;
+    }
+    /**
+     * <pre>
+     * Pagination token to continue past this listing
+     * </pre>
+     *
+     * <code>optional .Pagination pagination = 4 [json_name = "pagination"];</code>
+     */
+    public io.pinecone.proto.Pagination.Builder getPaginationBuilder() {
+      bitField0_ |= 0x00000008;
+      onChanged();
+      return getPaginationFieldBuilder().getBuilder();
+    }
+    /**
+     * <pre>
+     * Pagination token to continue past this listing
+     * </pre>
+     *
+     * <code>optional .Pagination pagination = 4 [json_name = "pagination"];</code>
+     */
+    public io.pinecone.proto.PaginationOrBuilder getPaginationOrBuilder() {
+      if (paginationBuilder_ != null) {
+        return paginationBuilder_.getMessageOrBuilder();
+      } else {
+        return pagination_ == null ?
+            io.pinecone.proto.Pagination.getDefaultInstance() : pagination_;
+      }
+    }
+    /**
+     * <pre>
+     * Pagination token to continue past this listing
+     * </pre>
+     *
+     * <code>optional .Pagination pagination = 4 [json_name = "pagination"];</code>
+     */
+    private com.google.protobuf.SingleFieldBuilder<
+        io.pinecone.proto.Pagination, io.pinecone.proto.Pagination.Builder, io.pinecone.proto.PaginationOrBuilder> 
+        getPaginationFieldBuilder() {
+      if (paginationBuilder_ == null) {
+        paginationBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            io.pinecone.proto.Pagination, io.pinecone.proto.Pagination.Builder, io.pinecone.proto.PaginationOrBuilder>(
+                getPagination(),
+                getParentForChildren(),
+                isClean());
+        pagination_ = null;
+      }
+      return paginationBuilder_;
+    }
+
+    // @@protoc_insertion_point(builder_scope:FetchByMetadataResponse)
   }
 
-  // @@protoc_insertion_point(class_scope:FetchResponse)
-  private static final io.pinecone.proto.FetchResponse DEFAULT_INSTANCE;
+  // @@protoc_insertion_point(class_scope:FetchByMetadataResponse)
+  private static final io.pinecone.proto.FetchByMetadataResponse DEFAULT_INSTANCE;
   static {
-    DEFAULT_INSTANCE = new io.pinecone.proto.FetchResponse();
+    DEFAULT_INSTANCE = new io.pinecone.proto.FetchByMetadataResponse();
   }
 
-  public static io.pinecone.proto.FetchResponse getDefaultInstance() {
+  public static io.pinecone.proto.FetchByMetadataResponse getDefaultInstance() {
     return DEFAULT_INSTANCE;
   }
 
-  private static final com.google.protobuf.Parser<FetchResponse>
-      PARSER = new com.google.protobuf.AbstractParser<FetchResponse>() {
+  private static final com.google.protobuf.Parser<FetchByMetadataResponse>
+      PARSER = new com.google.protobuf.AbstractParser<FetchByMetadataResponse>() {
     @java.lang.Override
-    public FetchResponse parsePartialFrom(
+    public FetchByMetadataResponse parsePartialFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -1114,17 +1347,17 @@ io.pinecone.proto.Vector defaultValue) {
     }
   };
 
-  public static com.google.protobuf.Parser<FetchResponse> parser() {
+  public static com.google.protobuf.Parser<FetchByMetadataResponse> parser() {
     return PARSER;
   }
 
   @java.lang.Override
-  public com.google.protobuf.Parser<FetchResponse> getParserForType() {
+  public com.google.protobuf.Parser<FetchByMetadataResponse> getParserForType() {
     return PARSER;
   }
 
   @java.lang.Override
-  public io.pinecone.proto.FetchResponse getDefaultInstanceForType() {
+  public io.pinecone.proto.FetchByMetadataResponse getDefaultInstanceForType() {
     return DEFAULT_INSTANCE;
   }
 

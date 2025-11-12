@@ -10,7 +10,7 @@ import static io.grpc.MethodDescriptor.generateFullMethodName;
  */
 @javax.annotation.Generated(
     value = "by gRPC proto compiler (version 1.64.0)",
-    comments = "Source: db_data_2025-04.proto")
+    comments = "Source: db_data_2025-10.proto")
 @io.grpc.stub.annotations.GrpcGenerated
 public final class VectorServiceGrpc {
 
@@ -329,6 +329,68 @@ public final class VectorServiceGrpc {
     return getDeleteNamespaceMethod;
   }
 
+  private static volatile io.grpc.MethodDescriptor<io.pinecone.proto.CreateNamespaceRequest,
+      io.pinecone.proto.NamespaceDescription> getCreateNamespaceMethod;
+
+  @io.grpc.stub.annotations.RpcMethod(
+      fullMethodName = SERVICE_NAME + '/' + "CreateNamespace",
+      requestType = io.pinecone.proto.CreateNamespaceRequest.class,
+      responseType = io.pinecone.proto.NamespaceDescription.class,
+      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+  public static io.grpc.MethodDescriptor<io.pinecone.proto.CreateNamespaceRequest,
+      io.pinecone.proto.NamespaceDescription> getCreateNamespaceMethod() {
+    io.grpc.MethodDescriptor<io.pinecone.proto.CreateNamespaceRequest, io.pinecone.proto.NamespaceDescription> getCreateNamespaceMethod;
+    if ((getCreateNamespaceMethod = VectorServiceGrpc.getCreateNamespaceMethod) == null) {
+      synchronized (VectorServiceGrpc.class) {
+        if ((getCreateNamespaceMethod = VectorServiceGrpc.getCreateNamespaceMethod) == null) {
+          VectorServiceGrpc.getCreateNamespaceMethod = getCreateNamespaceMethod =
+              io.grpc.MethodDescriptor.<io.pinecone.proto.CreateNamespaceRequest, io.pinecone.proto.NamespaceDescription>newBuilder()
+              .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
+              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "CreateNamespace"))
+              .setSampledToLocalTracing(true)
+              .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  io.pinecone.proto.CreateNamespaceRequest.getDefaultInstance()))
+              .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  io.pinecone.proto.NamespaceDescription.getDefaultInstance()))
+              .setSchemaDescriptor(new VectorServiceMethodDescriptorSupplier("CreateNamespace"))
+              .build();
+        }
+      }
+    }
+    return getCreateNamespaceMethod;
+  }
+
+  private static volatile io.grpc.MethodDescriptor<io.pinecone.proto.FetchByMetadataRequest,
+      io.pinecone.proto.FetchByMetadataResponse> getFetchByMetadataMethod;
+
+  @io.grpc.stub.annotations.RpcMethod(
+      fullMethodName = SERVICE_NAME + '/' + "FetchByMetadata",
+      requestType = io.pinecone.proto.FetchByMetadataRequest.class,
+      responseType = io.pinecone.proto.FetchByMetadataResponse.class,
+      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+  public static io.grpc.MethodDescriptor<io.pinecone.proto.FetchByMetadataRequest,
+      io.pinecone.proto.FetchByMetadataResponse> getFetchByMetadataMethod() {
+    io.grpc.MethodDescriptor<io.pinecone.proto.FetchByMetadataRequest, io.pinecone.proto.FetchByMetadataResponse> getFetchByMetadataMethod;
+    if ((getFetchByMetadataMethod = VectorServiceGrpc.getFetchByMetadataMethod) == null) {
+      synchronized (VectorServiceGrpc.class) {
+        if ((getFetchByMetadataMethod = VectorServiceGrpc.getFetchByMetadataMethod) == null) {
+          VectorServiceGrpc.getFetchByMetadataMethod = getFetchByMetadataMethod =
+              io.grpc.MethodDescriptor.<io.pinecone.proto.FetchByMetadataRequest, io.pinecone.proto.FetchByMetadataResponse>newBuilder()
+              .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
+              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "FetchByMetadata"))
+              .setSampledToLocalTracing(true)
+              .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  io.pinecone.proto.FetchByMetadataRequest.getDefaultInstance()))
+              .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  io.pinecone.proto.FetchByMetadataResponse.getDefaultInstance()))
+              .setSchemaDescriptor(new VectorServiceMethodDescriptorSupplier("FetchByMetadata"))
+              .build();
+        }
+      }
+    }
+    return getFetchByMetadataMethod;
+  }
+
   /**
    * Creates a new async stub that supports all call types for the service
    */
@@ -385,7 +447,7 @@ public final class VectorServiceGrpc {
      * <pre>
      * Upsert vectors
      * Upsert vectors into a namespace. If a new value is upserted for an existing vector ID, it will overwrite the previous value.
-     * For guidance and examples, see [Upsert data](https://docs.pinecone.io/guides/data/upsert-data#upsert-vectors).
+     * For guidance, examples, and limits, see [Upsert data](https://docs.pinecone.io/guides/index-data/upsert-data).
      * </pre>
      */
     default void upsert(io.pinecone.proto.UpsertRequest request,
@@ -397,7 +459,7 @@ public final class VectorServiceGrpc {
      * <pre>
      * Delete vectors
      * Delete vectors by id from a single namespace.
-     * For guidance and examples, see [Delete data](https://docs.pinecone.io/guides/data/delete-data).
+     * For guidance and examples, see [Delete data](https://docs.pinecone.io/guides/manage-data/delete-data).
      * </pre>
      */
     default void delete(io.pinecone.proto.DeleteRequest request,
@@ -409,7 +471,7 @@ public final class VectorServiceGrpc {
      * <pre>
      * Fetch vectors
      * Look up and return vectors by ID from a single namespace. The returned vectors include the vector data and/or metadata.
-     * For guidance and examples, see [Fetch data](https://docs.pinecone.io/guides/data/fetch-data).
+     * For guidance and examples, see [Fetch data](https://docs.pinecone.io/guides/manage-data/fetch-data).
      * </pre>
      */
     default void fetch(io.pinecone.proto.FetchRequest request,
@@ -422,7 +484,7 @@ public final class VectorServiceGrpc {
      * List vector IDs
      * List the IDs of vectors in a single namespace of a serverless index. An optional prefix can be passed to limit the results to IDs with a common prefix.
      * This returns up to 100 IDs at a time by default in sorted order (bitwise/"C" collation). If the `limit` parameter is set, `list` returns up to that number of IDs instead. Whenever there are additional IDs to return, the response also includes a `pagination_token` that you can use to get the next batch of IDs. When the response does not include a `pagination_token`, there are no more IDs to return.
-     * For guidance and examples, see [List record IDs](https://docs.pinecone.io/guides/data/list-record-ids).
+     * For guidance and examples, see [List record IDs](https://docs.pinecone.io/guides/manage-data/list-record-ids).
      * **Note:** `list` is supported only for serverless indexes.
      * </pre>
      */
@@ -435,7 +497,7 @@ public final class VectorServiceGrpc {
      * <pre>
      * Search with a vector
      * Search a namespace with a query vector or record ID and return the IDs of the most similar records, along with their similarity scores.
-     * For guidance and examples, see [Query data](https://docs.pinecone.io/guides/data/query-data).
+     * For guidance, examples, and limits, see [Search](https://docs.pinecone.io/guides/search/search-overview).
      * </pre>
      */
     default void query(io.pinecone.proto.QueryRequest request,
@@ -447,7 +509,7 @@ public final class VectorServiceGrpc {
      * <pre>
      * Update a vector
      * Update a vector in a namespace. If a value is included, it will overwrite the previous value. If a `set_metadata` is included, the values of the fields specified in it will be added or overwrite the previous value.
-     * For guidance and examples, see [Update data](https://docs.pinecone.io/guides/data/update-data).
+     * For guidance and examples, see [Update data](https://docs.pinecone.io/guides/manage-data/update-data).
      * </pre>
      */
     default void update(io.pinecone.proto.UpdateRequest request,
@@ -469,8 +531,12 @@ public final class VectorServiceGrpc {
 
     /**
      * <pre>
-     * Get list of all namespaces
-     * Get a list of all namespaces within an index.
+     * List namespaces
+     * List all namespaces in a serverless index.
+     *      
+     * Up to 100 namespaces are returned at a time by default, in sorted order (bitwise "C" collation). If the `limit` parameter is set, up to that number of namespaces are returned instead. Whenever there are additional namespaces to return, the response also includes a `pagination_token` that you can use to get the next batch of namespaces. When the response does not include a `pagination_token`, there are no more namespaces to return.
+     * For guidance and examples, see [Manage namespaces](https://docs.pinecone.io/guides/manage-data/manage-namespaces).
+     * **Note:** This operation is not supported for pod-based indexes.
      * </pre>
      */
     default void listNamespaces(io.pinecone.proto.ListNamespacesRequest request,
@@ -481,7 +547,9 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Describe a namespace
-     * Describe a namespace within an index, showing the vector count within the namespace.
+     * Describe a namespace in a serverless index, including the total number of vectors in the namespace.
+     * For guidance and examples, see [Manage namespaces](https://docs.pinecone.io/guides/manage-data/manage-namespaces).
+     * **Note:** This operation is not supported for pod-based indexes.
      * </pre>
      */
     default void describeNamespace(io.pinecone.proto.DescribeNamespaceRequest request,
@@ -492,12 +560,35 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Delete a namespace
-     * Delete a namespace from an index.
+     * Delete a namespace from a serverless index. Deleting a namespace is irreversible; all data in the namespace is permanently deleted.
+     * For guidance and examples, see [Manage namespaces](https://docs.pinecone.io/guides/manage-data/manage-namespaces).
+     * **Note:** This operation is not supported for pod-based indexes.
      * </pre>
      */
     default void deleteNamespace(io.pinecone.proto.DeleteNamespaceRequest request,
         io.grpc.stub.StreamObserver<io.pinecone.proto.DeleteResponse> responseObserver) {
       io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getDeleteNamespaceMethod(), responseObserver);
+    }
+
+    /**
+     * <pre>
+     * Create a namespace
+     * Create a namespace in a serverless index.
+     * 
+     * For guidance and examples, see [Manage namespaces](https://docs.pinecone.io/guides/manage-data/manage-namespaces).
+     * **Note:** This operation is not supported for pod-based indexes.
+     * </pre>
+     */
+    default void createNamespace(io.pinecone.proto.CreateNamespaceRequest request,
+        io.grpc.stub.StreamObserver<io.pinecone.proto.NamespaceDescription> responseObserver) {
+      io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getCreateNamespaceMethod(), responseObserver);
+    }
+
+    /**
+     */
+    default void fetchByMetadata(io.pinecone.proto.FetchByMetadataRequest request,
+        io.grpc.stub.StreamObserver<io.pinecone.proto.FetchByMetadataResponse> responseObserver) {
+      io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getFetchByMetadataMethod(), responseObserver);
     }
   }
 
@@ -540,7 +631,7 @@ public final class VectorServiceGrpc {
      * <pre>
      * Upsert vectors
      * Upsert vectors into a namespace. If a new value is upserted for an existing vector ID, it will overwrite the previous value.
-     * For guidance and examples, see [Upsert data](https://docs.pinecone.io/guides/data/upsert-data#upsert-vectors).
+     * For guidance, examples, and limits, see [Upsert data](https://docs.pinecone.io/guides/index-data/upsert-data).
      * </pre>
      */
     public void upsert(io.pinecone.proto.UpsertRequest request,
@@ -553,7 +644,7 @@ public final class VectorServiceGrpc {
      * <pre>
      * Delete vectors
      * Delete vectors by id from a single namespace.
-     * For guidance and examples, see [Delete data](https://docs.pinecone.io/guides/data/delete-data).
+     * For guidance and examples, see [Delete data](https://docs.pinecone.io/guides/manage-data/delete-data).
      * </pre>
      */
     public void delete(io.pinecone.proto.DeleteRequest request,
@@ -566,7 +657,7 @@ public final class VectorServiceGrpc {
      * <pre>
      * Fetch vectors
      * Look up and return vectors by ID from a single namespace. The returned vectors include the vector data and/or metadata.
-     * For guidance and examples, see [Fetch data](https://docs.pinecone.io/guides/data/fetch-data).
+     * For guidance and examples, see [Fetch data](https://docs.pinecone.io/guides/manage-data/fetch-data).
      * </pre>
      */
     public void fetch(io.pinecone.proto.FetchRequest request,
@@ -580,7 +671,7 @@ public final class VectorServiceGrpc {
      * List vector IDs
      * List the IDs of vectors in a single namespace of a serverless index. An optional prefix can be passed to limit the results to IDs with a common prefix.
      * This returns up to 100 IDs at a time by default in sorted order (bitwise/"C" collation). If the `limit` parameter is set, `list` returns up to that number of IDs instead. Whenever there are additional IDs to return, the response also includes a `pagination_token` that you can use to get the next batch of IDs. When the response does not include a `pagination_token`, there are no more IDs to return.
-     * For guidance and examples, see [List record IDs](https://docs.pinecone.io/guides/data/list-record-ids).
+     * For guidance and examples, see [List record IDs](https://docs.pinecone.io/guides/manage-data/list-record-ids).
      * **Note:** `list` is supported only for serverless indexes.
      * </pre>
      */
@@ -594,7 +685,7 @@ public final class VectorServiceGrpc {
      * <pre>
      * Search with a vector
      * Search a namespace with a query vector or record ID and return the IDs of the most similar records, along with their similarity scores.
-     * For guidance and examples, see [Query data](https://docs.pinecone.io/guides/data/query-data).
+     * For guidance, examples, and limits, see [Search](https://docs.pinecone.io/guides/search/search-overview).
      * </pre>
      */
     public void query(io.pinecone.proto.QueryRequest request,
@@ -607,7 +698,7 @@ public final class VectorServiceGrpc {
      * <pre>
      * Update a vector
      * Update a vector in a namespace. If a value is included, it will overwrite the previous value. If a `set_metadata` is included, the values of the fields specified in it will be added or overwrite the previous value.
-     * For guidance and examples, see [Update data](https://docs.pinecone.io/guides/data/update-data).
+     * For guidance and examples, see [Update data](https://docs.pinecone.io/guides/manage-data/update-data).
      * </pre>
      */
     public void update(io.pinecone.proto.UpdateRequest request,
@@ -631,8 +722,12 @@ public final class VectorServiceGrpc {
 
     /**
      * <pre>
-     * Get list of all namespaces
-     * Get a list of all namespaces within an index.
+     * List namespaces
+     * List all namespaces in a serverless index.
+     *      
+     * Up to 100 namespaces are returned at a time by default, in sorted order (bitwise "C" collation). If the `limit` parameter is set, up to that number of namespaces are returned instead. Whenever there are additional namespaces to return, the response also includes a `pagination_token` that you can use to get the next batch of namespaces. When the response does not include a `pagination_token`, there are no more namespaces to return.
+     * For guidance and examples, see [Manage namespaces](https://docs.pinecone.io/guides/manage-data/manage-namespaces).
+     * **Note:** This operation is not supported for pod-based indexes.
      * </pre>
      */
     public void listNamespaces(io.pinecone.proto.ListNamespacesRequest request,
@@ -644,7 +739,9 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Describe a namespace
-     * Describe a namespace within an index, showing the vector count within the namespace.
+     * Describe a namespace in a serverless index, including the total number of vectors in the namespace.
+     * For guidance and examples, see [Manage namespaces](https://docs.pinecone.io/guides/manage-data/manage-namespaces).
+     * **Note:** This operation is not supported for pod-based indexes.
      * </pre>
      */
     public void describeNamespace(io.pinecone.proto.DescribeNamespaceRequest request,
@@ -656,13 +753,38 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Delete a namespace
-     * Delete a namespace from an index.
+     * Delete a namespace from a serverless index. Deleting a namespace is irreversible; all data in the namespace is permanently deleted.
+     * For guidance and examples, see [Manage namespaces](https://docs.pinecone.io/guides/manage-data/manage-namespaces).
+     * **Note:** This operation is not supported for pod-based indexes.
      * </pre>
      */
     public void deleteNamespace(io.pinecone.proto.DeleteNamespaceRequest request,
         io.grpc.stub.StreamObserver<io.pinecone.proto.DeleteResponse> responseObserver) {
       io.grpc.stub.ClientCalls.asyncUnaryCall(
           getChannel().newCall(getDeleteNamespaceMethod(), getCallOptions()), request, responseObserver);
+    }
+
+    /**
+     * <pre>
+     * Create a namespace
+     * Create a namespace in a serverless index.
+     * 
+     * For guidance and examples, see [Manage namespaces](https://docs.pinecone.io/guides/manage-data/manage-namespaces).
+     * **Note:** This operation is not supported for pod-based indexes.
+     * </pre>
+     */
+    public void createNamespace(io.pinecone.proto.CreateNamespaceRequest request,
+        io.grpc.stub.StreamObserver<io.pinecone.proto.NamespaceDescription> responseObserver) {
+      io.grpc.stub.ClientCalls.asyncUnaryCall(
+          getChannel().newCall(getCreateNamespaceMethod(), getCallOptions()), request, responseObserver);
+    }
+
+    /**
+     */
+    public void fetchByMetadata(io.pinecone.proto.FetchByMetadataRequest request,
+        io.grpc.stub.StreamObserver<io.pinecone.proto.FetchByMetadataResponse> responseObserver) {
+      io.grpc.stub.ClientCalls.asyncUnaryCall(
+          getChannel().newCall(getFetchByMetadataMethod(), getCallOptions()), request, responseObserver);
     }
   }
 
@@ -690,7 +812,7 @@ public final class VectorServiceGrpc {
      * <pre>
      * Upsert vectors
      * Upsert vectors into a namespace. If a new value is upserted for an existing vector ID, it will overwrite the previous value.
-     * For guidance and examples, see [Upsert data](https://docs.pinecone.io/guides/data/upsert-data#upsert-vectors).
+     * For guidance, examples, and limits, see [Upsert data](https://docs.pinecone.io/guides/index-data/upsert-data).
      * </pre>
      */
     public io.pinecone.proto.UpsertResponse upsert(io.pinecone.proto.UpsertRequest request) {
@@ -702,7 +824,7 @@ public final class VectorServiceGrpc {
      * <pre>
      * Delete vectors
      * Delete vectors by id from a single namespace.
-     * For guidance and examples, see [Delete data](https://docs.pinecone.io/guides/data/delete-data).
+     * For guidance and examples, see [Delete data](https://docs.pinecone.io/guides/manage-data/delete-data).
      * </pre>
      */
     public io.pinecone.proto.DeleteResponse delete(io.pinecone.proto.DeleteRequest request) {
@@ -714,7 +836,7 @@ public final class VectorServiceGrpc {
      * <pre>
      * Fetch vectors
      * Look up and return vectors by ID from a single namespace. The returned vectors include the vector data and/or metadata.
-     * For guidance and examples, see [Fetch data](https://docs.pinecone.io/guides/data/fetch-data).
+     * For guidance and examples, see [Fetch data](https://docs.pinecone.io/guides/manage-data/fetch-data).
      * </pre>
      */
     public io.pinecone.proto.FetchResponse fetch(io.pinecone.proto.FetchRequest request) {
@@ -727,7 +849,7 @@ public final class VectorServiceGrpc {
      * List vector IDs
      * List the IDs of vectors in a single namespace of a serverless index. An optional prefix can be passed to limit the results to IDs with a common prefix.
      * This returns up to 100 IDs at a time by default in sorted order (bitwise/"C" collation). If the `limit` parameter is set, `list` returns up to that number of IDs instead. Whenever there are additional IDs to return, the response also includes a `pagination_token` that you can use to get the next batch of IDs. When the response does not include a `pagination_token`, there are no more IDs to return.
-     * For guidance and examples, see [List record IDs](https://docs.pinecone.io/guides/data/list-record-ids).
+     * For guidance and examples, see [List record IDs](https://docs.pinecone.io/guides/manage-data/list-record-ids).
      * **Note:** `list` is supported only for serverless indexes.
      * </pre>
      */
@@ -740,7 +862,7 @@ public final class VectorServiceGrpc {
      * <pre>
      * Search with a vector
      * Search a namespace with a query vector or record ID and return the IDs of the most similar records, along with their similarity scores.
-     * For guidance and examples, see [Query data](https://docs.pinecone.io/guides/data/query-data).
+     * For guidance, examples, and limits, see [Search](https://docs.pinecone.io/guides/search/search-overview).
      * </pre>
      */
     public io.pinecone.proto.QueryResponse query(io.pinecone.proto.QueryRequest request) {
@@ -752,7 +874,7 @@ public final class VectorServiceGrpc {
      * <pre>
      * Update a vector
      * Update a vector in a namespace. If a value is included, it will overwrite the previous value. If a `set_metadata` is included, the values of the fields specified in it will be added or overwrite the previous value.
-     * For guidance and examples, see [Update data](https://docs.pinecone.io/guides/data/update-data).
+     * For guidance and examples, see [Update data](https://docs.pinecone.io/guides/manage-data/update-data).
      * </pre>
      */
     public io.pinecone.proto.UpdateResponse update(io.pinecone.proto.UpdateRequest request) {
@@ -774,8 +896,12 @@ public final class VectorServiceGrpc {
 
     /**
      * <pre>
-     * Get list of all namespaces
-     * Get a list of all namespaces within an index.
+     * List namespaces
+     * List all namespaces in a serverless index.
+     *      
+     * Up to 100 namespaces are returned at a time by default, in sorted order (bitwise "C" collation). If the `limit` parameter is set, up to that number of namespaces are returned instead. Whenever there are additional namespaces to return, the response also includes a `pagination_token` that you can use to get the next batch of namespaces. When the response does not include a `pagination_token`, there are no more namespaces to return.
+     * For guidance and examples, see [Manage namespaces](https://docs.pinecone.io/guides/manage-data/manage-namespaces).
+     * **Note:** This operation is not supported for pod-based indexes.
      * </pre>
      */
     public io.pinecone.proto.ListNamespacesResponse listNamespaces(io.pinecone.proto.ListNamespacesRequest request) {
@@ -786,7 +912,9 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Describe a namespace
-     * Describe a namespace within an index, showing the vector count within the namespace.
+     * Describe a namespace in a serverless index, including the total number of vectors in the namespace.
+     * For guidance and examples, see [Manage namespaces](https://docs.pinecone.io/guides/manage-data/manage-namespaces).
+     * **Note:** This operation is not supported for pod-based indexes.
      * </pre>
      */
     public io.pinecone.proto.NamespaceDescription describeNamespace(io.pinecone.proto.DescribeNamespaceRequest request) {
@@ -797,12 +925,35 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Delete a namespace
-     * Delete a namespace from an index.
+     * Delete a namespace from a serverless index. Deleting a namespace is irreversible; all data in the namespace is permanently deleted.
+     * For guidance and examples, see [Manage namespaces](https://docs.pinecone.io/guides/manage-data/manage-namespaces).
+     * **Note:** This operation is not supported for pod-based indexes.
      * </pre>
      */
     public io.pinecone.proto.DeleteResponse deleteNamespace(io.pinecone.proto.DeleteNamespaceRequest request) {
       return io.grpc.stub.ClientCalls.blockingUnaryCall(
           getChannel(), getDeleteNamespaceMethod(), getCallOptions(), request);
+    }
+
+    /**
+     * <pre>
+     * Create a namespace
+     * Create a namespace in a serverless index.
+     * 
+     * For guidance and examples, see [Manage namespaces](https://docs.pinecone.io/guides/manage-data/manage-namespaces).
+     * **Note:** This operation is not supported for pod-based indexes.
+     * </pre>
+     */
+    public io.pinecone.proto.NamespaceDescription createNamespace(io.pinecone.proto.CreateNamespaceRequest request) {
+      return io.grpc.stub.ClientCalls.blockingUnaryCall(
+          getChannel(), getCreateNamespaceMethod(), getCallOptions(), request);
+    }
+
+    /**
+     */
+    public io.pinecone.proto.FetchByMetadataResponse fetchByMetadata(io.pinecone.proto.FetchByMetadataRequest request) {
+      return io.grpc.stub.ClientCalls.blockingUnaryCall(
+          getChannel(), getFetchByMetadataMethod(), getCallOptions(), request);
     }
   }
 
@@ -830,7 +981,7 @@ public final class VectorServiceGrpc {
      * <pre>
      * Upsert vectors
      * Upsert vectors into a namespace. If a new value is upserted for an existing vector ID, it will overwrite the previous value.
-     * For guidance and examples, see [Upsert data](https://docs.pinecone.io/guides/data/upsert-data#upsert-vectors).
+     * For guidance, examples, and limits, see [Upsert data](https://docs.pinecone.io/guides/index-data/upsert-data).
      * </pre>
      */
     public com.google.common.util.concurrent.ListenableFuture<io.pinecone.proto.UpsertResponse> upsert(
@@ -843,7 +994,7 @@ public final class VectorServiceGrpc {
      * <pre>
      * Delete vectors
      * Delete vectors by id from a single namespace.
-     * For guidance and examples, see [Delete data](https://docs.pinecone.io/guides/data/delete-data).
+     * For guidance and examples, see [Delete data](https://docs.pinecone.io/guides/manage-data/delete-data).
      * </pre>
      */
     public com.google.common.util.concurrent.ListenableFuture<io.pinecone.proto.DeleteResponse> delete(
@@ -856,7 +1007,7 @@ public final class VectorServiceGrpc {
      * <pre>
      * Fetch vectors
      * Look up and return vectors by ID from a single namespace. The returned vectors include the vector data and/or metadata.
-     * For guidance and examples, see [Fetch data](https://docs.pinecone.io/guides/data/fetch-data).
+     * For guidance and examples, see [Fetch data](https://docs.pinecone.io/guides/manage-data/fetch-data).
      * </pre>
      */
     public com.google.common.util.concurrent.ListenableFuture<io.pinecone.proto.FetchResponse> fetch(
@@ -870,7 +1021,7 @@ public final class VectorServiceGrpc {
      * List vector IDs
      * List the IDs of vectors in a single namespace of a serverless index. An optional prefix can be passed to limit the results to IDs with a common prefix.
      * This returns up to 100 IDs at a time by default in sorted order (bitwise/"C" collation). If the `limit` parameter is set, `list` returns up to that number of IDs instead. Whenever there are additional IDs to return, the response also includes a `pagination_token` that you can use to get the next batch of IDs. When the response does not include a `pagination_token`, there are no more IDs to return.
-     * For guidance and examples, see [List record IDs](https://docs.pinecone.io/guides/data/list-record-ids).
+     * For guidance and examples, see [List record IDs](https://docs.pinecone.io/guides/manage-data/list-record-ids).
      * **Note:** `list` is supported only for serverless indexes.
      * </pre>
      */
@@ -884,7 +1035,7 @@ public final class VectorServiceGrpc {
      * <pre>
      * Search with a vector
      * Search a namespace with a query vector or record ID and return the IDs of the most similar records, along with their similarity scores.
-     * For guidance and examples, see [Query data](https://docs.pinecone.io/guides/data/query-data).
+     * For guidance, examples, and limits, see [Search](https://docs.pinecone.io/guides/search/search-overview).
      * </pre>
      */
     public com.google.common.util.concurrent.ListenableFuture<io.pinecone.proto.QueryResponse> query(
@@ -897,7 +1048,7 @@ public final class VectorServiceGrpc {
      * <pre>
      * Update a vector
      * Update a vector in a namespace. If a value is included, it will overwrite the previous value. If a `set_metadata` is included, the values of the fields specified in it will be added or overwrite the previous value.
-     * For guidance and examples, see [Update data](https://docs.pinecone.io/guides/data/update-data).
+     * For guidance and examples, see [Update data](https://docs.pinecone.io/guides/manage-data/update-data).
      * </pre>
      */
     public com.google.common.util.concurrent.ListenableFuture<io.pinecone.proto.UpdateResponse> update(
@@ -921,8 +1072,12 @@ public final class VectorServiceGrpc {
 
     /**
      * <pre>
-     * Get list of all namespaces
-     * Get a list of all namespaces within an index.
+     * List namespaces
+     * List all namespaces in a serverless index.
+     *      
+     * Up to 100 namespaces are returned at a time by default, in sorted order (bitwise "C" collation). If the `limit` parameter is set, up to that number of namespaces are returned instead. Whenever there are additional namespaces to return, the response also includes a `pagination_token` that you can use to get the next batch of namespaces. When the response does not include a `pagination_token`, there are no more namespaces to return.
+     * For guidance and examples, see [Manage namespaces](https://docs.pinecone.io/guides/manage-data/manage-namespaces).
+     * **Note:** This operation is not supported for pod-based indexes.
      * </pre>
      */
     public com.google.common.util.concurrent.ListenableFuture<io.pinecone.proto.ListNamespacesResponse> listNamespaces(
@@ -934,7 +1089,9 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Describe a namespace
-     * Describe a namespace within an index, showing the vector count within the namespace.
+     * Describe a namespace in a serverless index, including the total number of vectors in the namespace.
+     * For guidance and examples, see [Manage namespaces](https://docs.pinecone.io/guides/manage-data/manage-namespaces).
+     * **Note:** This operation is not supported for pod-based indexes.
      * </pre>
      */
     public com.google.common.util.concurrent.ListenableFuture<io.pinecone.proto.NamespaceDescription> describeNamespace(
@@ -946,13 +1103,38 @@ public final class VectorServiceGrpc {
     /**
      * <pre>
      * Delete a namespace
-     * Delete a namespace from an index.
+     * Delete a namespace from a serverless index. Deleting a namespace is irreversible; all data in the namespace is permanently deleted.
+     * For guidance and examples, see [Manage namespaces](https://docs.pinecone.io/guides/manage-data/manage-namespaces).
+     * **Note:** This operation is not supported for pod-based indexes.
      * </pre>
      */
     public com.google.common.util.concurrent.ListenableFuture<io.pinecone.proto.DeleteResponse> deleteNamespace(
         io.pinecone.proto.DeleteNamespaceRequest request) {
       return io.grpc.stub.ClientCalls.futureUnaryCall(
           getChannel().newCall(getDeleteNamespaceMethod(), getCallOptions()), request);
+    }
+
+    /**
+     * <pre>
+     * Create a namespace
+     * Create a namespace in a serverless index.
+     * 
+     * For guidance and examples, see [Manage namespaces](https://docs.pinecone.io/guides/manage-data/manage-namespaces).
+     * **Note:** This operation is not supported for pod-based indexes.
+     * </pre>
+     */
+    public com.google.common.util.concurrent.ListenableFuture<io.pinecone.proto.NamespaceDescription> createNamespace(
+        io.pinecone.proto.CreateNamespaceRequest request) {
+      return io.grpc.stub.ClientCalls.futureUnaryCall(
+          getChannel().newCall(getCreateNamespaceMethod(), getCallOptions()), request);
+    }
+
+    /**
+     */
+    public com.google.common.util.concurrent.ListenableFuture<io.pinecone.proto.FetchByMetadataResponse> fetchByMetadata(
+        io.pinecone.proto.FetchByMetadataRequest request) {
+      return io.grpc.stub.ClientCalls.futureUnaryCall(
+          getChannel().newCall(getFetchByMetadataMethod(), getCallOptions()), request);
     }
   }
 
@@ -966,6 +1148,8 @@ public final class VectorServiceGrpc {
   private static final int METHODID_LIST_NAMESPACES = 7;
   private static final int METHODID_DESCRIBE_NAMESPACE = 8;
   private static final int METHODID_DELETE_NAMESPACE = 9;
+  private static final int METHODID_CREATE_NAMESPACE = 10;
+  private static final int METHODID_FETCH_BY_METADATA = 11;
 
   private static final class MethodHandlers<Req, Resp> implements
       io.grpc.stub.ServerCalls.UnaryMethod<Req, Resp>,
@@ -1023,6 +1207,14 @@ public final class VectorServiceGrpc {
         case METHODID_DELETE_NAMESPACE:
           serviceImpl.deleteNamespace((io.pinecone.proto.DeleteNamespaceRequest) request,
               (io.grpc.stub.StreamObserver<io.pinecone.proto.DeleteResponse>) responseObserver);
+          break;
+        case METHODID_CREATE_NAMESPACE:
+          serviceImpl.createNamespace((io.pinecone.proto.CreateNamespaceRequest) request,
+              (io.grpc.stub.StreamObserver<io.pinecone.proto.NamespaceDescription>) responseObserver);
+          break;
+        case METHODID_FETCH_BY_METADATA:
+          serviceImpl.fetchByMetadata((io.pinecone.proto.FetchByMetadataRequest) request,
+              (io.grpc.stub.StreamObserver<io.pinecone.proto.FetchByMetadataResponse>) responseObserver);
           break;
         default:
           throw new AssertionError();
@@ -1112,6 +1304,20 @@ public final class VectorServiceGrpc {
               io.pinecone.proto.DeleteNamespaceRequest,
               io.pinecone.proto.DeleteResponse>(
                 service, METHODID_DELETE_NAMESPACE)))
+        .addMethod(
+          getCreateNamespaceMethod(),
+          io.grpc.stub.ServerCalls.asyncUnaryCall(
+            new MethodHandlers<
+              io.pinecone.proto.CreateNamespaceRequest,
+              io.pinecone.proto.NamespaceDescription>(
+                service, METHODID_CREATE_NAMESPACE)))
+        .addMethod(
+          getFetchByMetadataMethod(),
+          io.grpc.stub.ServerCalls.asyncUnaryCall(
+            new MethodHandlers<
+              io.pinecone.proto.FetchByMetadataRequest,
+              io.pinecone.proto.FetchByMetadataResponse>(
+                service, METHODID_FETCH_BY_METADATA)))
         .build();
   }
 
@@ -1121,7 +1327,7 @@ public final class VectorServiceGrpc {
 
     @java.lang.Override
     public com.google.protobuf.Descriptors.FileDescriptor getFileDescriptor() {
-      return io.pinecone.proto.DbData202504.getDescriptor();
+      return io.pinecone.proto.DbData202510.getDescriptor();
     }
 
     @java.lang.Override
@@ -1170,6 +1376,8 @@ public final class VectorServiceGrpc {
               .addMethod(getListNamespacesMethod())
               .addMethod(getDescribeNamespaceMethod())
               .addMethod(getDeleteNamespaceMethod())
+              .addMethod(getCreateNamespaceMethod())
+              .addMethod(getFetchByMetadataMethod())
               .build();
         }
       }

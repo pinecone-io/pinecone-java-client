@@ -5,8 +5,8 @@
 
 package io.pinecone.proto;
 
-public interface FetchResponseOrBuilder extends
-    // @@protoc_insertion_point(interface_extends:FetchResponse)
+public interface FetchByMetadataResponseOrBuilder extends
+    // @@protoc_insertion_point(interface_extends:FetchByMetadataResponse)
     com.google.protobuf.MessageOrBuilder {
 
   /**
@@ -109,4 +109,31 @@ io.pinecone.proto.Vector defaultValue);
    * <code>optional .Usage usage = 3 [json_name = "usage"];</code>
    */
   io.pinecone.proto.UsageOrBuilder getUsageOrBuilder();
+
+  /**
+   * <pre>
+   * Pagination token to continue past this listing
+   * </pre>
+   *
+   * <code>optional .Pagination pagination = 4 [json_name = "pagination"];</code>
+   * @return Whether the pagination field is set.
+   */
+  boolean hasPagination();
+  /**
+   * <pre>
+   * Pagination token to continue past this listing
+   * </pre>
+   *
+   * <code>optional .Pagination pagination = 4 [json_name = "pagination"];</code>
+   * @return The pagination.
+   */
+  io.pinecone.proto.Pagination getPagination();
+  /**
+   * <pre>
+   * Pagination token to continue past this listing
+   * </pre>
+   *
+   * <code>optional .Pagination pagination = 4 [json_name = "pagination"];</code>
+   */
+  io.pinecone.proto.PaginationOrBuilder getPaginationOrBuilder();
 }
