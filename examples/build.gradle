@@ -10,17 +10,25 @@ repositories {
     jcenter()
 }
 
+def opentelemetryVersion = '1.35.0'
+
 dependencies {
     implementation project(':pinecone-client')
 
     implementation "org.slf4j:slf4j-simple:1.7.30"
     implementation 'org.codehaus.groovy:groovy-all:2.4.15'
+
+    // OpenTelemetry dependencies for java-otel-metrics example
+    implementation "io.opentelemetry:opentelemetry-sdk:${opentelemetryVersion}"
+    implementation "io.opentelemetry:opentelemetry-sdk-metrics:${opentelemetryVersion}"
+    implementation "io.opentelemetry:opentelemetry-exporter-otlp:${opentelemetryVersion}"
+    implementation "io.opentelemetry:opentelemetry-exporter-logging:${opentelemetryVersion}"
 }
 
 sourceSets {
     main {
         java {
-            srcDirs = ['java-basic-mvn/src']
+            srcDirs = ['java-basic-mvn/src', 'java-otel-metrics/src/main/java']
         }
         groovy {
             srcDirs = ['groovy-basic']

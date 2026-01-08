@@ -48,6 +48,7 @@ public class PineconeConnection implements AutoCloseable {
 
     private static final Logger logger = LoggerFactory.getLogger(PineconeConnection.class);
     private final PineconeConfig config;
+    private final String indexName;
     final ManagedChannel channel;
 
     /**
@@ -70,7 +71,22 @@ public class PineconeConnection implements AutoCloseable {
      * @throws PineconeValidationException If index name or host is not provided for data plane operations.
      */
     public PineconeConnection(PineconeConfig config) {
+        this(config, null);
+    }
+
+    /**
+     * Constructs a {@link PineconeConnection} instance with the specified {@link PineconeConfig} and index name.
+     * If a custom gRPC ManagedChannel is provided in the {@link PineconeConfig}, it will be used.
+     * Otherwise, a new gRPC ManagedChannel will be built using the host specified in the {@link PineconeConfig}.
+     * <p>
+     *
+     * @param config    The {@link PineconeConfig} containing configuration settings for the PineconeConnection.
+     * @param indexName The name of the index, used for response metadata tracking.
+     * @throws PineconeValidationException If index name or host is not provided for data plane operations.
+     */
+    public PineconeConnection(PineconeConfig config, String indexName) {
         this.config = config;
+        this.indexName = indexName;
         if (config.getCustomManagedChannel() != null) {
             channel = config.getCustomManagedChannel();
         } else {
@@ -91,19 +107,41 @@ public class PineconeConnection implements AutoCloseable {
     }
 
     private VectorServiceGrpc.VectorServiceBlockingStub generateBlockingStub(Metadata metadata) {
-        return VectorServiceGrpc
+        VectorServiceGrpc.VectorServiceBlockingStub stub = VectorServiceGrpc
                 .newBlockingStub(channel)
                 .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(metadata))
                 .withMaxInboundMessageSize(DEFAULT_MAX_MESSAGE_SIZE)
                 .withMaxOutboundMessageSize(DEFAULT_MAX_MESSAGE_SIZE);
+
+        // Add response metadata interceptor if listener is configured
+        if (config.getResponseMetadataListener() != null) {
+            stub = stub.withInterceptors(
+                    new ResponseMetadataInterceptor(
+                            config.getResponseMetadataListener(),
+                            indexName != null ? indexName : "",
+                            config.getHost() != null ? config.getHost() : ""));
+        }
+
+        return stub;
     }
 
     private VectorServiceGrpc.VectorServiceFutureStub generateAsyncStub(Metadata metadata) {
-        return VectorServiceGrpc
+        VectorServiceGrpc.VectorServiceFutureStub stub = VectorServiceGrpc
                 .newFutureStub(channel)
                 .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(metadata))
                 .withMaxInboundMessageSize(DEFAULT_MAX_MESSAGE_SIZE)
                 .withMaxOutboundMessageSize(DEFAULT_MAX_MESSAGE_SIZE);
+
+        // Add response metadata interceptor if listener is configured
+        if (config.getResponseMetadataListener() != null) {
+            stub = stub.withInterceptors(
+                    new ResponseMetadataInterceptor(
+                            config.getResponseMetadataListener(),
+                            indexName != null ? indexName : "",
+                            config.getHost() != null ? config.getHost() : ""));
+        }
+
+        return stub;
     }
 
     /**
