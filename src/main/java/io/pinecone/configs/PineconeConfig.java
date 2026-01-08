@@ -55,6 +55,7 @@ public class PineconeConfig {
     private OkHttpClient customOkHttpClient;
     private ManagedChannel customManagedChannel;
     private boolean enableTLS = true;
+    private ResponseMetadataListener responseMetadataListener;
 
     /**
      * Constructs a {@link PineconeConfig} instance with the specified API key.
@@ -246,6 +247,25 @@ public class PineconeConfig {
      */
     public void setTLSEnabled(boolean enableTLS) {
         this.enableTLS = enableTLS;
+    }
+
+    /**
+     * Returns the response metadata listener, or null if not configured.
+     *
+     * @return The response metadata listener for capturing timing metrics from data plane operations.
+     */
+    public ResponseMetadataListener getResponseMetadataListener() {
+        return responseMetadataListener;
+    }
+
+    /**
+     * Sets the response metadata listener for capturing timing metrics from data plane operations.
+     * The listener is invoked after each upsert, query, fetch, update, or delete operation completes.
+     *
+     * @param responseMetadataListener The listener to receive response metadata.
+     */
+    public void setResponseMetadataListener(ResponseMetadataListener responseMetadataListener) {
+        this.responseMetadataListener = responseMetadataListener;
     }
 
     private String buildUserAgent() {

@@ -3,6 +3,7 @@ package io.pinecone.clients;
 import io.pinecone.configs.PineconeConfig;
 import io.pinecone.configs.PineconeConnection;
 import io.pinecone.configs.ProxyConfig;
+import io.pinecone.configs.ResponseMetadataListener;
 import io.pinecone.exceptions.*;
 import okhttp3.OkHttpClient;
 import org.openapitools.db_control.client.ApiClient;
@@ -1477,6 +1478,10 @@ public class Pinecone {
 
         PineconeConfig perConnectionConfig = new PineconeConfig(config.getApiKey(), config.getSourceTag());
         perConnectionConfig.setHost(getIndexHost(indexName));
+        perConnectionConfig.setTLSEnabled(config.isTLSEnabled());
+        if (config.getResponseMetadataListener() != null) {
+            perConnectionConfig.setResponseMetadataListener(config.getResponseMetadataListener());
+        }
 
         PineconeConnection connection = getConnection(indexName, perConnectionConfig);
         return new Index(perConnectionConfig, connection, indexName);
@@ -1509,9 +1514,13 @@ public class Pinecone {
 
         PineconeConfig perConnectionConfig = new PineconeConfig(config.getApiKey(), config.getSourceTag());
         perConnectionConfig.setHost(getIndexHost(indexName));
+        perConnectionConfig.setTLSEnabled(config.isTLSEnabled());
+        if (config.getResponseMetadataListener() != null) {
+            perConnectionConfig.setResponseMetadataListener(config.getResponseMetadataListener());
+        }
 
         PineconeConnection connection = getConnection(indexName, perConnectionConfig);
-        return new AsyncIndex(config, connection, indexName);
+        return new AsyncIndex(perConnectionConfig, connection, indexName);
     }
 
     /**
@@ -1527,7 +1536,7 @@ public class Pinecone {
     }
 
     PineconeConnection getConnection(String indexName, PineconeConfig perConnectionConfig) {
-        return connectionsMap.computeIfAbsent(indexName, key -> new PineconeConnection(perConnectionConfig));
+        return connectionsMap.computeIfAbsent(indexName, key -> new PineconeConnection(perConnectionConfig, indexName));
     }
 
     ConcurrentHashMap<String, PineconeConnection> getConnectionsMap() {
@@ -1563,6 +1572,7 @@ public class Pinecone {
         private ProxyConfig proxyConfig;
         private OkHttpClient customOkHttpClient;
         private boolean enableTls = true;
+        private ResponseMetadataListener responseMetadataListener;
 
         /**
          * Constructs a new {@link Builder} with the mandatory API key.
@@ -1715,6 +1725,34 @@ public class Pinecone {
         }
 
         /**
+         * Sets a listener to receive response metadata from data plane operations.
+         * <p>
+         * The listener is invoked after each upsert, query, fetch, update, or delete operation completes.
+         * Use this for custom metrics, logging, or OpenTelemetry integration.
+         * <p>
+         * Example usage:
+         * <pre>{@code
+         * Pinecone client = new Pinecone.Builder("PINECONE_API_KEY")
+         *     .withResponseMetadataListener(metadata -> {
+         *         System.out.println("Operation: " + metadata.getOperationName());
+         *         System.out.println("Server time: " + metadata.getServerDurationMs() + "ms");
+         *         System.out.println("Total time: " + metadata.getClientDurationMs() + "ms");
+         *     })
+         *     .build();
+         *
+         * Index index = client.getIndexConnection("my-index");
+         * index.query(...);  // Listener is automatically invoked
+         * }</pre>
+         *
+         * @param listener The listener to receive response metadata.
+         * @return This {@link Builder} instance for chaining method calls.
+         */
+        public Builder withResponseMetadataListener(ResponseMetadataListener listener) {
+            this.responseMetadataListener = listener;
+            return this;
+        }
+
+        /**
          * Builds and returns a {@link Pinecone} instance configured with the provided API key, optional source tag,
          * and OkHttpClient.
          * <p>
@@ -1726,6 +1764,9 @@ public class Pinecone {
         public Pinecone build() {
             PineconeConfig config = new PineconeConfig(apiKey, sourceTag, proxyConfig, customOkHttpClient);
             config.setTLSEnabled(enableTls);
+            if (responseMetadataListener != null) {
+                config.setResponseMetadataListener(responseMetadataListener);
+            }
             config.validate();
 
             if (proxyConfig != null && customOkHttpClient != null) {
