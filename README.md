@@ -153,6 +153,45 @@ public class DisableTLSExample {
 }
 ```
 
+#### Capturing response metadata for observability
+
+The SDK supports capturing response metadata for all data plane operations (upsert, query, fetch, update, delete). This enables you to track latency metrics and integrate with observability tools like OpenTelemetry, Prometheus, or Datadog.
+
+```java
+import io.pinecone.clients.Pinecone;
+import io.pinecone.clients.Index;
+
+Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY")
+    .withResponseMetadataListener(metadata -> {
+        System.out.printf("Operation: %s | Client: %dms | Server: %dms | Network: %dms%n",
+            metadata.getOperationName(),
+            metadata.getClientDurationMs(),
+            metadata.getServerDurationMs(),
+            metadata.getNetworkOverheadMs());
+    })
+    .build();
+
+Index index = pinecone.getIndexConnection("example-index");
+index.query(5, Arrays.asList(1.0f, 2.0f, 3.0f));
+// Output: Operation: query | Client: 45ms | Server: 32ms | Network: 13ms
+```
+
+The `ResponseMetadata` object provides:
+
+| Method | Description |
+|--------|-------------|
+| `getOperationName()` | Operation type: upsert, query, fetch, update, delete |
+| `getClientDurationMs()` | Total round-trip time measured by the client |
+| `getServerDurationMs()` | Server processing time from `x-pinecone-response-duration-ms` header |
+| `getNetworkOverheadMs()` | Computed: client duration - server duration |
+| `getIndexName()` | Name of the index |
+| `getNamespace()` | Namespace used |
+| `isSuccess()` | Whether the operation succeeded |
+| `getGrpcStatusCode()` | gRPC status code |
+| `getErrorType()` | Error category when failed |
+
+For a complete OpenTelemetry integration example with Prometheus and Grafana, see the [java-otel-metrics example](examples/java-otel-metrics/).
+
 # Indexes
 
 Operations related to the building and managing of Pinecone indexes are called [control plane](https://docs.pinecone.io/reference/api/introduction#control-plane) operations.
