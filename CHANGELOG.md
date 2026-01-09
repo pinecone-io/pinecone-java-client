@@ -2,6 +2,9 @@
 
 [comment]: <> (When bumping [pc:VERSION_LATEST_RELEASE] create a new entry below)
 ### Unreleased version
+### 6.1.0
+- Add ResponseMetadataListener for dataplane operation observability
+
 ### 6.0.0
 - Add support for:
   - dedicated read nodes
