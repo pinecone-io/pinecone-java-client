@@ -1,0 +1,73 @@
+name: Cleanup Test Resources
+
+on:
+  # Scheduled execution - daily at 2 AM UTC
+  schedule:
+    - cron: '0 2 * * *'
+  
+  # Manual trigger with optional inputs
+  workflow_dispatch:
+    inputs:
+      age_threshold_days:
+        description: 'Minimum age in days for resources to be deleted'
+        required: false
+        default: '1'
+        type: number
+      dry_run:
+        description: 'Preview deletions without executing (dry-run mode)'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up JDK 8
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '8'
+          cache: 'gradle'
+      
+      - name: Build project
+        run: ./gradlew build -x test
+      
+      - name: Run cleanup utility
+        env:
+          PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
+        run: |
+          # Determine parameters based on trigger type
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            AGE_THRESHOLD=${{ inputs.age_threshold_days }}
+            DRY_RUN=${{ inputs.dry_run }}
+          else
+            # Scheduled run uses default values
+            AGE_THRESHOLD=1
+            DRY_RUN=false
+          fi
+          
+          # Build command with arguments
+          ARGS="--age-threshold-days $AGE_THRESHOLD"
+          if [ "$DRY_RUN" = "true" ]; then
+            ARGS="$ARGS --dry-run"
+          fi
+          
+          echo "Running cleanup with: $ARGS"
+          
+          # Run the cleanup utility
+          java -cp "build/libs/*:build/classes/java/main" \
+            io.pinecone.helpers.IndexCleanupUtility $ARGS
+      
+      - name: Summary
+        if: always()
+        run: |
+          if [ "${{ job.status }}" = "success" ]; then
+            echo "✅ Cleanup completed successfully"
+          else
+            echo "❌ Cleanup failed - check logs for details"
+          fi
