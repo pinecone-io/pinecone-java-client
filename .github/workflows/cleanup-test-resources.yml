@@ -1,5 +1,8 @@
 name: Cleanup Test Resources
 
+permissions:
+  contents: read
+
 on:
   # Scheduled execution - daily at 2 AM UTC
   schedule:
