@@ -21,6 +21,50 @@ import static org.mockito.Mockito.when;
 class IndexCleanupUtilityTest {
 
     @Test
+    void cleanup_nullIndexesList_doesNotThrowAndProcessesZero() throws Exception {
+        Pinecone pinecone = mock(Pinecone.class);
+
+        when(pinecone.listIndexes()).thenReturn(new IndexList());
+        when(pinecone.listCollections()).thenReturn(new CollectionList().collections(Collections.emptyList()));
+
+        IndexCleanupUtility utility = new IndexCleanupUtility(pinecone, 1, false);
+        IndexCleanupUtility.CleanupResult result = utility.cleanup();
+
+        assertEquals(0, result.getIndexesProcessed());
+        assertEquals(0, result.getIndexesDeleted());
+        assertEquals(0, result.getIndexesFailed());
+
+        assertEquals(0, result.getCollectionsProcessed());
+        assertEquals(0, result.getCollectionsDeleted());
+        assertEquals(0, result.getCollectionsFailed());
+
+        verify(pinecone, never()).deleteIndex(anyString());
+        verify(pinecone, never()).deleteCollection(anyString());
+    }
+
+    @Test
+    void cleanup_nullCollectionsListObject_doesNotThrowAndProcessesZero() throws Exception {
+        Pinecone pinecone = mock(Pinecone.class);
+
+        when(pinecone.listIndexes()).thenReturn(new IndexList().indexes(Collections.emptyList()));
+        when(pinecone.listCollections()).thenReturn(null);
+
+        IndexCleanupUtility utility = new IndexCleanupUtility(pinecone, 1, false);
+        IndexCleanupUtility.CleanupResult result = utility.cleanup();
+
+        assertEquals(0, result.getIndexesProcessed());
+        assertEquals(0, result.getIndexesDeleted());
+        assertEquals(0, result.getIndexesFailed());
+
+        assertEquals(0, result.getCollectionsProcessed());
+        assertEquals(0, result.getCollectionsDeleted());
+        assertEquals(0, result.getCollectionsFailed());
+
+        verify(pinecone, never()).deleteIndex(anyString());
+        verify(pinecone, never()).deleteCollection(anyString());
+    }
+
+    @Test
     void cleanup_dryRun_doesNotIncrementDeletedCounts() throws Exception {
         Pinecone pinecone = mock(Pinecone.class);
 

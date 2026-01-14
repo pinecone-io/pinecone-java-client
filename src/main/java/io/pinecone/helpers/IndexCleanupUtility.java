@@ -3,6 +3,7 @@ package io.pinecone.helpers;
 import io.pinecone.clients.Pinecone;
 import org.openapitools.db_control.client.model.CollectionList;
 import org.openapitools.db_control.client.model.CollectionModel;
+import org.openapitools.db_control.client.model.IndexList;
 import org.openapitools.db_control.client.model.IndexModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,7 +138,11 @@ public class IndexCleanupUtility {
         
         // Clean up indexes
         logger.info("Listing indexes...");
-        List<IndexModel> indexes = pinecone.listIndexes().getIndexes();
+        IndexList indexList = pinecone.listIndexes();
+        List<IndexModel> indexes = indexList != null ? indexList.getIndexes() : null;
+        if (indexes == null) {
+            indexes = new ArrayList<>();
+        }
         logger.info("Found {} indexes", indexes.size());
         
         for (IndexModel index : indexes) {
@@ -156,7 +161,7 @@ public class IndexCleanupUtility {
         // Clean up collections
         logger.info("Listing collections...");
         CollectionList collectionList = pinecone.listCollections();
-        List<CollectionModel> collections = collectionList.getCollections();
+        List<CollectionModel> collections = collectionList != null ? collectionList.getCollections() : null;
         if (collections == null) {
             collections = new ArrayList<>();
         }
