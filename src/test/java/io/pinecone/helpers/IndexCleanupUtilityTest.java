@@ -1,32 +1,45 @@
 package io.pinecone.helpers;
 
+import io.pinecone.clients.Pinecone;
 import org.junit.jupiter.api.Test;
+import org.openapitools.db_control.client.model.CollectionList;
+import org.openapitools.db_control.client.model.CollectionModel;
+import org.openapitools.db_control.client.model.IndexList;
+import org.openapitools.db_control.client.model.IndexModel;
+import org.openapitools.db_control.client.model.IndexModelStatus;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import java.util.Arrays;
+import java.util.Collections;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class IndexCleanupUtilityTest {
 
     @Test
     void parseArgs_defaults() {
         IndexCleanupUtility.ParsedArgs parsed = IndexCleanupUtility.parseArgs(new String[]{});
-        assertThat(parsed.ageThresholdDays, is(1));
-        assertThat(parsed.dryRun, is(false));
+        assertEquals(1, parsed.ageThresholdDays);
+        assertEquals(false, parsed.dryRun);
     }
 
     @Test
     void parseArgs_dryRun() {
         IndexCleanupUtility.ParsedArgs parsed = IndexCleanupUtility.parseArgs(new String[]{"--dry-run"});
-        assertThat(parsed.ageThresholdDays, is(1));
-        assertThat(parsed.dryRun, is(true));
+        assertEquals(1, parsed.ageThresholdDays);
+        assertEquals(true, parsed.dryRun);
     }
 
     @Test
     void parseArgs_ageThresholdDays() {
         IndexCleanupUtility.ParsedArgs parsed = IndexCleanupUtility.parseArgs(new String[]{"--age-threshold-days", "0"});
-        assertThat(parsed.ageThresholdDays, is(0));
-        assertThat(parsed.dryRun, is(false));
+        assertEquals(0, parsed.ageThresholdDays);
+        assertEquals(false, parsed.dryRun);
     }
 
     @Test
@@ -35,7 +48,7 @@ class IndexCleanupUtilityTest {
             IllegalArgumentException.class,
             () -> IndexCleanupUtility.parseArgs(new String[]{"--age-threshold-days"})
         );
-        assertThat(ex.getMessage(), is("--age-threshold-days requires a value"));
+        assertEquals("--age-threshold-days requires a value", ex.getMessage());
     }
 
     @Test
@@ -52,31 +65,8 @@ class IndexCleanupUtilityTest {
             IllegalArgumentException.class,
             () -> IndexCleanupUtility.parseArgs(new String[]{"--age-threshold-days", "-1"})
         );
-        assertThat(ex.getMessage(), is("--age-threshold-days must be >= 0"));
+        assertEquals("--age-threshold-days must be >= 0", ex.getMessage());
     }
-}
-
-package io.pinecone.helpers;
-
-import io.pinecone.clients.Pinecone;
-import org.junit.jupiter.api.Test;
-import org.openapitools.db_control.client.model.CollectionList;
-import org.openapitools.db_control.client.model.CollectionModel;
-import org.openapitools.db_control.client.model.IndexList;
-import org.openapitools.db_control.client.model.IndexModel;
-import org.openapitools.db_control.client.model.IndexModelStatus;
-
-import java.util.Arrays;
-import java.util.Collections;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-class IndexCleanupUtilityTest {
 
     @Test
     void cleanup_nullIndexesList_doesNotThrowAndProcessesZero() throws Exception {
