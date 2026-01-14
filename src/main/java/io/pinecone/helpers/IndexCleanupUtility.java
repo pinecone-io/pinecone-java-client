@@ -143,8 +143,10 @@ public class IndexCleanupUtility {
         for (IndexModel index : indexes) {
             result.incrementIndexesProcessed();
             try {
-                cleanupIndex(index);
-                result.incrementIndexesDeleted();
+                boolean deletionInitiated = cleanupIndex(index);
+                if (deletionInitiated) {
+                    result.incrementIndexesDeleted();
+                }
             } catch (Exception e) {
                 logger.error("Failed to delete index {}: {}", index.getName(), e.getMessage(), e);
                 result.incrementIndexesFailed();
@@ -163,8 +165,10 @@ public class IndexCleanupUtility {
         for (CollectionModel collection : collections) {
             result.incrementCollectionsProcessed();
             try {
-                cleanupCollection(collection);
-                result.incrementCollectionsDeleted();
+                boolean deletionInitiated = cleanupCollection(collection);
+                if (deletionInitiated) {
+                    result.incrementCollectionsDeleted();
+                }
             } catch (Exception e) {
                 logger.error("Failed to delete collection {}: {}", collection.getName(), e.getMessage(), e);
                 result.incrementCollectionsFailed();
@@ -180,7 +184,7 @@ public class IndexCleanupUtility {
      * @param index The index to clean up
      * @throws Exception if an error occurs during cleanup
      */
-    private void cleanupIndex(IndexModel index) throws Exception {
+    private boolean cleanupIndex(IndexModel index) throws Exception {
         String indexName = index.getName();
         String status = index.getStatus() != null && index.getStatus().getState() != null 
             ? index.getStatus().getState() 
@@ -191,7 +195,7 @@ public class IndexCleanupUtility {
         // Skip indexes that are already terminating
         if ("Terminating".equalsIgnoreCase(status)) {
             logger.info("Skipping index {} - already terminating", indexName);
-            return;
+            return false;
         }
         
         // Note: Age-based filtering would go here when timestamp information becomes available
@@ -199,7 +203,7 @@ public class IndexCleanupUtility {
         
         if (dryRun) {
             logger.info("DRY-RUN: Would delete index: {}", indexName);
-            return;
+            return false;
         }
         
         // Handle deletion protection
@@ -226,6 +230,7 @@ public class IndexCleanupUtility {
         
         // Add small delay to avoid rate limiting
         Thread.sleep(1000);
+        return true;
     }
     
     /**
@@ -234,7 +239,7 @@ public class IndexCleanupUtility {
      * @param collection The collection to clean up
      * @throws Exception if an error occurs during cleanup
      */
-    private void cleanupCollection(CollectionModel collection) throws Exception {
+    private boolean cleanupCollection(CollectionModel collection) throws Exception {
         String collectionName = collection.getName();
         String status = collection.getStatus() != null ? collection.getStatus() : "unknown";
         
@@ -243,7 +248,7 @@ public class IndexCleanupUtility {
         // Skip collections that are already terminating
         if ("Terminating".equalsIgnoreCase(status)) {
             logger.info("Skipping collection {} - already terminating", collectionName);
-            return;
+            return false;
         }
         
         // Note: Age-based filtering would go here when timestamp information becomes available
@@ -251,7 +256,7 @@ public class IndexCleanupUtility {
         
         if (dryRun) {
             logger.info("DRY-RUN: Would delete collection: {}", collectionName);
-            return;
+            return false;
         }
         
         // Delete the collection
@@ -261,6 +266,7 @@ public class IndexCleanupUtility {
         
         // Add small delay to avoid rate limiting
         Thread.sleep(1000);
+        return true;
     }
     
     /**
