@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -19,6 +20,53 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class IndexCleanupUtilityTest {
+
+    @Test
+    void parseArgs_defaults() {
+        IndexCleanupUtility.ParsedArgs parsed = IndexCleanupUtility.parseArgs(new String[]{});
+        assertEquals(1, parsed.ageThresholdDays);
+        assertEquals(false, parsed.dryRun);
+    }
+
+    @Test
+    void parseArgs_dryRun() {
+        IndexCleanupUtility.ParsedArgs parsed = IndexCleanupUtility.parseArgs(new String[]{"--dry-run"});
+        assertEquals(1, parsed.ageThresholdDays);
+        assertEquals(true, parsed.dryRun);
+    }
+
+    @Test
+    void parseArgs_ageThresholdDays() {
+        IndexCleanupUtility.ParsedArgs parsed = IndexCleanupUtility.parseArgs(new String[]{"--age-threshold-days", "0"});
+        assertEquals(0, parsed.ageThresholdDays);
+        assertEquals(false, parsed.dryRun);
+    }
+
+    @Test
+    void parseArgs_ageThresholdDays_missingValue_throws() {
+        IllegalArgumentException ex = assertThrows(
+            IllegalArgumentException.class,
+            () -> IndexCleanupUtility.parseArgs(new String[]{"--age-threshold-days"})
+        );
+        assertEquals("--age-threshold-days requires a value", ex.getMessage());
+    }
+
+    @Test
+    void parseArgs_ageThresholdDays_invalidValue_throws() {
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> IndexCleanupUtility.parseArgs(new String[]{"--age-threshold-days", "abc"})
+        );
+    }
+
+    @Test
+    void parseArgs_ageThresholdDays_negative_throws() {
+        IllegalArgumentException ex = assertThrows(
+            IllegalArgumentException.class,
+            () -> IndexCleanupUtility.parseArgs(new String[]{"--age-threshold-days", "-1"})
+        );
+        assertEquals("--age-threshold-days must be >= 0", ex.getMessage());
+    }
 
     @Test
     void cleanup_nullIndexesList_doesNotThrowAndProcessesZero() throws Exception {
