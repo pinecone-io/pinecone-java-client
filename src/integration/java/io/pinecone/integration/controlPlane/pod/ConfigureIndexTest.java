@@ -43,13 +43,13 @@ public class ConfigureIndexTest {
         int timeWaited = 0;
         IndexModel index = controlPlaneClient.describeIndex(indexName);
 
-        while (index.getStatus().getState() != "ready" && timeWaited <= timeToWaitMs) {
+        while (!Boolean.TRUE.equals(index.getStatus().getReady()) && timeWaited <= timeToWaitMs) {
             Thread.sleep(2000);
             timeWaited += 2000;
             logger.info("waited 2000ms for index to upgrade, time waited: " + timeWaited);
             index = controlPlaneClient.describeIndex(indexName);
         }
-        if (!index.getStatus().getReady()) {
+        if (!Boolean.TRUE.equals(index.getStatus().getReady())) {
             fail("Index " + indexName + " did not finish upgrading after " + timeWaited + "ms");
         }
     }

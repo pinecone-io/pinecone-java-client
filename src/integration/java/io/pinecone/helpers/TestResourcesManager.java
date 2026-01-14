@@ -5,6 +5,7 @@ import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.exceptions.PineconeException;
 import io.pinecone.proto.DescribeIndexStatsResponse;
+import okhttp3.OkHttpClient;
 import org.openapitools.db_control.client.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static io.pinecone.helpers.BuildUpsertRequest.buildRequiredUpsertRequestByDimension;
 import static io.pinecone.helpers.TestUtilities.*;
@@ -77,6 +79,11 @@ public class TestResourcesManager {
         pineconeClient = new Pinecone
                 .Builder(apiKey)
                 .withSourceTag("pinecone_test")
+                .withOkHttpClient(new OkHttpClient.Builder()
+                        .connectTimeout(30, TimeUnit.SECONDS)
+                        .readTimeout(120, TimeUnit.SECONDS)
+                        .writeTimeout(30, TimeUnit.SECONDS)
+                        .build())
                 .build();
     }
 
@@ -358,14 +365,14 @@ public class TestResourcesManager {
 
         // Wait until collection is ready
         int timeWaited = 0;
-        String collectionReady = collectionModel.getStatus().toLowerCase();
-        while (collectionReady != "ready" && timeWaited < 120000) {
+        String collectionStatus = collectionModel.getStatus();
+        while (!"ready".equalsIgnoreCase(collectionStatus) && timeWaited < 120000) {
             logger.info("Waiting for collection " + collectionName + " to be ready. Waited " + timeWaited + " " +
                     "milliseconds...");
             Thread.sleep(5000);
             timeWaited += 5000;
             collectionModel = pineconeClient.describeCollection(collectionName);
-            collectionReady = collectionModel.getStatus();
+            collectionStatus = collectionModel.getStatus();
         }
 
         if (timeWaited > 120000) {

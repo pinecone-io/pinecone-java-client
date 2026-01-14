@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 import static io.pinecone.helpers.TestUtilities.waitUntilIndexIsReady;
 import static io.pinecone.helpers.TestUtilities.waitUntilReadCapacityIsReady;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -37,22 +38,26 @@ public class ReadCapacityAndSchemaTest {
 
         // Create index with OnDemand read capacity
         ReadCapacity readCapacity = new ReadCapacity(new ReadCapacityOnDemandSpec().mode("OnDemand"));
-        IndexModel indexModel = controlPlaneClient.createServerlessIndex(
-                indexNameOnDemand, "cosine", 1536, "aws", "us-west-2", 
-                "disabled", tags, readCapacity, null);
+        try {
+            IndexModel indexModel = controlPlaneClient.createServerlessIndex(
+                    indexNameOnDemand, "cosine", 1536, "aws", "us-west-2",
+                    "disabled", tags, readCapacity, null);
 
-        assertNotNull(indexModel);
-        assertEquals(indexNameOnDemand, indexModel.getName());
-        assertEquals("cosine", indexModel.getMetric());
-        assertEquals(1536, indexModel.getDimension());
-        assertEquals("disabled", indexModel.getDeletionProtection());
-        assertEquals(tags, indexModel.getTags());
+            assertNotNull(indexModel);
+            assertEquals(indexNameOnDemand, indexModel.getName());
+            assertEquals("cosine", indexModel.getMetric());
+            assertEquals(1536, indexModel.getDimension());
+            assertEquals("disabled", indexModel.getDeletionProtection());
+            assertEquals(tags, indexModel.getTags());
 
-        // Wait for index to be ready and verify read capacity
-        waitUntilIndexIsReady(controlPlaneClient, indexNameOnDemand);
-        IndexModel describedIndex = controlPlaneClient.describeIndex(indexNameOnDemand);
-        assertNotNull(describedIndex.getSpec().getIndexModelServerless());
-        // Note: Read capacity response may not be immediately available in describe
+            // Wait for index to be ready and verify read capacity
+            waitUntilIndexIsReady(controlPlaneClient, indexNameOnDemand);
+            IndexModel describedIndex = controlPlaneClient.describeIndex(indexNameOnDemand);
+            assertNotNull(describedIndex.getSpec().getIndexModelServerless());
+            // Note: Read capacity response may not be immediately available in describe
+        } finally {
+            controlPlaneClient.deleteIndex(indexNameOnDemand);
+        }
     }
 
     @Test
@@ -64,7 +69,7 @@ public class ReadCapacityAndSchemaTest {
         tags.put("read-capacity", "dedicated");
 
         // Create index with Dedicated read capacity
-        ScalingConfigManual manual = new ScalingConfigManual().shards(2).replicas(2);
+        ScalingConfigManual manual = new ScalingConfigManual().shards(1).replicas(1);
         ReadCapacityDedicatedConfig dedicated = new ReadCapacityDedicatedConfig()
                 .nodeType("t1")
                 .scaling("Manual")
@@ -72,19 +77,26 @@ public class ReadCapacityAndSchemaTest {
         ReadCapacity readCapacity = new ReadCapacity(
                 new ReadCapacityDedicatedSpec().mode("Dedicated").dedicated(dedicated));
 
-        IndexModel indexModel = controlPlaneClient.createServerlessIndex(
-                indexNameDedicated, "cosine", 1536, "aws", "us-west-2", 
-                "disabled", tags, readCapacity, null);
+        try {
+            IndexModel indexModel = controlPlaneClient.createServerlessIndex(
+                    indexNameDedicated, "cosine", 1536, "aws", "us-west-2",
+                    "disabled", tags, readCapacity, null);
 
-        assertNotNull(indexModel);
-        assertEquals(indexNameDedicated, indexModel.getName());
-        assertEquals("cosine", indexModel.getMetric());
-        assertEquals(1536, indexModel.getDimension());
-        assertEquals("disabled", indexModel.getDeletionProtection());
-        assertEquals(tags, indexModel.getTags());
+            assertNotNull(indexModel);
+            assertEquals(indexNameDedicated, indexModel.getName());
+            assertEquals("cosine", indexModel.getMetric());
+            assertEquals(1536, indexModel.getDimension());
+            assertEquals("disabled", indexModel.getDeletionProtection());
+            assertEquals(tags, indexModel.getTags());
 
-        // Wait for index to be ready
-        waitUntilIndexIsReady(controlPlaneClient, indexNameDedicated);
+            // Wait for index to be ready
+            waitUntilIndexIsReady(controlPlaneClient, indexNameDedicated);
+        } catch (Exception e) {
+            assumeTrue(!isDedicatedReadCapacityQuotaExceeded(e), dedicatedReadCapacityQuotaExceededMessage(e));
+            throw e;
+        } finally {
+            controlPlaneClient.deleteIndex(indexNameDedicated);
+        }
     }
 
     @Test
@@ -102,19 +114,23 @@ public class ReadCapacityAndSchemaTest {
         fields.put("description", new BackupModelSchemaFieldsValue().filterable(true));
         BackupModelSchema schema = new BackupModelSchema().fields(fields);
 
-        IndexModel indexModel = controlPlaneClient.createServerlessIndex(
-                indexNameWithSchema, "cosine", 1536, "aws", "us-west-2", 
-                "disabled", tags, null, schema);
+        try {
+            IndexModel indexModel = controlPlaneClient.createServerlessIndex(
+                    indexNameWithSchema, "cosine", 1536, "aws", "us-west-2",
+                    "disabled", tags, null, schema);
 
-        assertNotNull(indexModel);
-        assertEquals(indexNameWithSchema, indexModel.getName());
-        assertEquals("cosine", indexModel.getMetric());
-        assertEquals(1536, indexModel.getDimension());
-        assertEquals("disabled", indexModel.getDeletionProtection());
-        assertEquals(tags, indexModel.getTags());
+            assertNotNull(indexModel);
+            assertEquals(indexNameWithSchema, indexModel.getName());
+            assertEquals("cosine", indexModel.getMetric());
+            assertEquals(1536, indexModel.getDimension());
+            assertEquals("disabled", indexModel.getDeletionProtection());
+            assertEquals(tags, indexModel.getTags());
 
-        // Wait for index to be ready
-        waitUntilIndexIsReady(controlPlaneClient, indexNameWithSchema);
+            // Wait for index to be ready
+            waitUntilIndexIsReady(controlPlaneClient, indexNameWithSchema);
+        } finally {
+            controlPlaneClient.deleteIndex(indexNameWithSchema);
+        }
     }
 
     @Test
@@ -138,20 +154,24 @@ public class ReadCapacityAndSchemaTest {
         fields.put("tags", new BackupModelSchemaFieldsValue().filterable(true));
         BackupModelSchema schema = new BackupModelSchema().fields(fields);
 
-        IndexModel indexModel = controlPlaneClient.createServerlessIndex(
-                indexName, "cosine", 1536, "aws", "us-west-2", 
-                "disabled", tags, readCapacity, schema);
+        try {
+            IndexModel indexModel = controlPlaneClient.createServerlessIndex(
+                    indexName, "cosine", 1536, "aws", "us-west-2",
+                    "disabled", tags, readCapacity, schema);
 
-        assertNotNull(indexModel);
-        assertEquals(indexName, indexModel.getName());
-        assertEquals("cosine", indexModel.getMetric());
-        assertEquals(1536, indexModel.getDimension());
+            assertNotNull(indexModel);
+            assertEquals(indexName, indexModel.getName());
+            assertEquals("cosine", indexModel.getMetric());
+            assertEquals(1536, indexModel.getDimension());
 
-        // Wait for index to be ready
-        waitUntilIndexIsReady(controlPlaneClient, indexName);
-
-        // Clean up
-        controlPlaneClient.deleteIndex(indexName);
+            // Wait for index to be ready
+            waitUntilIndexIsReady(controlPlaneClient, indexName);
+        } catch (Exception e) {
+            assumeTrue(!isDedicatedReadCapacityQuotaExceeded(e), dedicatedReadCapacityQuotaExceededMessage(e));
+            throw e;
+        } finally {
+            controlPlaneClient.deleteIndex(indexName);
+        }
     }
 
     @Test
@@ -180,17 +200,27 @@ public class ReadCapacityAndSchemaTest {
         fieldMap.put("text", "my-sample-text");
         embed.fieldMap(fieldMap);
 
-        IndexModel indexModel = controlPlaneClient.createIndexForModel(
-                indexNameForModel, "aws", "us-east-1", embed, 
-                "disabled", tags, readCapacity, schema);
+        try {
+            IndexModel indexModel = controlPlaneClient.createIndexForModel(
+                    indexNameForModel, "aws", "us-east-1", embed,
+                    "disabled", tags, readCapacity, schema);
 
-        assertNotNull(indexModel);
-        assertEquals(indexNameForModel, indexModel.getName());
-        assertEquals("disabled", indexModel.getDeletionProtection());
-        assertEquals(tags, indexModel.getTags());
+            assertNotNull(indexModel);
+            assertEquals(indexNameForModel, indexModel.getName());
+            assertEquals("disabled", indexModel.getDeletionProtection());
+            assertEquals(tags, indexModel.getTags());
 
-        // Wait for index to be ready
-        waitUntilIndexIsReady(controlPlaneClient, indexNameForModel);
+            // Wait for index to be ready
+            waitUntilIndexIsReady(controlPlaneClient, indexNameForModel);
+        } catch (ApiException e) {
+            assumeTrue(!isDedicatedReadCapacityQuotaExceeded(e), dedicatedReadCapacityQuotaExceededMessage(e));
+            throw e;
+        } catch (RuntimeException e) {
+            assumeTrue(!isDedicatedReadCapacityQuotaExceeded(e), dedicatedReadCapacityQuotaExceededMessage(e));
+            throw e;
+        } finally {
+            controlPlaneClient.deleteIndex(indexNameForModel);
+        }
     }
 
     @Test
@@ -201,32 +231,39 @@ public class ReadCapacityAndSchemaTest {
         tags.put("env", "test");
 
         // First, create an index without read capacity configuration (defaults to OnDemand)
-        IndexModel indexModel = controlPlaneClient.createServerlessIndex(
-                indexNameToConfigure, "cosine", 1536, "aws", "us-west-2", 
-                "disabled", tags, null, null);
+        try {
+            IndexModel indexModel = controlPlaneClient.createServerlessIndex(
+                    indexNameToConfigure, "cosine", 1536, "aws", "us-west-2",
+                    "disabled", tags, null, null);
 
-        assertNotNull(indexModel);
-        assertEquals(indexNameToConfigure, indexModel.getName());
+            assertNotNull(indexModel);
+            assertEquals(indexNameToConfigure, indexModel.getName());
 
-        // Wait for index to be ready
-        waitUntilIndexIsReady(controlPlaneClient, indexNameToConfigure);
-        // Wait for read capacity to be ready before configuring
-        waitUntilReadCapacityIsReady(controlPlaneClient, indexNameToConfigure);
+            // Wait for index to be ready
+            waitUntilIndexIsReady(controlPlaneClient, indexNameToConfigure);
+            // Wait for read capacity to be ready before configuring
+            waitUntilReadCapacityIsReady(controlPlaneClient, indexNameToConfigure);
 
-        // Configure to Dedicated read capacity
-        IndexModel configuredIndex = controlPlaneClient.configureServerlessIndex(
-                indexNameToConfigure, "disabled", tags, null, "Dedicated", "t1", 2, 2);
+            // Configure to Dedicated read capacity (minimal capacity for CI stability)
+            IndexModel configuredIndex = controlPlaneClient.configureServerlessIndex(
+                    indexNameToConfigure, "disabled", tags, null, "Dedicated", "t1", 1, 1);
 
-        assertNotNull(configuredIndex);
-        assertEquals(indexNameToConfigure, configuredIndex.getName());
+            assertNotNull(configuredIndex);
+            assertEquals(indexNameToConfigure, configuredIndex.getName());
 
-        // Wait a bit for configuration to apply
-        Thread.sleep(10000);
+            // Wait a bit for configuration to apply
+            Thread.sleep(10000);
 
-        // Verify the configuration by describing the index
-        IndexModel describedIndex = controlPlaneClient.describeIndex(indexNameToConfigure);
-        assertNotNull(describedIndex);
-        assertEquals(indexNameToConfigure, describedIndex.getName());
+            // Verify the configuration by describing the index
+            IndexModel describedIndex = controlPlaneClient.describeIndex(indexNameToConfigure);
+            assertNotNull(describedIndex);
+            assertEquals(indexNameToConfigure, describedIndex.getName());
+        } catch (Exception e) {
+            assumeTrue(!isDedicatedReadCapacityQuotaExceeded(e), dedicatedReadCapacityQuotaExceededMessage(e));
+            throw e;
+        } finally {
+            controlPlaneClient.deleteIndex(indexNameToConfigure);
+        }
     }
 
     // Note: Tests for switching read capacity modes and scaling are omitted due to API rate limits.
@@ -235,5 +272,26 @@ public class ReadCapacityAndSchemaTest {
     // - Switching from Dedicated to OnDemand
     // - Scaling dedicated read capacity (changing shards/replicas)
     // These operations are still supported by the API, but cannot be tested in CI/CD due to rate limits.
+
+    private static boolean isDedicatedReadCapacityQuotaExceeded(Throwable t) {
+        String message = extractMessage(t);
+        return message != null && message.contains("max dedicated capacity read nodes");
+    }
+
+    private static String dedicatedReadCapacityQuotaExceededMessage(Throwable t) {
+        String message = extractMessage(t);
+        return "Skipping test: dedicated read capacity quota exceeded. " + (message == null ? "" : message);
+    }
+
+    private static String extractMessage(Throwable t) {
+        Throwable cur = t;
+        while (cur != null) {
+            if (cur.getMessage() != null && !cur.getMessage().isEmpty()) {
+                return cur.getMessage();
+            }
+            cur = cur.getCause();
+        }
+        return null;
+    }
 }
 
