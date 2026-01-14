@@ -5,8 +5,6 @@ import org.openapitools.db_control.client.model.CollectionList;
 import org.openapitools.db_control.client.model.CollectionModel;
 import org.openapitools.db_control.client.model.IndexList;
 import org.openapitools.db_control.client.model.IndexModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,15 +28,13 @@ import java.util.List;
  * }</pre>
  */
 public class IndexCleanupUtility {
-    private static final Logger logger = LoggerFactory.getLogger(IndexCleanupUtility.class);
-    
     private final Pinecone pinecone;
     private final int ageThresholdDays;
     private final boolean dryRun;
-    
+
     /**
      * Constructs a new IndexCleanupUtility.
-     * 
+     *
      * @param pinecone The Pinecone client instance
      * @param ageThresholdDays Minimum age in days for resources to be deleted
      * @param dryRun If true, preview deletions without executing them
@@ -51,100 +47,114 @@ public class IndexCleanupUtility {
     
     /**
      * Main entry point for the cleanup utility.
-     * 
+     *
      * @param args Command-line arguments
      */
     public static void main(String[] args) {
         try {
-            // Parse command-line arguments
-            int ageThresholdDays = 1; // Default: 1 day
-            boolean dryRun = false;
-            
-            for (int i = 0; i < args.length; i++) {
-                if ("--age-threshold-days".equals(args[i]) && i + 1 < args.length) {
-                    try {
-                        ageThresholdDays = Integer.parseInt(args[i + 1]);
-                        i++; // Skip the next argument since we've consumed it
-                    } catch (NumberFormatException e) {
-                        logger.error("Invalid value for --age-threshold-days: {}", args[i + 1]);
-                        printUsage();
-                        System.exit(1);
-                    }
-                } else if ("--dry-run".equals(args[i])) {
-                    dryRun = true;
-                } else {
-                    logger.warn("Unknown argument: {}", args[i]);
-                }
-            }
-            
-            logger.info("Starting Pinecone resource cleanup...");
-            logger.info("Age threshold: {} days", ageThresholdDays);
-            logger.info("Dry-run mode: {}", dryRun);
-            
+            ParsedArgs parsedArgs = parseArgs(args);
+
+            logInfo("Starting Pinecone resource cleanup...");
+            logInfo("Age threshold: %d days", parsedArgs.ageThresholdDays);
+            logInfo("Dry-run mode: %s", parsedArgs.dryRun);
+
             // Initialize Pinecone client
             String apiKey = System.getenv("PINECONE_API_KEY");
             if (apiKey == null || apiKey.isEmpty()) {
-                logger.error("PINECONE_API_KEY environment variable is not set");
+                logError("PINECONE_API_KEY environment variable is not set");
                 System.exit(1);
             }
-            
+
             Pinecone pinecone = new Pinecone.Builder(apiKey).build();
-            IndexCleanupUtility utility = new IndexCleanupUtility(pinecone, ageThresholdDays, dryRun);
-            
+            IndexCleanupUtility utility = new IndexCleanupUtility(
+                pinecone,
+                parsedArgs.ageThresholdDays,
+                parsedArgs.dryRun
+            );
+
             // Execute cleanup
             CleanupResult result = utility.cleanup();
-            
+
             // Log summary
-            logger.info("=== Cleanup Summary ===");
-            logger.info("Indexes processed: {}", result.getIndexesProcessed());
-            logger.info("Indexes deleted: {}", result.getIndexesDeleted());
-            logger.info("Indexes failed: {}", result.getIndexesFailed());
-            logger.info("Collections processed: {}", result.getCollectionsProcessed());
-            logger.info("Collections deleted: {}", result.getCollectionsDeleted());
-            logger.info("Collections failed: {}", result.getCollectionsFailed());
-            
-            if (dryRun) {
-                logger.info("DRY-RUN MODE: No resources were actually deleted");
+            logInfo("=== Cleanup Summary ===");
+            logInfo("Indexes processed: %d", result.getIndexesProcessed());
+            logInfo("Indexes deleted: %d", result.getIndexesDeleted());
+            logInfo("Indexes failed: %d", result.getIndexesFailed());
+            logInfo("Collections processed: %d", result.getCollectionsProcessed());
+            logInfo("Collections deleted: %d", result.getCollectionsDeleted());
+            logInfo("Collections failed: %d", result.getCollectionsFailed());
+
+            if (parsedArgs.dryRun) {
+                logInfo("DRY-RUN MODE: No resources were actually deleted");
             }
-            
-            logger.info("Cleanup completed");
-            
+
+            logInfo("Cleanup completed");
+
             // Exit with error code if any deletions failed
             if (result.getIndexesFailed() > 0 || result.getCollectionsFailed() > 0) {
                 System.exit(1);
             }
-            
+
         } catch (Exception e) {
-            logger.error("Error during cleanup: {}", e.getMessage(), e);
+            logError("Error during cleanup: " + e.getMessage(), e);
             System.exit(1);
         }
     }
-    
+
+    static ParsedArgs parseArgs(String[] args) {
+        int ageThresholdDays = 1; // Default: 1 day
+        boolean dryRun = false;
+
+        for (int i = 0; i < args.length; i++) {
+            if ("--age-threshold-days".equals(args[i])) {
+                if (i + 1 >= args.length) {
+                    throw new IllegalArgumentException("--age-threshold-days requires a value");
+                }
+                String value = args[i + 1];
+                try {
+                    ageThresholdDays = Integer.parseInt(value);
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException("Invalid value for --age-threshold-days: " + value, e);
+                }
+                if (ageThresholdDays < 0) {
+                    throw new IllegalArgumentException("--age-threshold-days must be >= 0");
+                }
+                i++; // Skip the next argument since we've consumed it
+            } else if ("--dry-run".equals(args[i])) {
+                dryRun = true;
+            } else {
+                logWarn("Unknown argument: %s", args[i]);
+            }
+        }
+
+        return new ParsedArgs(ageThresholdDays, dryRun);
+    }
+
     private static void printUsage() {
         System.err.println("Usage: java io.pinecone.helpers.IndexCleanupUtility [OPTIONS]");
         System.err.println("Options:");
         System.err.println("  --age-threshold-days <number>  Minimum age in days for resources to be deleted (default: 1)");
         System.err.println("  --dry-run                      Preview deletions without executing them");
     }
-    
+
     /**
      * Executes the cleanup operation, deleting indexes and collections that match the criteria.
-     * 
+     *
      * @return A CleanupResult containing statistics about the cleanup operation
      * @throws Exception if an error occurs during cleanup
      */
     public CleanupResult cleanup() throws Exception {
         CleanupResult result = new CleanupResult();
-        
+
         // Clean up indexes
-        logger.info("Listing indexes...");
+        logInfo("Listing indexes...");
         IndexList indexList = pinecone.listIndexes();
         List<IndexModel> indexes = indexList != null ? indexList.getIndexes() : null;
         if (indexes == null) {
             indexes = new ArrayList<>();
         }
-        logger.info("Found {} indexes", indexes.size());
-        
+        logInfo("Found %d indexes", indexes.size());
+
         for (IndexModel index : indexes) {
             result.incrementIndexesProcessed();
             try {
@@ -153,20 +163,20 @@ public class IndexCleanupUtility {
                     result.incrementIndexesDeleted();
                 }
             } catch (Exception e) {
-                logger.error("Failed to delete index {}: {}", index.getName(), e.getMessage(), e);
+                logError(String.format("Failed to delete index %s: %s", index.getName(), e.getMessage()), e);
                 result.incrementIndexesFailed();
             }
         }
-        
+
         // Clean up collections
-        logger.info("Listing collections...");
+        logInfo("Listing collections...");
         CollectionList collectionList = pinecone.listCollections();
         List<CollectionModel> collections = collectionList != null ? collectionList.getCollections() : null;
         if (collections == null) {
             collections = new ArrayList<>();
         }
-        logger.info("Found {} collections", collections.size());
-        
+        logInfo("Found %d collections", collections.size());
+
         for (CollectionModel collection : collections) {
             result.incrementCollectionsProcessed();
             try {
@@ -175,17 +185,17 @@ public class IndexCleanupUtility {
                     result.incrementCollectionsDeleted();
                 }
             } catch (Exception e) {
-                logger.error("Failed to delete collection {}: {}", collection.getName(), e.getMessage(), e);
+                logError(String.format("Failed to delete collection %s: %s", collection.getName(), e.getMessage()), e);
                 result.incrementCollectionsFailed();
             }
         }
-        
+
         return result;
     }
-    
+
     /**
      * Cleans up a single index.
-     * 
+     *
      * @param index The index to clean up
      * @throws Exception if an error occurs during cleanup
      */
@@ -194,26 +204,26 @@ public class IndexCleanupUtility {
         String status = index.getStatus() != null && index.getStatus().getState() != null 
             ? index.getStatus().getState() 
             : "unknown";
-        
-        logger.info("Processing index: {} (status: {})", indexName, status);
-        
+
+        logInfo("Processing index: %s (status: %s)", indexName, status);
+
         // Skip indexes that are already terminating
         if ("Terminating".equalsIgnoreCase(status)) {
-            logger.info("Skipping index {} - already terminating", indexName);
+            logInfo("Skipping index %s - already terminating", indexName);
             return false;
         }
-        
+
         // Note: Age-based filtering would go here when timestamp information becomes available
         // For now, we process all indexes that aren't already terminating
-        
+
         if (dryRun) {
-            logger.info("DRY-RUN: Would delete index: {}", indexName);
+            logInfo("DRY-RUN: Would delete index: %s", indexName);
             return false;
         }
-        
+
         // Handle deletion protection
         if ("enabled".equals(index.getDeletionProtection())) {
-            logger.info("Index {} has deletion protection enabled, disabling...", indexName);
+            logInfo("Index %s has deletion protection enabled, disabling...", indexName);
             try {
                 // Try pod-based configuration first
                 index.getSpec().getIndexModelPodBased();
@@ -222,58 +232,58 @@ public class IndexCleanupUtility {
                 // Not a pod-based index, try serverless
                 pinecone.configureServerlessIndex(indexName, "disabled", null, null);
             }
-            
+
             // Wait for configuration to take effect
-            logger.info("Waiting 5 seconds for deletion protection to be disabled...");
+            logInfo("Waiting 5 seconds for deletion protection to be disabled...");
             Thread.sleep(5000);
         }
-        
+
         // Delete the index
-        logger.info("Deleting index: {}", indexName);
+        logInfo("Deleting index: %s", indexName);
         pinecone.deleteIndex(indexName);
-        logger.info("Successfully initiated deletion of index: {}", indexName);
-        
+        logInfo("Successfully initiated deletion of index: %s", indexName);
+
         // Add small delay to avoid rate limiting
         Thread.sleep(1000);
         return true;
     }
-    
+
     /**
      * Cleans up a single collection.
-     * 
+     *
      * @param collection The collection to clean up
      * @throws Exception if an error occurs during cleanup
      */
     private boolean cleanupCollection(CollectionModel collection) throws Exception {
         String collectionName = collection.getName();
         String status = collection.getStatus() != null ? collection.getStatus() : "unknown";
-        
-        logger.info("Processing collection: {} (status: {})", collectionName, status);
-        
+
+        logInfo("Processing collection: %s (status: %s)", collectionName, status);
+
         // Skip collections that are already terminating
         if ("Terminating".equalsIgnoreCase(status)) {
-            logger.info("Skipping collection {} - already terminating", collectionName);
+            logInfo("Skipping collection %s - already terminating", collectionName);
             return false;
         }
-        
+
         // Note: Age-based filtering would go here when timestamp information becomes available
         // For now, we process all collections that aren't already terminating
-        
+
         if (dryRun) {
-            logger.info("DRY-RUN: Would delete collection: {}", collectionName);
+            logInfo("DRY-RUN: Would delete collection: %s", collectionName);
             return false;
         }
-        
+
         // Delete the collection
-        logger.info("Deleting collection: {}", collectionName);
+        logInfo("Deleting collection: %s", collectionName);
         pinecone.deleteCollection(collectionName);
-        logger.info("Successfully initiated deletion of collection: {}", collectionName);
-        
+        logInfo("Successfully initiated deletion of collection: %s", collectionName);
+
         // Add small delay to avoid rate limiting
         Thread.sleep(1000);
         return true;
     }
-    
+
     /**
      * Result of a cleanup operation, containing statistics about what was processed and deleted.
      */
@@ -298,5 +308,44 @@ public class IndexCleanupUtility {
         void incrementCollectionsProcessed() { collectionsProcessed++; }
         void incrementCollectionsDeleted() { collectionsDeleted++; }
         void incrementCollectionsFailed() { collectionsFailed++; }
+    }
+
+    static final class ParsedArgs {
+        final int ageThresholdDays;
+        final boolean dryRun;
+
+        ParsedArgs(int ageThresholdDays, boolean dryRun) {
+            this.ageThresholdDays = ageThresholdDays;
+            this.dryRun = dryRun;
+        }
+    }
+
+    private static void logInfo(String format, Object... args) {
+        log("INFO", format, args);
+    }
+
+    private static void logWarn(String format, Object... args) {
+        log("WARN", format, args);
+    }
+
+    private static void logError(String message) {
+        System.err.println("[ERROR] " + message);
+    }
+
+    private static void logError(String message, Throwable t) {
+        System.err.println("[ERROR] " + message);
+        if (t != null) {
+            t.printStackTrace(System.err);
+        }
+    }
+
+    private static void log(String level, String format, Object... args) {
+        String msg;
+        try {
+            msg = (args == null || args.length == 0) ? format : String.format(format, args);
+        } catch (Exception e) {
+            msg = format;
+        }
+        System.err.println("[" + level + "] " + msg);
     }
 }

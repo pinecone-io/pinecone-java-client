@@ -1,5 +1,63 @@
 package io.pinecone.helpers;
 
+import org.junit.jupiter.api.Test;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+class IndexCleanupUtilityTest {
+
+    @Test
+    void parseArgs_defaults() {
+        IndexCleanupUtility.ParsedArgs parsed = IndexCleanupUtility.parseArgs(new String[]{});
+        assertThat(parsed.ageThresholdDays, is(1));
+        assertThat(parsed.dryRun, is(false));
+    }
+
+    @Test
+    void parseArgs_dryRun() {
+        IndexCleanupUtility.ParsedArgs parsed = IndexCleanupUtility.parseArgs(new String[]{"--dry-run"});
+        assertThat(parsed.ageThresholdDays, is(1));
+        assertThat(parsed.dryRun, is(true));
+    }
+
+    @Test
+    void parseArgs_ageThresholdDays() {
+        IndexCleanupUtility.ParsedArgs parsed = IndexCleanupUtility.parseArgs(new String[]{"--age-threshold-days", "0"});
+        assertThat(parsed.ageThresholdDays, is(0));
+        assertThat(parsed.dryRun, is(false));
+    }
+
+    @Test
+    void parseArgs_ageThresholdDays_missingValue_throws() {
+        IllegalArgumentException ex = assertThrows(
+            IllegalArgumentException.class,
+            () -> IndexCleanupUtility.parseArgs(new String[]{"--age-threshold-days"})
+        );
+        assertThat(ex.getMessage(), is("--age-threshold-days requires a value"));
+    }
+
+    @Test
+    void parseArgs_ageThresholdDays_invalidValue_throws() {
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> IndexCleanupUtility.parseArgs(new String[]{"--age-threshold-days", "abc"})
+        );
+    }
+
+    @Test
+    void parseArgs_ageThresholdDays_negative_throws() {
+        IllegalArgumentException ex = assertThrows(
+            IllegalArgumentException.class,
+            () -> IndexCleanupUtility.parseArgs(new String[]{"--age-threshold-days", "-1"})
+        );
+        assertThat(ex.getMessage(), is("--age-threshold-days must be >= 0"));
+    }
+}
+
+package io.pinecone.helpers;
+
 import io.pinecone.clients.Pinecone;
 import org.junit.jupiter.api.Test;
 import org.openapitools.db_control.client.model.CollectionList;
