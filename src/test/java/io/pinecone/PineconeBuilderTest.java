@@ -104,4 +104,42 @@ public class PineconeBuilderTest {
         verify(mockClient, times(1)).newCall(requestCaptor.capture());
         assertEquals("lang=java; pineconeClientVersion=" + pineconeClientVersion + "; source_tag=testSourceTag", requestCaptor.getValue().header("User-Agent"));
     }
+
+    @Test
+    public void PineconeWithHostAndCustomOkHttpClient() {
+        String customHost = "http://localhost:5080";
+        OkHttpClient customClient = new OkHttpClient.Builder().build();
+
+        // Verify that the builder doesn't throw an exception when both host and custom client are set
+        Pinecone client = new Pinecone.Builder("testApiKey")
+                .withHost(customHost)
+                .withOkHttpClient(customClient)
+                .build();
+
+        assertNotNull(client, "Pinecone client should be created successfully with both host and custom OkHttpClient");
+    }
+
+    @Test
+    public void PineconeWithHostButNoCustomOkHttpClient() {
+        String customHost = "http://localhost:5080";
+
+        // Verify that the builder doesn't throw an exception when host is set without custom client
+        Pinecone client = new Pinecone.Builder("testApiKey")
+                .withHost(customHost)
+                .build();
+
+        assertNotNull(client, "Pinecone client should be created successfully with host but no custom OkHttpClient");
+    }
+
+    @Test
+    public void PineconeWithCustomOkHttpClientButNoHost() {
+        OkHttpClient customClient = new OkHttpClient.Builder().build();
+
+        // Verify that the builder doesn't throw an exception when custom client is set without host
+        Pinecone client = new Pinecone.Builder("testApiKey")
+                .withOkHttpClient(customClient)
+                .build();
+
+        assertNotNull(client, "Pinecone client should be created successfully with custom OkHttpClient but no host");
+    }
 }

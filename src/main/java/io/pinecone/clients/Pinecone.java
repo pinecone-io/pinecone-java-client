@@ -1778,11 +1778,14 @@ public class Pinecone {
                 apiClient = new ApiClient(customOkHttpClient);
             } else {
                 apiClient = new ApiClient(buildOkHttpClient(proxyConfig));
-                if(host!=null && !host.isEmpty()) {
-                    config.setHost(host);
-                    apiClient.setBasePath(host);
-                }
             }
+
+            // Set host regardless of whether customOkHttpClient is used
+            if(host!=null && !host.isEmpty()) {
+                config.setHost(host);
+                apiClient.setBasePath(host);
+            }
+
             apiClient.setApiKey(config.getApiKey());
             apiClient.setUserAgent(config.getUserAgent());
             apiClient.addDefaultHeader("X-Pinecone-Api-Version", Configuration.VERSION);
