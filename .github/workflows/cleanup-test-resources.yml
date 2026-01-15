@@ -65,7 +65,7 @@ jobs:
           # Run the cleanup utility
           # Use only the shadow JAR (-all.jar) which contains all dependencies
           # This avoids classpath conflicts from mixing regular JAR, shadow JAR, and other artifacts
-          java -cp "build/libs/*-all.jar" \
+          java -cp build/libs/*-all.jar \
             io.pinecone.helpers.IndexCleanupUtility $ARGS
       
       - name: Summary
