@@ -1,6 +1,7 @@
 package io.pinecone.helpers;
 
 import io.pinecone.clients.Pinecone;
+import okhttp3.OkHttpClient;
 import org.openapitools.db_control.client.model.CollectionList;
 import org.openapitools.db_control.client.model.CollectionModel;
 import org.openapitools.db_control.client.model.IndexList;
@@ -8,6 +9,7 @@ import org.openapitools.db_control.client.model.IndexModel;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Utility for cleaning up Pinecone indexes and collections.
@@ -65,7 +67,17 @@ public class IndexCleanupUtility {
                 System.exit(1);
             }
 
-            Pinecone pinecone = new Pinecone.Builder(apiKey).build();
+            // Configure OkHttpClient with longer timeouts for delete operations
+            // Delete operations can take longer, especially for large indexes
+            OkHttpClient httpClient = new OkHttpClient.Builder()
+                    .connectTimeout(30, TimeUnit.SECONDS)
+                    .readTimeout(120, TimeUnit.SECONDS)
+                    .writeTimeout(30, TimeUnit.SECONDS)
+                    .build();
+
+            Pinecone pinecone = new Pinecone.Builder(apiKey)
+                    .withOkHttpClient(httpClient)
+                    .build();
             IndexCleanupUtility utility = new IndexCleanupUtility(
                 pinecone,
                 parsedArgs.ageThresholdDays,
@@ -243,8 +255,9 @@ public class IndexCleanupUtility {
         pinecone.deleteIndex(indexName);
         logInfo("Successfully initiated deletion of index: %s", indexName);
 
-        // Add small delay to avoid rate limiting
-        Thread.sleep(1000);
+        // Add delay to avoid overwhelming the backend
+        logInfo("Waiting 30 seconds before next deletion...");
+        Thread.sleep(30000);
         return true;
     }
 
@@ -279,8 +292,9 @@ public class IndexCleanupUtility {
         pinecone.deleteCollection(collectionName);
         logInfo("Successfully initiated deletion of collection: %s", collectionName);
 
-        // Add small delay to avoid rate limiting
-        Thread.sleep(1000);
+        // Add delay to avoid overwhelming the backend
+        logInfo("Waiting 30 seconds before next deletion...");
+        Thread.sleep(30000);
         return true;
     }
 

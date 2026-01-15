@@ -81,4 +81,10 @@ nb-configuration.xml
 ##############################
 .DS_Store
 
+##############################
+## Environment Variables
+##############################
+.env
+.env.local
+
 gen
