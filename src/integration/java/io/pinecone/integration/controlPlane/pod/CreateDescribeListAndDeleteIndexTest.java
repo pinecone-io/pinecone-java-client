@@ -4,35 +4,19 @@ import io.pinecone.clients.Pinecone;
 import io.pinecone.exceptions.PineconeBadRequestException;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.helpers.TestResourcesManager;
-import okhttp3.OkHttpClient;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.openapitools.db_control.client.model.*;
-
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CreateDescribeListAndDeleteIndexTest {
 
     private static final TestResourcesManager indexManager = TestResourcesManager.getInstance();
-    private static final Pinecone controlPlaneClient;
-    
-    static {
-        // Configure OkHttpClient with longer timeouts for index operations
-        // Index creation and deletion can take longer than default timeouts
-        OkHttpClient httpClient = new OkHttpClient.Builder()
-                .connectTimeout(30, TimeUnit.SECONDS)
-                .readTimeout(120, TimeUnit.SECONDS)
-                .writeTimeout(30, TimeUnit.SECONDS)
-                .build();
-        
-        controlPlaneClient = new Pinecone
-                .Builder(System.getenv("PINECONE_API_KEY"))
-                .withSourceTag("pinecone_test")
-                .withOkHttpClient(httpClient)
-                .build();
-    }
+    private static final Pinecone controlPlaneClient = new Pinecone
+            .Builder(System.getenv("PINECONE_API_KEY"))
+            .withSourceTag("pinecone_test")
+            .build();
     private static String indexName;
     private static int indexDimension;
     private static String indexPodType;

@@ -1,7 +1,6 @@
 package io.pinecone.helpers;
 
 import io.pinecone.clients.Pinecone;
-import okhttp3.OkHttpClient;
 import org.openapitools.db_control.client.model.CollectionList;
 import org.openapitools.db_control.client.model.CollectionModel;
 import org.openapitools.db_control.client.model.IndexList;
@@ -9,7 +8,6 @@ import org.openapitools.db_control.client.model.IndexModel;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Utility for cleaning up Pinecone indexes and collections.
@@ -67,17 +65,7 @@ public class IndexCleanupUtility {
                 System.exit(1);
             }
 
-            // Configure OkHttpClient with longer timeouts for delete operations
-            // Delete operations can take longer, especially for large indexes
-            OkHttpClient httpClient = new OkHttpClient.Builder()
-                    .connectTimeout(30, TimeUnit.SECONDS)
-                    .readTimeout(120, TimeUnit.SECONDS)
-                    .writeTimeout(30, TimeUnit.SECONDS)
-                    .build();
-
-            Pinecone pinecone = new Pinecone.Builder(apiKey)
-                    .withOkHttpClient(httpClient)
-                    .build();
+            Pinecone pinecone = new Pinecone.Builder(apiKey).build();
             IndexCleanupUtility utility = new IndexCleanupUtility(
                 pinecone,
                 parsedArgs.ageThresholdDays,

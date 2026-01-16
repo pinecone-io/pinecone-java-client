@@ -5,7 +5,6 @@ import io.pinecone.exceptions.PineconeBadRequestException;
 import io.pinecone.exceptions.PineconeForbiddenException;
 import io.pinecone.exceptions.PineconeNotFoundException;
 import io.pinecone.helpers.TestResourcesManager;
-import okhttp3.OkHttpClient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -13,8 +12,6 @@ import org.openapitools.db_control.client.model.IndexModel;
 import org.openapitools.db_control.client.model.PodSpec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.TimeUnit;
 
 import static io.pinecone.helpers.AssertRetry.assertWithRetry;
 import static org.junit.jupiter.api.Assertions.*;
@@ -25,11 +22,6 @@ public class ConfigureIndexTest {
     private static final Pinecone controlPlaneClient = new Pinecone
             .Builder(System.getenv("PINECONE_API_KEY"))
             .withSourceTag("pinecone_test")
-            .withOkHttpClient(new OkHttpClient.Builder()
-                    .connectTimeout(10, TimeUnit.SECONDS)
-                    .readTimeout(60, TimeUnit.SECONDS)
-                    .writeTimeout(30, TimeUnit.SECONDS)
-                    .build())
             .build();
     private static String indexName;
 

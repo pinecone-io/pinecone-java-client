@@ -2,6 +2,8 @@
 
 [comment]: <> (When bumping [pc:VERSION_LATEST_RELEASE] create a new entry below)
 ### Unreleased version
+- Improve default HTTP timeout configuration: Set default timeouts to 30s connect, 120s read, and 30s write to accommodate long-running control plane operations like index creation/deletion. Users can still override with custom OkHttpClient if needed.
+
 ### 6.1.0
 - Add ResponseMetadataListener for dataplane operation observability
 

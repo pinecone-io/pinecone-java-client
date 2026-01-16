@@ -17,6 +17,7 @@ import java.net.Proxy;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The Pinecone class is the main entry point for interacting with Pinecone via the Java SDK.
@@ -1798,8 +1799,29 @@ public class Pinecone {
         }
     }
 
+    /**
+     * Builds an OkHttpClient with default timeout configuration suitable for Pinecone operations.
+     * <p>
+     * Default timeout values:
+     * <ul>
+     *   <li>Connect timeout: 30 seconds - sufficient for network connection establishment</li>
+     *   <li>Read timeout: 120 seconds - accommodates long-running control plane operations like index creation/deletion</li>
+     *   <li>Write timeout: 30 seconds - sufficient for request payload transmission</li>
+     * </ul>
+     * <p>
+     * These defaults are designed to handle operations that may take longer than typical HTTP requests,
+     * such as creating or deleting indexes which can take 30-120+ seconds. For operations requiring
+     * different timeout values, users can provide a custom OkHttpClient via {@link Builder#withOkHttpClient(OkHttpClient)}.
+     *
+     * @param proxyConfig Optional proxy configuration. If provided, the client will route requests through the specified proxy.
+     * @return A configured OkHttpClient instance with default timeouts suitable for Pinecone operations.
+     */
     static OkHttpClient buildOkHttpClient(ProxyConfig proxyConfig) {
-        OkHttpClient.Builder builder = new OkHttpClient.Builder();
+        OkHttpClient.Builder builder = new OkHttpClient.Builder()
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .readTimeout(120, TimeUnit.SECONDS)
+                .writeTimeout(30, TimeUnit.SECONDS);
+        
         if(proxyConfig != null) {
             Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyConfig.getHost(), proxyConfig.getPort()));
             builder.proxy(proxy);

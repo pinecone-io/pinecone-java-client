@@ -5,7 +5,6 @@ import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.exceptions.PineconeException;
 import io.pinecone.proto.DescribeIndexStatsResponse;
-import okhttp3.OkHttpClient;
 import org.openapitools.db_control.client.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static io.pinecone.helpers.BuildUpsertRequest.buildRequiredUpsertRequestByDimension;
 import static io.pinecone.helpers.TestUtilities.*;
@@ -76,18 +74,9 @@ public class TestResourcesManager {
 
 
     private TestResourcesManager() {
-        // Configure OkHttpClient with longer timeouts for index creation operations
-        // Index creation can take longer, especially for serverless indexes
-        OkHttpClient httpClient = new OkHttpClient.Builder()
-                .connectTimeout(30, TimeUnit.SECONDS)
-                .readTimeout(120, TimeUnit.SECONDS)
-                .writeTimeout(30, TimeUnit.SECONDS)
-                .build();
-
         pineconeClient = new Pinecone
                 .Builder(apiKey)
                 .withSourceTag("pinecone_test")
-                .withOkHttpClient(httpClient)
                 .build();
     }
 

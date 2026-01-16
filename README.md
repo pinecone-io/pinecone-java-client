@@ -63,9 +63,18 @@ public class InitializeClientExample {
 }
 ```
 
+#### Default HTTP Timeout Configuration
+
+The Pinecone client uses default HTTP timeouts that are suitable for most operations:
+- **Connect timeout**: 30 seconds
+- **Read timeout**: 120 seconds (accommodates long-running operations like index creation/deletion)
+- **Write timeout**: 30 seconds
+
+These defaults are designed to handle operations that may take longer than typical HTTP requests, such as creating or deleting indexes which can take 30-120+ seconds.
+
 #### Passing OkHttpClient for control plane operations
 
-If you need to provide a custom `OkHttpClient`, you can do so by using the `withOkHttpClient()` method of the 
+If you need to provide a custom `OkHttpClient` with different timeout values or other custom configuration, you can do so by using the `withOkHttpClient()` method of the 
 `Pinecone.Builder` class to pass in your `OkHttpClient` object.
 
 ```java
@@ -74,10 +83,11 @@ import okhttp3.OkHttpClient;
 
 public class InitializeClientExample {
     public static void main(String[] args) {
+        // Example: Custom timeout configuration for specific use cases
         OkHttpClient.Builder builder = new OkHttpClient.Builder()
-                .connectTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
-                .readTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
-                .writeTimeout(30, java.util.concurrent.TimeUnit.SECONDS);
+                .connectTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
+                .readTimeout(180, java.util.concurrent.TimeUnit.SECONDS)
+                .writeTimeout(60, java.util.concurrent.TimeUnit.SECONDS);
 
         OkHttpClient httpClient = builder.build();
 

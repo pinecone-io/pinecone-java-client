@@ -3,7 +3,6 @@ package io.pinecone.integration.dataPlane;
 import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.helpers.RandomStringBuilder;
-import okhttp3.OkHttpClient;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.openapitools.db_control.client.model.CreateIndexForModelRequestEmbed;
@@ -13,22 +12,11 @@ import org.openapitools.db_data.client.model.SearchRecordsRequestRerank;
 import org.openapitools.db_data.client.model.SearchRecordsResponse;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 public class UpsertAndSearchRecordsTest {
     @Test
     public void upsertAndSearchRecordsTest() throws ApiException, org.openapitools.db_control.client.ApiException, InterruptedException {
-        // Configure OkHttpClient with longer timeouts for index operations
-        // Index creation and deletion can take longer than default timeouts
-        OkHttpClient httpClient = new OkHttpClient.Builder()
-                .connectTimeout(30, TimeUnit.SECONDS)
-                .readTimeout(120, TimeUnit.SECONDS)
-                .writeTimeout(30, TimeUnit.SECONDS)
-                .build();
-
-        Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY"))
-                .withOkHttpClient(httpClient)
-                .build();
+        Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
         String indexName = RandomStringBuilder.build("inf", 8);
         HashMap<String, String> fieldMap = new HashMap<>();
         fieldMap.put("text", "chunk_text");
