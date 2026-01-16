@@ -14,7 +14,7 @@ on:
       age_threshold_days:
         description: 'Minimum age in days for resources to be deleted'
         required: false
-        default: '1'
+        default: 1
         type: number
       dry_run:
         description: 'Preview deletions without executing (dry-run mode)'
@@ -63,7 +63,9 @@ jobs:
           echo "Running cleanup with: $ARGS"
           
           # Run the cleanup utility
-          java -cp "build/libs/*:build/classes/java/main" \
+          # Use only the shadow JAR (-all.jar) which contains all dependencies
+          # This avoids classpath conflicts from mixing regular JAR, shadow JAR, and other artifacts
+          java -cp build/libs/*-all.jar \
             io.pinecone.helpers.IndexCleanupUtility $ARGS
       
       - name: Summary

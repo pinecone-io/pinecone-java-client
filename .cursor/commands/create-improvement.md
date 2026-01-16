@@ -21,7 +21,7 @@ When the planned code changes are complete, the agent should take the following 
    - Ensure changes are adequately tested
 
 2. **Create Pull Request**
-   - Create a PR in draft mode
+   - Create a PR
    - Rename the PR with a title that follows the Conventional Commits 1.0.0 format
    - Update the PR description with:
      - A clear description of the problem and solution

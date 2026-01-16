@@ -2,14 +2,12 @@ package io.pinecone.integration.controlPlane.serverless;
 
 import io.pinecone.clients.Pinecone;
 import io.pinecone.helpers.RandomStringBuilder;
-import okhttp3.OkHttpClient;
 import org.junit.jupiter.api.*;
 import org.openapitools.db_control.client.ApiException;
 import org.openapitools.db_control.client.model.*;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import static io.pinecone.helpers.TestUtilities.waitUntilIndexIsReady;
 import static io.pinecone.helpers.TestUtilities.waitUntilReadCapacityIsReady;
@@ -20,11 +18,6 @@ public class ReadCapacityAndSchemaTest {
     private static final Pinecone controlPlaneClient = new Pinecone
             .Builder(System.getenv("PINECONE_API_KEY"))
             .withSourceTag("pinecone_test")
-            .withOkHttpClient(new OkHttpClient.Builder()
-                    .connectTimeout(30, TimeUnit.SECONDS)
-                    .readTimeout(120, TimeUnit.SECONDS)
-                    .writeTimeout(30, TimeUnit.SECONDS)
-                    .build())
             .build();
 
     @Test
@@ -64,7 +57,7 @@ public class ReadCapacityAndSchemaTest {
         tags.put("read-capacity", "dedicated");
 
         // Create index with Dedicated read capacity
-        ScalingConfigManual manual = new ScalingConfigManual().shards(2).replicas(2);
+        ScalingConfigManual manual = new ScalingConfigManual().shards(1).replicas(1);
         ReadCapacityDedicatedConfig dedicated = new ReadCapacityDedicatedConfig()
                 .nodeType("t1")
                 .scaling("Manual")

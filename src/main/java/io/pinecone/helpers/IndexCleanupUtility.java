@@ -243,8 +243,9 @@ public class IndexCleanupUtility {
         pinecone.deleteIndex(indexName);
         logInfo("Successfully initiated deletion of index: %s", indexName);
 
-        // Add small delay to avoid rate limiting
-        Thread.sleep(1000);
+        // Add delay to avoid overwhelming the backend
+        logInfo("Waiting 30 seconds before next deletion...");
+        Thread.sleep(30000);
         return true;
     }
 
@@ -279,8 +280,9 @@ public class IndexCleanupUtility {
         pinecone.deleteCollection(collectionName);
         logInfo("Successfully initiated deletion of collection: %s", collectionName);
 
-        // Add small delay to avoid rate limiting
-        Thread.sleep(1000);
+        // Add delay to avoid overwhelming the backend
+        logInfo("Waiting 30 seconds before next deletion...");
+        Thread.sleep(30000);
         return true;
     }
 
