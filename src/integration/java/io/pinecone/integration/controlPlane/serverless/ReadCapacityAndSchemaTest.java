@@ -64,7 +64,7 @@ public class ReadCapacityAndSchemaTest {
         tags.put("read-capacity", "dedicated");
 
         // Create index with Dedicated read capacity
-        ScalingConfigManual manual = new ScalingConfigManual().shards(2).replicas(2);
+        ScalingConfigManual manual = new ScalingConfigManual().shards(1).replicas(1);
         ReadCapacityDedicatedConfig dedicated = new ReadCapacityDedicatedConfig()
                 .nodeType("t1")
                 .scaling("Manual")
