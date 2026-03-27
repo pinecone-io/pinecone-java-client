@@ -75,6 +75,9 @@ public class ResponseMetadataInterceptor implements ClientInterceptor {
                         responseListener) {
 
                     private Metadata initialHeaders;
+                    private Integer readUnits;
+                    private Integer upsertedCount;
+                    private Integer matchedRecords;
 
                     @Override
                     public void onHeaders(Metadata headers) {
@@ -84,6 +87,19 @@ public class ResponseMetadataInterceptor implements ClientInterceptor {
                             logger.debug("Initial headers for {}: {}", operationName, headers.keys());
                         }
                         super.onHeaders(headers);
+                    }
+
+                    @Override
+                    public void onMessage(RespT message) {
+                        // Extract response body fields via reflection
+                        try {
+                            readUnits = extractReadUnits(message);
+                            upsertedCount = extractUpsertedCount(message);
+                            matchedRecords = extractMatchedRecords(message);
+                        } catch (Exception e) {
+                            logger.debug("Could not extract response body fields", e);
+                        }
+                        super.onMessage(message);
                     }
 
                     @Override
@@ -116,6 +132,9 @@ public class ResponseMetadataInterceptor implements ClientInterceptor {
                                     .status(statusStr)
                                     .grpcStatusCode(status.getCode().name())
                                     .errorType(errorType)
+                                    .readUnits(readUnits)
+                                    .upsertedCount(upsertedCount)
+                                    .matchedRecords(matchedRecords)
                                     .build();
 
                             invokeListener(metadata);
@@ -157,6 +176,58 @@ public class ResponseMetadataInterceptor implements ClientInterceptor {
             logger.debug("Could not extract namespace from request", e);
             return "";
         }
+    }
+
+    private <T> Integer extractReadUnits(T message) {
+        // Extract read units from QueryResponse, FetchResponse, ListResponse via hasUsage()/getUsage()/getReadUnits()
+        try {
+            java.lang.reflect.Method hasUsage = message.getClass().getMethod("hasUsage");
+            Boolean has = (Boolean) hasUsage.invoke(message);
+            if (Boolean.TRUE.equals(has)) {
+                java.lang.reflect.Method getUsage = message.getClass().getMethod("getUsage");
+                Object usage = getUsage.invoke(message);
+                java.lang.reflect.Method getReadUnits = usage.getClass().getMethod("getReadUnits");
+                Object result = getReadUnits.invoke(usage);
+                return ((Number) result).intValue();
+            }
+        } catch (NoSuchMethodException e) {
+            // Response type does not have usage field
+        } catch (Exception e) {
+            logger.debug("Could not extract read units from response", e);
+        }
+        return null;
+    }
+
+    private <T> Integer extractUpsertedCount(T message) {
+        // Extract upserted count from UpsertResponse via getUpsertedCount()
+        try {
+            java.lang.reflect.Method getUpsertedCount = message.getClass().getMethod("getUpsertedCount");
+            Object result = getUpsertedCount.invoke(message);
+            return ((Number) result).intValue();
+        } catch (NoSuchMethodException e) {
+            // Response type does not have upsertedCount field
+        } catch (Exception e) {
+            logger.debug("Could not extract upserted count from response", e);
+        }
+        return null;
+    }
+
+    private <T> Integer extractMatchedRecords(T message) {
+        // Extract matched records from UpdateResponse via hasMatchedRecords()/getMatchedRecords()
+        try {
+            java.lang.reflect.Method hasMatchedRecords = message.getClass().getMethod("hasMatchedRecords");
+            Boolean has = (Boolean) hasMatchedRecords.invoke(message);
+            if (Boolean.TRUE.equals(has)) {
+                java.lang.reflect.Method getMatchedRecords = message.getClass().getMethod("getMatchedRecords");
+                Object result = getMatchedRecords.invoke(message);
+                return ((Number) result).intValue();
+            }
+        } catch (NoSuchMethodException e) {
+            // Response type does not have matchedRecords field
+        } catch (Exception e) {
+            logger.debug("Could not extract matched records from response", e);
+        }
+        return null;
     }
 
     private String mapGrpcStatusToErrorType(Status.Code code) {

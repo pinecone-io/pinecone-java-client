@@ -9,6 +9,9 @@ package io.pinecone.configs;
  *   <li>{@link #getClientDurationMs()} - Total round-trip time measured by the client</li>
  *   <li>{@link #getServerDurationMs()} - Server processing time from x-pinecone-response-duration-ms header</li>
  *   <li>{@link #getNetworkOverheadMs()} - Computed network + serialization overhead</li>
+ *   <li>{@link #getReadUnits()} - Number of read units consumed (query, fetch, list operations)</li>
+ *   <li>{@link #getUpsertedCount()} - Number of records upserted (upsert operations)</li>
+ *   <li>{@link #getMatchedRecords()} - Number of records matched (update operations)</li>
  * </ul>
  *
  * <p>Example usage with a listener:
@@ -34,6 +37,9 @@ public class ResponseMetadata {
     private final String status;
     private final String grpcStatusCode;
     private final String errorType;
+    private final Integer readUnits;
+    private final Integer upsertedCount;
+    private final Integer matchedRecords;
 
     private ResponseMetadata(Builder builder) {
         this.operationName = builder.operationName;
@@ -45,6 +51,9 @@ public class ResponseMetadata {
         this.status = builder.status;
         this.grpcStatusCode = builder.grpcStatusCode;
         this.errorType = builder.errorType;
+        this.readUnits = builder.readUnits;
+        this.upsertedCount = builder.upsertedCount;
+        this.matchedRecords = builder.matchedRecords;
     }
 
     /**
@@ -135,6 +144,30 @@ public class ResponseMetadata {
     }
 
     /**
+     * Returns the number of read units consumed by the operation, or null if not applicable.
+     * Populated for query, fetch, and list operations.
+     */
+    public Integer getReadUnits() {
+        return readUnits;
+    }
+
+    /**
+     * Returns the number of records upserted, or null if not applicable.
+     * Populated for upsert operations.
+     */
+    public Integer getUpsertedCount() {
+        return upsertedCount;
+    }
+
+    /**
+     * Returns the number of records matched by the operation, or null if not applicable.
+     * Populated for update operations.
+     */
+    public Integer getMatchedRecords() {
+        return matchedRecords;
+    }
+
+    /**
      * Returns true if the operation was successful.
      */
     public boolean isSuccess() {
@@ -162,6 +195,15 @@ public class ResponseMetadata {
         if (errorType != null) {
             sb.append(", errorType=").append(errorType);
         }
+        if (readUnits != null) {
+            sb.append(", readUnits=").append(readUnits);
+        }
+        if (upsertedCount != null) {
+            sb.append(", upsertedCount=").append(upsertedCount);
+        }
+        if (matchedRecords != null) {
+            sb.append(", matchedRecords=").append(matchedRecords);
+        }
         sb.append("}");
         return sb.toString();
     }
@@ -176,6 +218,9 @@ public class ResponseMetadata {
         private String status = "success";
         private String grpcStatusCode = "OK";
         private String errorType;
+        private Integer readUnits;
+        private Integer upsertedCount;
+        private Integer matchedRecords;
 
         public Builder operationName(String operationName) {
             this.operationName = operationName;
@@ -219,6 +264,21 @@ public class ResponseMetadata {
 
         public Builder errorType(String errorType) {
             this.errorType = errorType;
+            return this;
+        }
+
+        public Builder readUnits(Integer readUnits) {
+            this.readUnits = readUnits;
+            return this;
+        }
+
+        public Builder upsertedCount(Integer upsertedCount) {
+            this.upsertedCount = upsertedCount;
+            return this;
+        }
+
+        public Builder matchedRecords(Integer matchedRecords) {
+            this.matchedRecords = matchedRecords;
             return this;
         }
 
