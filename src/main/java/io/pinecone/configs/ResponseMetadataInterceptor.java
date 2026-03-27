@@ -21,7 +21,7 @@ public class ResponseMetadataInterceptor implements ClientInterceptor {
 
     // Operations to track (matches VectorService RPC method names)
     private static final Set<String> TRACKED_OPERATIONS = new HashSet<>(Arrays.asList(
-            "Upsert", "Query", "Fetch", "Update", "Delete"
+            "Upsert", "Query", "Fetch", "Update", "Delete", "List"
     ));
 
     private final ResponseMetadataListener listener;
