@@ -168,12 +168,24 @@ Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY")
             metadata.getClientDurationMs(),
             metadata.getServerDurationMs(),
             metadata.getNetworkOverheadMs());
+
+        // Log usage and operation-result fields when available
+        if (metadata.getReadUnits() != null) {
+            System.out.printf("  Read units consumed: %d%n", metadata.getReadUnits());
+        }
+        if (metadata.getUpsertedCount() != null) {
+            System.out.printf("  Upserted count: %d%n", metadata.getUpsertedCount());
+        }
+        if (metadata.getMatchedRecords() != null) {
+            System.out.printf("  Matched records: %d%n", metadata.getMatchedRecords());
+        }
     })
     .build();
 
 Index index = pinecone.getIndexConnection("example-index");
 index.query(5, Arrays.asList(1.0f, 2.0f, 3.0f));
 // Output: Operation: query | Client: 45ms | Server: 32ms | Network: 13ms
+//         Read units consumed: 5
 ```
 
 The `ResponseMetadata` object provides:
@@ -189,6 +201,9 @@ The `ResponseMetadata` object provides:
 | `isSuccess()` | Whether the operation succeeded |
 | `getGrpcStatusCode()` | gRPC status code |
 | `getErrorType()` | Error category when failed |
+| `getReadUnits()` | Read units consumed (available on query, fetch, list) |
+| `getUpsertedCount()` | Number of vectors upserted (available on upsert) |
+| `getMatchedRecords()` | Number of matched records (available on update) |
 
 For a complete OpenTelemetry integration example with Prometheus and Grafana, see the [java-otel-metrics example](examples/java-otel-metrics/).
 
