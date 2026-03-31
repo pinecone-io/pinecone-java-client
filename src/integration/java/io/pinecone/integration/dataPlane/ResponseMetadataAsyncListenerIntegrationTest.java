@@ -2,11 +2,13 @@ package io.pinecone.integration.dataPlane;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import io.pinecone.clients.AsyncIndex;
-import io.pinecone.clients.Pinecone;
+import io.pinecone.configs.PineconeConfig;
+import io.pinecone.configs.PineconeConnection;
 import io.pinecone.configs.ResponseMetadata;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.helpers.TestResourcesManager;
 import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -36,22 +38,32 @@ public class ResponseMetadataAsyncListenerIntegrationTest {
 
     private static String indexName;
     private static AsyncIndex asyncIndex;
+    private static PineconeConnection connection;
     private static int dimension;
 
     @BeforeAll
     public static void setUp() throws InterruptedException {
         dimension = resourceManager.getDimension();
         indexName = resourceManager.getOrCreateServerlessIndex();
+        String host = resourceManager.getOrCreateServerlessIndexHost();
 
-        Pinecone pineconeClient = new Pinecone.Builder(System.getenv("PINECONE_API_KEY"))
-                .withSourceTag("pinecone_test")
-                .withResponseMetadataListener(metadata -> {
-                    logger.debug("Captured async metadata: {}", metadata);
-                    capturedMetadata.add(metadata);
-                })
-                .build();
+        // Build a fresh PineconeConnection directly, bypassing the shared static connectionsMap,
+        // so this listener-configured connection is guaranteed to be independent of the shared one.
+        PineconeConfig config = new PineconeConfig(System.getenv("PINECONE_API_KEY"), "pinecone_test");
+        config.setHost(host);
+        config.setResponseMetadataListener(metadata -> {
+            logger.debug("Captured async metadata: {}", metadata);
+            capturedMetadata.add(metadata);
+        });
+        connection = new PineconeConnection(config, indexName);
+        asyncIndex = new AsyncIndex(config, connection, indexName);
+    }
 
-        asyncIndex = pineconeClient.getAsyncIndexConnection(indexName);
+    @AfterAll
+    public static void cleanUp() {
+        if (connection != null) {
+            connection.close();
+        }
     }
 
     @Test

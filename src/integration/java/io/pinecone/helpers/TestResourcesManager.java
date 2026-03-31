@@ -189,6 +189,17 @@ public class TestResourcesManager {
      *
      * @return a {@link Index} connection to the serverless index.
      */
+    /**
+     * Gets the host for the shared serverless index. Creates the index first if it doesn't exist.
+     * Used by tests that need to construct their own PineconeConnection (e.g. to attach a custom listener)
+     * without going through the shared static connection cache.
+     *
+     * @return the host URL of the shared serverless index.
+     */
+    public synchronized String getOrCreateServerlessIndexHost() throws InterruptedException {
+        return pineconeClient.describeIndex(getOrCreateServerlessIndex()).getHost();
+    }
+
     public synchronized Index getOrCreateServerlessIndexConnection() throws InterruptedException {
         if (serverlessIndexConnection == null) {
             serverlessIndexConnection = pineconeClient.getIndexConnection(getOrCreateServerlessIndex());
