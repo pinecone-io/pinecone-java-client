@@ -9,7 +9,6 @@ import io.pinecone.helpers.TestResourcesManager;
 import io.pinecone.proto.FetchByMetadataResponse;
 import io.pinecone.proto.UpdateResponse;
 import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -56,12 +55,6 @@ public class FetchAndUpdateByMetadataTest {
         
         // Wait for vectors to be indexed
         Thread.sleep(5000);
-    }
-
-    @AfterAll
-    public static void cleanUp() {
-        index.close();
-        asyncIndex.close();
     }
 
     @Test

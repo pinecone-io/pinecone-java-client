@@ -13,7 +13,6 @@ import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
 import io.pinecone.unsigned_indices_model.ScoredVectorWithUnsignedIndices;
 import io.pinecone.unsigned_indices_model.SparseValuesWithUnsignedIndices;
 import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -70,12 +69,6 @@ public class UpdateFetchAndQueryServerlessTest {
         }
 
         index.upsert(vectorsToUpsert, namespace);
-    }
-
-    @AfterAll
-    public static void cleanUp() {
-        index.close();
-        asyncIndex.close();
     }
 
     @Test

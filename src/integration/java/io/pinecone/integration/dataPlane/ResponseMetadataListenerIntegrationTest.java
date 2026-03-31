@@ -6,7 +6,6 @@ import io.pinecone.configs.ResponseMetadata;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.helpers.TestResourcesManager;
 import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -49,13 +48,6 @@ public class ResponseMetadataListenerIntegrationTest {
                 .build();
 
         index = pineconeClient.getIndexConnection(indexName);
-    }
-
-    @AfterAll
-    public static void cleanUp() {
-        if (index != null) {
-            index.close();
-        }
     }
 
     @Test

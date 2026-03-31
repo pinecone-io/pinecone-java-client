@@ -6,7 +6,6 @@ import io.pinecone.clients.AsyncIndex;
 import io.pinecone.clients.Index;
 import io.pinecone.helpers.TestResourcesManager;
 import io.pinecone.proto.ListResponse;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -30,12 +29,6 @@ public class ListEndpointTest {
         indexConnection = indexManager.getOrCreateServerlessIndexConnection();
         asyncIndexConnection = indexManager.getOrCreateServerlessAsyncIndexConnection();
         customNamespace = indexManager.getCustomNamespace();
-    }
-
-    @AfterAll
-    public static void cleanUp() {
-        indexConnection.close();
-        asyncIndexConnection.close();
     }
 
     @Test

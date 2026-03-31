@@ -8,7 +8,6 @@ import io.pinecone.helpers.TestResourcesManager;
 import io.pinecone.proto.DescribeIndexStatsResponse;
 import io.pinecone.proto.NamespaceSummary;
 import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -32,12 +31,6 @@ public class UpsertDescribeIndexStatsAndDeleteServerlessTest {
         dimension = indexManager.getDimension();
         index = indexManager.getOrCreateServerlessIndexConnection();
         asyncIndex = indexManager.getOrCreateServerlessAsyncIndexConnection();
-    }
-
-    @AfterAll
-    public static void cleanUp() {
-        index.close();
-        asyncIndex.close();
     }
 
     @Test

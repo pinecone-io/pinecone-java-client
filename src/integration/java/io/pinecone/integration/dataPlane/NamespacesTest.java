@@ -6,7 +6,6 @@ import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.helpers.TestResourcesManager;
 import io.pinecone.proto.ListNamespacesResponse;
 import io.pinecone.proto.NamespaceDescription;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.ExecutionException;
@@ -20,12 +19,6 @@ public class NamespacesTest {
     private static Index index;
     private static AsyncIndex asyncIndex;
     private static final int dimension = indexManager.getDimension();
-
-    @AfterAll
-    public static void cleanUp() {
-        if (index != null) index.close();
-        if (asyncIndex != null) asyncIndex.close();
-    }
 
     @Test
     public void namespacesSyncTest() throws Exception {

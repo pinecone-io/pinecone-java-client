@@ -66,6 +66,10 @@ public class TestResourcesManager {
     private String serverlessIndexName;
     private String collectionName;
     private CollectionModel collectionModel;
+    private Index serverlessIndexConnection;
+    private AsyncIndex serverlessAsyncIndexConnection;
+    private Index podIndexConnection;
+    private AsyncIndex podAsyncIndexConnection;
     private final List<String> vectorIdsForDefaultNamespace = Arrays.asList("def-id1", "def-id2", "def-prefix-id3", "def-prefix-id4");
     private final List<String> vectorIdsForCustomNamespace = Arrays.asList("cus-id1", "cus-id2", "cus-prefix-id3", "cus" +
             "-prefix-id4");
@@ -185,8 +189,11 @@ public class TestResourcesManager {
      *
      * @return a {@link Index} connection to the serverless index.
      */
-    public  Index getOrCreateServerlessIndexConnection() throws InterruptedException {
-        return getInstance().pineconeClient.getIndexConnection(getOrCreateServerlessIndex());
+    public synchronized Index getOrCreateServerlessIndexConnection() throws InterruptedException {
+        if (serverlessIndexConnection == null) {
+            serverlessIndexConnection = pineconeClient.getIndexConnection(getOrCreateServerlessIndex());
+        }
+        return serverlessIndexConnection;
     }
 
     /**
@@ -195,8 +202,11 @@ public class TestResourcesManager {
      *
      * @return a {@link AsyncIndex} connection to the serverless index.
      */
-    public AsyncIndex getOrCreateServerlessAsyncIndexConnection() throws InterruptedException {
-        return getInstance().pineconeClient.getAsyncIndexConnection(getOrCreateServerlessIndex());
+    public synchronized AsyncIndex getOrCreateServerlessAsyncIndexConnection() throws InterruptedException {
+        if (serverlessAsyncIndexConnection == null) {
+            serverlessAsyncIndexConnection = pineconeClient.getAsyncIndexConnection(getOrCreateServerlessIndex());
+        }
+        return serverlessAsyncIndexConnection;
     }
 
     /**
@@ -205,8 +215,11 @@ public class TestResourcesManager {
      *
      * @return a {@link Index} connection to the pod index.
      */
-    public  Index getOrCreatePodIndexConnection() throws InterruptedException {
-        return getInstance().pineconeClient.getIndexConnection(getOrCreatePodIndex());
+    public synchronized Index getOrCreatePodIndexConnection() throws InterruptedException {
+        if (podIndexConnection == null) {
+            podIndexConnection = pineconeClient.getIndexConnection(getOrCreatePodIndex());
+        }
+        return podIndexConnection;
     }
 
     /**
@@ -215,8 +228,11 @@ public class TestResourcesManager {
      *
      * @return a {@link AsyncIndex} connection to the pod index.
      */
-    public AsyncIndex getOrCreatePodAsyncIndexConnection() throws InterruptedException {
-        return getInstance().pineconeClient.getAsyncIndexConnection(getOrCreatePodIndex());
+    public synchronized AsyncIndex getOrCreatePodAsyncIndexConnection() throws InterruptedException {
+        if (podAsyncIndexConnection == null) {
+            podAsyncIndexConnection = pineconeClient.getAsyncIndexConnection(getOrCreatePodIndex());
+        }
+        return podAsyncIndexConnection;
     }
 
     /**
@@ -257,6 +273,19 @@ public class TestResourcesManager {
      * after all tests have finished running.
      */
     public void cleanupResources() {
+        if (serverlessIndexConnection != null) {
+            serverlessIndexConnection.close();
+        }
+        if (serverlessAsyncIndexConnection != null) {
+            serverlessAsyncIndexConnection.close();
+        }
+        if (podIndexConnection != null) {
+            podIndexConnection.close();
+        }
+        if (podAsyncIndexConnection != null) {
+            podAsyncIndexConnection.close();
+        }
+
         if (podIndexName != null) {
             pineconeClient.deleteIndex(podIndexName);
         }
