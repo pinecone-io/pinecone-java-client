@@ -17,6 +17,9 @@ class ResponseMetadataTest {
                 .serverDurationMs(100L)
                 .status("success")
                 .grpcStatusCode("OK")
+                .readUnits(5)
+                .upsertedCount(10)
+                .matchedRecords(3)
                 .build();
 
         assertEquals("query", metadata.getOperationName());
@@ -29,6 +32,9 @@ class ResponseMetadataTest {
         assertEquals("OK", metadata.getGrpcStatusCode());
         assertTrue(metadata.isSuccess());
         assertNull(metadata.getErrorType());
+        assertEquals(5, metadata.getReadUnits());
+        assertEquals(10, metadata.getUpsertedCount());
+        assertEquals(3, metadata.getMatchedRecords());
     }
 
     @Test
@@ -179,6 +185,116 @@ class ResponseMetadataTest {
             assertEquals(errorType, metadata.getErrorType());
             assertFalse(metadata.isSuccess());
         }
+    }
+
+    @Test
+    void testReadUnitsNullByDefault() {
+        ResponseMetadata metadata = ResponseMetadata.builder()
+                .operationName("query")
+                .build();
+
+        assertNull(metadata.getReadUnits());
+    }
+
+    @Test
+    void testReadUnitsWithValue() {
+        ResponseMetadata metadata = ResponseMetadata.builder()
+                .operationName("query")
+                .readUnits(10)
+                .build();
+
+        assertEquals(10, metadata.getReadUnits());
+    }
+
+    @Test
+    void testUpsertedCountNullByDefault() {
+        ResponseMetadata metadata = ResponseMetadata.builder()
+                .operationName("upsert")
+                .build();
+
+        assertNull(metadata.getUpsertedCount());
+    }
+
+    @Test
+    void testUpsertedCountWithValue() {
+        ResponseMetadata metadata = ResponseMetadata.builder()
+                .operationName("upsert")
+                .upsertedCount(100)
+                .build();
+
+        assertEquals(100, metadata.getUpsertedCount());
+    }
+
+    @Test
+    void testMatchedRecordsNullByDefault() {
+        ResponseMetadata metadata = ResponseMetadata.builder()
+                .operationName("update")
+                .build();
+
+        assertNull(metadata.getMatchedRecords());
+    }
+
+    @Test
+    void testMatchedRecordsWithValue() {
+        ResponseMetadata metadata = ResponseMetadata.builder()
+                .operationName("update")
+                .matchedRecords(42)
+                .build();
+
+        assertEquals(42, metadata.getMatchedRecords());
+    }
+
+    @Test
+    void testToStringWithReadUnits() {
+        ResponseMetadata metadata = ResponseMetadata.builder()
+                .operationName("query")
+                .indexName("my-index")
+                .clientDurationMs(100)
+                .readUnits(5)
+                .build();
+
+        String str = metadata.toString();
+        assertTrue(str.contains("readUnits=5"));
+    }
+
+    @Test
+    void testToStringWithUpsertedCount() {
+        ResponseMetadata metadata = ResponseMetadata.builder()
+                .operationName("upsert")
+                .indexName("my-index")
+                .clientDurationMs(100)
+                .upsertedCount(50)
+                .build();
+
+        String str = metadata.toString();
+        assertTrue(str.contains("upsertedCount=50"));
+    }
+
+    @Test
+    void testToStringWithMatchedRecords() {
+        ResponseMetadata metadata = ResponseMetadata.builder()
+                .operationName("update")
+                .indexName("my-index")
+                .clientDurationMs(100)
+                .matchedRecords(7)
+                .build();
+
+        String str = metadata.toString();
+        assertTrue(str.contains("matchedRecords=7"));
+    }
+
+    @Test
+    void testToStringOmitsNullResponseBodyFields() {
+        ResponseMetadata metadata = ResponseMetadata.builder()
+                .operationName("delete")
+                .indexName("my-index")
+                .clientDurationMs(100)
+                .build();
+
+        String str = metadata.toString();
+        assertFalse(str.contains("readUnits"));
+        assertFalse(str.contains("upsertedCount"));
+        assertFalse(str.contains("matchedRecords"));
     }
 }
 
