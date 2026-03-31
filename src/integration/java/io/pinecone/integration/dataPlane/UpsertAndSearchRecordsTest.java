@@ -26,9 +26,10 @@ public class UpsertAndSearchRecordsTest {
         CreateIndexForModelRequestEmbed embed = new CreateIndexForModelRequestEmbed()
                 .model("multilingual-e5-large")
                 .fieldMap(fieldMap);
-        pinecone.createIndexForModel(indexName, "aws", "us-west-2", embed, "disabled", new HashMap<>());
-
+        boolean indexCreated = false;
         try {
+            pinecone.createIndexForModel(indexName, "aws", "us-west-2", embed, "disabled", new HashMap<>());
+            indexCreated = true;
             waitUntilIndexIsReady(pinecone, indexName);
             // Additional buffer after ready signal to avoid "no healthy upstream" errors
             Thread.sleep(30000);
@@ -83,7 +84,9 @@ public class UpsertAndSearchRecordsTest {
             SearchRecordsResponse recordsResponse = index.searchRecordsByText("Disease prevention", namespace, fields, 4, null, rerank);
             Assertions.assertEquals(record3.get("_id"), recordsResponse.getResult().getHits().get(0).getId());
         } finally {
-            pinecone.deleteIndex(indexName);
+            if (indexCreated) {
+                pinecone.deleteIndex(indexName);
+            }
         }
     }
 }
