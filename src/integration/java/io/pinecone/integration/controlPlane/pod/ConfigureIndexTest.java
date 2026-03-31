@@ -9,6 +9,7 @@ import okhttp3.OkHttpClient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Isolated;
 import org.openapitools.db_control.client.model.IndexModel;
 import org.openapitools.db_control.client.model.PodSpec;
 import org.slf4j.Logger;
@@ -19,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 import static io.pinecone.helpers.AssertRetry.assertWithRetry;
 import static org.junit.jupiter.api.Assertions.*;
 
+@Isolated
 public class ConfigureIndexTest {
     private static final Logger logger = LoggerFactory.getLogger(ConfigureIndexTest.class);
     private static final TestResourcesManager indexManager = TestResourcesManager.getInstance();
@@ -43,7 +45,7 @@ public class ConfigureIndexTest {
         int timeWaited = 0;
         IndexModel index = controlPlaneClient.describeIndex(indexName);
 
-        while (index.getStatus().getState() != "ready" && timeWaited <= timeToWaitMs) {
+        while (!"ready".equalsIgnoreCase(index.getStatus().getState()) && timeWaited <= timeToWaitMs) {
             Thread.sleep(2000);
             timeWaited += 2000;
             logger.info("waited 2000ms for index to upgrade, time waited: " + timeWaited);
