@@ -42,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  */
 public class TestResourcesManager {
     private static final Logger logger = LoggerFactory.getLogger(TestUtilities.class);
-    private static TestResourcesManager instance;
+    private static volatile TestResourcesManager instance;
     private static final String apiKey = System.getenv("PINECONE_API_KEY");
     private final int dimension = System.getenv("DIMENSION") == null
             ? 4
@@ -85,7 +85,7 @@ public class TestResourcesManager {
      *
      * @return the {@link TestResourcesManager} instance.
      */
-    public static TestResourcesManager getInstance() {
+    public static synchronized TestResourcesManager getInstance() {
         if (instance == null) {
             instance = new TestResourcesManager();
         }
@@ -225,7 +225,7 @@ public class TestResourcesManager {
      *
      * @return the {@link IndexModel} of the pod index.
      */
-    public IndexModel getOrCreatePodIndexModel() throws InterruptedException {
+    public synchronized IndexModel getOrCreatePodIndexModel() throws InterruptedException {
         podIndexModel = pineconeClient.describeIndex(getOrCreatePodIndex());
         return podIndexModel;
     }
@@ -236,7 +236,7 @@ public class TestResourcesManager {
      *
      * @return the {@link IndexModel} of the serverless index.
      */
-    public IndexModel getOrCreateServerlessIndexModel() throws InterruptedException {
+    public synchronized IndexModel getOrCreateServerlessIndexModel() throws InterruptedException {
         serverlessIndexModel = pineconeClient.describeIndex(getOrCreateServerlessIndex());
         return serverlessIndexModel;
     }
@@ -247,7 +247,7 @@ public class TestResourcesManager {
      *
      * @return the {@link CollectionModel} of the serverless index.
      */
-    public CollectionModel getOrCreateCollectionModel() throws InterruptedException {
+    public synchronized CollectionModel getOrCreateCollectionModel() throws InterruptedException {
         collectionModel = pineconeClient.describeCollection(getOrCreateCollection());
         return collectionModel;
     }
@@ -280,7 +280,7 @@ public class TestResourcesManager {
      * @throws InterruptedException if the thread is interrupted while waiting for the index to be ready.
      * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
      */
-    public String getOrCreatePodIndex() throws InterruptedException, PineconeException {
+    public synchronized String getOrCreatePodIndex() throws InterruptedException, PineconeException {
         if (podIndexName != null) {
             return podIndexName;
         }
@@ -311,7 +311,7 @@ public class TestResourcesManager {
      * @throws InterruptedException if the thread is interrupted while waiting for the index to be ready.
      * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
      */
-    public String getOrCreateServerlessIndex() throws InterruptedException, PineconeException {
+    public synchronized String getOrCreateServerlessIndex() throws InterruptedException, PineconeException {
         if (this.serverlessIndexName != null) {
             return this.serverlessIndexName;
         }
@@ -344,7 +344,7 @@ public class TestResourcesManager {
      * @throws InterruptedException if the thread is interrupted while waiting for the collection to be ready.
      * @throws PineconeException if the API encounters an error during collection creation.
      */
-    public String getOrCreateCollection() throws InterruptedException, PineconeException {
+    public synchronized String getOrCreateCollection() throws InterruptedException, PineconeException {
         if (collectionName != null) {
             return collectionName;
         }
