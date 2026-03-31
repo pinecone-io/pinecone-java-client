@@ -99,17 +99,9 @@ public class ConnectionsMapTest {
         assertEquals(host2, connectionsMap.get(indexName2).toString());
 
         // Connecting a second client to the same indexes should reuse the existing map entries
-        int sizeBeforeSecondClient = connectionsMap.size();
-        pinecone2.getConnection(indexName1, config1);
-        // Verify the map is the same reference and the size did not grow
         assertSame(connectionsMap, pinecone2.getConnectionsMap());
-        assertEquals(sizeBeforeSecondClient, connectionsMap.size());
-        assertEquals(host1, connectionsMap.get(indexName1).toString());
-
-        pinecone2.getConnection(indexName2, config2);
-        assertEquals(sizeBeforeSecondClient, connectionsMap.size());
-        assertEquals(host1, connectionsMap.get(indexName1).toString());
-        assertEquals(host2, connectionsMap.get(indexName2).toString());
+        assertSame(connectionsMap.get(indexName1), pinecone2.getConnection(indexName1, config1));
+        assertSame(connectionsMap.get(indexName2), pinecone2.getConnection(indexName2, config2));
 
         // Close the connections
         index1_1.close();
