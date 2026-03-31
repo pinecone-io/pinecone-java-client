@@ -20,6 +20,9 @@ public class AssertRetry {
             try {
                 assertionRunnable.run();
                 success = true;
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw e;
             } catch (AssertionError | Exception e) {
                 errorMessage = e.getLocalizedMessage();
                 retryCount++;
