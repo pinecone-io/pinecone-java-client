@@ -38,7 +38,7 @@ public class UpsertAndQueryPodTest {
     }
 
     @Test
-    public void upsertOptionalVectorsAndQueryIndexSyncTest() throws InterruptedException {
+    public void upsertOptionalVectorsAndQueryIndexSyncTest() throws Exception {
         int numOfVectors = 5;
         int topK = 5;
 
@@ -121,7 +121,7 @@ public class UpsertAndQueryPodTest {
     }
 
     @Test
-    public void upsertOptionalVectorsAndQueryIndexFutureTest() throws InterruptedException, ExecutionException {
+    public void upsertOptionalVectorsAndQueryIndexFutureTest() throws Exception {
         int numOfVectors = 5;
         int topK = 5;
 

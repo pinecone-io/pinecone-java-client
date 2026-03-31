@@ -30,7 +30,7 @@ public class FetchAndUpdateByMetadataTest {
     private static final String namespace = RandomStringBuilder.build("ns", 8);
 
     @BeforeAll
-    public static void setUp() throws InterruptedException {
+    public static void setUp() throws Exception {
         int dimension = indexManager.getDimension();
         index = indexManager.getOrCreateServerlessIndexConnection();
         asyncIndex = indexManager.getOrCreateServerlessAsyncIndexConnection();
@@ -65,7 +65,7 @@ public class FetchAndUpdateByMetadataTest {
     }
 
     @Test
-    public void fetchByMetadataSyncTest() throws InterruptedException {
+    public void fetchByMetadataSyncTest() throws Exception {
         HashMap<String, List<String>> metadataMap = createAndGetMetadataMap();
         String filterValue = metadataMap.get(metadataFields[0]).get(0);
         
@@ -86,7 +86,7 @@ public class FetchAndUpdateByMetadataTest {
     }
 
     @Test
-    public void updateByMetadataSyncTest() throws InterruptedException {
+    public void updateByMetadataSyncTest() throws Exception {
         HashMap<String, List<String>> metadataMap = createAndGetMetadataMap();
         String filterValue = metadataMap.get(metadataFields[0]).get(0);
         
@@ -111,7 +111,7 @@ public class FetchAndUpdateByMetadataTest {
     }
 
     @Test
-    public void fetchByMetadataAsyncTest() throws InterruptedException, ExecutionException {
+    public void fetchByMetadataAsyncTest() throws Exception {
         HashMap<String, List<String>> metadataMap = createAndGetMetadataMap();
         String filterValue = metadataMap.get(metadataFields[1]).get(0);
         
@@ -132,7 +132,7 @@ public class FetchAndUpdateByMetadataTest {
     }
 
     @Test
-    public void updateByMetadataAsyncTest() throws InterruptedException, ExecutionException {
+    public void updateByMetadataAsyncTest() throws Exception {
         HashMap<String, List<String>> metadataMap = createAndGetMetadataMap();
         String filterValue = metadataMap.get(metadataFields[1]).get(0);
         

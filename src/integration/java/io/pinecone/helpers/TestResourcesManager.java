@@ -359,13 +359,13 @@ public class TestResourcesManager {
         // Wait until collection is ready
         int timeWaited = 0;
         String collectionReady = collectionModel.getStatus().toLowerCase();
-        while (collectionReady != "ready" && timeWaited < 120000) {
+        while (!"ready".equals(collectionReady) && timeWaited < 120000) {
             logger.info("Waiting for collection " + collectionName + " to be ready. Waited " + timeWaited + " " +
                     "milliseconds...");
             Thread.sleep(5000);
             timeWaited += 5000;
             collectionModel = pineconeClient.describeCollection(collectionName);
-            collectionReady = collectionModel.getStatus();
+            collectionReady = collectionModel.getStatus().toLowerCase();
         }
 
         if (timeWaited > 120000) {

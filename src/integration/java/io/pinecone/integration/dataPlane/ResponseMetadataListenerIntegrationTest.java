@@ -96,8 +96,6 @@ public class ResponseMetadataListenerIntegrationTest {
         VectorWithUnsignedIndices vector = buildUpsertVectorWithUnsignedIndices(
                 ids.get(0), values, null, null, null);
         index.upsert(Collections.singletonList(vector), namespace);
-
-        Thread.sleep(1000);
         capturedMetadata.clear();
 
         index.query(5, values, null, null, null, namespace, null, false, false);
@@ -123,8 +121,6 @@ public class ResponseMetadataListenerIntegrationTest {
         VectorWithUnsignedIndices vector = buildUpsertVectorWithUnsignedIndices(
                 vectorId, values, null, null, null);
         index.upsert(Collections.singletonList(vector), namespace);
-
-        Thread.sleep(1000);
         capturedMetadata.clear();
 
         index.fetch(Collections.singletonList(vectorId), namespace);
@@ -150,8 +146,6 @@ public class ResponseMetadataListenerIntegrationTest {
         VectorWithUnsignedIndices vector = buildUpsertVectorWithUnsignedIndices(
                 vectorId, values, null, null, null);
         index.upsert(Collections.singletonList(vector), namespace);
-
-        Thread.sleep(1000);
         capturedMetadata.clear();
 
         List<Float> updatedValues = generateVectorValuesByDimension(dimension);
@@ -178,8 +172,6 @@ public class ResponseMetadataListenerIntegrationTest {
         VectorWithUnsignedIndices vector = buildUpsertVectorWithUnsignedIndices(
                 vectorId, values, null, null, null);
         index.upsert(Collections.singletonList(vector), namespace);
-
-        Thread.sleep(1000);
         capturedMetadata.clear();
 
         index.deleteByIds(Collections.singletonList(vectorId), namespace);
@@ -206,8 +198,6 @@ public class ResponseMetadataListenerIntegrationTest {
         VectorWithUnsignedIndices vector = buildUpsertVectorWithUnsignedIndices(
                 vectorId, values, null, null, null);
         index.upsert(Collections.singletonList(vector), namespace);
-
-        Thread.sleep(500);
 
         index.query(5, values, null, null, null, namespace, null, false, false);
         index.fetch(Collections.singletonList(vectorId), namespace);

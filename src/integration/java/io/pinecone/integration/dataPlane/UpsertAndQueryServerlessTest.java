@@ -32,7 +32,7 @@ public class UpsertAndQueryServerlessTest {
     private static final String namespace = RandomStringBuilder.build("ns", 8);
 
     @BeforeAll
-    public static void setUp() throws InterruptedException {
+    public static void setUp() throws Exception {
         dimension = indexManager.getDimension();
         index = indexManager.getOrCreateServerlessIndexConnection();
         asyncIndex = indexManager.getOrCreateServerlessAsyncIndexConnection();
@@ -136,7 +136,7 @@ public class UpsertAndQueryServerlessTest {
     }
 
     @Test
-    public void upsertOptionalVectorsAndQueryIndexFutureTest() throws InterruptedException, ExecutionException {
+    public void upsertOptionalVectorsAndQueryIndexFutureTest() throws Exception {
         int numOfVectors = 5;
         int topK = 5;
 

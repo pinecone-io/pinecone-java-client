@@ -76,7 +76,7 @@ public class  UpdateFetchAndQueryPodTest {
     }
 
     @Test
-    public void updateAllParamsFetchAndQuerySyncTest() throws InterruptedException {
+    public void updateAllParamsFetchAndQuerySyncTest() throws Exception {
         // Verify the upserted vector count with fetch
         assertWithRetry(() -> {
             FetchResponse fetchResponse = index.fetch(upsertIds, namespace);
@@ -139,7 +139,7 @@ public class  UpdateFetchAndQueryPodTest {
     }
 
     @Test
-    public void addIncorrectDimensionalValuesSyncTest() throws InterruptedException {
+    public void addIncorrectDimensionalValuesSyncTest() throws Exception {
         // Update required fields only but with incorrect values dimension
         String idToUpdate = upsertIds.get(0);
         List<Float> updatedValues = Arrays.asList(101F);
@@ -172,7 +172,7 @@ public class  UpdateFetchAndQueryPodTest {
     }
 
     @Test
-    public void queryWithFiltersSyncTest() throws InterruptedException {
+    public void queryWithFiltersSyncTest() throws Exception {
         String fieldToQuery = metadataFields[0];
         String valueToQuery = createAndGetMetadataMap().get(fieldToQuery).get(0);
 
@@ -199,7 +199,7 @@ public class  UpdateFetchAndQueryPodTest {
     }
 
     @Test
-    public void updateAllParamsFetchAndQueryFutureTest() throws InterruptedException, ExecutionException {
+    public void updateAllParamsFetchAndQueryFutureTest() throws Exception {
         // Verify the upserted vector count with fetch
         assertWithRetry(() -> {
             FetchResponse fetchResponse = asyncIndex.fetch(upsertIds, namespace).get();
@@ -263,7 +263,7 @@ public class  UpdateFetchAndQueryPodTest {
     }
 
     @Test
-    public void addIncorrectDimensionalValuesFutureTest() throws InterruptedException {
+    public void addIncorrectDimensionalValuesFutureTest() throws Exception {
         // Update required fields only but with incorrect values dimension
         String idToUpdate = upsertIds.get(0);
         List<Float> updatedValues = Arrays.asList(101F);
@@ -278,7 +278,7 @@ public class  UpdateFetchAndQueryPodTest {
     }
 
     @Test
-    public void queryWithFiltersFutureTest() throws ExecutionException, InterruptedException {
+    public void queryWithFiltersFutureTest() throws Exception {
         String fieldToQuery = metadataFields[0];
         String valueToQuery = createAndGetMetadataMap().get(fieldToQuery).get(0);
 
@@ -315,7 +315,7 @@ public class  UpdateFetchAndQueryPodTest {
     }
 
     @Test
-    public void updateNullSparseIndicesNotNullSparseValuesFutureTest() throws InterruptedException, ExecutionException {
+    public void updateNullSparseIndicesNotNullSparseValuesFutureTest() throws Exception {
         String id = RandomStringBuilder.build(3);
 
         try {

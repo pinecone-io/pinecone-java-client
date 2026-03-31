@@ -11,10 +11,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.ExecutionException;
 
+import static io.pinecone.helpers.AssertRetry.assertWithRetry;
 import static io.pinecone.helpers.BuildUpsertRequest.generateVectorValuesByDimension;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class NamespacesTest {
     private static final TestResourcesManager indexManager = TestResourcesManager.getInstance();
@@ -24,110 +23,113 @@ public class NamespacesTest {
 
     @AfterAll
     public static void cleanUp() {
-        index.close();
-        asyncIndex.close();
+        if (index != null) index.close();
+        if (asyncIndex != null) asyncIndex.close();
     }
 
     @Test
-    public void namespacesSyncTest() throws InterruptedException {
+    public void namespacesSyncTest() throws Exception {
+        // Use a unique prefix so this test's namespaces can be counted independently
+        String prefix = "sync-ns-" + RandomStringBuilder.build("", 4) + "-";
         String[] namespaces = new String[4];
         index = indexManager.getOrCreateServerlessIndexConnection();
-        ListNamespacesResponse listNamespacesResponse = index.listNamespaces();
-        int namespaceCount = listNamespacesResponse.getNamespacesCount();
 
-        // Create namespace explicitly using createNamespace
-        namespaces[0] = RandomStringBuilder.build("namespace-", 3);
+        // Create namespace explicitly
+        namespaces[0] = prefix + "explicit";
         NamespaceDescription createdNamespace = index.createNamespace(namespaces[0]);
         assertNotNull(createdNamespace);
         assertEquals(namespaces[0], createdNamespace.getName());
 
         // Create namespaces implicitly by upserting vectors
-        for (int i=1; i<4; i++) {
-            namespaces[i] = RandomStringBuilder.build("namespace-", 3);
-            index.upsert("v"+i, generateVectorValuesByDimension(dimension), namespaces[i]);
+        for (int i = 1; i < 4; i++) {
+            namespaces[i] = prefix + i;
+            index.upsert("v" + i, generateVectorValuesByDimension(dimension), namespaces[i]);
         }
 
-        // wait for vectors to be upserted
-        Thread.sleep(5000);
-        listNamespacesResponse = index.listNamespaces();
-        assertEquals(listNamespacesResponse.getNamespacesCount(), namespaceCount + 4);
+        // Wait for all 4 namespaces to appear under this test's unique prefix
+        assertWithRetry(() -> {
+            ListNamespacesResponse resp = index.listNamespaces(prefix, null, 100);
+            assertEquals(4, resp.getNamespacesCount(),
+                    "Expected 4 namespaces with prefix '" + prefix + "'");
+        }, 3);
 
         index.describeNamespace(namespaces[0]);
         index.deleteNamespace(namespaces[0]);
 
-        // wait for namespace to be deleted
-        Thread.sleep(3000);
-        listNamespacesResponse = index.listNamespaces();
-        assertEquals(listNamespacesResponse.getNamespacesCount(), namespaceCount + 3);
+        // Wait for the deleted namespace to disappear
+        assertWithRetry(() -> {
+            ListNamespacesResponse resp = index.listNamespaces(prefix, null, 100);
+            assertEquals(3, resp.getNamespacesCount(),
+                    "Expected 3 namespaces with prefix '" + prefix + "' after deletion");
+        }, 3);
 
-        // Test prefix filtering and total count
-        String prefix = "namespace-";
+        // Verify all remaining namespaces start with the prefix
         ListNamespacesResponse prefixResponse = index.listNamespaces(prefix, null, 100);
         assertNotNull(prefixResponse);
         assertTrue(prefixResponse.getTotalCount() >= 3, "totalCount should be at least 3");
         assertTrue(prefixResponse.getNamespacesCount() >= 3, "Should return at least 3 namespaces with prefix");
-        
-        // Verify all returned namespaces start with the prefix
         for (int i = 0; i < prefixResponse.getNamespacesCount(); i++) {
             String namespaceName = prefixResponse.getNamespaces(i).getName();
-            assertTrue(namespaceName.startsWith(prefix), 
-                "Namespace " + namespaceName + " should start with prefix " + prefix);
+            assertTrue(namespaceName.startsWith(prefix),
+                    "Namespace " + namespaceName + " should start with prefix " + prefix);
         }
-        
-        // Verify totalCount is at least the number of namespaces returned
         assertTrue(prefixResponse.getTotalCount() >= prefixResponse.getNamespacesCount(),
-            "totalCount should be at least equal to the number of namespaces returned");
+                "totalCount should be at least equal to the number of namespaces returned");
     }
 
     @Test
-    public void namespacesAsyncTest() throws InterruptedException, ExecutionException {
+    public void namespacesAsyncTest() throws Exception {
+        // Use a unique prefix so this test's namespaces can be counted independently
+        String prefix = "async-ns-" + RandomStringBuilder.build("", 4) + "-";
         String[] namespaces = new String[4];
         asyncIndex = indexManager.getOrCreateServerlessAsyncIndexConnection();
 
-        ListNamespacesResponse listNamespacesResponse = asyncIndex.listNamespaces().get();
-        int namespaceCount = listNamespacesResponse.getNamespacesCount();
-
-        // Create namespace explicitly using createNamespace
-        namespaces[0] = RandomStringBuilder.build("namespace-", 3);
+        // Create namespace explicitly
+        namespaces[0] = prefix + "explicit";
         NamespaceDescription createdNamespace = asyncIndex.createNamespace(namespaces[0]).get();
         assertNotNull(createdNamespace);
         assertEquals(namespaces[0], createdNamespace.getName());
 
-        // Create namespaces implicitly by upserting vectors
-        for (int i=1; i<4; i++) {
-            namespaces[i] = RandomStringBuilder.build("namespace-", 3);
-            asyncIndex.upsert("v"+i, generateVectorValuesByDimension(dimension), namespaces[i]);
+        // Create namespaces implicitly by upserting vectors; await each to ensure they're registered
+        for (int i = 1; i < 4; i++) {
+            namespaces[i] = prefix + i;
+            asyncIndex.upsert("v" + i, generateVectorValuesByDimension(dimension), namespaces[i]).get();
         }
 
-        // wait for vectors to be upserted
-        Thread.sleep(5000);
-        listNamespacesResponse = asyncIndex.listNamespaces().get();
-        assertEquals(listNamespacesResponse.getNamespacesCount(), namespaceCount + 4);
+        // Wait for all 4 namespaces to appear under this test's unique prefix
+        assertWithRetry(() -> {
+            ListNamespacesResponse resp = asyncIndex.listNamespaces().get();
+            long count = 0;
+            for (int i = 0; i < resp.getNamespacesCount(); i++) {
+                if (resp.getNamespaces(i).getName().startsWith(prefix)) count++;
+            }
+            assertEquals(4, count, "Expected 4 namespaces with prefix '" + prefix + "'");
+        }, 3);
 
         asyncIndex.describeNamespace(namespaces[0]);
         asyncIndex.deleteNamespace(namespaces[0]);
 
-        // wait for namespace to be deleted
-        Thread.sleep(3000);
-        listNamespacesResponse = asyncIndex.listNamespaces().get();
-        assertEquals(listNamespacesResponse.getNamespacesCount(), namespaceCount + 3);
+        // Wait for the deleted namespace to disappear
+        assertWithRetry(() -> {
+            ListNamespacesResponse resp = asyncIndex.listNamespaces().get();
+            long count = 0;
+            for (int i = 0; i < resp.getNamespacesCount(); i++) {
+                if (resp.getNamespaces(i).getName().startsWith(prefix)) count++;
+            }
+            assertEquals(3, count, "Expected 3 namespaces with prefix '" + prefix + "' after deletion");
+        }, 3);
 
         // Test prefix filtering and total count
-        String prefix = "namespace-";
         ListNamespacesResponse prefixResponse = asyncIndex.listNamespaces(prefix, null, 100).get();
         assertNotNull(prefixResponse);
         assertTrue(prefixResponse.getTotalCount() >= 3, "totalCount should be at least 3");
         assertTrue(prefixResponse.getNamespacesCount() >= 3, "Should return at least 3 namespaces with prefix");
-        
-        // Verify all returned namespaces start with the prefix
         for (int i = 0; i < prefixResponse.getNamespacesCount(); i++) {
             String namespaceName = prefixResponse.getNamespaces(i).getName();
             assertTrue(namespaceName.startsWith(prefix),
-                "Namespace " + namespaceName + " should start with prefix " + prefix);
+                    "Namespace " + namespaceName + " should start with prefix " + prefix);
         }
-        
-        // Verify totalCount is at least the number of namespaces returned
         assertTrue(prefixResponse.getTotalCount() >= prefixResponse.getNamespacesCount(),
-            "totalCount should be at least equal to the number of namespaces returned");
+                "totalCount should be at least equal to the number of namespaces returned");
     }
 }

@@ -72,7 +72,6 @@ public class ResponseMetadataAsyncListenerIntegrationTest {
                 vectorId, values, null, null, null);
 
         asyncIndex.upsert(Collections.singletonList(vector), namespace).get(30, TimeUnit.SECONDS);
-        Thread.sleep(100);
 
         ResponseMetadata metadata = findMetadataForOperation("upsert");
         assertNotNull(metadata, "Should have captured metadata for async upsert operation");
@@ -95,12 +94,9 @@ public class ResponseMetadataAsyncListenerIntegrationTest {
         VectorWithUnsignedIndices vector = buildUpsertVectorWithUnsignedIndices(
                 vectorId, values, null, null, null);
         asyncIndex.upsert(Collections.singletonList(vector), namespace).get(30, TimeUnit.SECONDS);
-
-        Thread.sleep(1000);
         capturedMetadata.clear();
 
         asyncIndex.query(5, values, null, null, null, namespace, null, false, false).get(30, TimeUnit.SECONDS);
-        Thread.sleep(100);
 
         ResponseMetadata metadata = findMetadataForOperation("query");
         assertNotNull(metadata, "Should have captured metadata for async query operation");
@@ -121,12 +117,9 @@ public class ResponseMetadataAsyncListenerIntegrationTest {
         VectorWithUnsignedIndices vector = buildUpsertVectorWithUnsignedIndices(
                 vectorId, values, null, null, null);
         asyncIndex.upsert(Collections.singletonList(vector), namespace).get(30, TimeUnit.SECONDS);
-
-        Thread.sleep(1000);
         capturedMetadata.clear();
 
         asyncIndex.fetch(Collections.singletonList(vectorId), namespace).get(30, TimeUnit.SECONDS);
-        Thread.sleep(100);
 
         ResponseMetadata metadata = findMetadataForOperation("fetch");
         assertNotNull(metadata, "Should have captured metadata for async fetch operation");
@@ -147,13 +140,10 @@ public class ResponseMetadataAsyncListenerIntegrationTest {
         VectorWithUnsignedIndices vector = buildUpsertVectorWithUnsignedIndices(
                 vectorId, values, null, null, null);
         asyncIndex.upsert(Collections.singletonList(vector), namespace).get(30, TimeUnit.SECONDS);
-
-        Thread.sleep(1000);
         capturedMetadata.clear();
 
         List<Float> updatedValues = generateVectorValuesByDimension(dimension);
         asyncIndex.update(vectorId, updatedValues, namespace).get(30, TimeUnit.SECONDS);
-        Thread.sleep(100);
 
         ResponseMetadata metadata = findMetadataForOperation("update");
         assertNotNull(metadata, "Should have captured metadata for async update operation");
@@ -174,12 +164,9 @@ public class ResponseMetadataAsyncListenerIntegrationTest {
         VectorWithUnsignedIndices vector = buildUpsertVectorWithUnsignedIndices(
                 vectorId, values, null, null, null);
         asyncIndex.upsert(Collections.singletonList(vector), namespace).get(30, TimeUnit.SECONDS);
-
-        Thread.sleep(1000);
         capturedMetadata.clear();
 
         asyncIndex.deleteByIds(Collections.singletonList(vectorId), namespace).get(30, TimeUnit.SECONDS);
-        Thread.sleep(100);
 
         ResponseMetadata metadata = findMetadataForOperation("delete");
         assertNotNull(metadata, "Should have captured metadata for async delete operation");
@@ -213,7 +200,6 @@ public class ResponseMetadataAsyncListenerIntegrationTest {
         future1.get(30, TimeUnit.SECONDS);
         future2.get(30, TimeUnit.SECONDS);
         future3.get(30, TimeUnit.SECONDS);
-        Thread.sleep(100);
 
         int upsertCount = 0;
         for (ResponseMetadata m : capturedMetadata) {

@@ -34,11 +34,11 @@ public class ConfigureIndexTest {
     private static String indexName;
 
     @BeforeAll
-    public static void setUp() throws InterruptedException {
+    public static void setUp() throws Exception {
         indexName = indexManager.getOrCreatePodIndex();
     }
 
-    private static void waitUntilIndexStateIsReady(String indexName) throws InterruptedException {
+    private static void waitUntilIndexStateIsReady(String indexName) throws Exception {
         int timeToWaitMs = 100000;
         int timeWaited = 0;
         IndexModel index = controlPlaneClient.describeIndex(indexName);
@@ -55,7 +55,7 @@ public class ConfigureIndexTest {
     }
 
     @AfterEach
-    public void afterEach() throws InterruptedException {
+    public void afterEach() throws Exception {
         waitUntilIndexStateIsReady(indexName);
     }
 
@@ -81,7 +81,7 @@ public class ConfigureIndexTest {
     }
 
     @Test
-    public void scaleUpAndDown() throws InterruptedException {
+    public void scaleUpAndDown() throws Exception {
         IndexModel indexModel = controlPlaneClient.describeIndex(indexName);
         assertNotNull(indexModel.getSpec().getIndexModelPodBased().getPod());
         assertEquals(1, indexModel.getSpec().getIndexModelPodBased().getPod().getReplicas());
@@ -106,7 +106,7 @@ public class ConfigureIndexTest {
     }
 
     @Test
-    public void changingBasePodType() throws InterruptedException {
+    public void changingBasePodType() throws Exception {
         try {
             // Verify the starting state
             IndexModel indexModel = controlPlaneClient.describeIndex(indexName);
@@ -123,7 +123,7 @@ public class ConfigureIndexTest {
     }
 
     @Test
-    public void sizeIncrease() throws InterruptedException {
+    public void sizeIncrease() throws Exception {
         // Verify the starting state
         IndexModel indexModel = controlPlaneClient.describeIndex(indexName);
         assertNotNull(indexModel.getSpec().getIndexModelPodBased().getPod());

@@ -41,7 +41,7 @@ public class CollectionTest {
     private static String namespace;
 
     @BeforeAll
-    public static void setUp() throws InterruptedException {
+    public static void setUp() throws Exception {
         indexName = indexManager.getOrCreatePodIndex();
         collectionName = indexManager.getOrCreateCollection();
         collection = indexManager.getOrCreateCollectionModel();
@@ -49,7 +49,7 @@ public class CollectionTest {
     }
 
     @AfterAll
-    public static void cleanUp() throws InterruptedException {
+    public static void cleanUp() throws Exception {
         // Clean up indexes
         for (String index : indexesToCleanUp) {
             pineconeClient.deleteIndex(index);
@@ -57,7 +57,7 @@ public class CollectionTest {
     }
 
     @Test
-    public void testIndexFromCollectionHappyPath() throws InterruptedException {
+    public void testIndexFromCollectionHappyPath() throws Exception {
         // Verify collection is listed
         List<CollectionModel> collectionList = pineconeClient.listCollections().getCollections();
         boolean collectionFound = false;
@@ -115,7 +115,7 @@ public class CollectionTest {
     }
 
     @Test
-    public void testCreateIndexFromCollectionWithDiffMetric() throws InterruptedException {
+    public void testCreateIndexFromCollectionWithDiffMetric() throws Exception {
         // Use a different metric than the source index
         String[] metrics = {
                 "cosine",
@@ -232,7 +232,7 @@ public class CollectionTest {
     }
 
     @Test
-    public void testCreateCollectionFromNotReadyIndex() throws InterruptedException {
+    public void testCreateCollectionFromNotReadyIndex() throws Exception {
         String notReadyIndexName = RandomStringBuilder.build("from-coll", 8);
         String newCollectionName = RandomStringBuilder.build("coll-", 8);
         try {
