@@ -98,12 +98,9 @@ public class NamespacesTest {
 
         // Wait for all 4 namespaces to appear under this test's unique prefix
         assertWithRetry(() -> {
-            ListNamespacesResponse resp = asyncIndex.listNamespaces().get();
-            long count = 0;
-            for (int i = 0; i < resp.getNamespacesCount(); i++) {
-                if (resp.getNamespaces(i).getName().startsWith(prefix)) count++;
-            }
-            assertEquals(4, count, "Expected 4 namespaces with prefix '" + prefix + "'");
+            ListNamespacesResponse resp = asyncIndex.listNamespaces(prefix, null, 100).get();
+            assertEquals(4, resp.getNamespacesCount(),
+                    "Expected 4 namespaces with prefix '" + prefix + "'");
         }, 3);
 
         asyncIndex.describeNamespace(namespaces[0]);
@@ -111,12 +108,9 @@ public class NamespacesTest {
 
         // Wait for the deleted namespace to disappear
         assertWithRetry(() -> {
-            ListNamespacesResponse resp = asyncIndex.listNamespaces().get();
-            long count = 0;
-            for (int i = 0; i < resp.getNamespacesCount(); i++) {
-                if (resp.getNamespaces(i).getName().startsWith(prefix)) count++;
-            }
-            assertEquals(3, count, "Expected 3 namespaces with prefix '" + prefix + "' after deletion");
+            ListNamespacesResponse resp = asyncIndex.listNamespaces(prefix, null, 100).get();
+            assertEquals(3, resp.getNamespacesCount(),
+                    "Expected 3 namespaces with prefix '" + prefix + "' after deletion");
         }, 3);
 
         // Test prefix filtering and total count
