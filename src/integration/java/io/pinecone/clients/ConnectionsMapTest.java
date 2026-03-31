@@ -14,6 +14,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static io.pinecone.helpers.TestUtilities.waitUntilIndexIsReady;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ConnectionsMapTest {
@@ -100,7 +102,7 @@ public class ConnectionsMapTest {
         int sizeBeforeSecondClient = connectionsMap.size();
         pinecone2.getConnection(indexName1, config1);
         // Verify the map is the same reference and the size did not grow
-        assert pinecone2.getConnectionsMap() == connectionsMap;
+        assertSame(connectionsMap, pinecone2.getConnectionsMap());
         assertEquals(sizeBeforeSecondClient, connectionsMap.size());
         assertEquals(host1, connectionsMap.get(indexName1).toString());
 
@@ -114,8 +116,8 @@ public class ConnectionsMapTest {
         index1_2.close();
 
         // Verify the specific entries for this test's indexes were removed
-        assert !connectionsMap.containsKey(indexName1);
-        assert !connectionsMap.containsKey(indexName2);
+        assertFalse(connectionsMap.containsKey(indexName1));
+        assertFalse(connectionsMap.containsKey(indexName2));
 
         // Delete the indexes
         pinecone1.deleteIndex(indexName1);
