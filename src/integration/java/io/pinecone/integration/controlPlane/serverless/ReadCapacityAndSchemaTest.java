@@ -4,6 +4,8 @@ import io.pinecone.clients.Pinecone;
 import io.pinecone.helpers.RandomStringBuilder;
 import okhttp3.OkHttpClient;
 import org.junit.jupiter.api.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.openapitools.db_control.client.ApiException;
 import org.openapitools.db_control.client.model.*;
 
@@ -19,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ReadCapacityAndSchemaTest {
+    private static final Logger logger = LoggerFactory.getLogger(ReadCapacityAndSchemaTest.class);
     private static final Pinecone controlPlaneClient = new Pinecone
             .Builder(System.getenv("PINECONE_API_KEY"))
             .withSourceTag("pinecone_test")
@@ -36,7 +39,8 @@ public class ReadCapacityAndSchemaTest {
         for (String name : createdIndexNames) {
             try {
                 controlPlaneClient.deleteIndex(name);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                logger.warn("Failed to delete index '{}' during cleanup: {}", name, e.getMessage());
             }
         }
     }
