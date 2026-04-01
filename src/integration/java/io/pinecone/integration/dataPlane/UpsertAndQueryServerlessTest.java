@@ -10,7 +10,6 @@ import io.pinecone.proto.DescribeIndexStatsResponse;
 import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
 import io.pinecone.unsigned_indices_model.ScoredVectorWithUnsignedIndices;
 import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -32,16 +31,10 @@ public class UpsertAndQueryServerlessTest {
     private static final String namespace = RandomStringBuilder.build("ns", 8);
 
     @BeforeAll
-    public static void setUp() throws InterruptedException {
+    public static void setUp() throws Exception {
         dimension = indexManager.getDimension();
         index = indexManager.getOrCreateServerlessIndexConnection();
         asyncIndex = indexManager.getOrCreateServerlessAsyncIndexConnection();
-    }
-
-    @AfterAll
-    public static void cleanUp() {
-        index.close();
-        asyncIndex.close();
     }
 
     @Test
@@ -136,7 +129,7 @@ public class UpsertAndQueryServerlessTest {
     }
 
     @Test
-    public void upsertOptionalVectorsAndQueryIndexFutureTest() throws InterruptedException, ExecutionException {
+    public void upsertOptionalVectorsAndQueryIndexFutureTest() throws Exception {
         int numOfVectors = 5;
         int topK = 5;
 

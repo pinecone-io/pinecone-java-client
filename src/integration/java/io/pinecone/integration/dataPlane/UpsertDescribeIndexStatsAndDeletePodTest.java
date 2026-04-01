@@ -27,8 +27,6 @@ public class UpsertDescribeIndexStatsAndDeletePodTest {
     private static AsyncIndex asyncIndex;
     private static int dimension;
     private static final Struct nullFilterStruct = null;
-    private static final String namespace = RandomStringBuilder.build("ns", 8);
-    private static int namespaceVectorCount = 0;
 
     @BeforeAll
     public static void setUp() throws IOException, InterruptedException {
@@ -38,69 +36,58 @@ public class UpsertDescribeIndexStatsAndDeletePodTest {
     }
 
     @Test
-    public void upsertVectorsAndDeleteByIdSyncTest() throws InterruptedException {
-        // Upsert vectors with required parameters
+    public void upsertVectorsAndDeleteByIdSyncTest() throws Exception {
+        String namespace = RandomStringBuilder.build("ns", 8);
         int numOfVectors = 3;
         List<String> upsertIds = getIdsList(numOfVectors);
         List<VectorWithUnsignedIndices> vectorsToUpsert = new ArrayList<>(numOfVectors);
 
         for (String id : upsertIds) {
-            VectorWithUnsignedIndices vector =
-            new VectorWithUnsignedIndices(id, generateVectorValuesByDimension(dimension));
-            vectorsToUpsert.add(vector);
+            vectorsToUpsert.add(new VectorWithUnsignedIndices(id, generateVectorValuesByDimension(dimension)));
         }
 
         index.upsert(vectorsToUpsert, namespace);
-        namespaceVectorCount += numOfVectors;
 
         assertWithRetry(() -> {
-            // call describeIndexStats to get updated vector count
-            DescribeIndexStatsResponse describeIndexStatsResponse = index.describeIndexStats();
-            
-            // verify the updated vector count
-            assertEquals(describeIndexStatsResponse.getNamespacesMap().get(namespace).getVectorCount(), namespaceVectorCount);
+            DescribeIndexStatsResponse response = index.describeIndexStats();
+            NamespaceSummary ns = response.getNamespacesMap().get(namespace);
+            assertEquals(numOfVectors, ns == null ? 0 : ns.getVectorCount());
         }, 3);
 
-        // Delete vectors
         index.delete(upsertIds, false, namespace, nullFilterStruct);
-        namespaceVectorCount -= numOfVectors;
 
         assertWithRetry(() -> {
-            // Call describeIndexStats to get updated vector count
-            DescribeIndexStatsResponse describeIndexStatsResponse = index.describeIndexStats(nullFilterStruct);
-            // Verify the vectors have been deleted
-            assertEquals(describeIndexStatsResponse.getNamespacesMap().get(namespace).getVectorCount(), namespaceVectorCount);
+            DescribeIndexStatsResponse response = index.describeIndexStats(nullFilterStruct);
+            NamespaceSummary ns = response.getNamespacesMap().get(namespace);
+            assertEquals(0, ns == null ? 0 : ns.getVectorCount());
         }, 3);
     }
 
     @Test
-    public void upsertVectorsAndDeleteByFilterSyncTest() throws InterruptedException {
+    public void upsertVectorsAndDeleteByFilterSyncTest() throws Exception {
+        String namespace = RandomStringBuilder.build("ns", 8);
         int numOfVectors = 3;
         List<String> upsertIds = getIdsList(numOfVectors);
         List<VectorWithUnsignedIndices> vectorsToUpsert = new ArrayList<>(numOfVectors);
 
-        // Upsert vectors with required + optional and custom metadata parameters
-        for (int i=0; i<upsertIds.size(); i++) {
-            VectorWithUnsignedIndices vector =
-            new VectorWithUnsignedIndices(upsertIds.get(i),
+        for (int i = 0; i < upsertIds.size(); i++) {
+            vectorsToUpsert.add(new VectorWithUnsignedIndices(
+                    upsertIds.get(i),
                     generateVectorValuesByDimension(dimension),
                     generateMetadataStruct(i, i),
-                    new SparseValuesWithUnsignedIndices(generateSparseIndicesByDimension(dimension),
+                    new SparseValuesWithUnsignedIndices(
+                            generateSparseIndicesByDimension(dimension),
                             generateVectorValuesByDimension(dimension)
                     )
-            );
-            vectorsToUpsert.add(vector);
+            ));
         }
 
         index.upsert(vectorsToUpsert, namespace);
-        namespaceVectorCount += numOfVectors;
 
-        // Verify the vectors are upserted
         assertWithRetry(() -> {
-            // Call describeIndexStats to get updated vector count
-            DescribeIndexStatsResponse describeIndexStatsResponse = index.describeIndexStats(nullFilterStruct);
-            // Verify the updated vector count
-            assertEquals(describeIndexStatsResponse.getNamespacesMap().get(namespace).getVectorCount(), namespaceVectorCount);
+            DescribeIndexStatsResponse response = index.describeIndexStats(nullFilterStruct);
+            NamespaceSummary ns = response.getNamespacesMap().get(namespace);
+            assertEquals(numOfVectors, ns == null ? 0 : ns.getVectorCount());
         }, 3);
 
         String fieldToDelete = metadataFields[0];
@@ -114,80 +101,69 @@ public class UpsertDescribeIndexStatsAndDeletePodTest {
                         .build())
                 .build();
 
-        // Delete by filtering
         index.delete(null, false, namespace, filterStruct);
-        namespaceVectorCount = namespaceVectorCount - 1;
+        int expectedAfterDelete = numOfVectors - 1;
 
         assertWithRetry(() -> {
-            // Call describeIndexStats to get updated vector count
-            DescribeIndexStatsResponse describeIndexStatsResponse = index.describeIndexStats(nullFilterStruct);
-            // Verify the updated vector count
-            assertEquals(describeIndexStatsResponse.getNamespacesMap().get(namespace).getVectorCount(), namespaceVectorCount);
+            DescribeIndexStatsResponse response = index.describeIndexStats(nullFilterStruct);
+            NamespaceSummary ns = response.getNamespacesMap().get(namespace);
+            assertEquals(expectedAfterDelete, ns == null ? 0 : ns.getVectorCount());
         }, 3);
     }
 
     @Test
-    public void upsertVectorsAndDeleteByIdFutureTest() throws InterruptedException, ExecutionException {
-        // Upsert vectors with required parameters
+    public void upsertVectorsAndDeleteByIdFutureTest() throws Exception {
+        String namespace = RandomStringBuilder.build("ns", 8);
         int numOfVectors = 3;
         List<String> upsertIds = getIdsList(numOfVectors);
         List<VectorWithUnsignedIndices> vectorsToUpsert = new ArrayList<>(numOfVectors);
 
         for (String id : upsertIds) {
-            VectorWithUnsignedIndices vector =
-            new VectorWithUnsignedIndices(id, generateVectorValuesByDimension(dimension));
-            vectorsToUpsert.add(vector);
+            vectorsToUpsert.add(new VectorWithUnsignedIndices(id, generateVectorValuesByDimension(dimension)));
         }
+
         asyncIndex.upsert(vectorsToUpsert, namespace).get();
-        namespaceVectorCount += numOfVectors;
 
         assertWithRetry(() -> {
-            // call describeIndexStats to get updated vector count
-            DescribeIndexStatsResponse describeIndexStatsResponse = asyncIndex.describeIndexStats().get();
-            // verify the updated vector count
-            assertEquals(describeIndexStatsResponse.getNamespacesMap().get(namespace).getVectorCount(), namespaceVectorCount);
+            DescribeIndexStatsResponse response = asyncIndex.describeIndexStats().get();
+            NamespaceSummary ns = response.getNamespacesMap().get(namespace);
+            assertEquals(numOfVectors, ns == null ? 0 : ns.getVectorCount());
         }, 3);
 
-        // Delete vectors
         asyncIndex.delete(upsertIds, false, namespace, null).get();
-        namespaceVectorCount -= numOfVectors;
 
         assertWithRetry(() -> {
-            // Call describeIndexStats to get updated vector count
-            DescribeIndexStatsResponse describeIndexStatsResponse = asyncIndex.describeIndexStats().get();
-            // Verify the updated vector count
-            assertEquals(describeIndexStatsResponse.getNamespacesMap().get(namespace).getVectorCount(), namespaceVectorCount);
+            DescribeIndexStatsResponse response = asyncIndex.describeIndexStats().get();
+            NamespaceSummary ns = response.getNamespacesMap().get(namespace);
+            assertEquals(0, ns == null ? 0 : ns.getVectorCount());
         }, 3);
     }
 
     @Test
-    public void upsertVectorsAndDeleteByFilterFutureTest() throws InterruptedException, ExecutionException {
+    public void upsertVectorsAndDeleteByFilterFutureTest() throws Exception {
+        String namespace = RandomStringBuilder.build("ns", 8);
         int numOfVectors = 3;
         List<String> upsertIds = getIdsList(numOfVectors);
         List<VectorWithUnsignedIndices> vectorsToUpsert = new ArrayList<>(numOfVectors);
 
-        // Upsert vectors with required + optional and custom metadata parameters
-        for (int i=0; i<upsertIds.size(); i++) {
-            VectorWithUnsignedIndices vector =
-            new VectorWithUnsignedIndices(upsertIds.get(i),
+        for (int i = 0; i < upsertIds.size(); i++) {
+            vectorsToUpsert.add(new VectorWithUnsignedIndices(
+                    upsertIds.get(i),
                     generateVectorValuesByDimension(dimension),
                     generateMetadataStruct(i, i),
-                    new SparseValuesWithUnsignedIndices(generateSparseIndicesByDimension(dimension),
+                    new SparseValuesWithUnsignedIndices(
+                            generateSparseIndicesByDimension(dimension),
                             generateVectorValuesByDimension(dimension)
                     )
-            );
-            vectorsToUpsert.add(vector);
+            ));
         }
+
         asyncIndex.upsert(vectorsToUpsert, namespace).get();
-        namespaceVectorCount += numOfVectors;
 
-
-        // Verify the vectors are upserts
         assertWithRetry(() -> {
-            // Call describeIndexStats to get updated vector count
-            DescribeIndexStatsResponse describeIndexStatsResponse = asyncIndex.describeIndexStats(nullFilterStruct).get();
-            // Verify the updated vector count
-            assertEquals(describeIndexStatsResponse.getNamespacesMap().get(namespace).getVectorCount(), namespaceVectorCount);
+            DescribeIndexStatsResponse response = asyncIndex.describeIndexStats(nullFilterStruct).get();
+            NamespaceSummary ns = response.getNamespacesMap().get(namespace);
+            assertEquals(numOfVectors, ns == null ? 0 : ns.getVectorCount());
         }, 3);
 
         String fieldToDelete = metadataFields[0];
@@ -201,15 +177,13 @@ public class UpsertDescribeIndexStatsAndDeletePodTest {
                         .build())
                 .build();
 
-        // Delete by filtering
         asyncIndex.delete(new ArrayList<>(), false, namespace, filterStruct).get();
-        namespaceVectorCount -= 1;
+        int expectedAfterDelete = numOfVectors - 1;
 
         assertWithRetry(() -> {
-            // Call describeIndexStats to get updated vector count
-            DescribeIndexStatsResponse describeIndexStatsResponse = asyncIndex.describeIndexStats(nullFilterStruct).get();
-            // Verify the updated vector count
-            assertEquals(describeIndexStatsResponse.getNamespacesMap().get(namespace).getVectorCount(), namespaceVectorCount);
+            DescribeIndexStatsResponse response = asyncIndex.describeIndexStats(nullFilterStruct).get();
+            NamespaceSummary ns = response.getNamespacesMap().get(namespace);
+            assertEquals(expectedAfterDelete, ns == null ? 0 : ns.getVectorCount());
         }, 3);
     }
 }

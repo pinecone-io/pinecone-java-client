@@ -42,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  */
 public class TestResourcesManager {
     private static final Logger logger = LoggerFactory.getLogger(TestUtilities.class);
-    private static TestResourcesManager instance;
+    private static volatile TestResourcesManager instance;
     private static final String apiKey = System.getenv("PINECONE_API_KEY");
     private final int dimension = System.getenv("DIMENSION") == null
             ? 4
@@ -66,6 +66,10 @@ public class TestResourcesManager {
     private String serverlessIndexName;
     private String collectionName;
     private CollectionModel collectionModel;
+    private Index serverlessIndexConnection;
+    private AsyncIndex serverlessAsyncIndexConnection;
+    private Index podIndexConnection;
+    private AsyncIndex podAsyncIndexConnection;
     private final List<String> vectorIdsForDefaultNamespace = Arrays.asList("def-id1", "def-id2", "def-prefix-id3", "def-prefix-id4");
     private final List<String> vectorIdsForCustomNamespace = Arrays.asList("cus-id1", "cus-id2", "cus-prefix-id3", "cus" +
             "-prefix-id4");
@@ -85,7 +89,7 @@ public class TestResourcesManager {
      *
      * @return the {@link TestResourcesManager} instance.
      */
-    public static TestResourcesManager getInstance() {
+    public static synchronized TestResourcesManager getInstance() {
         if (instance == null) {
             instance = new TestResourcesManager();
         }
@@ -185,8 +189,22 @@ public class TestResourcesManager {
      *
      * @return a {@link Index} connection to the serverless index.
      */
-    public  Index getOrCreateServerlessIndexConnection() throws InterruptedException {
-        return getInstance().pineconeClient.getIndexConnection(getOrCreateServerlessIndex());
+    /**
+     * Gets the host for the shared serverless index. Creates the index first if it doesn't exist.
+     * Used by tests that need to construct their own PineconeConnection (e.g. to attach a custom listener)
+     * without going through the shared static connection cache.
+     *
+     * @return the host URL of the shared serverless index.
+     */
+    public synchronized String getOrCreateServerlessIndexHost() throws InterruptedException {
+        return pineconeClient.describeIndex(getOrCreateServerlessIndex()).getHost();
+    }
+
+    public synchronized Index getOrCreateServerlessIndexConnection() throws InterruptedException {
+        if (serverlessIndexConnection == null) {
+            serverlessIndexConnection = pineconeClient.getIndexConnection(getOrCreateServerlessIndex());
+        }
+        return serverlessIndexConnection;
     }
 
     /**
@@ -195,8 +213,11 @@ public class TestResourcesManager {
      *
      * @return a {@link AsyncIndex} connection to the serverless index.
      */
-    public AsyncIndex getOrCreateServerlessAsyncIndexConnection() throws InterruptedException {
-        return getInstance().pineconeClient.getAsyncIndexConnection(getOrCreateServerlessIndex());
+    public synchronized AsyncIndex getOrCreateServerlessAsyncIndexConnection() throws InterruptedException {
+        if (serverlessAsyncIndexConnection == null) {
+            serverlessAsyncIndexConnection = pineconeClient.getAsyncIndexConnection(getOrCreateServerlessIndex());
+        }
+        return serverlessAsyncIndexConnection;
     }
 
     /**
@@ -205,8 +226,11 @@ public class TestResourcesManager {
      *
      * @return a {@link Index} connection to the pod index.
      */
-    public  Index getOrCreatePodIndexConnection() throws InterruptedException {
-        return getInstance().pineconeClient.getIndexConnection(getOrCreatePodIndex());
+    public synchronized Index getOrCreatePodIndexConnection() throws InterruptedException {
+        if (podIndexConnection == null) {
+            podIndexConnection = pineconeClient.getIndexConnection(getOrCreatePodIndex());
+        }
+        return podIndexConnection;
     }
 
     /**
@@ -215,8 +239,11 @@ public class TestResourcesManager {
      *
      * @return a {@link AsyncIndex} connection to the pod index.
      */
-    public AsyncIndex getOrCreatePodAsyncIndexConnection() throws InterruptedException {
-        return getInstance().pineconeClient.getAsyncIndexConnection(getOrCreatePodIndex());
+    public synchronized AsyncIndex getOrCreatePodAsyncIndexConnection() throws InterruptedException {
+        if (podAsyncIndexConnection == null) {
+            podAsyncIndexConnection = pineconeClient.getAsyncIndexConnection(getOrCreatePodIndex());
+        }
+        return podAsyncIndexConnection;
     }
 
     /**
@@ -225,7 +252,7 @@ public class TestResourcesManager {
      *
      * @return the {@link IndexModel} of the pod index.
      */
-    public IndexModel getOrCreatePodIndexModel() throws InterruptedException {
+    public synchronized IndexModel getOrCreatePodIndexModel() throws InterruptedException {
         podIndexModel = pineconeClient.describeIndex(getOrCreatePodIndex());
         return podIndexModel;
     }
@@ -236,7 +263,7 @@ public class TestResourcesManager {
      *
      * @return the {@link IndexModel} of the serverless index.
      */
-    public IndexModel getOrCreateServerlessIndexModel() throws InterruptedException {
+    public synchronized IndexModel getOrCreateServerlessIndexModel() throws InterruptedException {
         serverlessIndexModel = pineconeClient.describeIndex(getOrCreateServerlessIndex());
         return serverlessIndexModel;
     }
@@ -247,7 +274,7 @@ public class TestResourcesManager {
      *
      * @return the {@link CollectionModel} of the serverless index.
      */
-    public CollectionModel getOrCreateCollectionModel() throws InterruptedException {
+    public synchronized CollectionModel getOrCreateCollectionModel() throws InterruptedException {
         collectionModel = pineconeClient.describeCollection(getOrCreateCollection());
         return collectionModel;
     }
@@ -257,6 +284,19 @@ public class TestResourcesManager {
      * after all tests have finished running.
      */
     public void cleanupResources() {
+        if (serverlessIndexConnection != null) {
+            serverlessIndexConnection.close();
+        }
+        if (serverlessAsyncIndexConnection != null) {
+            serverlessAsyncIndexConnection.close();
+        }
+        if (podIndexConnection != null) {
+            podIndexConnection.close();
+        }
+        if (podAsyncIndexConnection != null) {
+            podAsyncIndexConnection.close();
+        }
+
         if (podIndexName != null) {
             pineconeClient.deleteIndex(podIndexName);
         }
@@ -280,7 +320,7 @@ public class TestResourcesManager {
      * @throws InterruptedException if the thread is interrupted while waiting for the index to be ready.
      * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
      */
-    public String getOrCreatePodIndex() throws InterruptedException, PineconeException {
+    public synchronized String getOrCreatePodIndex() throws InterruptedException, PineconeException {
         if (podIndexName != null) {
             return podIndexName;
         }
@@ -311,7 +351,7 @@ public class TestResourcesManager {
      * @throws InterruptedException if the thread is interrupted while waiting for the index to be ready.
      * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
      */
-    public String getOrCreateServerlessIndex() throws InterruptedException, PineconeException {
+    public synchronized String getOrCreateServerlessIndex() throws InterruptedException, PineconeException {
         if (this.serverlessIndexName != null) {
             return this.serverlessIndexName;
         }
@@ -344,7 +384,7 @@ public class TestResourcesManager {
      * @throws InterruptedException if the thread is interrupted while waiting for the collection to be ready.
      * @throws PineconeException if the API encounters an error during collection creation.
      */
-    public String getOrCreateCollection() throws InterruptedException, PineconeException {
+    public synchronized String getOrCreateCollection() throws InterruptedException, PineconeException {
         if (collectionName != null) {
             return collectionName;
         }
@@ -359,13 +399,13 @@ public class TestResourcesManager {
         // Wait until collection is ready
         int timeWaited = 0;
         String collectionReady = collectionModel.getStatus().toLowerCase();
-        while (collectionReady != "ready" && timeWaited < 120000) {
+        while (!"ready".equals(collectionReady) && timeWaited < 120000) {
             logger.info("Waiting for collection " + collectionName + " to be ready. Waited " + timeWaited + " " +
                     "milliseconds...");
             Thread.sleep(5000);
             timeWaited += 5000;
             collectionModel = pineconeClient.describeCollection(collectionName);
-            collectionReady = collectionModel.getStatus();
+            collectionReady = collectionModel.getStatus().toLowerCase();
         }
 
         if (timeWaited > 120000) {

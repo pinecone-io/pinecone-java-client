@@ -2,7 +2,8 @@ package io.pinecone.integration.dataPlane;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import io.pinecone.clients.AsyncIndex;
-import io.pinecone.clients.Pinecone;
+import io.pinecone.configs.PineconeConfig;
+import io.pinecone.configs.PineconeConnection;
 import io.pinecone.configs.ResponseMetadata;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.helpers.TestResourcesManager;
@@ -37,28 +38,31 @@ public class ResponseMetadataAsyncListenerIntegrationTest {
 
     private static String indexName;
     private static AsyncIndex asyncIndex;
+    private static PineconeConnection connection;
     private static int dimension;
 
     @BeforeAll
     public static void setUp() throws InterruptedException {
         dimension = resourceManager.getDimension();
         indexName = resourceManager.getOrCreateServerlessIndex();
+        String host = resourceManager.getOrCreateServerlessIndexHost();
 
-        Pinecone pineconeClient = new Pinecone.Builder(System.getenv("PINECONE_API_KEY"))
-                .withSourceTag("pinecone_test")
-                .withResponseMetadataListener(metadata -> {
-                    logger.debug("Captured async metadata: {}", metadata);
-                    capturedMetadata.add(metadata);
-                })
-                .build();
-
-        asyncIndex = pineconeClient.getAsyncIndexConnection(indexName);
+        // Build a fresh PineconeConnection directly, bypassing the shared static connectionsMap,
+        // so this listener-configured connection is guaranteed to be independent of the shared one.
+        PineconeConfig config = new PineconeConfig(System.getenv("PINECONE_API_KEY"), "pinecone_test");
+        config.setHost(host);
+        config.setResponseMetadataListener(metadata -> {
+            logger.debug("Captured async metadata: {}", metadata);
+            capturedMetadata.add(metadata);
+        });
+        connection = new PineconeConnection(config, indexName);
+        asyncIndex = new AsyncIndex(config, connection, indexName);
     }
 
     @AfterAll
     public static void cleanUp() {
-        if (asyncIndex != null) {
-            asyncIndex.close();
+        if (connection != null) {
+            connection.close();
         }
     }
 
@@ -72,7 +76,6 @@ public class ResponseMetadataAsyncListenerIntegrationTest {
                 vectorId, values, null, null, null);
 
         asyncIndex.upsert(Collections.singletonList(vector), namespace).get(30, TimeUnit.SECONDS);
-        Thread.sleep(100);
 
         ResponseMetadata metadata = findMetadataForOperation("upsert");
         assertNotNull(metadata, "Should have captured metadata for async upsert operation");
@@ -95,12 +98,9 @@ public class ResponseMetadataAsyncListenerIntegrationTest {
         VectorWithUnsignedIndices vector = buildUpsertVectorWithUnsignedIndices(
                 vectorId, values, null, null, null);
         asyncIndex.upsert(Collections.singletonList(vector), namespace).get(30, TimeUnit.SECONDS);
-
-        Thread.sleep(1000);
         capturedMetadata.clear();
 
         asyncIndex.query(5, values, null, null, null, namespace, null, false, false).get(30, TimeUnit.SECONDS);
-        Thread.sleep(100);
 
         ResponseMetadata metadata = findMetadataForOperation("query");
         assertNotNull(metadata, "Should have captured metadata for async query operation");
@@ -121,12 +121,9 @@ public class ResponseMetadataAsyncListenerIntegrationTest {
         VectorWithUnsignedIndices vector = buildUpsertVectorWithUnsignedIndices(
                 vectorId, values, null, null, null);
         asyncIndex.upsert(Collections.singletonList(vector), namespace).get(30, TimeUnit.SECONDS);
-
-        Thread.sleep(1000);
         capturedMetadata.clear();
 
         asyncIndex.fetch(Collections.singletonList(vectorId), namespace).get(30, TimeUnit.SECONDS);
-        Thread.sleep(100);
 
         ResponseMetadata metadata = findMetadataForOperation("fetch");
         assertNotNull(metadata, "Should have captured metadata for async fetch operation");
@@ -147,13 +144,10 @@ public class ResponseMetadataAsyncListenerIntegrationTest {
         VectorWithUnsignedIndices vector = buildUpsertVectorWithUnsignedIndices(
                 vectorId, values, null, null, null);
         asyncIndex.upsert(Collections.singletonList(vector), namespace).get(30, TimeUnit.SECONDS);
-
-        Thread.sleep(1000);
         capturedMetadata.clear();
 
         List<Float> updatedValues = generateVectorValuesByDimension(dimension);
         asyncIndex.update(vectorId, updatedValues, namespace).get(30, TimeUnit.SECONDS);
-        Thread.sleep(100);
 
         ResponseMetadata metadata = findMetadataForOperation("update");
         assertNotNull(metadata, "Should have captured metadata for async update operation");
@@ -174,12 +168,9 @@ public class ResponseMetadataAsyncListenerIntegrationTest {
         VectorWithUnsignedIndices vector = buildUpsertVectorWithUnsignedIndices(
                 vectorId, values, null, null, null);
         asyncIndex.upsert(Collections.singletonList(vector), namespace).get(30, TimeUnit.SECONDS);
-
-        Thread.sleep(1000);
         capturedMetadata.clear();
 
         asyncIndex.deleteByIds(Collections.singletonList(vectorId), namespace).get(30, TimeUnit.SECONDS);
-        Thread.sleep(100);
 
         ResponseMetadata metadata = findMetadataForOperation("delete");
         assertNotNull(metadata, "Should have captured metadata for async delete operation");
@@ -213,7 +204,6 @@ public class ResponseMetadataAsyncListenerIntegrationTest {
         future1.get(30, TimeUnit.SECONDS);
         future2.get(30, TimeUnit.SECONDS);
         future3.get(30, TimeUnit.SECONDS);
-        Thread.sleep(100);
 
         int upsertCount = 0;
         for (ResponseMetadata m : capturedMetadata) {

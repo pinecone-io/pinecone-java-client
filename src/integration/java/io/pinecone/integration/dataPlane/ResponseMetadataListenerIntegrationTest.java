@@ -1,7 +1,8 @@
 package io.pinecone.integration.dataPlane;
 
 import io.pinecone.clients.Index;
-import io.pinecone.clients.Pinecone;
+import io.pinecone.configs.PineconeConfig;
+import io.pinecone.configs.PineconeConnection;
 import io.pinecone.configs.ResponseMetadata;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.helpers.TestResourcesManager;
@@ -33,28 +34,31 @@ public class ResponseMetadataListenerIntegrationTest {
 
     private static String indexName;
     private static Index index;
+    private static PineconeConnection connection;
     private static int dimension;
 
     @BeforeAll
     public static void setUp() throws InterruptedException {
         dimension = resourceManager.getDimension();
         indexName = resourceManager.getOrCreateServerlessIndex();
+        String host = resourceManager.getOrCreateServerlessIndexHost();
 
-        Pinecone pineconeClient = new Pinecone.Builder(System.getenv("PINECONE_API_KEY"))
-                .withSourceTag("pinecone_test")
-                .withResponseMetadataListener(metadata -> {
-                    logger.debug("Captured metadata: {}", metadata);
-                    capturedMetadata.add(metadata);
-                })
-                .build();
-
-        index = pineconeClient.getIndexConnection(indexName);
+        // Build a fresh PineconeConnection directly, bypassing the shared static connectionsMap,
+        // so this listener-configured connection is guaranteed to be independent of the shared one.
+        PineconeConfig config = new PineconeConfig(System.getenv("PINECONE_API_KEY"), "pinecone_test");
+        config.setHost(host);
+        config.setResponseMetadataListener(metadata -> {
+            logger.debug("Captured metadata: {}", metadata);
+            capturedMetadata.add(metadata);
+        });
+        connection = new PineconeConnection(config, indexName);
+        index = new Index(config, connection, indexName);
     }
 
     @AfterAll
     public static void cleanUp() {
-        if (index != null) {
-            index.close();
+        if (connection != null) {
+            connection.close();
         }
     }
 
@@ -96,8 +100,6 @@ public class ResponseMetadataListenerIntegrationTest {
         VectorWithUnsignedIndices vector = buildUpsertVectorWithUnsignedIndices(
                 ids.get(0), values, null, null, null);
         index.upsert(Collections.singletonList(vector), namespace);
-
-        Thread.sleep(1000);
         capturedMetadata.clear();
 
         index.query(5, values, null, null, null, namespace, null, false, false);
@@ -123,8 +125,6 @@ public class ResponseMetadataListenerIntegrationTest {
         VectorWithUnsignedIndices vector = buildUpsertVectorWithUnsignedIndices(
                 vectorId, values, null, null, null);
         index.upsert(Collections.singletonList(vector), namespace);
-
-        Thread.sleep(1000);
         capturedMetadata.clear();
 
         index.fetch(Collections.singletonList(vectorId), namespace);
@@ -150,8 +150,6 @@ public class ResponseMetadataListenerIntegrationTest {
         VectorWithUnsignedIndices vector = buildUpsertVectorWithUnsignedIndices(
                 vectorId, values, null, null, null);
         index.upsert(Collections.singletonList(vector), namespace);
-
-        Thread.sleep(1000);
         capturedMetadata.clear();
 
         List<Float> updatedValues = generateVectorValuesByDimension(dimension);
@@ -178,8 +176,6 @@ public class ResponseMetadataListenerIntegrationTest {
         VectorWithUnsignedIndices vector = buildUpsertVectorWithUnsignedIndices(
                 vectorId, values, null, null, null);
         index.upsert(Collections.singletonList(vector), namespace);
-
-        Thread.sleep(1000);
         capturedMetadata.clear();
 
         index.deleteByIds(Collections.singletonList(vectorId), namespace);
@@ -206,8 +202,6 @@ public class ResponseMetadataListenerIntegrationTest {
         VectorWithUnsignedIndices vector = buildUpsertVectorWithUnsignedIndices(
                 vectorId, values, null, null, null);
         index.upsert(Collections.singletonList(vector), namespace);
-
-        Thread.sleep(500);
 
         index.query(5, values, null, null, null, namespace, null, false, false);
         index.fetch(Collections.singletonList(vectorId), namespace);

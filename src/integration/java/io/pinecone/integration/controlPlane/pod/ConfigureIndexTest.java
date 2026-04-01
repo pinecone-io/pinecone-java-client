@@ -9,6 +9,7 @@ import okhttp3.OkHttpClient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Isolated;
 import org.openapitools.db_control.client.model.IndexModel;
 import org.openapitools.db_control.client.model.PodSpec;
 import org.slf4j.Logger;
@@ -19,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 import static io.pinecone.helpers.AssertRetry.assertWithRetry;
 import static org.junit.jupiter.api.Assertions.*;
 
+@Isolated
 public class ConfigureIndexTest {
     private static final Logger logger = LoggerFactory.getLogger(ConfigureIndexTest.class);
     private static final TestResourcesManager indexManager = TestResourcesManager.getInstance();
@@ -34,16 +36,16 @@ public class ConfigureIndexTest {
     private static String indexName;
 
     @BeforeAll
-    public static void setUp() throws InterruptedException {
+    public static void setUp() throws Exception {
         indexName = indexManager.getOrCreatePodIndex();
     }
 
-    private static void waitUntilIndexStateIsReady(String indexName) throws InterruptedException {
+    private static void waitUntilIndexStateIsReady(String indexName) throws Exception {
         int timeToWaitMs = 100000;
         int timeWaited = 0;
         IndexModel index = controlPlaneClient.describeIndex(indexName);
 
-        while (index.getStatus().getState() != "ready" && timeWaited <= timeToWaitMs) {
+        while (!"ready".equalsIgnoreCase(index.getStatus().getState()) && timeWaited <= timeToWaitMs) {
             Thread.sleep(2000);
             timeWaited += 2000;
             logger.info("waited 2000ms for index to upgrade, time waited: " + timeWaited);
@@ -55,7 +57,7 @@ public class ConfigureIndexTest {
     }
 
     @AfterEach
-    public void afterEach() throws InterruptedException {
+    public void afterEach() throws Exception {
         waitUntilIndexStateIsReady(indexName);
     }
 
@@ -81,7 +83,7 @@ public class ConfigureIndexTest {
     }
 
     @Test
-    public void scaleUpAndDown() throws InterruptedException {
+    public void scaleUpAndDown() throws Exception {
         IndexModel indexModel = controlPlaneClient.describeIndex(indexName);
         assertNotNull(indexModel.getSpec().getIndexModelPodBased().getPod());
         assertEquals(1, indexModel.getSpec().getIndexModelPodBased().getPod().getReplicas());
@@ -106,7 +108,7 @@ public class ConfigureIndexTest {
     }
 
     @Test
-    public void changingBasePodType() throws InterruptedException {
+    public void changingBasePodType() throws Exception {
         try {
             // Verify the starting state
             IndexModel indexModel = controlPlaneClient.describeIndex(indexName);
@@ -123,7 +125,7 @@ public class ConfigureIndexTest {
     }
 
     @Test
-    public void sizeIncrease() throws InterruptedException {
+    public void sizeIncrease() throws Exception {
         // Verify the starting state
         IndexModel indexModel = controlPlaneClient.describeIndex(indexName);
         assertNotNull(indexModel.getSpec().getIndexModelPodBased().getPod());

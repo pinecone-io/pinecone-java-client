@@ -9,7 +9,6 @@ import io.pinecone.helpers.TestResourcesManager;
 import io.pinecone.proto.FetchByMetadataResponse;
 import io.pinecone.proto.UpdateResponse;
 import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +29,7 @@ public class FetchAndUpdateByMetadataTest {
     private static final String namespace = RandomStringBuilder.build("ns", 8);
 
     @BeforeAll
-    public static void setUp() throws InterruptedException {
+    public static void setUp() throws Exception {
         int dimension = indexManager.getDimension();
         index = indexManager.getOrCreateServerlessIndexConnection();
         asyncIndex = indexManager.getOrCreateServerlessAsyncIndexConnection();
@@ -58,14 +57,8 @@ public class FetchAndUpdateByMetadataTest {
         Thread.sleep(5000);
     }
 
-    @AfterAll
-    public static void cleanUp() {
-        index.close();
-        asyncIndex.close();
-    }
-
     @Test
-    public void fetchByMetadataSyncTest() throws InterruptedException {
+    public void fetchByMetadataSyncTest() throws Exception {
         HashMap<String, List<String>> metadataMap = createAndGetMetadataMap();
         String filterValue = metadataMap.get(metadataFields[0]).get(0);
         
@@ -86,7 +79,7 @@ public class FetchAndUpdateByMetadataTest {
     }
 
     @Test
-    public void updateByMetadataSyncTest() throws InterruptedException {
+    public void updateByMetadataSyncTest() throws Exception {
         HashMap<String, List<String>> metadataMap = createAndGetMetadataMap();
         String filterValue = metadataMap.get(metadataFields[0]).get(0);
         
@@ -111,7 +104,7 @@ public class FetchAndUpdateByMetadataTest {
     }
 
     @Test
-    public void fetchByMetadataAsyncTest() throws InterruptedException, ExecutionException {
+    public void fetchByMetadataAsyncTest() throws Exception {
         HashMap<String, List<String>> metadataMap = createAndGetMetadataMap();
         String filterValue = metadataMap.get(metadataFields[1]).get(0);
         
@@ -132,7 +125,7 @@ public class FetchAndUpdateByMetadataTest {
     }
 
     @Test
-    public void updateByMetadataAsyncTest() throws InterruptedException, ExecutionException {
+    public void updateByMetadataAsyncTest() throws Exception {
         HashMap<String, List<String>> metadataMap = createAndGetMetadataMap();
         String filterValue = metadataMap.get(metadataFields[1]).get(0);
         

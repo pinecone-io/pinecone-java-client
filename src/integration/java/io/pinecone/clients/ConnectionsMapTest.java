@@ -14,6 +14,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static io.pinecone.helpers.TestUtilities.waitUntilIndexIsReady;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ConnectionsMapTest {
@@ -78,59 +80,36 @@ public class ConnectionsMapTest {
 
         // Create config2 for getting index connection and set the host
         PineconeConfig config2 = new PineconeConfig(System.getenv("PINECONE_API_KEY"));
-        config1.setHost(host2);
+        config2.setHost(host2);
 
 
         // Establish grpc connection for index-1
         Index index1_1 = pinecone1.getIndexConnection(indexName1);
         // Get connections map
-        ConcurrentHashMap<String, PineconeConnection> connectionsMap1_1 = pinecone1.getConnectionsMap();
+        ConcurrentHashMap<String, PineconeConnection> connectionsMap = pinecone1.getConnectionsMap();
 
-        // Verify connectionsMap contains only one <indexName, connection> pair i.e. for index1 and its connection
-        assertEquals(pinecone1.getConnectionsMap().size(), 1);
-        // Verify the value for index1 by comparing its value with host1 in the connectionsMap
-        assertEquals(host1, connectionsMap1_1.get(indexName1).toString());
+        // Verify indexName1 is in the map with the correct host
+        assertEquals(host1, connectionsMap.get(indexName1).toString());
 
         // Establish grpc connection for index-2
         Index index1_2 = pinecone1.getIndexConnection(indexName2);
-        // Get connections map after establishing second connection
-        ConcurrentHashMap<String, PineconeConnection> connectionsMap1_2 = pinecone1.getConnectionsMap();
 
-        // Verify connectionsMap contains two <indexName, connection> pairs i.e. for index1 and index2
-        assertEquals(connectionsMap1_2.size(), 2);
-        // Verify the values by checking host for both indexName1 and indexName2
-        assertEquals(host1, connectionsMap1_2.get(indexName1).toString());
-        assertEquals(host2, connectionsMap1_2.get(indexName2).toString());
+        // Verify both indexes are now in the map with the correct hosts
+        assertEquals(host1, connectionsMap.get(indexName1).toString());
+        assertEquals(host2, connectionsMap.get(indexName2).toString());
 
-        // Establishing connections with index1 and index2 using another pinecone client
-        pinecone2.getConnection(indexName1, config1);
-        ConcurrentHashMap<String, PineconeConnection> connectionsMap2_1 = pinecone1.getConnectionsMap();
-        // Verify the new connections map is pointing to the same reference
-        assert connectionsMap2_1 == connectionsMap1_2;
-        // Verify the size of connections map is still 2 since the connection for index2 was not closed
-        assertEquals(2, connectionsMap2_1.size());
-        // Verify the connection value for index1 is host1
-        assertEquals(host1, connectionsMap2_1.get(indexName1).toString());
-
-        pinecone2.getConnection(indexName2, config2);
-        ConcurrentHashMap<String, PineconeConnection> connectionsMap2_2 = pinecone1.getConnectionsMap();
-        // Verify the new connections map is pointing to the same reference
-        assert connectionsMap2_1 == connectionsMap2_2;
-        // Verify the size of connections map is still 2 since the connections are not closed
-        assertEquals(2, connectionsMap2_2.size());
-        // Verify the values by checking host for both indexName1 and indexName2
-        assertEquals(host1, connectionsMap2_2.get(indexName1).toString());
-        assertEquals(host2, connectionsMap2_2.get(indexName2).toString());
+        // Connecting a second client to the same indexes should reuse the existing map entries
+        assertSame(connectionsMap, pinecone2.getConnectionsMap());
+        assertSame(connectionsMap.get(indexName1), pinecone2.getConnection(indexName1, config1));
+        assertSame(connectionsMap.get(indexName2), pinecone2.getConnection(indexName2, config2));
 
         // Close the connections
         index1_1.close();
         index1_2.close();
 
-        // Verify the map size is now 0
-        assertEquals(connectionsMap1_1.size(), 0);
-        assertEquals(connectionsMap1_2.size(), 0);
-        assertEquals(connectionsMap2_1.size(), 0);
-        assertEquals(connectionsMap2_2.size(), 0);
+        // Verify the specific entries for this test's indexes were removed
+        assertFalse(connectionsMap.containsKey(indexName1));
+        assertFalse(connectionsMap.containsKey(indexName2));
 
         // Delete the indexes
         pinecone1.deleteIndex(indexName1);

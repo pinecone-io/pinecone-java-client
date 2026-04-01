@@ -2,6 +2,10 @@
 
 [comment]: <> (When bumping [pc:VERSION_LATEST_RELEASE] create a new entry below)
 ### Unreleased version
+### 6.2.0
+- Add readUnits, upsertedCount, and matchedRecords to ResponseMetadata
+- Add List operation to ResponseMetadataInterceptor 
+
 ### 6.1.0
 - Add ResponseMetadataListener for dataplane operation observability
 
