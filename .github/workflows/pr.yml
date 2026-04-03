@@ -41,6 +41,14 @@ jobs:
     - name: Execute Gradle build
       run: gradle clean build
 
+    - name: Upload unit test reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-reports-java-${{ matrix.versions.java }}
+        path: build/reports/tests/test/
+        if-no-files-found: ignore
+
     - name: Build jar
       run: gradle jar
 
@@ -83,6 +91,14 @@ jobs:
       env:
         PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
         PINECONE_ENVIRONMENT: ${{ secrets.PINECONE_ENVIRONMENT }}
+
+    - name: Upload integration test reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: integration-test-reports-java-${{ matrix.versions.java }}
+        path: build/reports/tests/integrationTest/
+        if-no-files-found: ignore
 
   cleanup:
     runs-on: ubuntu-latest
