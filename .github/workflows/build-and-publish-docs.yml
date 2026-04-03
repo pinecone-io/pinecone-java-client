@@ -13,9 +13,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Read version from gradle.properties
+        id: version
+        run: |
+          VERSION=$(grep "pineconeClientVersion" gradle.properties | cut -d'=' -f2 | tr -d ' ')
+          echo "CLIENT_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "CLIENT_VERSION=$VERSION" >> $GITHUB_OUTPUT
       - name: Generate Javadoc documentation
         uses: ./.github/actions/build-docs
-      - name: Push documentation artifacts to sdk-docs
+      - name: Push documentation artifacts to sdk-docs (latest)
         uses: cpina/github-action-push-to-another-repository@main
         env:
           SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
@@ -26,4 +32,16 @@ jobs:
           user-email: clients@pinecone.io
           target-branch: main
           target-directory: java
-          commit-message: "Java: automated documentation build \n\n pinecone-java-client merge SHA: ${{ github.sha }}"
+          commit-message: "Java: automated documentation build (latest) \n\n pinecone-java-client merge SHA: ${{ github.sha }}"
+      - name: Push documentation artifacts to sdk-docs (versioned)
+        uses: cpina/github-action-push-to-another-repository@main
+        env:
+          SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
+        with:
+          source-directory: docs
+          destination-github-username: pinecone-io
+          destination-repository-name: sdk-docs
+          user-email: clients@pinecone.io
+          target-branch: main
+          target-directory: java/v${{ env.CLIENT_VERSION }}
+          commit-message: "Java: automated documentation build for v${{ env.CLIENT_VERSION }} \n\n pinecone-java-client merge SHA: ${{ github.sha }}"
