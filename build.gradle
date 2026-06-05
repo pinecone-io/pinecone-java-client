@@ -37,12 +37,23 @@ sourceSets {
 }
 
 def grpcVersion = '1.60.2'
+// Netty is pulled in transitively by grpc-netty (1.60.2 -> 4.1.100.Final, which is vulnerable
+// to CVE-2025-24970). grpc-netty does not pin a patched Netty even in recent releases, so we
+// pin Netty directly here. Bump alongside grpc when grpc itself ships a patched Netty.
+def nettyVersion = '4.1.135.Final'
 
 dependencies {
     api "io.grpc:grpc-protobuf:${grpcVersion}"
     api "io.grpc:grpc-stub:${grpcVersion}"
     api "io.grpc:grpc-netty:${grpcVersion}"
-    runtimeOnly 'io.netty:netty-tcnative-boringssl-static:2.0.61.Final'
+    // Pin every Netty module that grpc-netty declares directly so the patched version wins
+    // transitive resolution for consumers too (Maven nearest-wins / Gradle highest-wins).
+    // Fixes CVE-2025-24970 (netty-handler/netty-common, HIGH) and pulls in the patched
+    // netty-codec-http (CVE-2024-29025) and netty-common (CVE-2025-25193).
+    api "io.netty:netty-codec-http2:${nettyVersion}"
+    api "io.netty:netty-handler-proxy:${nettyVersion}"
+    api "io.netty:netty-transport-native-unix-common:${nettyVersion}"
+    runtimeOnly 'io.netty:netty-tcnative-boringssl-static:2.0.77.Final'
     implementation 'org.slf4j:slf4j-api:2.0.5'
     implementation 'com.google.api.grpc:proto-google-common-protos:2.14.3'
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'
