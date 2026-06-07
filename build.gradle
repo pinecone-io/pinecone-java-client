@@ -1,3 +1,18 @@
+buildscript {
+    // Build-time only: the Shadow 8.1.1 Gradle plugin pulls vulnerable transitive deps onto
+    // the plugin (buildscript) classpath. These run only in the Gradle build JVM and are NOT
+    // part of the published artifact, but we still pin them to patched versions to clear the
+    // Dependabot alerts:
+    //   - commons-io 2.11.0  -> CVE-2024-47554  (fixed in 2.14.0)
+    //   - plexus-utils 3.5.1 -> CVE-2025-67030  (fixed in 3.6.1)
+    configurations.classpath {
+        resolutionStrategy {
+            force 'commons-io:commons-io:2.18.0'
+            force 'org.codehaus.plexus:plexus-utils:3.6.1'
+        }
+    }
+}
+
 plugins {
     id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'java-library'
