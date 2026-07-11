@@ -7,6 +7,11 @@ on:
       SSH_DEPLOY_KEY:
         required: true
 
+# Docs are pushed to the sdk-docs repo via SSH_DEPLOY_KEY, not GITHUB_TOKEN,
+# so this workflow only needs to read its own repo.
+permissions:
+  contents: read
+
 jobs:
   build-and-deploy-documentation:
     runs-on: ubuntu-latest
