@@ -34,6 +34,14 @@ sourceSets {
         }
         resources.srcDir file('src/integration/resources')
     }
+
+    smokeTest {
+        java {
+            compileClasspath += main.output + test.output
+            runtimeClasspath += main.output + test.output
+            srcDir file('src/smoke/java')
+        }
+    }
 }
 
 def grpcVersion = '1.60.2'
@@ -122,6 +130,8 @@ tasks.register('generateJavadoc', Javadoc) {
 configurations {
     integrationTestImplementation.extendsFrom testImplementation
     integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
+    smokeTestImplementation.extendsFrom testImplementation
+    smokeTestRuntimeOnly.extendsFrom testRuntimeOnly
 }
 
 java {
@@ -149,6 +159,21 @@ task integrationTest(type: Test) {
     testClassesDirs = sourceSets.integrationTest.output.classesDirs
     classpath = sourceSets.integrationTest.runtimeClasspath
     outputs.upToDateWhen { false }
+}
+
+// Key-free mocked critical-path smoke gate (connect -> upsert -> query).
+// Runs with no PINECONE_API_KEY; in-process gRPC + MockWebServer, no real backend.
+task smokeTest(type: Test) {
+    useJUnitPlatform()
+    testClassesDirs = sourceSets.smokeTest.output.classesDirs
+    classpath = sourceSets.smokeTest.runtimeClasspath
+    outputs.upToDateWhen { false }
+    // Fail if zero tests run (silently passing empty suite must not happen).
+    afterSuite { desc, result ->
+        if (!desc.parent && result.testCount == 0) {
+            throw new GradleException("No smoke tests were executed — the suite may have been emptied or moved.")
+        }
+    }
 }
 
 // Configure Shadow JAR with relocations and transformers
