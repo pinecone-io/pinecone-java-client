@@ -7,6 +7,10 @@ on:
     branches:
       - main
 
+# Least-privilege default: build, integration tests, and cleanup only read the repo.
+permissions:
+  contents: read
+
 jobs:
   build:
     strategy:
