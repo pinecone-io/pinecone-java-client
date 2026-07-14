@@ -12,6 +12,31 @@ permissions:
   contents: read
 
 jobs:
+  # Key-free mocked critical-path smoke gate (connect -> upsert -> query).
+  # Runs on every PR with NO PINECONE_API_KEY to prove the request/response
+  # plumbing works without a real backend. Keyed integration tests stay below.
+  smoke-mocked:
+    name: Smoke (mocked, no key)
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: 17
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
+      with:
+        gradle-version: 8.5
+
+    # No PINECONE_API_KEY: proves the mocked critical path needs none.
+    # The smokeTest task throws GradleException if zero tests execute,
+    # so an accidentally emptied suite fails the job rather than passing silently.
+    - name: Run mocked critical-path smoke test
+      run: gradle smokeTest
+
   build:
     strategy:
       fail-fast: false
