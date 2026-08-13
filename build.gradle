@@ -55,7 +55,7 @@ def grpcVersion = '1.60.2'
 // Netty is pulled in transitively by grpc-netty (1.60.2 -> 4.1.100.Final, which is vulnerable
 // to CVE-2025-24970). grpc-netty does not pin a patched Netty even in recent releases, so we
 // pin Netty directly here. Bump alongside grpc when grpc itself ships a patched Netty.
-def nettyVersion = '4.1.135.Final'
+def nettyVersion = '4.2.17.Final'
 
 dependencies {
     api "io.grpc:grpc-protobuf:${grpcVersion}"
