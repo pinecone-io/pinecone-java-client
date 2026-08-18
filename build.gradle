@@ -5,10 +5,13 @@ buildscript {
     // Dependabot alerts:
     //   - commons-io 2.11.0  -> CVE-2024-47554  (fixed in 2.14.0)
     //   - plexus-utils 3.5.1 -> CVE-2025-67030  (fixed in 3.6.1)
+    //   - log4j 2.20.0       -> CVE-2026-49844  (fixed in 2.25.5)
     configurations.classpath {
         resolutionStrategy {
             force 'commons-io:commons-io:2.18.0'
             force 'org.codehaus.plexus:plexus-utils:3.6.1'
+            force 'org.apache.logging.log4j:log4j-api:2.25.5'
+            force 'org.apache.logging.log4j:log4j-core:2.25.5'
         }
     }
 }
@@ -55,7 +58,9 @@ def grpcVersion = '1.60.2'
 // Netty is pulled in transitively by grpc-netty (1.60.2 -> 4.1.100.Final, which is vulnerable
 // to CVE-2025-24970). grpc-netty does not pin a patched Netty even in recent releases, so we
 // pin Netty directly here. Bump alongside grpc when grpc itself ships a patched Netty.
-def nettyVersion = '4.1.135.Final'
+// Stay on the 4.1.x line: grpc-netty 1.60.2 targets Netty 4.1 and 4.2 changed the buffer
+// allocator and IoHandler APIs it depends on.
+def nettyVersion = '4.1.136.Final'
 
 dependencies {
     api "io.grpc:grpc-protobuf:${grpcVersion}"
@@ -73,8 +78,8 @@ dependencies {
     implementation 'com.google.api.grpc:proto-google-common-protos:2.14.3'
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:4.12.0'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.21.4'
-    implementation 'com.fasterxml.jackson.core:jackson-core:2.21.4'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.21.5'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.21.5'
     implementation 'com.google.code.gson:gson:2.9.1'
     implementation 'io.gsonfire:gson-fire:1.8.5'
     implementation 'org.openapitools:jackson-databind-nullable:0.2.6'
@@ -86,7 +91,7 @@ dependencies {
     testImplementation "org.hamcrest:hamcrest:2.2"
     testImplementation 'org.mockito:mockito-inline:4.8.0'
     testImplementation 'org.slf4j:slf4j-simple:2.0.5'
-    testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.21.4'
+    testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.21.5'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.0'
     testImplementation 'org.junit.platform:junit-platform-launcher:1.8.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.0'
