@@ -5,10 +5,13 @@ buildscript {
     // Dependabot alerts:
     //   - commons-io 2.11.0  -> CVE-2024-47554  (fixed in 2.14.0)
     //   - plexus-utils 3.5.1 -> CVE-2025-67030  (fixed in 3.6.1)
+    //   - log4j 2.20.0       -> CVE-2026-49844  (fixed in 2.25.5)
     configurations.classpath {
         resolutionStrategy {
             force 'commons-io:commons-io:2.18.0'
             force 'org.codehaus.plexus:plexus-utils:3.6.1'
+            force 'org.apache.logging.log4j:log4j-api:2.25.5'
+            force 'org.apache.logging.log4j:log4j-core:2.25.5'
         }
     }
 }
