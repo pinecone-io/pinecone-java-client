@@ -79,6 +79,36 @@ public class PineconeBuilderTest {
     }
 
     @Test
+    public void PineconeWithHostAndCustomOkHttpClientUsesHost() throws IOException {
+        // Regression test for https://github.com/pinecone-io/pinecone-java-client/issues/192 --
+        // withHost(...) must still be honored when a custom OkHttpClient is also supplied.
+        String filePath = "src/test/resources/serverlessIndexJsonString.json";
+        String indexJsonStringServerless = new String(Files.readAllBytes(Paths.get(filePath)));
+
+        AbstractMap.SimpleEntry<Call, OkHttpClient> mockCallAndClient =
+                buildMockCallAndClient(ResponseBody.create(
+                        indexJsonStringServerless,
+                        MediaType.parse("application/json")));
+
+        OkHttpClient mockClient = mockCallAndClient.getValue();
+
+        Pinecone client = new Pinecone.Builder("testAPiKey")
+                .withHost("http://my-custom-host:5080")
+                .withOkHttpClient(mockClient)
+                .build();
+        // Create expected index after client creation to ensure JSON class is initialized
+        IndexModel expectedIndex = IndexModel.fromJson(indexJsonStringServerless);
+        IndexModel index = client.describeIndex("testIndex");
+
+        ArgumentCaptor<Request> requestCaptor = ArgumentCaptor.forClass(Request.class);
+
+        assertEquals(expectedIndex, index);
+        verify(mockClient, times(1)).newCall(requestCaptor.capture());
+        assertEquals("my-custom-host", requestCaptor.getValue().url().host());
+        assertEquals(5080, requestCaptor.getValue().url().port());
+    }
+
+    @Test
     public void PineconeWithSourceTag()  throws IOException {
         String filePath = "src/test/resources/serverlessIndexJsonString.json";
         String indexJsonStringServerless = new String(Files.readAllBytes(Paths.get(filePath)));

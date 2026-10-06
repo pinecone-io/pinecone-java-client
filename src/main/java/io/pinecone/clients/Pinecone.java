@@ -1778,11 +1778,16 @@ public class Pinecone {
                 apiClient = new ApiClient(customOkHttpClient);
             } else {
                 apiClient = new ApiClient(buildOkHttpClient(proxyConfig));
-                if(host!=null && !host.isEmpty()) {
-                    config.setHost(host);
-                    apiClient.setBasePath(host);
-                }
             }
+
+            // Host must be applied regardless of which OkHttpClient path was used above,
+            // otherwise an explicitly configured host is silently ignored whenever a
+            // customOkHttpClient is also supplied. See https://github.com/pinecone-io/pinecone-java-client/issues/192
+            if (host != null && !host.isEmpty()) {
+                config.setHost(host);
+                apiClient.setBasePath(host);
+            }
+
             apiClient.setApiKey(config.getApiKey());
             apiClient.setUserAgent(config.getUserAgent());
             apiClient.addDefaultHeader("X-Pinecone-Api-Version", Configuration.VERSION);
