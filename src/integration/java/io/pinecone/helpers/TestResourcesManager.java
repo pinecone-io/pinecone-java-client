@@ -44,21 +44,11 @@ public class TestResourcesManager {
     private static final Logger logger = LoggerFactory.getLogger(TestUtilities.class);
     private static volatile TestResourcesManager instance;
     private static final String apiKey = System.getenv("PINECONE_API_KEY");
-    private final int dimension = System.getenv("DIMENSION") == null
-            ? 4
-            : Integer.parseInt(System.getenv("DIMENSION"));
-    private final String environment = System.getenv("PINECONE_ENVIRONMENT") == null
-            ? "us-east4-gcp"
-            : System.getenv("PINECONE_ENVIRONMENT");
-    private static final String metric = System.getenv("METRIC") == null
-            ? "dotproduct"
-            : System.getenv("METRIC");
-    private static final String cloud = System.getenv("CLOUD") == null
-            ? "aws"
-            : System.getenv("CLOUD");
-    private static final String region = System.getenv("REGION") == null
-            ? "us-west-2"
-            : System.getenv("REGION");
+    private final int dimension = Integer.parseInt(envOrDefault("DIMENSION", "4"));
+    private final String environment = envOrDefault("PINECONE_ENVIRONMENT", "us-east4-gcp");
+    private static final String metric = envOrDefault("METRIC", "dotproduct");
+    private static final String cloud = envOrDefault("CLOUD", "aws");
+    private static final String region = envOrDefault("REGION", "us-west-2");
     private final Pinecone pineconeClient;
     private String podIndexName;
     private IndexModel podIndexModel;
@@ -76,6 +66,12 @@ public class TestResourcesManager {
     private final String customNamespace = "example-namespace";
     private final String defaultNamespace = "";
 
+
+    // CI passes unset secrets through as empty strings, so treat blank the same as unset.
+    private static String envOrDefault(String name, String defaultValue) {
+        String value = System.getenv(name);
+        return value == null || value.trim().isEmpty() ? defaultValue : value;
+    }
 
     private TestResourcesManager() {
         pineconeClient = new Pinecone
