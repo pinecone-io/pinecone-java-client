@@ -18,13 +18,14 @@ public class BuildUpsertRequest {
     public static final List<Float> sparseValues = Arrays.asList(0.11f, 0.22f, 0.33f);
 
     public static List<String> getIdsList(int numOfVectors) {
-        List<String> idList = new ArrayList<>(numOfVectors);
+        // Duplicate ids overwrite each other on upsert, so they must be distinct.
+        Set<String> ids = new LinkedHashSet<>(numOfVectors);
 
-        for (int i = 0; i < numOfVectors; i++) {
-            idList.add(RandomStringBuilder.build("v", 2));
+        while (ids.size() < numOfVectors) {
+            ids.add(RandomStringBuilder.build("v", 8));
         }
 
-        return idList;
+        return new ArrayList<>(ids);
     }
 
     public static ArrayList<Float> generateVectorValuesByDimension(int dimension) {
