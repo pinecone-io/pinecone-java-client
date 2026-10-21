@@ -21,7 +21,7 @@ public class SparseIndexTest {
 
     @BeforeAll
     public static void setUp() throws InterruptedException {
-        indexName = RandomStringBuilder.build("sparse-index", 8);
+        indexName = RandomStringBuilder.buildResourceName("sparse-index", 8);
         pinecone = new Pinecone
                 .Builder(System.getenv("PINECONE_API_KEY"))
                 .withSourceTag("pinecone_test")

@@ -8,41 +8,115 @@ import org.openapitools.db_control.client.model.IndexModel;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
- * Utility for cleaning up Pinecone indexes and collections.
- * 
- * This utility can be used to clean up resources in a Pinecone project, with support for:
- * - Deleting all indexes and collections
- * - Dry-run mode to preview deletions without executing them
- * - Automatic handling of deletion protection
- * - Age-based filtering (when timestamp information becomes available)
- * 
+ * Utility for cleaning up Pinecone indexes and collections created by the integration tests.
+ * <p>
+ * The API does not report when an index or collection was created, so integration tests name their resources with
+ * {@link #testResourcePrefix()}, which encodes the CI run and the creation time. This utility only ever deletes
+ * resources whose names carry that prefix; anything else in the project is left alone.
+ * <p>
  * Command-line arguments:
- * --age-threshold-days &lt;number&gt; - Minimum age in days for resources to be deleted (default: 1)
+ * --run-id &lt;id&gt; - Delete only resources created by this CI run (GITHUB_RUN_ID), regardless of age
+ * --age-threshold-days &lt;number&gt; - Without --run-id, minimum age in days for resources to be deleted (default: 1)
  * --dry-run - Preview deletions without actually deleting resources
- * 
+ * <p>
  * Example usage:
  * <pre>{@code
  * java io.pinecone.helpers.IndexCleanupUtility --age-threshold-days 2 --dry-run
+ * java io.pinecone.helpers.IndexCleanupUtility --run-id "$GITHUB_RUN_ID"
  * }</pre>
  */
 public class IndexCleanupUtility {
+    /** Set by GitHub Actions in every job; scopes test resource names to one workflow run. */
+    public static final String RUN_ID_ENV = "GITHUB_RUN_ID";
+    private static final String LOCAL_RUN_TAG = "local";
+    private static final Pattern TEST_RESOURCE_NAME = Pattern.compile("^ci([0-9a-z]{1,12})-([0-9a-z]{1,12})-.+");
+
     private final Pinecone pinecone;
     private final int ageThresholdDays;
+    private final String runTag;
     private final boolean dryRun;
 
     /**
-     * Constructs a new IndexCleanupUtility.
+     * Constructs a new IndexCleanupUtility that deletes test resources older than {@code ageThresholdDays}.
      *
      * @param pinecone The Pinecone client instance
      * @param ageThresholdDays Minimum age in days for resources to be deleted
      * @param dryRun If true, preview deletions without executing them
      */
     public IndexCleanupUtility(Pinecone pinecone, int ageThresholdDays, boolean dryRun) {
+        this(pinecone, ageThresholdDays, null, dryRun);
+    }
+
+    /**
+     * Constructs a new IndexCleanupUtility.
+     *
+     * @param pinecone The Pinecone client instance
+     * @param ageThresholdDays Minimum age in days for resources to be deleted; ignored when {@code runId} is set
+     * @param runId If non-null, delete only test resources created by this CI run, regardless of age
+     * @param dryRun If true, preview deletions without executing them
+     */
+    public IndexCleanupUtility(Pinecone pinecone, int ageThresholdDays, String runId, boolean dryRun) {
         this.pinecone = pinecone;
         this.ageThresholdDays = ageThresholdDays;
+        this.runTag = runId == null ? null : runTag(runId);
         this.dryRun = dryRun;
+    }
+
+    /**
+     * Returns the prefix integration tests put on every index and collection name they create, so this utility can
+     * tell which run created a resource and when. Reads the run id from {@value #RUN_ID_ENV}; when it is unset, as in
+     * a local run, the resource is tagged as local and only age-based cleanup will remove it.
+     *
+     * @return a prefix such as {@code ci<run>-<minute>-}, 16 characters for current GitHub run ids
+     */
+    public static String testResourcePrefix() {
+        return testResourcePrefix(System.getenv(RUN_ID_ENV), System.currentTimeMillis());
+    }
+
+    static String testResourcePrefix(String runId, long createdAtMillis) {
+        return "ci" + runTag(runId) + "-" + Long.toString(TimeUnit.MILLISECONDS.toMinutes(createdAtMillis), 36) + "-";
+    }
+
+    // Base 36 keeps the prefix short enough to fit test names within the 45-character index name limit.
+    static String runTag(String runId) {
+        if (runId == null || runId.trim().isEmpty()) {
+            return LOCAL_RUN_TAG;
+        }
+        try {
+            return Long.toString(Long.parseLong(runId.trim()), 36);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Run id must be numeric: " + runId, e);
+        }
+    }
+
+    /**
+     * Decides whether a resource is in scope for this cleanup, logging the reason when it is not.
+     */
+    boolean isInScope(String name) {
+        Matcher matcher = TEST_RESOURCE_NAME.matcher(name);
+        if (!matcher.matches()) {
+            logInfo("Skipping %s - not created by the integration tests", name);
+            return false;
+        }
+        if (runTag != null) {
+            if (!runTag.equals(matcher.group(1))) {
+                logInfo("Skipping %s - created by another run", name);
+                return false;
+            }
+            return true;
+        }
+        long createdAtMinutes = Long.parseLong(matcher.group(2), 36);
+        long ageMinutes = TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis()) - createdAtMinutes;
+        if (ageMinutes < TimeUnit.DAYS.toMinutes(ageThresholdDays)) {
+            logInfo("Skipping %s - younger than %d days", name, ageThresholdDays);
+            return false;
+        }
+        return true;
     }
     
     /**
@@ -55,7 +129,11 @@ public class IndexCleanupUtility {
             ParsedArgs parsedArgs = parseArgs(args);
 
             logInfo("Starting Pinecone resource cleanup...");
-            logInfo("Age threshold: %d days", parsedArgs.ageThresholdDays);
+            if (parsedArgs.runId != null) {
+                logInfo("Run id: %s", parsedArgs.runId);
+            } else {
+                logInfo("Age threshold: %d days", parsedArgs.ageThresholdDays);
+            }
             logInfo("Dry-run mode: %s", parsedArgs.dryRun);
 
             // Initialize Pinecone client
@@ -69,6 +147,7 @@ public class IndexCleanupUtility {
             IndexCleanupUtility utility = new IndexCleanupUtility(
                 pinecone,
                 parsedArgs.ageThresholdDays,
+                parsedArgs.runId,
                 parsedArgs.dryRun
             );
 
@@ -103,6 +182,7 @@ public class IndexCleanupUtility {
 
     static ParsedArgs parseArgs(String[] args) {
         int ageThresholdDays = 1; // Default: 1 day
+        String runId = null;
         boolean dryRun = false;
 
         for (int i = 0; i < args.length; i++) {
@@ -120,6 +200,16 @@ public class IndexCleanupUtility {
                     throw new IllegalArgumentException("--age-threshold-days must be >= 0");
                 }
                 i++; // Skip the next argument since we've consumed it
+            } else if ("--run-id".equals(args[i])) {
+                if (i + 1 >= args.length) {
+                    throw new IllegalArgumentException("--run-id requires a value");
+                }
+                runId = args[i + 1];
+                if (runId.trim().isEmpty()) {
+                    throw new IllegalArgumentException("--run-id must not be blank");
+                }
+                runTag(runId);
+                i++;
             } else if ("--dry-run".equals(args[i])) {
                 dryRun = true;
             } else {
@@ -127,13 +217,14 @@ public class IndexCleanupUtility {
             }
         }
 
-        return new ParsedArgs(ageThresholdDays, dryRun);
+        return new ParsedArgs(ageThresholdDays, runId, dryRun);
     }
 
     private static void printUsage() {
         System.err.println("Usage: java io.pinecone.helpers.IndexCleanupUtility [OPTIONS]");
         System.err.println("Options:");
-        System.err.println("  --age-threshold-days <number>  Minimum age in days for resources to be deleted (default: 1)");
+        System.err.println("  --run-id <id>                  Delete only resources created by this CI run, regardless of age");
+        System.err.println("  --age-threshold-days <number>  Without --run-id, minimum age in days for resources to be deleted (default: 1)");
         System.err.println("  --dry-run                      Preview deletions without executing them");
     }
 
@@ -213,8 +304,9 @@ public class IndexCleanupUtility {
             return false;
         }
 
-        // Note: Age-based filtering would go here when timestamp information becomes available
-        // For now, we process all indexes that aren't already terminating
+        if (!isInScope(indexName)) {
+            return false;
+        }
 
         if (dryRun) {
             logInfo("DRY-RUN: Would delete index: %s", indexName);
@@ -266,8 +358,9 @@ public class IndexCleanupUtility {
             return false;
         }
 
-        // Note: Age-based filtering would go here when timestamp information becomes available
-        // For now, we process all collections that aren't already terminating
+        if (!isInScope(collectionName)) {
+            return false;
+        }
 
         if (dryRun) {
             logInfo("DRY-RUN: Would delete collection: %s", collectionName);
@@ -312,10 +405,12 @@ public class IndexCleanupUtility {
 
     static final class ParsedArgs {
         final int ageThresholdDays;
+        final String runId;
         final boolean dryRun;
 
-        ParsedArgs(int ageThresholdDays, boolean dryRun) {
+        ParsedArgs(int ageThresholdDays, String runId, boolean dryRun) {
             this.ageThresholdDays = ageThresholdDays;
+            this.runId = runId;
             this.dryRun = dryRun;
         }
     }

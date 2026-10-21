@@ -321,7 +321,7 @@ public class TestResourcesManager {
             return podIndexName;
         }
 
-        String indexName = RandomStringBuilder.build("pod-index", 8);
+        String indexName = RandomStringBuilder.buildResourceName("pod-index", 8);
 
         PodSpecMetadataConfig metadataConfig = null;
         podIndexModel = pineconeClient.createPodsIndex(indexName, dimension, environment, "p1.x1", metric, metadataConfig);
@@ -352,7 +352,7 @@ public class TestResourcesManager {
             return this.serverlessIndexName;
         }
 
-        String indexName = RandomStringBuilder.build("serverless-index", 8);
+        String indexName = RandomStringBuilder.buildResourceName("serverless-index", 8);
         HashMap<String, String> tags = new HashMap<>();
         tags.put("env", "testing");
         
@@ -389,7 +389,7 @@ public class TestResourcesManager {
         String sourceIndexName = getOrCreatePodIndex();
 
         // Create collection
-        collectionName = RandomStringBuilder.build("collection", 8);
+        collectionName = RandomStringBuilder.buildResourceName("collection", 8);
         collectionModel = pineconeClient.createCollection(collectionName, sourceIndexName);
 
         // Wait until collection is ready

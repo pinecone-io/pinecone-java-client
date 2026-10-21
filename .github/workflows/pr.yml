@@ -110,10 +110,12 @@ jobs:
     - name: Build project
       run: gradle clean build
 
+    # Integration tests prefix resource names with GITHUB_RUN_ID, so this only removes what this run
+    # created and leaves concurrent runs sharing the Pinecone project alone.
     - name: Cleanup Test Indexes
       continue-on-error: true
       run: |
-        echo "Running IndexCleanupUtility to clean up test indexes..."
-        java -cp build/libs/*-all.jar io.pinecone.helpers.IndexCleanupUtility
+        echo "Running IndexCleanupUtility to clean up this run's test indexes..."
+        java -cp build/libs/*-all.jar io.pinecone.helpers.IndexCleanupUtility --run-id "$GITHUB_RUN_ID"
       env:
         PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}

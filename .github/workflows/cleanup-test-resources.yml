@@ -22,6 +22,11 @@ on:
         default: false
         type: boolean
 
+# Sweeps leftovers that a pull request run's own cleanup job missed. The API does not report creation
+# time, so IndexCleanupUtility only deletes indexes and collections whose names carry the integration
+# test prefix (run id + creation minute) and are older than the age threshold; runs still in progress
+# and any resource not created by the integration tests are left alone. An age threshold of 0 deletes
+# every test-prefixed resource, including those of runs in progress.
 jobs:
   cleanup:
     runs-on: ubuntu-latest

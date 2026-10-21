@@ -48,7 +48,7 @@ public class CreateDescribeListAndDeleteIndexTest {
 
     @Test
     public void createPodsIndexWithMinimumRequiredParams() {
-        String podIndexName = RandomStringBuilder.build("create-pod-with-min", 8);
+        String podIndexName = RandomStringBuilder.buildResourceName("create-pod-with-min", 8);
         Integer dimension = 3;
         String environment = "us-east-1-aws";
         String podType = "p1.x1";
