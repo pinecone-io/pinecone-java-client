@@ -17,7 +17,7 @@ public class DeletionProtectionTest {
 
     @Test
     public void createIndexWithDeletionProtectionEnabled() {
-        String indexName = RandomStringBuilder.build("create-serv", 8);
+        String indexName = RandomStringBuilder.buildResourceName("create-serv", 8);
         HashMap<String, String> expectedTags = new HashMap<>();
         expectedTags.put("test", "deletion-protection-enabled");
         // Create serverless index with deletion protection enabled
@@ -32,7 +32,7 @@ public class DeletionProtectionTest {
 
     @Test
     public void createPodIndexWithDeletionProtectionDisabled() {
-        String indexName = RandomStringBuilder.build("create-pod", 8);
+        String indexName = RandomStringBuilder.buildResourceName("create-pod", 8);
         HashMap<String, String> expectedTags = new HashMap<>();
         expectedTags.put("test", "deletion-protection-disabled");
         // Create serverless index with deletion protection disabled

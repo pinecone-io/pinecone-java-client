@@ -48,7 +48,7 @@ public class ReadCapacityAndSchemaTest {
     @Test
     @Order(1)
     public void createServerlessIndexWithOnDemandReadCapacity() {
-        String indexName = RandomStringBuilder.build("ondemand-index", 8);
+        String indexName = RandomStringBuilder.buildResourceName("ondemand-index", 8);
         Map<String, String> tags = new HashMap<>();
         tags.put("env", "test");
         tags.put("read-capacity", "ondemand");
@@ -70,7 +70,7 @@ public class ReadCapacityAndSchemaTest {
     @Test
     @Order(2)
     public void createServerlessIndexWithDedicatedReadCapacity() {
-        String indexName = RandomStringBuilder.build("dedicated-index", 8);
+        String indexName = RandomStringBuilder.buildResourceName("dedicated-index", 8);
         Map<String, String> tags = new HashMap<>();
         tags.put("env", "test");
         tags.put("read-capacity", "dedicated");
@@ -99,7 +99,7 @@ public class ReadCapacityAndSchemaTest {
     @Test
     @Order(3)
     public void createServerlessIndexWithMetadataSchema() {
-        String indexName = RandomStringBuilder.build("schema-index", 8);
+        String indexName = RandomStringBuilder.buildResourceName("schema-index", 8);
         Map<String, String> tags = new HashMap<>();
         tags.put("env", "test");
         tags.put("schema", "configured");
@@ -126,7 +126,7 @@ public class ReadCapacityAndSchemaTest {
     @Test
     @Order(4)
     public void createServerlessIndexWithBothReadCapacityAndSchema() {
-        String indexName = RandomStringBuilder.build("both-config-index", 8);
+        String indexName = RandomStringBuilder.buildResourceName("both-config-index", 8);
         Map<String, String> tags = new HashMap<>();
         tags.put("env", "test");
 
@@ -157,7 +157,7 @@ public class ReadCapacityAndSchemaTest {
     @Test
     @Order(5)
     public void createIndexForModelWithReadCapacityAndSchema() throws ApiException {
-        String indexName = RandomStringBuilder.build("model-index", 8);
+        String indexName = RandomStringBuilder.buildResourceName("model-index", 8);
         Map<String, String> tags = new HashMap<>();
         tags.put("env", "test");
 
@@ -193,7 +193,7 @@ public class ReadCapacityAndSchemaTest {
     @Test
     @Order(6)
     public void configureReadCapacityOnExistingIndex() throws InterruptedException {
-        String indexName = RandomStringBuilder.build("configure-index", 8);
+        String indexName = RandomStringBuilder.buildResourceName("configure-index", 8);
         Map<String, String> tags = new HashMap<>();
         tags.put("env", "test");
 

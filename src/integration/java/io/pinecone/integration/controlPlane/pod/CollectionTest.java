@@ -83,7 +83,7 @@ public class CollectionTest {
         assertTrue(collection.getSize() > 0);
 
         // Create index from collection
-        String newIndexName = RandomStringBuilder.build("from-coll", 5);
+        String newIndexName = RandomStringBuilder.buildResourceName("from-coll", 5);
         logger.info("Creating index " + newIndexName + " from collection " + collectionName);
 
         pineconeClient.createPodsIndex(newIndexName, dimension, environment, "p1.x1", sourceIndexMetric, collectionName);
@@ -129,7 +129,7 @@ public class CollectionTest {
             }
         }
 
-        String newIndexName = RandomStringBuilder.build("from-coll-with-diff-metric", 5);
+        String newIndexName = RandomStringBuilder.buildResourceName("from-coll-diff-metric", 5);
         pineconeClient.createPodsIndex(newIndexName, dimension, environment, "p1.x1", targetMetric, collectionName);
         indexesToCleanUp.add(newIndexName);
     }
@@ -137,7 +137,7 @@ public class CollectionTest {
     @Test
     public void testCreateCollectionFromNonExistentIndex() {
         try {
-            pineconeClient.createCollection(RandomStringBuilder.build("coll1", 8), "nonexistentIndex");
+            pineconeClient.createCollection(RandomStringBuilder.buildResourceName("coll1", 8), "nonexistentIndex");
             fail("Expected to throw PineconeException");
         } catch (PineconeException expected) {
             assertTrue(expected.getMessage().contains("nonexistentIndex not found"));
@@ -146,7 +146,7 @@ public class CollectionTest {
 
     @Test
     public void testCreateCollectionFromFromNullOrEmptyStringSourceIndex() {
-        String collectionName = RandomStringBuilder.build("coll1", 8);
+        String collectionName = RandomStringBuilder.buildResourceName("coll1", 8);
         // Empty string as sourceIndex
         try {
             pineconeClient.createCollection(collectionName, "");
@@ -184,7 +184,7 @@ public class CollectionTest {
     @Test
     public void testIndexFromNonExistentCollection() {
         try {
-            pineconeClient.createPodsIndex(RandomStringBuilder.build("from-nonexistent-coll", 8), dimension, environment, "p1.x1", sourceIndexMetric, "non-existent-collection");
+            pineconeClient.createPodsIndex(RandomStringBuilder.buildResourceName("from-missing-coll", 8), dimension, environment, "p1.x1", sourceIndexMetric, "non-existent-collection");
             fail("Expected to throw PineconeException");
         } catch (PineconeException expected) {
             assertTrue(expected.getMessage().contains("non-existent-collection not found"));
@@ -211,7 +211,7 @@ public class CollectionTest {
             environments.remove(collection.getEnvironment());
             String mismatchedEnv = environments.get(new Random().nextInt(environments.size()));
 
-            pineconeClient.createPodsIndex(RandomStringBuilder.build("from-coll", 8), dimension, mismatchedEnv, "p1.x1", sourceIndexMetric, collectionName);
+            pineconeClient.createPodsIndex(RandomStringBuilder.buildResourceName("from-coll", 8), dimension, mismatchedEnv, "p1.x1", sourceIndexMetric, collectionName);
 
             fail("Expected to throw PineconeException");
         } catch (PineconeException expected) {
@@ -223,7 +223,7 @@ public class CollectionTest {
     @Disabled("Bug reported in #global-cps")
     public void testCreateIndexWithMismatchedDimension() {
         try {
-            pineconeClient.createPodsIndex(RandomStringBuilder.build("from-coll", 8), dimension + 1, environment, "p1.x1", sourceIndexMetric, collectionName);
+            pineconeClient.createPodsIndex(RandomStringBuilder.buildResourceName("from-coll", 8), dimension + 1, environment, "p1.x1", sourceIndexMetric, collectionName);
 
             fail("Expected to throw PineconeException");
         } catch (PineconeException expected) {
@@ -233,8 +233,8 @@ public class CollectionTest {
 
     @Test
     public void testCreateCollectionFromNotReadyIndex() throws Exception {
-        String notReadyIndexName = RandomStringBuilder.build("from-coll", 8);
-        String newCollectionName = RandomStringBuilder.build("coll-", 8);
+        String notReadyIndexName = RandomStringBuilder.buildResourceName("from-coll", 8);
+        String newCollectionName = RandomStringBuilder.buildResourceName("coll-", 8);
         try {
             pineconeClient.createPodsIndex(notReadyIndexName, dimension, environment, "p1.x1", sourceIndexMetric, collectionName);
             indexesToCleanUp.add(notReadyIndexName);

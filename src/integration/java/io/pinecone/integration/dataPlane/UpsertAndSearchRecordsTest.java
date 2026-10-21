@@ -20,7 +20,7 @@ public class UpsertAndSearchRecordsTest {
     @Test
     public void upsertAndSearchRecordsTest() throws Exception {
         Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-        String indexName = RandomStringBuilder.build("inf", 8);
+        String indexName = RandomStringBuilder.buildResourceName("inf", 8);
         HashMap<String, String> fieldMap = new HashMap<>();
         fieldMap.put("text", "chunk_text");
         CreateIndexForModelRequestEmbed embed = new CreateIndexForModelRequestEmbed()

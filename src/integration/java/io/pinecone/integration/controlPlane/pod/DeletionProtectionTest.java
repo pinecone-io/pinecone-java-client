@@ -16,7 +16,7 @@ public class DeletionProtectionTest {
 
     @Test
     public void createPodIndexWithDeletionProtectionEnabled() {
-        String indexName = RandomStringBuilder.build("create-pod", 8);
+        String indexName = RandomStringBuilder.buildResourceName("create-pod", 8);
         // Create pod index with deletion protection enabled
         controlPlaneClient.createPodsIndex(indexName, 3, "us-east-1-aws", "p1.x1", "enabled");
         IndexModel indexModel = controlPlaneClient.describeIndex(indexName);
@@ -30,7 +30,7 @@ public class DeletionProtectionTest {
 
     @Test
     public void createPodIndexWithDeletionProtectionDisabled() {
-        String indexName = RandomStringBuilder.build("create-pod", 8);
+        String indexName = RandomStringBuilder.buildResourceName("create-pod", 8);
         // Create pod index with deletion protection disabled
         controlPlaneClient.createPodsIndex(indexName, 3, "us-east-1-aws", "p1.x1");
         IndexModel indexModel = controlPlaneClient.describeIndex(indexName);

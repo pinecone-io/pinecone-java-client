@@ -26,8 +26,8 @@ public class ConnectionsMapTest {
 
     @BeforeAll
     public static void setUp() throws InterruptedException {
-        indexName1 = RandomStringBuilder.build("conn-map-index1", 5);
-        indexName2 = RandomStringBuilder.build("conn-map-index2", 5);
+        indexName1 = RandomStringBuilder.buildResourceName("conn-map-index1", 5);
+        indexName2 = RandomStringBuilder.buildResourceName("conn-map-index2", 5);
         pinecone1 = new Pinecone
                 .Builder(System.getenv("PINECONE_API_KEY"))
                 .withSourceTag("pinecone_test")
