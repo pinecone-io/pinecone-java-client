@@ -62,8 +62,9 @@ jobs:
           
           echo "Running cleanup with: $ARGS"
           
-          # Run the cleanup utility
-          java -cp "build/libs/*:build/classes/java/main" \
+          # Run from the shadow jar alone: the thin jar and build/classes reference
+          # unrelocated okhttp3, which only exists relocated inside the shadow jar.
+          java -cp build/libs/*-all.jar \
             io.pinecone.helpers.IndexCleanupUtility $ARGS
       
       - name: Summary
