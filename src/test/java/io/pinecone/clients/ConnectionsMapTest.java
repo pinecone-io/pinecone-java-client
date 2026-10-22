@@ -43,7 +43,7 @@ public class ConnectionsMapTest {
         Index index2Pinecone2 = pinecone2.getIndexConnection("index2");
 
         ConcurrentHashMap<String, PineconeConnection> concurrentHashMap1 = pinecone1.getConnectionsMap();
-        ConcurrentHashMap<String, PineconeConnection> concurrentHashMap2 = pinecone1.getConnectionsMap();
+        ConcurrentHashMap<String, PineconeConnection> concurrentHashMap2 = pinecone2.getConnectionsMap();
 
         // Verify that both pinecone objects are of size 2
         assertEquals(concurrentHashMap1.size(), 2);
@@ -75,8 +75,8 @@ public class ConnectionsMapTest {
         // We don't want to hit the servers for describeIndex()
         when(pinecone1.describeIndex("index1")).thenReturn(indexModel);
         when(pinecone1.describeIndex("index2")).thenReturn(indexModel);
-        when(pinecone1.describeIndex("index1")).thenReturn(indexModel);
-        when(pinecone1.describeIndex("index2")).thenReturn(indexModel);
+        when(pinecone2.describeIndex("index1")).thenReturn(indexModel);
+        when(pinecone2.describeIndex("index2")).thenReturn(indexModel);
 
         // Create two pinecone objects with 2 index connections per pinecone object
         AsyncIndex asyncIndex1Pinecone1 = pinecone1.getAsyncIndexConnection("index1");
@@ -85,7 +85,7 @@ public class ConnectionsMapTest {
         AsyncIndex asyncIndex2Pinecone2 = pinecone2.getAsyncIndexConnection("index2");
 
         ConcurrentHashMap<String, PineconeConnection> concurrentHashMap1 = pinecone1.getConnectionsMap();
-        ConcurrentHashMap<String, PineconeConnection> concurrentHashMap2 = pinecone1.getConnectionsMap();
+        ConcurrentHashMap<String, PineconeConnection> concurrentHashMap2 = pinecone2.getConnectionsMap();
 
         // Verify that both pinecone objects are of size 2
         assertEquals(concurrentHashMap1.size(), 2);
@@ -99,6 +99,50 @@ public class ConnectionsMapTest {
         asyncIndex2Pinecone1.close();
         asyncIndex1Pinecone2.close();
         asyncIndex2Pinecone2.close();
+    }
+
+    @Test
+    public void testDistinctHostsSharedAcrossClients() throws ApiException {
+        String indexName1 = "conn-map-index1";
+        String indexName2 = "conn-map-index2";
+        String host1 = "conn-map-index1-host";
+        String host2 = "conn-map-index2-host";
+
+        ManageIndexesApi manageIndexesApi = Mockito.mock(ManageIndexesApi.class);
+        IndexModel indexModel1 = new IndexModel();
+        indexModel1.setHost(host1);
+        IndexModel indexModel2 = new IndexModel();
+        indexModel2.setHost(host2);
+        when(manageIndexesApi.describeIndex(Configuration.VERSION, indexName1)).thenReturn(indexModel1);
+        when(manageIndexesApi.describeIndex(Configuration.VERSION, indexName2)).thenReturn(indexModel2);
+
+        PineconeConfig config = new PineconeConfig("testApiKey");
+        Pinecone pinecone1 = new Pinecone(config, manageIndexesApi);
+        Pinecone pinecone2 = new Pinecone(config, manageIndexesApi);
+
+        PineconeConfig config1 = new PineconeConfig("testApiKey");
+        config1.setHost(host1);
+        PineconeConfig config2 = new PineconeConfig("testApiKey");
+        config2.setHost(host2);
+
+        Index index1 = pinecone1.getIndexConnection(indexName1);
+        ConcurrentHashMap<String, PineconeConnection> connectionsMap = pinecone1.getConnectionsMap();
+        assertEquals(host1, connectionsMap.get(indexName1).toString());
+
+        Index index2 = pinecone1.getIndexConnection(indexName2);
+        assertEquals(host1, connectionsMap.get(indexName1).toString());
+        assertEquals(host2, connectionsMap.get(indexName2).toString());
+
+        // A second client shares the map and reuses the existing connection for each index
+        assertSame(connectionsMap, pinecone2.getConnectionsMap());
+        assertSame(connectionsMap.get(indexName1), pinecone2.getConnection(indexName1, config1));
+        assertSame(connectionsMap.get(indexName2), pinecone2.getConnection(indexName2, config2));
+
+        index1.close();
+        index2.close();
+
+        assertFalse(connectionsMap.containsKey(indexName1));
+        assertFalse(connectionsMap.containsKey(indexName2));
     }
 
     @Test
