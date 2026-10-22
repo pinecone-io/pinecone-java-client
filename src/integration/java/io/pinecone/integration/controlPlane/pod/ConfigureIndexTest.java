@@ -13,18 +13,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Isolated;
 import org.openapitools.db_control.client.model.IndexModel;
 import org.openapitools.db_control.client.model.PodSpec;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
 import static io.pinecone.helpers.AssertRetry.assertWithRetry;
+import static io.pinecone.helpers.TestUtilities.waitUntilIndexIsReady;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Isolated
 @Tag("pod")
 public class ConfigureIndexTest {
-    private static final Logger logger = LoggerFactory.getLogger(ConfigureIndexTest.class);
     private static final TestResourcesManager indexManager = TestResourcesManager.getInstance();
     private static final Pinecone controlPlaneClient = new Pinecone
             .Builder(System.getenv("PINECONE_API_KEY"))
@@ -42,25 +40,9 @@ public class ConfigureIndexTest {
         indexName = indexManager.getOrCreatePodIndex();
     }
 
-    private static void waitUntilIndexStateIsReady(String indexName) throws Exception {
-        int timeToWaitMs = 100000;
-        int timeWaited = 0;
-        IndexModel index = controlPlaneClient.describeIndex(indexName);
-
-        while (!"ready".equalsIgnoreCase(index.getStatus().getState()) && timeWaited <= timeToWaitMs) {
-            Thread.sleep(2000);
-            timeWaited += 2000;
-            logger.info("waited 2000ms for index to upgrade, time waited: " + timeWaited);
-            index = controlPlaneClient.describeIndex(indexName);
-        }
-        if (!index.getStatus().getReady()) {
-            fail("Index " + indexName + " did not finish upgrading after " + timeWaited + "ms");
-        }
-    }
-
     @AfterEach
     public void afterEach() throws Exception {
-        waitUntilIndexStateIsReady(indexName);
+        waitUntilIndexIsReady(controlPlaneClient, indexName, 100000);
     }
 
     @Test
@@ -77,7 +59,8 @@ public class ConfigureIndexTest {
     @Test
     public void configureIndexExceedingQuota() {
         try {
-            controlPlaneClient.configurePodsIndex(indexName, 30, "disabled");
+            // Far above any project pod quota, so the request is always rejected and never scales the shared index.
+            controlPlaneClient.configurePodsIndex(indexName, 1000, "disabled");
             fail("Expected to throw PineconeForbiddenException");
         } catch (PineconeForbiddenException expected) {
             assertTrue(expected.getLocalizedMessage().contains("reached the max pods allowed"));
@@ -98,7 +81,7 @@ public class ConfigureIndexTest {
             assertEquals(3, podSpec.getReplicas());
         });
 
-        waitUntilIndexStateIsReady(indexName);
+        waitUntilIndexIsReady(controlPlaneClient, indexName, 100000);
 
         // Verify replicas were scaled down
         assertWithRetry(() -> {

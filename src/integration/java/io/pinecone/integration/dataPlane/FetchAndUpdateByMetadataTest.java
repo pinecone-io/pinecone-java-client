@@ -4,6 +4,7 @@ import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
 import io.pinecone.clients.AsyncIndex;
 import io.pinecone.clients.Index;
+import io.pinecone.helpers.Poll;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.helpers.TestResourcesManager;
 import io.pinecone.proto.FetchByMetadataResponse;
@@ -52,9 +53,10 @@ public class FetchAndUpdateByMetadataTest {
         }
 
         index.upsert(vectorsToUpsert, namespace);
-        
-        // Wait for vectors to be indexed
-        Thread.sleep(5000);
+
+        Poll.until(numOfVectors + " vectors are visible in namespace '" + namespace + "'", 120000, 1000,
+                () -> index.describeIndexStats().getNamespacesMap().get(namespace),
+                summary -> summary != null && summary.getVectorCount() >= numOfVectors);
     }
 
     @Test

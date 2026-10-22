@@ -3,6 +3,7 @@ package io.pinecone.integration.controlPlane.serverless;
 import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.helpers.CreatedIndexes;
+import io.pinecone.helpers.Poll;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.UpsertResponse;
 import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
@@ -71,10 +72,12 @@ public class SparseIndexTest {
 
         // Disable deletion protection and add more index tags
         pinecone.configureServerlessIndex(indexName, "disabled", tags, null);
-        Thread.sleep(7000);
 
         // Describe index to confirm deletion protection is disabled
-        IndexModel indexModel = pinecone.describeIndex(indexName);
+        IndexModel indexModel = Poll.until("index " + indexName + " shows the configure changes", 60000, 1000,
+                () -> pinecone.describeIndex(indexName),
+                model -> "disabled".equals(model.getDeletionProtection())
+                        && model.getTags() != null && value.equals(model.getTags().get(key)));
         assertEquals(indexModel.getDeletionProtection(), "disabled");
         assert indexModel.getTags() != null;
         assertEquals(indexModel.getTags().get(key), value);

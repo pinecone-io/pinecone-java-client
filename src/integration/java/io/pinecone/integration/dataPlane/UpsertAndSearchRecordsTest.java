@@ -3,6 +3,7 @@ package io.pinecone.integration.dataPlane;
 import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.helpers.CreatedIndexes;
+import io.pinecone.helpers.Poll;
 import io.pinecone.helpers.RandomStringBuilder;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -37,8 +38,6 @@ public class UpsertAndSearchRecordsTest {
                 .fieldMap(fieldMap);
         pinecone.createIndexForModel(indexName, "aws", "us-west-2", embed, "disabled", new HashMap<>());
         waitUntilIndexIsReady(pinecone, indexName);
-        // Additional buffer after ready signal to avoid "no healthy upstream" errors
-        Thread.sleep(30000);
 
         Index index = pinecone.getIndexConnection(indexName);
         ArrayList<Map<String, String>> upsertRecords = new ArrayList<>();
@@ -69,7 +68,16 @@ public class UpsertAndSearchRecordsTest {
         upsertRecords.add(record4);
 
         String namespace = "example-namespace";
-        index.upsertRecords(namespace, upsertRecords);
+        // The data plane can return a 5xx ("no healthy upstream") for a short time after the index reports Ready, so
+        // retry the first write instead of sleeping before it.
+        Poll.until("records upsert into index " + indexName + " is accepted", 120000, 2000, () -> {
+            try {
+                index.upsertRecords(namespace, upsertRecords);
+                return true;
+            } catch (ApiException e) {
+                throw new RuntimeException(e);
+            }
+        }, done -> true, e -> e.getCause() instanceof ApiException && ((ApiException) e.getCause()).getCode() >= 500);
 
         List<String> fields = new ArrayList<>();
         fields.add("category");
