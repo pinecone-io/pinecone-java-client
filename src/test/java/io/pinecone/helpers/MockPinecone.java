@@ -112,11 +112,19 @@ public class MockPinecone implements BeforeEachCallback, AfterEachCallback {
 
     /** Stubs {@code GET /indexes/{name}} with a ready serverless index whose host is this fixture's gRPC server. */
     public void stubDescribeIndex(String indexName, int dimension) {
+        stubDescribeIndex(indexName, dimension, grpcHost());
+    }
+
+    /**
+     * Stubs {@code GET /indexes/{name}} with a ready serverless index at {@code host}. Pass {@link #restHost()} to send
+     * the REST data plane (records, imports) to this fixture's MockWebServer.
+     */
+    public void stubDescribeIndex(String indexName, int dimension, String host) {
         stub("GET", "/indexes/" + indexName, 200, "{"
                 + "\"name\":\"" + indexName + "\","
                 + "\"dimension\":" + dimension + ","
                 + "\"metric\":\"cosine\","
-                + "\"host\":\"" + grpcHost() + "\","
+                + "\"host\":\"" + host + "\","
                 + "\"deletion_protection\":\"disabled\","
                 + "\"spec\":{\"serverless\":{\"cloud\":\"aws\",\"region\":\"us-east-1\",\"read_capacity\":{\"mode\":\"OnDemand\",\"status\":{\"state\":\"Ready\"}}}},"
                 + "\"status\":{\"ready\":true,\"state\":\"Ready\"},"
@@ -124,19 +132,33 @@ public class MockPinecone implements BeforeEachCallback, AfterEachCallback {
                 + "}");
     }
 
-    /** Serves the data plane with {@code service}; methods it does not override fail the test. */
-    public void vectorService(VectorServiceGrpc.VectorServiceImplBase service) {
-        grpcRegistry.addService(ServerInterceptors.intercept(service, new Recorder()));
+    /**
+     * Serves the data plane with {@code service}, wrapped in {@code interceptors} (e.g. to send trailers); methods it
+     * does not override fail the test.
+     */
+    public void vectorService(VectorServiceGrpc.VectorServiceImplBase service, ServerInterceptor... interceptors) {
+        grpcRegistry.addService(ServerInterceptors.intercept(
+                ServerInterceptors.intercept(service, interceptors), new Recorder()));
     }
 
     /** A client whose control plane is this fixture, with TLS off so the data plane dials the gRPC server in plaintext. */
     public Pinecone client() {
-        return new Pinecone.Builder(API_KEY).withHost(restUrl()).withTlsEnabled(false).build();
+        return clientBuilder().build();
+    }
+
+    /** The builder behind {@link #client()}, for tests that need extra client options. */
+    public Pinecone.Builder clientBuilder() {
+        return new Pinecone.Builder(API_KEY).withHost(restUrl()).withTlsEnabled(false);
     }
 
     public String restUrl() {
         String url = rest.url("/").toString();
         return url.substring(0, url.length() - 1);
+    }
+
+    /** This fixture's REST server as {@code host:port}, the form an index host takes in a describe response. */
+    public String restHost() {
+        return rest.getHostName() + ":" + rest.getPort();
     }
 
     public String grpcHost() {
