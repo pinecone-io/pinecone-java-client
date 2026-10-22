@@ -1,0 +1,193 @@
+name: Full Integration Tests
+
+# Runs the full live integration suite outside the pull request workflow: nightly, on demand against
+# any ref, from other workflows, and on pull requests labelled `full-integration`.
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch, tag or SHA to test (default: the branch the workflow runs from)'
+        required: false
+        default: ''
+        type: string
+  # Callers must pass PINECONE_API_KEY (or use `secrets: inherit`) and grant `issues: write`, which the
+  # report-failure job declares even though it only runs on schedule. A caller must not run its own
+  # integration tests in the same workflow run: cleanup is scoped by run id, which a called workflow
+  # shares with its caller.
+  workflow_call:
+    inputs:
+      ref:
+        description: 'Branch, tag or SHA to test (default: the caller ref)'
+        required: false
+        default: ''
+        type: string
+    secrets:
+      PINECONE_API_KEY:
+        required: false
+      PINECONE_ENVIRONMENT:
+        required: false
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
+
+permissions:
+  contents: read
+
+# Full-suite runs never overlap: a new run waits for the one in flight and never cancels it, so the
+# in-flight run's cleanup always runs. GitHub keeps at most one pending run per group; a pending run
+# that has not started yet (and so has created nothing) is dropped when a newer one queues.
+# Pull request runs without the label skip every job, so they get their own group and never displace
+# a pending full-suite run.
+concurrency:
+  group: >-
+    ${{ (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'full-integration'))
+    && format('full-integration-{0}', github.repository) || format('full-integration-skip-{0}', github.run_id) }}
+  cancel-in-progress: false
+
+jobs:
+  integration-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    # Internal repo only (this file syncs to the public repo). Dependabot runs cannot read secrets. On
+    # pull requests, run only when the full-integration label is present, and on a `labeled` event
+    # only when that label is the one just added.
+    if: >-
+      github.repository == 'pinecone-io/pinecone-java-client-internal' &&
+      github.actor != 'dependabot[bot]' &&
+      (github.event_name != 'pull_request' ||
+        (contains(github.event.pull_request.labels.*.name, 'full-integration') &&
+          (github.event.action != 'labeled' || github.event.label.name == 'full-integration')))
+    strategy:
+      fail-fast: false
+      matrix:
+        java: [8, 17]
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.ref }}
+
+    - uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: ${{ matrix.java }}
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
+
+    - name: Setup gradle.properties
+      if: matrix.java == 16 || matrix.java == 17
+      run: |
+        echo "org.gradle.jvmargs=-Xmx4096m --add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED --add-exports=java.base/sun.nio.ch=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED" >> gradle.properties
+
+    - name: Check PINECONE_API_KEY is set
+      run: |
+        if [ -z "$PINECONE_API_KEY" ]; then
+          echo "::error::The PINECONE_API_KEY secret is empty or not available to this run."
+          exit 1
+        fi
+      env:
+        PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
+
+    - name: Run integration tests
+      # -PincludePodTests=true adds the @Tag("pod") tests that PR runs skip to protect the project pod quota.
+      run: ./gradlew integrationTest -PincludePodTests=true
+      env:
+        PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
+        PINECONE_ENVIRONMENT: ${{ secrets.PINECONE_ENVIRONMENT }}
+
+    - name: Upload test reports
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: full-integration-reports-jdk${{ matrix.java }}
+        path: |
+          build/reports/tests
+          build/test-results
+        if-no-files-found: ignore
+
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: integration-test
+    if: >-
+      always() &&
+      github.repository == 'pinecone-io/pinecone-java-client-internal' &&
+      needs.integration-test.result != 'skipped'
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.ref }}
+
+    - uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: 17
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
+
+    - name: Check PINECONE_API_KEY is set
+      run: |
+        if [ -z "$PINECONE_API_KEY" ]; then
+          echo "::error::The PINECONE_API_KEY secret is empty or not available to this run."
+          exit 1
+        fi
+      env:
+        PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
+
+    - name: Build shadow jar
+      run: ./gradlew shadowJar
+
+    # Integration tests prefix resource names with GITHUB_RUN_ID, so this only removes what this run
+    # created and leaves concurrent pull request runs sharing the Pinecone project alone.
+    - name: Cleanup Test Indexes
+      continue-on-error: true
+      run: java -cp build/libs/*-all.jar io.pinecone.helpers.IndexCleanupUtility --run-id "$GITHUB_RUN_ID"
+      env:
+        PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
+
+  # A red scheduled run opens one tracking issue, or comments on the open one. The
+  # `ci:nightly-failure` label must exist in the repository.
+  report-failure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [integration-test, cleanup]
+    if: always() && github.event_name == 'schedule' && contains(needs.*.result, 'failure')
+    permissions:
+      issues: write
+    steps:
+    - name: Download test reports
+      uses: actions/download-artifact@v4
+      continue-on-error: true
+      with:
+        pattern: full-integration-reports-*
+        path: reports
+
+    - name: Open or update the tracking issue
+      env:
+        GH_TOKEN: ${{ github.token }}
+        GH_REPO: ${{ github.repository }}
+        RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        SHA: ${{ github.sha }}
+        LABEL: ci:nightly-failure
+      run: |
+        failed=$(python3 - <<'EOF'
+        import glob
+        import xml.etree.ElementTree as ET
+        names = set()
+        for path in glob.glob('reports/*/test-results/**/*.xml', recursive=True):
+            for case in ET.parse(path).getroot().iter('testcase'):
+                if case.find('failure') is not None or case.find('error') is not None:
+                    names.add('%s.%s' % (case.get('classname'), case.get('name')))
+        print('\n'.join('- `%s`' % n for n in sorted(names)) or '- No failed test cases found in the reports; see the run log.')
+        EOF
+        )
+        body=$(printf 'Scheduled full integration run failed.\n\nRun: %s\nCommit: %s\n\nFailed tests:\n%s\n' "$RUN_URL" "$SHA" "$failed")
+        echo "$body" >> "$GITHUB_STEP_SUMMARY"
+        issue=$(gh issue list --state open --label "$LABEL" --limit 1 --json number --jq '.[0].number // empty')
+        if [ -n "$issue" ]; then
+          gh issue comment "$issue" --body "$body"
+        else
+          gh issue create --title "Nightly full integration tests are failing" --label "$LABEL" --body "$body"
+        fi
