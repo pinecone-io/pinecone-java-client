@@ -31,9 +31,17 @@ description = 'The Pinecone.io Java Client'
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 
+// sourceCompatibility alone lets Java 9+ APIs (List.of, String.isBlank, ...) compile on a newer
+// JDK and fail only on the Java 8 CI leg. --release 8 checks against the Java 8 API on any JDK 9+.
+// JDK 8 has no --release flag; it compiles against its own API anyway.
+if (JavaVersion.current().isJava9Compatible()) {
+    tasks.withType(JavaCompile).configureEach {
+        options.release = 8
+    }
+}
+
 repositories {
     mavenCentral()
-    jcenter()
 }
 
 sourceSets {
