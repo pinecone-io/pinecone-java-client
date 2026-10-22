@@ -9,6 +9,7 @@ import io.pinecone.helpers.TestResourcesManager;
 
 import io.pinecone.proto.FetchResponse;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -23,6 +24,7 @@ import static io.pinecone.helpers.TestUtilities.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Disabled
+@Tag("pod")
 public class CollectionTest {
     private static final TestResourcesManager indexManager = TestResourcesManager.getInstance();
     private static final Pinecone pineconeClient = new Pinecone

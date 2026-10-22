@@ -5,11 +5,13 @@ import io.pinecone.exceptions.PineconeBadRequestException;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.helpers.TestResourcesManager;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.openapitools.db_control.client.model.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Tag("pod")
 public class CreateDescribeListAndDeleteIndexTest {
 
     private static final TestResourcesManager indexManager = TestResourcesManager.getInstance();

@@ -7,6 +7,7 @@ import io.pinecone.exceptions.PineconeNotFoundException;
 import io.pinecone.helpers.TestResourcesManager;
 import okhttp3.OkHttpClient;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Isolated;
@@ -21,6 +22,7 @@ import static io.pinecone.helpers.AssertRetry.assertWithRetry;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Isolated
+@Tag("pod")
 public class ConfigureIndexTest {
     private static final Logger logger = LoggerFactory.getLogger(ConfigureIndexTest.class);
     private static final TestResourcesManager indexManager = TestResourcesManager.getInstance();

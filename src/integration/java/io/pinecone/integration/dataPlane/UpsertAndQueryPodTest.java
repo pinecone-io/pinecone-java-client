@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+@Tag("pod")
 public class UpsertAndQueryPodTest {
     private static final TestResourcesManager indexManager = TestResourcesManager.getInstance();
     private static Index indexClient;

@@ -175,8 +175,16 @@ test {
     useJUnitPlatform()
 }
 
+// Pod indexes count against a small per-project pod quota that parallel CI runs exhaust, so
+// @Tag("pod") tests run only with -PincludePodTests=true (the nightly full suite passes it).
+def includePodTests = (findProperty('includePodTests') ?: 'false').toString().toBoolean()
+
 task integrationTest(type: Test) {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        if (!includePodTests) {
+            excludeTags 'pod'
+        }
+    }
     testClassesDirs = sourceSets.integrationTest.output.classesDirs
     classpath = sourceSets.integrationTest.runtimeClasspath
     outputs.upToDateWhen { false }
