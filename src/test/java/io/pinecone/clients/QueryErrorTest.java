@@ -1,7 +1,5 @@
-package io.pinecone.integration.dataPlane;
+package io.pinecone.clients;
 
-import io.pinecone.clients.AsyncIndex;
-import io.pinecone.clients.Index;
 import io.pinecone.configs.PineconeConfig;
 import io.pinecone.configs.PineconeConnection;
 import io.pinecone.exceptions.PineconeValidationException;
@@ -80,7 +78,7 @@ public class QueryErrorTest {
     public void queryWithVectorAndIdFutureTest() {
         List<Float> values = generateVectorValuesByDimension(3);
         try {
-            index.query(5, values, null, null, "some_vector_id", "namespace", null, true, true);
+            asyncIndex.query(5, values, null, null, "some_vector_id", "namespace", null, true, true);
 
             fail("Expected to throw PineconeValidationException");
         } catch (PineconeValidationException expected) {

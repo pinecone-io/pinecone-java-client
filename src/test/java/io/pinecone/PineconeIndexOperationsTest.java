@@ -82,6 +82,17 @@ public class PineconeIndexOperationsTest {
     }
 
     @Test
+    public void testCreateServerlessIndexWithInvalidDimension() {
+        OkHttpClient mockClient = mock(OkHttpClient.class);
+        Pinecone client = new Pinecone.Builder("testAPiKey").withOkHttpClient(mockClient).build();
+
+        PineconeValidationException thrown = assertThrows(PineconeValidationException.class,
+                () -> client.createServerlessIndex("serverless-test-index", "cosine", -3, "aws", "us-west-2", "disabled", null));
+        assertEquals("Dimension must be greater than 0. See limits for more info: https://docs.pinecone.io/reference/limits", thrown.getMessage());
+        verify(mockClient, never()).newCall(any(Request.class));
+    }
+
+    @Test
     public void testValidatePodIndexParams() {
         // indexName
         PineconeValidationException thrownEmptyIndexName = assertThrows(PineconeValidationException.class,

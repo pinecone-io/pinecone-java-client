@@ -1,7 +1,5 @@
-package io.pinecone.integration.dataPlane;
+package io.pinecone.clients;
 
-import io.pinecone.clients.AsyncIndex;
-import io.pinecone.clients.Index;
 import io.pinecone.configs.PineconeConfig;
 import io.pinecone.configs.PineconeConnection;
 import io.pinecone.exceptions.PineconeException;
@@ -164,7 +162,7 @@ public class UpsertErrorTest {
         int dimension = 3;
 
         try {
-            index.upsert(id,
+            asyncIndex.upsert(id,
                     generateVectorValuesByDimension(dimension),
                     generateSparseIndicesByDimension(dimension),
                     generateVectorValuesByDimension(dimension + 1),
@@ -174,6 +172,44 @@ public class UpsertErrorTest {
             fail("Expected to throw PineconeValidationException");
         } catch (PineconeValidationException expected) {
             assertTrue(expected.getMessage().contains("ensure that both sparse indices and values are of the same length."));
+        }
+    }
+
+    @Test
+    public void upsertWithNullSparseIndicesNotNullSparseValuesNullNamespaceSyncTest() {
+        String id = RandomStringBuilder.build(3);
+        int dimension = 3;
+
+        try {
+            index.upsert(id,
+                    generateVectorValuesByDimension(dimension),
+                    null,
+                    generateVectorValuesByDimension(dimension),
+                    null,
+                    null);
+
+            fail("Expected to throw PineconeValidationException");
+        } catch (PineconeValidationException expected) {
+            assertTrue(expected.getLocalizedMessage().contains("ensure that both sparse indices and values are present"));
+        }
+    }
+
+    @Test
+    public void upsertWithNullSparseIndicesNotNullSparseValuesNullNamespaceFutureTest() {
+        String id = RandomStringBuilder.build(3);
+        int dimension = 3;
+
+        try {
+            asyncIndex.upsert(id,
+                    generateVectorValuesByDimension(dimension),
+                    null,
+                    generateVectorValuesByDimension(dimension),
+                    null,
+                    null);
+
+            fail("Expected to throw PineconeValidationException");
+        } catch (PineconeValidationException expected) {
+            assertTrue(expected.getLocalizedMessage().contains("ensure that both sparse indices and values are present"));
         }
     }
 }

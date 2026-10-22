@@ -3,7 +3,6 @@ package io.pinecone.integration.controlPlane.serverless;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.exceptions.PineconeBadRequestException;
 import io.pinecone.exceptions.PineconeNotFoundException;
-import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.helpers.TestResourcesManager;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -54,16 +53,6 @@ public class CreateDescribeListAndDeleteIndexTest {
             fail("Expected to throw PineconeBadRequestException");
         } catch (PineconeBadRequestException expected) {
             assertTrue(expected.getLocalizedMessage().contains("Name must consist of lower case alphanumeric characters or '-'"));
-        }
-    }
-
-    @Test
-    public void createServerlessIndexWithInvalidDimension() {
-        try {
-            controlPlaneClient.createServerlessIndex("serverless-test-index", "cosine", -3, "aws", "us-west-2", "disabled", null);
-            fail("Expected to throw PineconeValidationException");
-        } catch (PineconeValidationException expected) {
-            assertTrue(expected.getLocalizedMessage().contains("Dimension must be greater than 0"));
         }
     }
 

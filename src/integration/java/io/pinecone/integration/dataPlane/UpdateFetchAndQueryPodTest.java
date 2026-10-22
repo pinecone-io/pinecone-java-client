@@ -5,7 +5,6 @@ import com.google.protobuf.Value;
 import io.grpc.StatusRuntimeException;
 import io.pinecone.clients.Index;
 import io.pinecone.clients.AsyncIndex;
-import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.helpers.TestResourcesManager;
 import io.pinecone.proto.*;
@@ -145,24 +144,6 @@ public class  UpdateFetchAndQueryPodTest {
             fail("Expected to throw statusRuntimeException");
         } catch (StatusRuntimeException statusRuntimeException) {
             assertTrue(statusRuntimeException.toString().contains("Vector dimension 1 does not match the dimension of the index " + dimension));
-        }
-    }
-
-    @Test
-    public void updateNullSparseIndicesNotNullSparseValuesSyncTest() {
-        String id = RandomStringBuilder.build(3);
-
-        try {
-            index.update(id,
-                    generateVectorValuesByDimension(dimension),
-                    null,
-                    null,
-                    null,
-                    generateVectorValuesByDimension(dimension));
-
-            fail("Expected to throw PineconeValidationException");
-        } catch (PineconeValidationException validationException) {
-            assertTrue(validationException.toString().contains("Invalid upsert request. Please ensure that both sparse indices and values are present."));
         }
     }
 
@@ -307,22 +288,5 @@ public class  UpdateFetchAndQueryPodTest {
             assertNotNull(scoredVectorV1);
             assertTrue(scoredVectorV1.getMetadata().getFieldsMap().get(fieldToQuery).toString().contains(valueToQuery));
         }, 3);
-    }
-
-    @Test
-    public void updateNullSparseIndicesNotNullSparseValuesFutureTest() throws Exception {
-        String id = RandomStringBuilder.build(3);
-
-        try {
-            asyncIndex.update(id,
-                    generateVectorValuesByDimension(dimension),
-                    null,
-                    null,
-                    null,
-                    generateVectorValuesByDimension(dimension)).get();
-            fail("Expected to throw PineconeValidationException");
-        } catch (PineconeValidationException validationException) {
-            assertTrue(validationException.toString().contains("Invalid upsert request. Please ensure that both sparse indices and values are present."));
-        }
     }
 }

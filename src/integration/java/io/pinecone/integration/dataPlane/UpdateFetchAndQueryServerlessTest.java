@@ -5,7 +5,6 @@ import com.google.protobuf.Value;
 import io.grpc.StatusRuntimeException;
 import io.pinecone.clients.AsyncIndex;
 import io.pinecone.clients.Index;
-import io.pinecone.exceptions.PineconeValidationException;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.helpers.TestResourcesManager;
 import io.pinecone.proto.*;
@@ -155,24 +154,6 @@ public class UpdateFetchAndQueryServerlessTest {
     }
 
     @Test
-    public void updateNullSparseIndicesNotNullSparseValuesSyncTest() {
-        String id = RandomStringBuilder.build(3);
-
-        try {
-            index.update(id,
-                    generateVectorValuesByDimension(dimension),
-                    null,
-                    null,
-                    null,
-                    generateVectorValuesByDimension(dimension));
-
-            fail("Expected to throw PineconeValidationException");
-        } catch (PineconeValidationException validationException) {
-            assertTrue(validationException.toString().contains("Invalid upsert request. Please ensure that both sparse indices and values are present."));
-        }
-    }
-
-    @Test
     public void queryWithFiltersSyncTest() throws Exception {
         String fieldToQuery = metadataFields[0];
         String valueToQuery = createAndGetMetadataMap().get(fieldToQuery).get(0);
@@ -309,22 +290,5 @@ public class UpdateFetchAndQueryServerlessTest {
             // Verify the metadata field is correctly filtered in the query response
             assertTrue(queryResponse.getMatches(0).getMetadata().getFieldsMap().get(fieldToQuery).toString().contains(valueToQuery));
         }, 3);
-    }
-
-    @Test
-    public void updateNullSparseIndicesNotNullSparseValuesFutureTest() throws Exception {
-        String id = RandomStringBuilder.build(3);
-
-        try {
-            asyncIndex.update(id,
-                    generateVectorValuesByDimension(dimension),
-                    null,
-                    null,
-                    null,
-                    generateVectorValuesByDimension(dimension)).get();
-            fail("Expected to throw PineconeValidationException");
-        } catch (PineconeValidationException validationException) {
-            assertTrue(validationException.toString().contains("Invalid upsert request. Please ensure that both sparse indices and values are present."));
-        }
     }
 }
