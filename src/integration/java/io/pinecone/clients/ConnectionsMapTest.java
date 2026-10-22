@@ -2,8 +2,9 @@ package io.pinecone.clients;
 
 import io.pinecone.configs.PineconeConfig;
 import io.pinecone.configs.PineconeConnection;
-import io.pinecone.exceptions.PineconeNotFoundException;
+import io.pinecone.helpers.CreatedIndexes;
 import io.pinecone.helpers.RandomStringBuilder;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.openapitools.db_control.client.model.IndexModel;
@@ -16,27 +17,33 @@ import static io.pinecone.helpers.TestUtilities.waitUntilIndexIsReady;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ConnectionsMapTest {
     static String indexName1;
     static String indexName2;
     static Pinecone pinecone1;
     static Pinecone pinecone2;
+    static CreatedIndexes createdIndexes;
 
     @BeforeAll
     public static void setUp() throws InterruptedException {
-        indexName1 = RandomStringBuilder.buildResourceName("conn-map-index1", 5);
-        indexName2 = RandomStringBuilder.buildResourceName("conn-map-index2", 5);
         pinecone1 = new Pinecone
                 .Builder(System.getenv("PINECONE_API_KEY"))
                 .withSourceTag("pinecone_test")
                 .build();
+        createdIndexes = new CreatedIndexes(pinecone1);
+        indexName1 = createdIndexes.register(RandomStringBuilder.buildResourceName("conn-map-index1", 5));
+        indexName2 = createdIndexes.register(RandomStringBuilder.buildResourceName("conn-map-index2", 5));
 
         pinecone2 = new Pinecone
                 .Builder(System.getenv("PINECONE_API_KEY"))
                 .withSourceTag("pinecone_test")
                 .build();
+    }
+
+    @AfterAll
+    public static void deleteCreatedIndexes() {
+        createdIndexes.deleteAll();
     }
 
     @Test
@@ -110,16 +117,5 @@ public class ConnectionsMapTest {
         // Verify the specific entries for this test's indexes were removed
         assertFalse(connectionsMap.containsKey(indexName1));
         assertFalse(connectionsMap.containsKey(indexName2));
-
-        // Delete the indexes
-        pinecone1.deleteIndex(indexName1);
-        pinecone1.deleteIndex(indexName2);
-
-        // Wait for indexes to be deleted
-        Thread.sleep(5000);
-
-        // Confirm the indexes are deleted by calling describe index which should return resource not found
-        assertThrows(PineconeNotFoundException.class, () -> pinecone1.describeIndex(indexName1));
-        assertThrows(PineconeNotFoundException.class, () -> pinecone1.describeIndex(indexName2));
     }
 }

@@ -2,8 +2,10 @@ package io.pinecone.integration.controlPlane.pod;
 
 import io.pinecone.clients.Pinecone;
 import io.pinecone.exceptions.PineconeBadRequestException;
+import io.pinecone.helpers.CreatedIndexes;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.helpers.TestResourcesManager;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -19,6 +21,7 @@ public class CreateDescribeListAndDeleteIndexTest {
             .Builder(System.getenv("PINECONE_API_KEY"))
             .withSourceTag("pinecone_test")
             .build();
+    private static final CreatedIndexes createdIndexes = new CreatedIndexes(controlPlaneClient);
     private static String indexName;
     private static int indexDimension;
     private static String indexPodType;
@@ -29,6 +32,11 @@ public class CreateDescribeListAndDeleteIndexTest {
         indexDimension = indexManager.getDimension();
         IndexModel podIndex = indexManager.getOrCreatePodIndexModel();
         indexPodType = podIndex.getSpec().getIndexModelPodBased().getPod().getPodType();
+    }
+
+    @AfterAll
+    public static void deleteCreatedIndexes() {
+        createdIndexes.deleteAll();
     }
 
     @Test
@@ -50,7 +58,7 @@ public class CreateDescribeListAndDeleteIndexTest {
 
     @Test
     public void createPodsIndexWithMinimumRequiredParams() {
-        String podIndexName = RandomStringBuilder.buildResourceName("create-pod-with-min", 8);
+        String podIndexName = createdIndexes.register(RandomStringBuilder.buildResourceName("create-pod-with-min", 8));
         Integer dimension = 3;
         String environment = "us-east-1-aws";
         String podType = "p1.x1";
@@ -72,9 +80,6 @@ public class CreateDescribeListAndDeleteIndexTest {
         assertEquals(1, podsIndex.getSpec().getIndexModelPodBased().getPod().getShards());
         assertNull(podsIndex.getSpec().getIndexModelPodBased().getPod().getMetadataConfig());
         assertNull(podsIndex.getSpec().getIndexModelPodBased().getPod().getSourceCollection());
-
-        // Cleanup
-        controlPlaneClient.deleteIndex(podIndexName);
     }
 
     @Test

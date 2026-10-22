@@ -2,7 +2,7 @@ package io.pinecone.integration.controlPlane.serverless;
 
 import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
-import io.pinecone.exceptions.PineconeNotFoundException;
+import io.pinecone.helpers.CreatedIndexes;
 import io.pinecone.helpers.RandomStringBuilder;
 import io.pinecone.proto.UpsertResponse;
 import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
@@ -11,6 +11,7 @@ import org.openapitools.db_control.client.model.IndexModel;
 
 import java.util.*;
 
+import static io.pinecone.helpers.ResourceCleanup.waitUntilIndexIsDeleted;
 import static io.pinecone.helpers.TestUtilities.waitUntilIndexIsReady;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -18,14 +19,21 @@ import static org.junit.jupiter.api.Assertions.*;
 public class SparseIndexTest {
     static String indexName;
     static Pinecone pinecone;
+    static CreatedIndexes createdIndexes;
 
     @BeforeAll
     public static void setUp() throws InterruptedException {
-        indexName = RandomStringBuilder.buildResourceName("sparse-index", 8);
         pinecone = new Pinecone
                 .Builder(System.getenv("PINECONE_API_KEY"))
                 .withSourceTag("pinecone_test")
                 .build();
+        createdIndexes = new CreatedIndexes(pinecone);
+        indexName = createdIndexes.register(RandomStringBuilder.buildResourceName("sparse-index", 8));
+    }
+
+    @AfterAll
+    public static void deleteCreatedIndexes() {
+        createdIndexes.deleteAll();
     }
 
     @Test
@@ -101,9 +109,8 @@ public class SparseIndexTest {
     public void deleteSparseIndex() throws InterruptedException {
         // Delete sparse index
         pinecone.deleteIndex(indexName);
-        Thread.sleep(5000);
 
-        // Confirm the index is deleted by calling describe index which should return resource not found
-        assertThrows(PineconeNotFoundException.class, () -> pinecone.describeIndex(indexName));
+        // Confirm the index is deleted by polling describe index until it returns resource not found
+        waitUntilIndexIsDeleted(pinecone, indexName);
     }
 }

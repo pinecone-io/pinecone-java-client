@@ -1,7 +1,9 @@
 package io.pinecone.integration.controlPlane.serverless;
 
 import io.pinecone.clients.Pinecone;
+import io.pinecone.helpers.CreatedIndexes;
 import io.pinecone.helpers.RandomStringBuilder;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.openapitools.db_control.client.model.IndexModel;
@@ -14,10 +16,16 @@ public class DeletionProtectionTest {
             .Builder(System.getenv("PINECONE_API_KEY"))
             .withSourceTag("pinecone_test")
             .build();
+    private static final CreatedIndexes createdIndexes = new CreatedIndexes(controlPlaneClient);
+
+    @AfterAll
+    public static void deleteCreatedIndexes() {
+        createdIndexes.deleteAll();
+    }
 
     @Test
     public void createIndexWithDeletionProtectionEnabled() {
-        String indexName = RandomStringBuilder.buildResourceName("create-serv", 8);
+        String indexName = createdIndexes.register(RandomStringBuilder.buildResourceName("create-serv", 8));
         HashMap<String, String> expectedTags = new HashMap<>();
         expectedTags.put("test", "deletion-protection-enabled");
         // Create serverless index with deletion protection enabled
@@ -32,7 +40,7 @@ public class DeletionProtectionTest {
 
     @Test
     public void createPodIndexWithDeletionProtectionDisabled() {
-        String indexName = RandomStringBuilder.buildResourceName("create-pod", 8);
+        String indexName = createdIndexes.register(RandomStringBuilder.buildResourceName("create-pod", 8));
         HashMap<String, String> expectedTags = new HashMap<>();
         expectedTags.put("test", "deletion-protection-disabled");
         // Create serverless index with deletion protection disabled
@@ -49,7 +57,5 @@ public class DeletionProtectionTest {
         Assertions.assertEquals("enabled", deletionProtection);
         // Configure index to disable deletionProtection
         controlPlaneClient.configureServerlessIndex(indexName, "disabled", expectedTags, null);
-        // Delete index
-        controlPlaneClient.deleteIndex(indexName);
     }
 }

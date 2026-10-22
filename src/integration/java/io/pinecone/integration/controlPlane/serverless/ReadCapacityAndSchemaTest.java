@@ -1,17 +1,14 @@
 package io.pinecone.integration.controlPlane.serverless;
 
 import io.pinecone.clients.Pinecone;
+import io.pinecone.helpers.CreatedIndexes;
 import io.pinecone.helpers.RandomStringBuilder;
 import okhttp3.OkHttpClient;
 import org.junit.jupiter.api.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.openapitools.db_control.client.ApiException;
 import org.openapitools.db_control.client.model.*;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -21,7 +18,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ReadCapacityAndSchemaTest {
-    private static final Logger logger = LoggerFactory.getLogger(ReadCapacityAndSchemaTest.class);
     private static final Pinecone controlPlaneClient = new Pinecone
             .Builder(System.getenv("PINECONE_API_KEY"))
             .withSourceTag("pinecone_test")
@@ -32,23 +28,17 @@ public class ReadCapacityAndSchemaTest {
                     .build())
             .build();
 
-    private static final List<String> createdIndexNames = new ArrayList<>();
+    private static final CreatedIndexes createdIndexes = new CreatedIndexes(controlPlaneClient);
 
     @AfterAll
     static void cleanUp() {
-        for (String name : createdIndexNames) {
-            try {
-                controlPlaneClient.deleteIndex(name);
-            } catch (Exception e) {
-                logger.warn("Failed to delete index '{}' during cleanup: {}", name, e.getMessage());
-            }
-        }
+        createdIndexes.deleteAll();
     }
 
     @Test
     @Order(1)
     public void createServerlessIndexWithOnDemandReadCapacity() {
-        String indexName = RandomStringBuilder.buildResourceName("ondemand-index", 8);
+        String indexName = createdIndexes.register(RandomStringBuilder.buildResourceName("ondemand-index", 8));
         Map<String, String> tags = new HashMap<>();
         tags.put("env", "test");
         tags.put("read-capacity", "ondemand");
@@ -57,7 +47,6 @@ public class ReadCapacityAndSchemaTest {
         IndexModel indexModel = controlPlaneClient.createServerlessIndex(
                 indexName, "cosine", 1536, "aws", "us-west-2",
                 "disabled", tags, readCapacity, null);
-        createdIndexNames.add(indexName);
 
         assertNotNull(indexModel);
         assertEquals(indexName, indexModel.getName());
@@ -70,7 +59,7 @@ public class ReadCapacityAndSchemaTest {
     @Test
     @Order(2)
     public void createServerlessIndexWithDedicatedReadCapacity() {
-        String indexName = RandomStringBuilder.buildResourceName("dedicated-index", 8);
+        String indexName = createdIndexes.register(RandomStringBuilder.buildResourceName("dedicated-index", 8));
         Map<String, String> tags = new HashMap<>();
         tags.put("env", "test");
         tags.put("read-capacity", "dedicated");
@@ -86,7 +75,6 @@ public class ReadCapacityAndSchemaTest {
         IndexModel indexModel = controlPlaneClient.createServerlessIndex(
                 indexName, "cosine", 1536, "aws", "us-west-2",
                 "disabled", tags, readCapacity, null);
-        createdIndexNames.add(indexName);
 
         assertNotNull(indexModel);
         assertEquals(indexName, indexModel.getName());
@@ -99,7 +87,7 @@ public class ReadCapacityAndSchemaTest {
     @Test
     @Order(3)
     public void createServerlessIndexWithMetadataSchema() {
-        String indexName = RandomStringBuilder.buildResourceName("schema-index", 8);
+        String indexName = createdIndexes.register(RandomStringBuilder.buildResourceName("schema-index", 8));
         Map<String, String> tags = new HashMap<>();
         tags.put("env", "test");
         tags.put("schema", "configured");
@@ -113,7 +101,6 @@ public class ReadCapacityAndSchemaTest {
         IndexModel indexModel = controlPlaneClient.createServerlessIndex(
                 indexName, "cosine", 1536, "aws", "us-west-2",
                 "disabled", tags, null, schema);
-        createdIndexNames.add(indexName);
 
         assertNotNull(indexModel);
         assertEquals(indexName, indexModel.getName());
@@ -126,7 +113,7 @@ public class ReadCapacityAndSchemaTest {
     @Test
     @Order(4)
     public void createServerlessIndexWithBothReadCapacityAndSchema() {
-        String indexName = RandomStringBuilder.buildResourceName("both-config-index", 8);
+        String indexName = createdIndexes.register(RandomStringBuilder.buildResourceName("both-config-index", 8));
         Map<String, String> tags = new HashMap<>();
         tags.put("env", "test");
 
@@ -146,7 +133,6 @@ public class ReadCapacityAndSchemaTest {
         IndexModel indexModel = controlPlaneClient.createServerlessIndex(
                 indexName, "cosine", 1536, "aws", "us-west-2",
                 "disabled", tags, readCapacity, schema);
-        createdIndexNames.add(indexName);
 
         assertNotNull(indexModel);
         assertEquals(indexName, indexModel.getName());
@@ -157,7 +143,7 @@ public class ReadCapacityAndSchemaTest {
     @Test
     @Order(5)
     public void createIndexForModelWithReadCapacityAndSchema() throws ApiException {
-        String indexName = RandomStringBuilder.buildResourceName("model-index", 8);
+        String indexName = createdIndexes.register(RandomStringBuilder.buildResourceName("model-index", 8));
         Map<String, String> tags = new HashMap<>();
         tags.put("env", "test");
 
@@ -182,7 +168,6 @@ public class ReadCapacityAndSchemaTest {
         IndexModel indexModel = controlPlaneClient.createIndexForModel(
                 indexName, "aws", "us-east-1", embed,
                 "disabled", tags, readCapacity, schema);
-        createdIndexNames.add(indexName);
 
         assertNotNull(indexModel);
         assertEquals(indexName, indexModel.getName());
@@ -193,14 +178,13 @@ public class ReadCapacityAndSchemaTest {
     @Test
     @Order(6)
     public void configureReadCapacityOnExistingIndex() throws InterruptedException {
-        String indexName = RandomStringBuilder.buildResourceName("configure-index", 8);
+        String indexName = createdIndexes.register(RandomStringBuilder.buildResourceName("configure-index", 8));
         Map<String, String> tags = new HashMap<>();
         tags.put("env", "test");
 
         IndexModel indexModel = controlPlaneClient.createServerlessIndex(
                 indexName, "cosine", 1536, "aws", "us-west-2",
                 "disabled", tags, null, null);
-        createdIndexNames.add(indexName);
 
         assertNotNull(indexModel);
         assertEquals(indexName, indexModel.getName());

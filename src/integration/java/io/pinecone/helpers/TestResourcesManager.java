@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import static io.pinecone.helpers.BuildUpsertRequest.buildRequiredUpsertRequestByDimension;
@@ -298,33 +299,35 @@ public class TestResourcesManager {
 
     /**
      * Cleans up any resources that have been created by the manager. Called in {@link io.pinecone.CleanupAllTestResourcesListener}
-     * after all tests have finished running.
+     * after all tests have finished running. Steps run concurrently and every step runs even if another fails; each failure is
+     * logged by name.
      */
     public void cleanupResources() {
+        LinkedHashMap<String, ResourceCleanup.Step> steps = new LinkedHashMap<>();
         if (serverlessIndexConnection != null) {
-            serverlessIndexConnection.close();
+            steps.put("close serverless index connection", serverlessIndexConnection::close);
         }
         if (serverlessAsyncIndexConnection != null) {
-            serverlessAsyncIndexConnection.close();
+            steps.put("close serverless async index connection", serverlessAsyncIndexConnection::close);
         }
         if (podIndexConnection != null) {
-            podIndexConnection.close();
+            steps.put("close pod index connection", podIndexConnection::close);
         }
         if (podAsyncIndexConnection != null) {
-            podAsyncIndexConnection.close();
+            steps.put("close pod async index connection", podAsyncIndexConnection::close);
         }
-
-        if (podIndexName != null) {
-            pineconeClient.deleteIndex(podIndexName);
-        }
-
-        if (serverlessIndexName != null) {
-            pineconeClient.deleteIndex(serverlessIndexName);
-        }
-
         if (collectionName != null) {
-            pineconeClient.deleteCollection(collectionName);
+            steps.put("delete collection " + collectionName,
+                    () -> ResourceCleanup.deleteCollection(pineconeClient, collectionName));
         }
+        if (podIndexName != null) {
+            steps.put("delete index " + podIndexName, () -> ResourceCleanup.deleteIndex(pineconeClient, podIndexName));
+        }
+        if (serverlessIndexName != null) {
+            steps.put("delete index " + serverlessIndexName,
+                    () -> ResourceCleanup.deleteIndex(pineconeClient, serverlessIndexName));
+        }
+        ResourceCleanup.runAll(steps);
     }
 
     /**
