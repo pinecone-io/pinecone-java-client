@@ -69,3 +69,7 @@ java -cp build/libs/*-all.jar io.pinecone.helpers.IndexCleanupUtility --age-thre
 - A test class that creates or uses a pod index, including the shared pod index from `TestResourcesManager`, gets `@Tag("pod")` so it runs only with `-PincludePodTests=true`.
 - Add `@Tag("smoke")` only if the test covers a user-facing operation that the smoke set does not cover yet, creates no pod index, collection or dedicated read node, and keeps the smoke run under a few minutes.
 - An integration test that creates an index registers it with `CreatedIndexes` before it creates it, so the index is deleted in `@AfterAll` even if the test fails. Wait for state changes with `Poll`, not `Thread.sleep`.
+
+## Docs previews
+
+Each same-repo PR gets its Javadoc deployed to the private Pages site under `pr-preview/pr-<N>/`, linked from a sticky PR comment and removed when the PR closes (`docs-preview.yml`). If the deploy fails, download the `docs-html` artifact from the JDK 8 `build` job's summary (kept 7 days).

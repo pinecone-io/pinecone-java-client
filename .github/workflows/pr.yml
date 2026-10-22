@@ -46,6 +46,30 @@ jobs:
     - name: Execute Gradle build
       run: ./gradlew build compileIntegrationTestJava
 
+    # Same task and JDK as build-and-publish-docs.yml. docs-preview.yml finds this job by its name,
+    # "build (ubuntu-latest, 8)", and deploys the docs-html artifact, so renaming either breaks PR
+    # previews.
+    - name: Build Javadoc
+      if: github.event_name == 'pull_request' && matrix.java == 8
+      run: ./gradlew generateJavadoc
+
+    # Reviewers can download this when the PR preview deploy fails.
+    - name: Upload built HTML
+      id: upload-html
+      if: github.event_name == 'pull_request' && matrix.java == 8
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f  # v7.0.0
+      with:
+        name: docs-html
+        path: docs
+        retention-days: 7
+
+    - name: Link built HTML in the job summary
+      if: steps.upload-html.outcome == 'success'
+      env:
+        ARTIFACT_URL: ${{ steps.upload-html.outputs.artifact-url }}
+      run: |
+        echo "Built Javadoc: [docs-html artifact]($ARTIFACT_URL) (kept 7 days)" >> "$GITHUB_STEP_SUMMARY"
+
     - name: Upload test reports
       if: failure()
       uses: actions/upload-artifact@v4

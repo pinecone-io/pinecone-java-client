@@ -1282,11 +1282,11 @@ public class Index implements IndexInterface<UpsertResponse,
      *     } catch (ApiException e) {
      *
      *     }
-     * }</pre></p>
+     * }</pre>
      *
      * @param namespace    The namespace within the Pinecone index where the records will be upserted.
      *                     The namespace must be an existing namespace or a valid one to create new records.
-     * @param upsertRecords A list of Map<String, String> containing the records to be upserted.
+     * @param upsertRecords A list of {@code Map<String, String>} containing the records to be upserted.
      *                     Each record must include a unique ID represented by the key "_id" along with the data to be
      *                     stored.
      * @throws ApiException If there is an issue with the upsert operation. This could include network errors,
@@ -1331,7 +1331,7 @@ public class Index implements IndexInterface<UpsertResponse,
      *     fields.add("chunk_text");
      *
      *     SearchRecordsResponse recordsResponse = index.searchRecords(namespace, query, fields, null);
-     * }</pre></p>
+     * }</pre>
      *
      * @param namespace The namespace within the Pinecone index where the search will be performed.
      *                  The namespace must exist and contain records to search through.
@@ -1375,7 +1375,7 @@ public class Index implements IndexInterface<UpsertResponse,
      *     int topK = 3;
      *
      *     SearchRecordsResponse recordsResponse = index.searchRecordsById(id, namespace, fields, topK, null, null);
-     * }</pre></p>
+     * }</pre>
      *
      * @param id The ID of the record to be searched within the Pinecone index.
      *           The ID must exist within the specified namespace for a valid search.
@@ -1436,7 +1436,7 @@ public class Index implements IndexInterface<UpsertResponse,
      *     int topK = 3;
      *
      *     SearchRecordsResponse recordsResponse = index.searchRecordsByVector(vector, namespace, fields, topK, null, null);
-     * }</pre></p>
+     * }</pre>
      *
      * @param vector The vector representing the search query, which is used to find the closest matching records.
      *              The vector can be a dense vector (via `values`) or a sparse vector (via `sparseValues` and `sparseIndices`).
@@ -1489,7 +1489,7 @@ public class Index implements IndexInterface<UpsertResponse,
      *     int topK = 3;
      *
      *     SearchRecordsResponse recordsResponse = index.searchRecordsByText(text, namespace, fields, topK, null, null);
-     * }</pre></p>
+     * }</pre>
      *
      * @param text The text used in the query for searching.
      * @param namespace The namespace within the Pinecone index where the search will be performed.

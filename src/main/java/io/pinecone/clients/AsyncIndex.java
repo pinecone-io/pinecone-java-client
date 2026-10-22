@@ -1229,7 +1229,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      * <pre>
      * Overload to get a list of all namespaces without limit and pagination token. When limit is not set, it'll
      * default to 100.
-     * @return {@link ListenableFuture<ListNamespacesResponse>} The response for the list namespace operation.
+     * @return {@code ListenableFuture<ListNamespacesResponse>} The response for the list namespace operation.
      * </pre>
      */
     @Override
@@ -1244,7 +1244,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      * <pre>
      * Overload to get a list of all namespaces withing an index with default limit set to 100.
      * @param paginationToken The token to paginate through the list of vector IDs.
-     * @return {@link ListenableFuture<ListNamespacesResponse>} The response for the list namespace operation.
+     * @return {@code ListenableFuture<ListNamespacesResponse>} The response for the list namespace operation.
      * </pre>
      */
     @Override
@@ -1262,7 +1262,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      * @param paginationToken The token to paginate through the list of vector IDs. If pagination token is set to null,
      *                        it'll be ignored.
      * @param limit           The maximum number of vector IDs you want to retrieve.
-     * @return {@link ListenableFuture<ListNamespacesResponse>} The response for the list namespace operation.
+     * @return {@code ListenableFuture<ListNamespacesResponse>} The response for the list namespace operation.
      * </pre>
      */
     public ListenableFuture<ListNamespacesResponse> listNamespaces(String paginationToken, int limit) {
@@ -1282,7 +1282,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      *               If null, no prefix filtering is applied.
      * @param paginationToken The token to paginate through the list of namespaces. If null, it'll be ignored.
      * @param limit The maximum number of namespaces you want to retrieve.
-     * @return {@link ListenableFuture<ListNamespacesResponse>} The response for the list namespace operation. The totalCount field
+     * @return {@code ListenableFuture<ListNamespacesResponse>} The response for the list namespace operation. The totalCount field
      *         indicates the total number of namespaces matching the prefix (if provided).
      * </pre>
      */
@@ -1304,7 +1304,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      * <pre>
      * Create a namespace within an index.
      * @param name The name of the namespace to create.
-     * @return {@link ListenableFuture<NamespaceDescription>} The response for the create namespace operation.
+     * @return {@code ListenableFuture<NamespaceDescription>} The response for the create namespace operation.
      * </pre>
      */
     @Override
@@ -1321,7 +1321,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      * Create a namespace within an index with a metadata schema.
      * @param name The name of the namespace to create.
      * @param schema The metadata schema for the namespace.
-     * @return {@link ListenableFuture<NamespaceDescription>} The response for the create namespace operation.
+     * @return {@code ListenableFuture<NamespaceDescription>} The response for the create namespace operation.
      * </pre>
      */
     @Override
@@ -1339,7 +1339,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      * <pre>
      * Describe a namespace within an index, showing the vector count within the namespace.
      * @param namespace The namespace to describe.
-     * @return {@link ListenableFuture<NamespaceDescription>} The response for the describe namespace operation.
+     * @return {@code ListenableFuture<NamespaceDescription>} The response for the describe namespace operation.
      * </pre>
      */
     public ListenableFuture<NamespaceDescription> describeNamespace(String namespace) {
@@ -1354,7 +1354,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      * <pre>
      * Delete a namespace from an index.
      * @param namespace The namespace to describe.
-     * @return {@link ListenableFuture<DeleteResponse>} The response for the delete namespace operation.
+     * @return {@code ListenableFuture<DeleteResponse>} The response for the delete namespace operation.
      * </pre>
      */
     public ListenableFuture<DeleteResponse> deleteNamespace(String namespace) {
