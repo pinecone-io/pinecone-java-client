@@ -17,6 +17,7 @@ import static io.pinecone.helpers.TestUtilities.waitUntilIndexIsReady;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@Tag("smoke")
 public class SparseIndexTest {
     static String indexName;
     static Pinecone pinecone;

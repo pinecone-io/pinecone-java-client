@@ -3,6 +3,7 @@ package io.pinecone.integration.inference;
 import io.pinecone.clients.Inference;
 import io.pinecone.clients.Pinecone;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.openapitools.inference.client.ApiException;
 import org.openapitools.inference.client.model.RerankResult;
@@ -11,6 +12,7 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+@Tag("smoke")
 public class RerankTest {
     private static final Pinecone pinecone = new Pinecone
             .Builder(System.getenv("PINECONE_API_KEY"))

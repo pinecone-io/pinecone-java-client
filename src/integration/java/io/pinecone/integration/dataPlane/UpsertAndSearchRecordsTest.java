@@ -7,6 +7,7 @@ import io.pinecone.helpers.Poll;
 import io.pinecone.helpers.RandomStringBuilder;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.openapitools.db_control.client.model.CreateIndexForModelRequestEmbed;
 import org.openapitools.db_data.client.ApiException;
@@ -19,6 +20,7 @@ import java.util.*;
 import static io.pinecone.helpers.AssertRetry.assertWithRetry;
 import static io.pinecone.helpers.TestUtilities.waitUntilIndexIsReady;
 
+@Tag("smoke")
 public class UpsertAndSearchRecordsTest {
     private static final Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
     private static final CreatedIndexes createdIndexes = new CreatedIndexes(pinecone);

@@ -186,21 +186,44 @@ test {
 // @Tag("pod") tests run only with -PincludePodTests=true (the nightly full suite passes it).
 def includePodTests = (findProperty('includePodTests') ?: 'false').toString().toBoolean()
 
+def configureLiveTests = { Test task ->
+    task.testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    task.classpath = sourceSets.integrationTest.runtimeClasspath
+    task.outputs.upToDateWhen { false }
+    // src/test/resources sets slf4j-simple to trace, and that file is on this classpath too.
+    // System properties take precedence, so client and helper logs show at INFO with timestamps.
+    task.systemProperty "org.slf4j.simpleLogger.defaultLogLevel", "info"
+    task.systemProperty "org.slf4j.simpleLogger.showDateTime", "true"
+    task.systemProperty "org.slf4j.simpleLogger.dateTimeFormat", "HH:mm:ss.SSS"
+    task.testLogging.events += TestLogEvent.STANDARD_ERROR
+}
+
 task integrationTest(type: Test) {
+    description = 'Runs the full live integration suite. Needs PINECONE_API_KEY.'
+    group = 'verification'
     useJUnitPlatform {
         if (!includePodTests) {
             excludeTags 'pod'
         }
     }
-    testClassesDirs = sourceSets.integrationTest.output.classesDirs
-    classpath = sourceSets.integrationTest.runtimeClasspath
-    outputs.upToDateWhen { false }
-    // src/test/resources sets slf4j-simple to trace, and that file is on this classpath too.
-    // System properties take precedence, so client and helper logs show at INFO with timestamps.
-    systemProperty "org.slf4j.simpleLogger.defaultLogLevel", "info"
-    systemProperty "org.slf4j.simpleLogger.showDateTime", "true"
-    systemProperty "org.slf4j.simpleLogger.dateTimeFormat", "HH:mm:ss.SSS"
-    testLogging.events += TestLogEvent.STANDARD_ERROR
+    configureLiveTests(it)
+}
+
+// The PR-tier subset of integrationTest: classes tagged @Tag("smoke"). Serverless only, at most
+// 3 indexes, no pods, collections or dedicated read nodes.
+task smokeTest(type: Test) {
+    description = 'Runs the live integration tests tagged smoke. Needs PINECONE_API_KEY.'
+    group = 'verification'
+    useJUnitPlatform {
+        includeTags 'smoke'
+    }
+    configureLiveTests(it)
+    // A tag typo or a refactor that drops every tag would otherwise pass with nothing run.
+    afterSuite { desc, result ->
+        if (!desc.parent && result.testCount == 0) {
+            throw new GradleException("smokeTest selected no tests; check the @Tag(\"smoke\") annotations.")
+        }
+    }
 }
 
 // Configure Shadow JAR with relocations and transformers

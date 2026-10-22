@@ -3,6 +3,7 @@ package io.pinecone.integration.inference;
 import io.pinecone.clients.Inference;
 import io.pinecone.clients.Pinecone;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.openapitools.inference.client.ApiException;
 import org.openapitools.inference.client.model.EmbeddingsList;
@@ -12,6 +13,7 @@ import java.util.*;
 import static org.junit.Assert.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+@Tag("smoke")
 public class EmbedTest {
 
     private static final Pinecone pinecone = new Pinecone

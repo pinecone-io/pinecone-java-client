@@ -7,10 +7,12 @@ import io.pinecone.clients.Index;
 import io.pinecone.helpers.TestResourcesManager;
 import io.pinecone.proto.ListResponse;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Tag("smoke")
 public class ListEndpointTest {
     private static final TestResourcesManager indexManager = TestResourcesManager.getInstance();
     private static Index indexConnection;

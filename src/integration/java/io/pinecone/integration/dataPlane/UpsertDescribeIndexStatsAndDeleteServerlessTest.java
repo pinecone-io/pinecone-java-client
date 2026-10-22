@@ -9,6 +9,7 @@ import io.pinecone.proto.DescribeIndexStatsResponse;
 import io.pinecone.proto.NamespaceSummary;
 import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -20,6 +21,7 @@ import static io.pinecone.helpers.AssertRetry.assertWithRetry;
 import static io.pinecone.helpers.BuildUpsertRequest.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@Tag("smoke")
 public class UpsertDescribeIndexStatsAndDeleteServerlessTest {
     private static final TestResourcesManager indexManager = TestResourcesManager.getInstance();
     private static Index index;

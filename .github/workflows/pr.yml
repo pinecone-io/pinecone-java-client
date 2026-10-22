@@ -56,63 +56,40 @@ jobs:
           build/test-results
         if-no-files-found: ignore
   
-  integration-test:
+  # Decides whether this run can use the live API. Fork PRs and Dependabot runs cannot read Actions
+  # secrets, so their live jobs are skipped with a notice and the build job alone gates them. Any
+  # other run without a key fails here, so a missing or misnamed secret is not mistaken for a skip.
+  live-key:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
-    needs: build
-    # Dependabot-triggered runs cannot read Actions secrets.
-    if: github.actor != 'dependabot[bot]'
-    strategy:
-      fail-fast: false
-      matrix:
-        java: [8, 17]
+    timeout-minutes: 5
+    outputs:
+      available: ${{ steps.check.outputs.available }}
     steps:
-    - uses: actions/checkout@v4
-
-    - uses: actions/setup-java@v4
-      with:
-        distribution: temurin
-        java-version: ${{ matrix.java }}
-        
-    - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v3
-
-    - name: Setup gradle.properties
-      if: matrix.java == 16 || matrix.java == 17
+    - name: Check PINECONE_API_KEY is available
+      id: check
       run: |
-        echo "org.gradle.jvmargs=-Xmx4096m --add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED --add-exports=java.base/sun.nio.ch=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED" >> gradle.properties
-
-    - name: Check PINECONE_API_KEY is set
-      run: |
-        if [ -z "$PINECONE_API_KEY" ]; then
+        if [ -n "$PINECONE_API_KEY" ]; then
+          echo "available=true" >> "$GITHUB_OUTPUT"
+        elif [ "$IS_FORK_PR" = "true" ] || [ "$GITHUB_ACTOR" = "dependabot[bot]" ]; then
+          reason="Live smoke tests skipped: this run cannot read Actions secrets (fork PR or Dependabot). Unit tests in the build job still gate it."
+          echo "::notice::$reason"
+          echo "$reason" >> "$GITHUB_STEP_SUMMARY"
+          echo "available=false" >> "$GITHUB_OUTPUT"
+        else
           echo "::error::The PINECONE_API_KEY secret is empty or not available to this run."
           exit 1
         fi
       env:
         PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
+        IS_FORK_PR: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
 
-    # The build job already ran unit tests and javadoc; this only compiles what integrationTest needs.
-    - name: Run integration tests
-      run: ./gradlew integrationTest
-      env:
-        PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
-        PINECONE_ENVIRONMENT: ${{ secrets.PINECONE_ENVIRONMENT }}
-
-    - name: Upload test reports
-      if: failure()
-      uses: actions/upload-artifact@v4
-      with:
-        name: test-reports-integration-test-jdk${{ matrix.java }}
-        path: |
-          build/reports/tests
-          build/test-results
-        if-no-files-found: ignore
-
-  cleanup:
+  # PRs and pushes to main run only the @Tag("smoke") subset on one JDK. The full live suite runs in
+  # full-integration.yml.
+  smoke-test:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    needs: [build, integration-test]
-    if: always() && github.actor != 'dependabot[bot]'
+    timeout-minutes: 20
+    needs: [build, live-key]
+    if: needs.live-key.outputs.available == 'true'
     steps:
     - uses: actions/checkout@v4
 
@@ -124,14 +101,42 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
 
-    - name: Check PINECONE_API_KEY is set
+    - name: Setup gradle.properties
       run: |
-        if [ -z "$PINECONE_API_KEY" ]; then
-          echo "::error::The PINECONE_API_KEY secret is empty or not available to this run."
-          exit 1
-        fi
+        echo "org.gradle.jvmargs=-Xmx4096m --add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED --add-exports=java.base/sun.nio.ch=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED" >> gradle.properties
+
+    # The build job already ran unit tests and javadoc; this only compiles what smokeTest needs.
+    - name: Run smoke tests
+      run: ./gradlew smokeTest
       env:
         PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
+        PINECONE_ENVIRONMENT: ${{ secrets.PINECONE_ENVIRONMENT }}
+
+    - name: Upload test reports
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-reports-smoke-test-jdk17
+        path: |
+          build/reports/tests
+          build/test-results
+        if-no-files-found: ignore
+
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [live-key, smoke-test]
+    if: always() && needs.live-key.outputs.available == 'true'
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: 17
+        
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
 
     - name: Build shadow jar
       run: ./gradlew shadowJar
