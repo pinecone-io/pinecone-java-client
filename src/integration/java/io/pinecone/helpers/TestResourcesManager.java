@@ -1,10 +1,13 @@
 package io.pinecone.helpers;
 
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import io.pinecone.clients.AsyncIndex;
 import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.exceptions.PineconeException;
 import io.pinecone.proto.DescribeIndexStatsResponse;
+import io.pinecone.proto.NamespaceSummary;
 import org.openapitools.db_control.client.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +18,6 @@ import java.util.List;
 
 import static io.pinecone.helpers.BuildUpsertRequest.buildRequiredUpsertRequestByDimension;
 import static io.pinecone.helpers.TestUtilities.*;
-import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * TestResourcesManager is a singleton class that manages the creation and cleanup of shared integration test
@@ -50,6 +52,11 @@ public class TestResourcesManager {
     private static final String cloud = envOrDefault("CLOUD", "aws");
     private static final String region = envOrDefault("REGION", "us-west-2");
     private final Pinecone pineconeClient;
+    // One lock per shared resource, so pod and serverless fixtures are created concurrently when test classes run in
+    // parallel. collectionLock may take podLock (the collection is built from the pod index), never the reverse.
+    private final Object podLock = new Object();
+    private final Object serverlessLock = new Object();
+    private final Object collectionLock = new Object();
     private String podIndexName;
     private IndexModel podIndexModel;
     private IndexModel serverlessIndexModel;
@@ -192,15 +199,17 @@ public class TestResourcesManager {
      *
      * @return the host URL of the shared serverless index.
      */
-    public synchronized String getOrCreateServerlessIndexHost() throws InterruptedException {
+    public String getOrCreateServerlessIndexHost() throws InterruptedException {
         return pineconeClient.describeIndex(getOrCreateServerlessIndex()).getHost();
     }
 
-    public synchronized Index getOrCreateServerlessIndexConnection() throws InterruptedException {
-        if (serverlessIndexConnection == null) {
-            serverlessIndexConnection = pineconeClient.getIndexConnection(getOrCreateServerlessIndex());
+    public Index getOrCreateServerlessIndexConnection() throws InterruptedException {
+        synchronized (serverlessLock) {
+            if (serverlessIndexConnection == null) {
+                serverlessIndexConnection = pineconeClient.getIndexConnection(getOrCreateServerlessIndex());
+            }
+            return serverlessIndexConnection;
         }
-        return serverlessIndexConnection;
     }
 
     /**
@@ -209,11 +218,13 @@ public class TestResourcesManager {
      *
      * @return a {@link AsyncIndex} connection to the serverless index.
      */
-    public synchronized AsyncIndex getOrCreateServerlessAsyncIndexConnection() throws InterruptedException {
-        if (serverlessAsyncIndexConnection == null) {
-            serverlessAsyncIndexConnection = pineconeClient.getAsyncIndexConnection(getOrCreateServerlessIndex());
+    public AsyncIndex getOrCreateServerlessAsyncIndexConnection() throws InterruptedException {
+        synchronized (serverlessLock) {
+            if (serverlessAsyncIndexConnection == null) {
+                serverlessAsyncIndexConnection = pineconeClient.getAsyncIndexConnection(getOrCreateServerlessIndex());
+            }
+            return serverlessAsyncIndexConnection;
         }
-        return serverlessAsyncIndexConnection;
     }
 
     /**
@@ -222,11 +233,13 @@ public class TestResourcesManager {
      *
      * @return a {@link Index} connection to the pod index.
      */
-    public synchronized Index getOrCreatePodIndexConnection() throws InterruptedException {
-        if (podIndexConnection == null) {
-            podIndexConnection = pineconeClient.getIndexConnection(getOrCreatePodIndex());
+    public Index getOrCreatePodIndexConnection() throws InterruptedException {
+        synchronized (podLock) {
+            if (podIndexConnection == null) {
+                podIndexConnection = pineconeClient.getIndexConnection(getOrCreatePodIndex());
+            }
+            return podIndexConnection;
         }
-        return podIndexConnection;
     }
 
     /**
@@ -235,11 +248,13 @@ public class TestResourcesManager {
      *
      * @return a {@link AsyncIndex} connection to the pod index.
      */
-    public synchronized AsyncIndex getOrCreatePodAsyncIndexConnection() throws InterruptedException {
-        if (podAsyncIndexConnection == null) {
-            podAsyncIndexConnection = pineconeClient.getAsyncIndexConnection(getOrCreatePodIndex());
+    public AsyncIndex getOrCreatePodAsyncIndexConnection() throws InterruptedException {
+        synchronized (podLock) {
+            if (podAsyncIndexConnection == null) {
+                podAsyncIndexConnection = pineconeClient.getAsyncIndexConnection(getOrCreatePodIndex());
+            }
+            return podAsyncIndexConnection;
         }
-        return podAsyncIndexConnection;
     }
 
     /**
@@ -248,9 +263,11 @@ public class TestResourcesManager {
      *
      * @return the {@link IndexModel} of the pod index.
      */
-    public synchronized IndexModel getOrCreatePodIndexModel() throws InterruptedException {
-        podIndexModel = pineconeClient.describeIndex(getOrCreatePodIndex());
-        return podIndexModel;
+    public IndexModel getOrCreatePodIndexModel() throws InterruptedException {
+        synchronized (podLock) {
+            podIndexModel = pineconeClient.describeIndex(getOrCreatePodIndex());
+            return podIndexModel;
+        }
     }
 
     /**
@@ -259,9 +276,11 @@ public class TestResourcesManager {
      *
      * @return the {@link IndexModel} of the serverless index.
      */
-    public synchronized IndexModel getOrCreateServerlessIndexModel() throws InterruptedException {
-        serverlessIndexModel = pineconeClient.describeIndex(getOrCreateServerlessIndex());
-        return serverlessIndexModel;
+    public IndexModel getOrCreateServerlessIndexModel() throws InterruptedException {
+        synchronized (serverlessLock) {
+            serverlessIndexModel = pineconeClient.describeIndex(getOrCreateServerlessIndex());
+            return serverlessIndexModel;
+        }
     }
 
     /**
@@ -270,9 +289,11 @@ public class TestResourcesManager {
      *
      * @return the {@link CollectionModel} of the serverless index.
      */
-    public synchronized CollectionModel getOrCreateCollectionModel() throws InterruptedException {
-        collectionModel = pineconeClient.describeCollection(getOrCreateCollection());
-        return collectionModel;
+    public CollectionModel getOrCreateCollectionModel() throws InterruptedException {
+        synchronized (collectionLock) {
+            collectionModel = pineconeClient.describeCollection(getOrCreateCollection());
+            return collectionModel;
+        }
     }
 
     /**
@@ -316,26 +337,25 @@ public class TestResourcesManager {
      * @throws InterruptedException if the thread is interrupted while waiting for the index to be ready.
      * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
      */
-    public synchronized String getOrCreatePodIndex() throws InterruptedException, PineconeException {
-        if (podIndexName != null) {
-            return podIndexName;
+    public String getOrCreatePodIndex() throws InterruptedException, PineconeException {
+        synchronized (podLock) {
+            if (podIndexName != null) {
+                return podIndexName;
+            }
+
+            String indexName = RandomStringBuilder.buildResourceName("pod-index", 8);
+
+            PodSpecMetadataConfig metadataConfig = null;
+            podIndexModel = pineconeClient.createPodsIndex(indexName, dimension, environment, "p1.x1", metric, metadataConfig);
+            logger.info("Created pod index " + indexName);
+            waitUntilIndexIsReady(pineconeClient, indexName);
+
+            // Seed default vector IDs into default namespace
+            seedIndex(vectorIdsForDefaultNamespace, indexName, defaultNamespace);
+
+            this.podIndexName = indexName;
+            return indexName;
         }
-
-        String indexName = RandomStringBuilder.buildResourceName("pod-index", 8);
-
-        PodSpecMetadataConfig metadataConfig = null;
-        podIndexModel = pineconeClient.createPodsIndex(indexName, dimension, environment, "p1.x1", metric, metadataConfig);
-        logger.info("Created pod index " + indexName);
-        waitUntilIndexIsReady(pineconeClient, indexName);
-
-        // Additional sleep after index marked as ready to avoid "no healthy upstream" error
-        Thread.sleep(30000);
-        
-        // Seed default vector IDs into default namespace
-        seedIndex(vectorIdsForDefaultNamespace, indexName, defaultNamespace);
-
-        this.podIndexName = indexName;
-        return indexName;
     }
 
     /**
@@ -348,30 +368,29 @@ public class TestResourcesManager {
      * @throws InterruptedException if the thread is interrupted while waiting for the index to be ready.
      * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
      */
-    public synchronized String getOrCreateServerlessIndex() throws InterruptedException, PineconeException {
-        if (this.serverlessIndexName != null) {
-            return this.serverlessIndexName;
-        }
+    public String getOrCreateServerlessIndex() throws InterruptedException, PineconeException {
+        synchronized (serverlessLock) {
+            if (this.serverlessIndexName != null) {
+                return this.serverlessIndexName;
+            }
 
-        String indexName = RandomStringBuilder.buildResourceName("serverless-index", 8);
-        HashMap<String, String> tags = new HashMap<>();
-        tags.put("env", "testing");
+            String indexName = RandomStringBuilder.buildResourceName("serverless-index", 8);
+            HashMap<String, String> tags = new HashMap<>();
+            tags.put("env", "testing");
         
-        serverlessIndexModel = pineconeClient.createServerlessIndex(indexName, metric, dimension, cloud,
-                region, "disabled", tags);
-        logger.info("Created serverless index " + indexName);
-        waitUntilIndexIsReady(pineconeClient, indexName);
+            serverlessIndexModel = pineconeClient.createServerlessIndex(indexName, metric, dimension, cloud,
+                    region, "disabled", tags);
+            logger.info("Created serverless index " + indexName);
+            waitUntilIndexIsReady(pineconeClient, indexName);
 
-        // Explicitly wait after ready to avoid the "no healthy upstream" issue
-        Thread.sleep(30000);
+            // Seed default vector IDs into default namespace, seed custom vector IDs into custom namespace; all in
+            // same index
+            seedIndex(vectorIdsForDefaultNamespace, indexName, defaultNamespace);
+            seedIndex(vectorIdsForCustomNamespace, indexName, customNamespace);
 
-        // Seed default vector IDs into default namespace, seed custom vector IDs into custom namespace; all in
-        // same index
-        seedIndex(vectorIdsForDefaultNamespace, indexName, defaultNamespace);
-        seedIndex(vectorIdsForCustomNamespace, indexName, customNamespace);
-
-        this.serverlessIndexName = indexName;
-        return indexName;
+            this.serverlessIndexName = indexName;
+            return indexName;
+        }
     }
 
     /**
@@ -382,53 +401,48 @@ public class TestResourcesManager {
      * @throws InterruptedException if the thread is interrupted while waiting for the collection to be ready.
      * @throws PineconeException if the API encounters an error during collection creation.
      */
-    public synchronized String getOrCreateCollection() throws InterruptedException, PineconeException {
-        if (collectionName != null) {
+    public String getOrCreateCollection() throws InterruptedException, PineconeException {
+        synchronized (collectionLock) {
+            if (collectionName != null) {
+                return collectionName;
+            }
+
+            // Create index if not exists
+            String sourceIndexName = getOrCreatePodIndex();
+
+            // Create collection
+            collectionName = RandomStringBuilder.buildResourceName("collection", 8);
+            collectionModel = pineconeClient.createCollection(collectionName, sourceIndexName);
+            logger.info("Created collection " + collectionName + " from index " + sourceIndexName);
+
+            collectionModel = waitUntilCollectionIsReady(pineconeClient, collectionName);
+
             return collectionName;
         }
-
-        // Create index if not exists
-        String sourceIndexName = getOrCreatePodIndex();
-
-        // Create collection
-        collectionName = RandomStringBuilder.buildResourceName("collection", 8);
-        collectionModel = pineconeClient.createCollection(collectionName, sourceIndexName);
-        logger.info("Created collection " + collectionName + " from index " + sourceIndexName);
-
-        // Wait until collection is ready
-        int timeWaited = 0;
-        String collectionReady = collectionModel.getStatus().toLowerCase();
-        while (!"ready".equals(collectionReady) && timeWaited < 120000) {
-            logger.info("Waiting for collection " + collectionName + " to be ready. Waited " + timeWaited + " " +
-                    "milliseconds...");
-            Thread.sleep(5000);
-            timeWaited += 5000;
-            collectionModel = pineconeClient.describeCollection(collectionName);
-            collectionReady = collectionModel.getStatus().toLowerCase();
-        }
-
-        if (timeWaited > 120000) {
-            fail("Collection: " + collectionName + " is not ready after 120 seconds");
-        }
-
-        return collectionName;
     }
 
     private void seedIndex(List<String> vectorIds, String indexName, String namespace) throws InterruptedException {
-        // Build upsert request
         Index indexClient = pineconeClient.getIndexConnection(indexName);
-        indexClient.upsert(buildRequiredUpsertRequestByDimension(vectorIds, dimension), namespace);
 
-        // Wait for record freshness
-        DescribeIndexStatsResponse indexStats = indexClient.describeIndexStats();
-        int totalTimeWaitedForVectors = 0;
-        while (indexStats.getTotalVectorCount() == 0 || totalTimeWaitedForVectors <= 60000) {
-            Thread.sleep(2000);
-            totalTimeWaitedForVectors += 2000;
-            indexStats = indexClient.describeIndexStats();
+        // The data plane can return UNAVAILABLE ("no healthy upstream") for a short time after the index reports
+        // Ready, so retry the first write instead of sleeping before it.
+        Poll.until("seed upsert into index " + indexName + " is accepted", 120000, 2000,
+                () -> indexClient.upsert(buildRequiredUpsertRequestByDimension(vectorIds, dimension), namespace),
+                response -> true,
+                e -> e instanceof StatusRuntimeException
+                        && ((StatusRuntimeException) e).getStatus().getCode() == Status.Code.UNAVAILABLE);
+
+        Poll.until(vectorIds.size() + " seeded vectors are visible in namespace '" + namespace + "' of index "
+                        + indexName, 120000, 2000,
+                () -> namespaceVectorCount(indexClient.describeIndexStats(), namespace),
+                count -> count >= vectorIds.size());
+    }
+
+    private static int namespaceVectorCount(DescribeIndexStatsResponse stats, String namespace) {
+        NamespaceSummary summary = stats.getNamespacesMap().get(namespace);
+        if (summary == null && namespace.isEmpty()) {
+            summary = stats.getNamespacesMap().get("__default__");
         }
-        if (indexStats.getTotalVectorCount() == 0 && totalTimeWaitedForVectors >= 60000) {
-            throw new PineconeException("Failed to seed index " + indexName + "with vectors");
-        }
+        return summary == null ? 0 : summary.getVectorCount();
     }
 }

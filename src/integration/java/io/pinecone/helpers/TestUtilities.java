@@ -6,32 +6,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 
 public class TestUtilities {
     private static final Logger logger = LoggerFactory.getLogger(TestUtilities.class);
 
+    /**
+     * Polls describeIndex until the index reports Ready.
+     *
+     * @throws AssertionError if the index is not Ready within {@code totalMsToWait}.
+     */
     public static IndexModel waitUntilIndexIsReady(Pinecone pineconeClient, String indexName, Integer totalMsToWait) throws InterruptedException {
-        IndexModel index = pineconeClient.describeIndex(indexName);
-        int waitedTimeMs = 0;
-        int intervalMs = 2000;
-
-        while (!index.getStatus().getState().equals("Ready")) {
-            index = pineconeClient.describeIndex(indexName);
-            if (waitedTimeMs >= totalMsToWait) {
-                logger.info("WARNING: Index " + indexName + " not ready after " + waitedTimeMs + "ms");
-                break;
-            }
-            if (index.getStatus().getState().equals("Ready")) {
-                logger.info("Index " + indexName + " is ready after " + waitedTimeMs + "ms");
-                Thread.sleep(20000);
-                break;
-            }
-            Thread.sleep(intervalMs);
-            logger.info("Waited " + waitedTimeMs + "ms for " + indexName + " to get ready");
-            waitedTimeMs += intervalMs;
-        }
-        return index;
+        return Poll.until("index " + indexName + " is Ready", totalMsToWait, 2000,
+                () -> pineconeClient.describeIndex(indexName),
+                index -> index.getStatus() != null && "Ready".equals(index.getStatus().getState()));
     }
 
     public static IndexModel waitUntilIndexIsReady(Pinecone pineconeClient, String indexName) throws InterruptedException {
@@ -118,24 +105,21 @@ public class TestUtilities {
 
         assertEquals("Initializing", collection.getStatus());
 
-        // Wait until collection is ready
         if (waitUntilReady) {
-            int timeWaited = 0;
-            String collectionReady = collection.getStatus();
-            while (!collectionReady.equals("Ready") && timeWaited < 120000) {
-                logger.info("Waiting for collection " + collectionName + " to be ready. Waited " + timeWaited + " " +
-                        "milliseconds...");
-                Thread.sleep(5000);
-                timeWaited += 5000;
-                collection = pineconeClient.describeCollection(collectionName);
-                collectionReady = collection.getStatus();
-            }
-
-            if (timeWaited > 120000) {
-                fail("Collection: " + collectionName + " is not ready after 120 seconds");
-            }
+            collection = waitUntilCollectionIsReady(pineconeClient, collectionName);
         }
 
         return collection;
+    }
+
+    /**
+     * Polls describeCollection until the collection reports Ready.
+     *
+     * @throws AssertionError if the collection is not Ready within 120 seconds.
+     */
+    public static CollectionModel waitUntilCollectionIsReady(Pinecone pineconeClient, String collectionName) throws InterruptedException {
+        return Poll.until("collection " + collectionName + " is Ready", 120000, 5000,
+                () -> pineconeClient.describeCollection(collectionName),
+                collection -> "ready".equalsIgnoreCase(collection.getStatus()));
     }
 }
