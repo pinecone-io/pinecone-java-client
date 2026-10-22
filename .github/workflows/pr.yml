@@ -11,18 +11,21 @@ on:
 permissions:
   contents: read
 
+# A new push to a PR cancels that PR's older run. Pushes to main and manual dispatches get one group
+# per run, so they never cancel each other. A cancelled run still runs its cleanup job, which only
+# deletes resources tagged with that run's id.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   build:
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        versions: [
-            { java: 8, gradle: 8.5 },
-            { java: 11, gradle: 8.5 },
-            { java: 16, gradle: 8.5 },
-            { java: 17, gradle: 8.5 }
-        ]
+        java: [8, 11, 16, 17]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -30,68 +33,55 @@ jobs:
     - uses: actions/setup-java@v4
       with:
         distribution: temurin
-        java-version: ${{ matrix.versions.java}}
+        java-version: ${{ matrix.java }}
         
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
-      with:
-        gradle-version: ${{ matrix.versions.gradle }}
 
     - name: Setup gradle.properties
-      if: matrix.versions.java == 16 || matrix.versions.java == 17
+      if: matrix.java == 16 || matrix.java == 17
       run: |
         echo "org.gradle.jvmargs=-Xmx4096m --add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED --add-exports=java.base/sun.nio.ch=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED" >> gradle.properties
     
     - name: Execute Gradle build
-      run: gradle clean build
-
-    - name: Build jar
-      run: gradle jar
-
-    - name: Compile integration tests
-      run: gradle compileIntegrationTestJava
+      run: ./gradlew build compileIntegrationTestJava
   
   integration-test:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     needs: build
     # Dependabot-triggered runs cannot read Actions secrets.
     if: github.actor != 'dependabot[bot]'
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
-        versions: [
-            { java: 8, gradle: 8.5 },
-            { java: 17, gradle: 8.5 }
-        ]
+        java: [8, 17]
     steps:
     - uses: actions/checkout@v4
 
     - uses: actions/setup-java@v4
       with:
         distribution: temurin
-        java-version: ${{ matrix.versions.java}}
+        java-version: ${{ matrix.java }}
         
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
-      with:
-        gradle-version: ${{ matrix.versions.gradle }}
+
     - name: Setup gradle.properties
-      if: matrix.versions.java == 16 || matrix.versions.java == 17
+      if: matrix.java == 16 || matrix.java == 17
       run: |
         echo "org.gradle.jvmargs=-Xmx4096m --add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED --add-exports=java.base/sun.nio.ch=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED" >> gradle.properties
-    
-    - name: Execute Gradle build
-      run: gradle clean build
 
+    # The build job already ran unit tests and javadoc; this only compiles what integrationTest needs.
     - name: Run integration tests
-      run: gradle integrationTest
+      run: ./gradlew integrationTest
       env:
         PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
         PINECONE_ENVIRONMENT: ${{ secrets.PINECONE_ENVIRONMENT }}
 
   cleanup:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: [build, integration-test]
     if: always() && github.actor != 'dependabot[bot]'
     steps:
@@ -104,11 +94,9 @@ jobs:
         
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
-      with:
-        gradle-version: 8.5
 
-    - name: Build project
-      run: gradle clean build
+    - name: Build shadow jar
+      run: ./gradlew shadowJar
 
     # Integration tests prefix resource names with GITHUB_RUN_ID, so this only removes what this run
     # created and leaves concurrent runs sharing the Pinecone project alone.
