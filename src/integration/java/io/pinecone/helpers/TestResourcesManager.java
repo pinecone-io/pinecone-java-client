@@ -41,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * }</pre>
  */
 public class TestResourcesManager {
-    private static final Logger logger = LoggerFactory.getLogger(TestUtilities.class);
+    private static final Logger logger = LoggerFactory.getLogger(TestResourcesManager.class);
     private static volatile TestResourcesManager instance;
     private static final String apiKey = System.getenv("PINECONE_API_KEY");
     private final int dimension = Integer.parseInt(envOrDefault("DIMENSION", "4"));
@@ -325,6 +325,7 @@ public class TestResourcesManager {
 
         PodSpecMetadataConfig metadataConfig = null;
         podIndexModel = pineconeClient.createPodsIndex(indexName, dimension, environment, "p1.x1", metric, metadataConfig);
+        logger.info("Created pod index " + indexName);
         waitUntilIndexIsReady(pineconeClient, indexName);
 
         // Additional sleep after index marked as ready to avoid "no healthy upstream" error
@@ -358,6 +359,7 @@ public class TestResourcesManager {
         
         serverlessIndexModel = pineconeClient.createServerlessIndex(indexName, metric, dimension, cloud,
                 region, "disabled", tags);
+        logger.info("Created serverless index " + indexName);
         waitUntilIndexIsReady(pineconeClient, indexName);
 
         // Explicitly wait after ready to avoid the "no healthy upstream" issue
@@ -391,6 +393,7 @@ public class TestResourcesManager {
         // Create collection
         collectionName = RandomStringBuilder.buildResourceName("collection", 8);
         collectionModel = pineconeClient.createCollection(collectionName, sourceIndexName);
+        logger.info("Created collection " + collectionName + " from index " + sourceIndexName);
 
         // Wait until collection is ready
         int timeWaited = 0;

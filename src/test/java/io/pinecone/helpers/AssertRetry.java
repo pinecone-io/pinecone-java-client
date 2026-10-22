@@ -1,7 +1,5 @@
 package io.pinecone.helpers;
 
-import io.pinecone.exceptions.PineconeException;
-
 public class AssertRetry {
     private static final int maxRetry = 4;
     private static final int delay = 1500;
@@ -11,29 +9,33 @@ public class AssertRetry {
     }
 
     public static void assertWithRetry(AssertionRunnable assertionRunnable, int backOff) throws Exception {
-        int retryCount = 0;
-        int delayCount = delay;
-        boolean success = false;
-        String errorMessage = null;
+        assertWithRetry(assertionRunnable, backOff, delay);
+    }
 
-        while (retryCount < maxRetry && !success) {
+    static void assertWithRetry(AssertionRunnable assertionRunnable, int backOff, long initialDelayMs)
+            throws Exception {
+        long delayMs = initialDelayMs;
+        Throwable lastFailure = null;
+
+        for (int attempt = 1; attempt <= maxRetry; attempt++) {
             try {
                 assertionRunnable.run();
-                success = true;
+                return;
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw e;
             } catch (AssertionError | Exception e) {
-                errorMessage = e.getLocalizedMessage();
-                retryCount++;
-                delayCount*=backOff;
-                Thread.sleep(delayCount);
+                lastFailure = e;
+                if (attempt < maxRetry) {
+                    delayMs *= backOff;
+                    Thread.sleep(delayMs);
+                }
             }
         }
 
-        if (!success) {
-            throw new AssertionError(errorMessage);
-        }
+        throw new AssertionError(
+                "Assertion still failing after " + maxRetry + " attempts: " + lastFailure.getLocalizedMessage(),
+                lastFailure);
     }
 
     @FunctionalInterface

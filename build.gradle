@@ -101,6 +101,7 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 tasks.withType(Test) {
+    def testTaskName = name
     systemProperty "net.bytebuddy.experimental", "true"
     testLogging {
         // set options for log level LIFECYCLE
@@ -132,6 +133,12 @@ tasks.withType(Test) {
                 def startItem = '|  ', endItem = '  |'
                 def repeatLength = startItem.length() + output.length() + endItem.length()
                 println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
+
+                // On GitHub Actions, also show the counts on the run page.
+                def stepSummary = System.getenv('GITHUB_STEP_SUMMARY')
+                if (stepSummary) {
+                    new File(stepSummary) << "**${testTaskName}** ${result.resultType}: ${result.testCount} tests, ${result.successfulTestCount} passed, ${result.failedTestCount} failed, ${result.skippedTestCount} skipped\n\n"
+                }
             }
         }
     }
@@ -188,6 +195,12 @@ task integrationTest(type: Test) {
     testClassesDirs = sourceSets.integrationTest.output.classesDirs
     classpath = sourceSets.integrationTest.runtimeClasspath
     outputs.upToDateWhen { false }
+    // src/test/resources sets slf4j-simple to trace, and that file is on this classpath too.
+    // System properties take precedence, so client and helper logs show at INFO with timestamps.
+    systemProperty "org.slf4j.simpleLogger.defaultLogLevel", "info"
+    systemProperty "org.slf4j.simpleLogger.showDateTime", "true"
+    systemProperty "org.slf4j.simpleLogger.dateTimeFormat", "HH:mm:ss.SSS"
+    testLogging.events += TestLogEvent.STANDARD_ERROR
 }
 
 // Configure Shadow JAR with relocations and transformers

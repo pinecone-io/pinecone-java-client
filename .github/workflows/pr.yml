@@ -45,6 +45,16 @@ jobs:
     
     - name: Execute Gradle build
       run: ./gradlew build compileIntegrationTestJava
+
+    - name: Upload test reports
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-reports-build-jdk${{ matrix.java }}
+        path: |
+          build/reports/tests
+          build/test-results
+        if-no-files-found: ignore
   
   integration-test:
     runs-on: ubuntu-latest
@@ -72,12 +82,31 @@ jobs:
       run: |
         echo "org.gradle.jvmargs=-Xmx4096m --add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED --add-exports=java.base/sun.nio.ch=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED" >> gradle.properties
 
+    - name: Check PINECONE_API_KEY is set
+      run: |
+        if [ -z "$PINECONE_API_KEY" ]; then
+          echo "::error::The PINECONE_API_KEY secret is empty or not available to this run."
+          exit 1
+        fi
+      env:
+        PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
+
     # The build job already ran unit tests and javadoc; this only compiles what integrationTest needs.
     - name: Run integration tests
       run: ./gradlew integrationTest
       env:
         PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
         PINECONE_ENVIRONMENT: ${{ secrets.PINECONE_ENVIRONMENT }}
+
+    - name: Upload test reports
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-reports-integration-test-jdk${{ matrix.java }}
+        path: |
+          build/reports/tests
+          build/test-results
+        if-no-files-found: ignore
 
   cleanup:
     runs-on: ubuntu-latest
@@ -94,6 +123,15 @@ jobs:
         
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
+
+    - name: Check PINECONE_API_KEY is set
+      run: |
+        if [ -z "$PINECONE_API_KEY" ]; then
+          echo "::error::The PINECONE_API_KEY secret is empty or not available to this run."
+          exit 1
+        fi
+      env:
+        PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
 
     - name: Build shadow jar
       run: ./gradlew shadowJar
