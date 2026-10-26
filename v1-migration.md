@@ -1,6 +1,6 @@
 # Java SDK v1.0.0 Migration Guide
 
-This migration guide is specific to migrating from versions "**v0.8.x**" and below to "**v1.0.x**".
+This migration guide is specific to migrating from versions "**v0.8.x**" and below to "**v1.0.x**". If you are on a newer version, see the [README](README.md) for the current API.
 
 ## Changes overview
 
@@ -13,9 +13,9 @@ This migration guide is specific to migrating from versions "**v0.8.x**" and bel
   `PineconeConfig` supports setting custom gRPC-managed channels for data plane operations along with setting a source 
   tag.
 - Updated dependencies to address vulnerabilities:
-    - io.grpc:grpc-protobuf: from 1.57.0 to 1.61.0
-    - io.grpc:grpc-stub: from 1.57.0 to 1.61.0
-    - io.grpc:grpc-netty: from 1.57.0 to 1.61.0
+    - io.grpc:grpc-protobuf: from 1.58.0 to 1.60.2
+    - io.grpc:grpc-stub: from 1.58.0 to 1.60.2
+    - io.grpc:grpc-netty: from 1.58.0 to 1.60.2
     - com.squareup.okhttp3:okhttp → from 4.10.0 to 4.12.0
 - Added the following `model` classes to address the limitations of Java not having a native datatype for `unsigned 
   32-bit 
@@ -89,8 +89,6 @@ CreateIndexRequest createIndexRequest = new CreateIndexRequest()
     .dimension(10)
     .spec(createIndexRequestSpec);
 
-PineconeControlPlaneClient controlPlaneClient = 
-new PineconeControlPlaneClient(apiKey);
 IndexModel indexModel = 
 controlPlaneClient.createIndex(createIndexRequest);
 ```
@@ -172,6 +170,8 @@ pinecone.createServerlessIndex(indexName,
 
 ## Configuring indexes
 
+**Before: ≤ 0.8.1**
+
 ```java
 import io.pinecone.PineconeControlPlaneClient;
 import org.openapitools.client.model.*;
@@ -223,8 +223,6 @@ new CreateCollectionRequest()
     .source("my-source-index");
 CollectionModel collection = 
 controlPlaneClient.createCollection(createCollectionRequest);
-
-CollectionModel collection = controlPlaneClient.createCollection(createCollectionRequest);
 ```
 
 **After: ≥ 1.0.0**
@@ -301,7 +299,6 @@ UpsertResponse upsertResponse = blockingStub.upsert(request);
 **After: ≥ 1.0.0**
 
 ```java
-import com.google.protobuf.Struct;
 import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
@@ -325,11 +322,11 @@ values.add(Arrays.asList(7.0f, 8.0f, 9.0f));
 List<VectorWithUnsignedIndices> vectors = new ArrayList<>(3);
 
 // Call upsert data
-for (int i=0; i<metadataStructList.size(); i++) {
-        vectors.add(buildUpsertVectorWithUnsignedIndices(upsertIds.get(i), values.get(i)));
+for (int i=0; i<upsertIds.size(); i++) {
+        vectors.add(buildUpsertVectorWithUnsignedIndices(upsertIds.get(i), values.get(i), null, null, null));
 }
 
-index.upsert(vectors, namespace);
+index.upsert(vectors, "example-namespace");
 ```
 
 ### Query vectors
@@ -553,6 +550,7 @@ DescribeIndexStatsResponse indexStatsResponse = index.describeIndexStats();
 import io.pinecone.*;
 import io.pinecone.proto.*;
 import java.util.Arrays;
+import java.util.List;
 ...
 
 String apiKey = "PINECONE_API_KEY";
@@ -587,6 +585,7 @@ blockingStub.delete(deleteRequest);
 ```java
 import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
+import io.pinecone.proto.DeleteResponse;
 import java.util.Arrays;
 import java.util.List;
 ...

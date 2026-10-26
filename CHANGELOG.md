@@ -35,7 +35,7 @@
 - Generate code based on 2025-01 open-api spec
 
 ### 3.1.0
-- Add support to pass base url for control and data plane operations
+- Add support to pass base url for control plane operations
 
 ### 3.0.0
 - Add support for imports
