@@ -46,6 +46,12 @@ jobs:
     - name: Execute Gradle build
       run: ./gradlew build compileIntegrationTestJava
 
+    # Fails when a change adds Javadoc warnings or errors to the hand-written sources. Doclint
+    # results differ between JDKs, so only JDK 17 runs it, matching the ceiling in build.gradle.
+    - name: Check Javadoc warnings
+      if: matrix.java == 17
+      run: ./gradlew javadocLint
+
     # Same task and JDK as build-and-publish-docs.yml. docs-preview.yml finds this job by its name,
     # "build (ubuntu-latest, 8)", and deploys the docs-html artifact, so renaming either breaks PR
     # previews.

@@ -70,6 +70,14 @@ java -cp build/libs/*-all.jar io.pinecone.helpers.IndexCleanupUtility --age-thre
 - Add `@Tag("smoke")` only if the test covers a user-facing operation that the smoke set does not cover yet, creates no pod index, collection or dedicated read node, and keeps the smoke run under a few minutes.
 - An integration test that creates an index registers it with `CreatedIndexes` before it creates it, so the index is deleted in `@AfterAll` even if the test fails. Wait for state changes with `Poll`, not `Thread.sleep`.
 
+## Javadoc check
+
+```sh
+./gradlew javadocLint
+```
+
+This runs Javadoc with doclint fully on over the hand-written sources (generated code is skipped), prints every warning and error, and fails if their count exceeds the ceiling set next to the task in `build.gradle`. CI runs it on the JDK 17 leg of `pr.yml`'s `build` job; other JDKs report different findings, so run it on JDK 17 locally too. Fix any finding your change adds. When you fix existing ones, lower the ceiling to the new count. Never raise it.
+
 ## Docs previews
 
 Each same-repo PR gets its Javadoc deployed to the private Pages site under `pr-preview/pr-<N>/`, linked from a sticky PR comment and removed when the PR closes (`docs-preview.yml`). If the deploy fails, download the `docs-html` artifact from the JDK 8 `build` job's summary (kept 7 days).

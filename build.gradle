@@ -165,6 +165,45 @@ tasks.register('generateJavadoc', Javadoc) {
     destinationDir = file("${projectDir}/docs")
 }
 
+// Javadoc findings (warnings and errors) on the hand-written sources with doclint fully on. Generated
+// code (io/pinecone/proto, org/openapitools) is excluded. Lower the ceiling when you fix findings;
+// never raise it.
+def javadocLintCeiling = 147
+
+tasks.register('javadocLint', Javadoc) {
+    group = 'verification'
+    description = "Fails if Javadoc on hand-written sources has more than ${javadocLintCeiling} doclint findings."
+    source = sourceSets.main.allJava.matching {
+        include 'io/pinecone/**'
+        exclude 'io/pinecone/proto/**'
+    }
+    classpath = sourceSets.main.compileClasspath + sourceSets.main.output
+    destinationDir = layout.buildDirectory.dir("javadoc-lint").get().asFile
+    options.tags = [ "http.response.details:a:Http Response Details" ]
+    options.addBooleanOption('Xdoclint:all', true)
+    options.addStringOption('Xmaxwarns', '100000')
+    options.addStringOption('Xmaxerrs', '100000')
+    failOnError = false
+    inputs.property("ceiling", javadocLintCeiling)
+
+    def findings = []
+    def listener = { line -> findings.addAll(line.readLines().findAll { it =~ /: (warning|error)/ }) } as StandardOutputListener
+    doFirst {
+        findings.clear()
+        logging.addStandardOutputListener(listener)
+        logging.addStandardErrorListener(listener)
+    }
+    doLast {
+        def count = findings.size()
+        if (count > javadocLintCeiling) {
+            throw new GradleException("javadocLint: ${count} Javadoc findings, ceiling is ${javadocLintCeiling}. " +
+                    "The findings are listed above (run ./gradlew javadocLint to see them). Fix the new ones; " +
+                    "the ceiling in build.gradle only goes down.")
+        }
+        logger.lifecycle("javadocLint: ${count} Javadoc findings, ceiling is ${javadocLintCeiling}.")
+    }
+}
+
 configurations {
     integrationTestImplementation.extendsFrom testImplementation
     integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
