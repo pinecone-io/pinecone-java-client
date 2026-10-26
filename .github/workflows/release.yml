@@ -73,7 +73,7 @@ jobs:
         run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844  # v1 (v0.1.15)
         with:
           name: Release v${{ env.NEW_VERSION }}
           tag_name: v${{ env.NEW_VERSION }}
