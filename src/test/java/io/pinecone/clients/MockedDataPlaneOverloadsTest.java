@@ -9,6 +9,7 @@ import io.pinecone.helpers.MockPinecone;
 import io.pinecone.proto.*;
 import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
 import io.pinecone.unsigned_indices_model.ScoredVectorWithUnsignedIndices;
+import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -160,6 +161,36 @@ public class MockedDataPlaneOverloadsTest {
             assertEquals("Sparse indices are out of range for unsigned 32-bit integers.", query.getMessage());
         }
         assertEquals(0, mock.grpcCalls().size());
+    }
+
+    @Test
+    public void batchUpsertWithNullNamespaceUsesDefaultNamespace() throws Exception {
+        connect("overloads-batch-null-ns");
+        try (Index index = mock.client().getIndexConnection("overloads-batch-null-ns")) {
+            SYNC.on(index.upsert(batchOfOne(), null));
+        }
+        assertSentToDefaultNamespace();
+    }
+
+    @Test
+    public void asyncBatchUpsertWithNullNamespaceUsesDefaultNamespace() throws Exception {
+        connect("overloads-batch-null-ns-async");
+        try (AsyncIndex index = mock.client().getAsyncIndexConnection("overloads-batch-null-ns-async")) {
+            ASYNC.on(index.upsert(batchOfOne(), null));
+        }
+        assertSentToDefaultNamespace();
+    }
+
+    private static List<VectorWithUnsignedIndices> batchOfOne() {
+        return Collections.singletonList(IndexInterface.buildUpsertVectorWithUnsignedIndices("w1", VECTOR, null, null,
+                null));
+    }
+
+    private void assertSentToDefaultNamespace() {
+        assertEquals(1, mock.grpcCalls().size());
+        UpsertRequest batch = sent(0, "Upsert", UpsertRequest.class);
+        assertEquals("", batch.getNamespace());
+        assertEquals("w1", batch.getVectors(0).getId());
     }
 
     /** Calls the six queryByVectorId and six queryByVector overloads in order, each with a distinct topK. */

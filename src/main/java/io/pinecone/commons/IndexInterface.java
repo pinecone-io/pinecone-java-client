@@ -87,7 +87,11 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
 
         }
 
-        return UpsertRequest.newBuilder().addAllVectors(vectors).setNamespace(namespace).build();
+        UpsertRequest.Builder upsertRequest = UpsertRequest.newBuilder().addAllVectors(vectors);
+        if (namespace != null) {
+            upsertRequest.setNamespace(namespace);
+        }
+        return upsertRequest.build();
     }
 
     /**
