@@ -13,18 +13,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Utility for cleaning up Pinecone indexes and collections created by the integration tests.
+ * Command-line tool that deletes the indexes and collections left behind by this library's integration tests.
  * <p>
- * The API does not report when an index or collection was created, so integration tests name their resources with
- * {@link #testResourcePrefix()}, which encodes the CI run and the creation time. This utility only ever deletes
- * resources whose names carry that prefix; anything else in the project is left alone.
- * <p>
- * Command-line arguments:
- * --run-id &lt;id&gt; - Delete only resources created by this CI run (GITHUB_RUN_ID), regardless of age
- * --age-threshold-days &lt;number&gt; - Without --run-id, minimum age in days for resources to be deleted (default: 1)
- * --dry-run - Preview deletions without actually deleting resources
- * <p>
- * Example usage:
+ * The client's CI runs it after the integration tests; applications do not need it. It deletes only resources whose
+ * names start with {@link #testResourcePrefix()}, which encodes the CI run and the minute the name was made, and leaves
+ * everything else in the project alone. Before deleting an index it turns off deletion protection. It reads the API
+ * key from the {@code PINECONE_API_KEY} environment variable. Pass {@code --run-id <id>} to delete one CI run's
+ * resources regardless of age; otherwise it deletes test resources at least {@code --age-threshold-days} days old
+ * (default 1). {@code --dry-run} logs what it would delete without deleting anything.
  * <pre>{@code
  * java io.pinecone.helpers.IndexCleanupUtility --age-threshold-days 2 --dry-run
  * java io.pinecone.helpers.IndexCleanupUtility --run-id "$GITHUB_RUN_ID"
@@ -42,23 +38,27 @@ public class IndexCleanupUtility {
     private final boolean dryRun;
 
     /**
-     * Constructs a new IndexCleanupUtility that deletes test resources older than {@code ageThresholdDays}.
+     * Creates a cleanup that deletes test resources at least {@code ageThresholdDays} days old.
      *
-     * @param pinecone The Pinecone client instance
-     * @param ageThresholdDays Minimum age in days for resources to be deleted
-     * @param dryRun If true, preview deletions without executing them
+     * @param pinecone client for the project to clean up
+     * @param ageThresholdDays minimum age in days, taken from the time encoded in the name; 0 deletes every test
+     *     resource
+     * @param dryRun true to log what would be deleted without deleting anything
      */
     public IndexCleanupUtility(Pinecone pinecone, int ageThresholdDays, boolean dryRun) {
         this(pinecone, ageThresholdDays, null, dryRun);
     }
 
     /**
-     * Constructs a new IndexCleanupUtility.
+     * Creates a cleanup scoped either to one CI run or, when {@code runId} is null, to test resources past an age.
      *
-     * @param pinecone The Pinecone client instance
-     * @param ageThresholdDays Minimum age in days for resources to be deleted; ignored when {@code runId} is set
-     * @param runId If non-null, delete only test resources created by this CI run, regardless of age
-     * @param dryRun If true, preview deletions without executing them
+     * @param pinecone client for the project to clean up
+     * @param ageThresholdDays minimum age in days, taken from the time encoded in the name; ignored when
+     *     {@code runId} is set
+     * @param runId numeric CI run id such as {@code "18734920512"} to delete only that run's resources regardless of
+     *     age, or null to clean up by age
+     * @param dryRun true to log what would be deleted without deleting anything
+     * @throws IllegalArgumentException if {@code runId} is not numeric
      */
     public IndexCleanupUtility(Pinecone pinecone, int ageThresholdDays, String runId, boolean dryRun) {
         this.pinecone = pinecone;
@@ -120,9 +120,11 @@ public class IndexCleanupUtility {
     }
     
     /**
-     * Main entry point for the cleanup utility.
+     * Runs the cleanup from the command line and exits with status 1 if {@code PINECONE_API_KEY} is unset, the
+     * arguments are invalid, listing fails, or any deletion fails.
      *
-     * @param args Command-line arguments
+     * @param args {@code --run-id <id>}, {@code --age-threshold-days <number>} and {@code --dry-run}, in any order;
+     *     unknown arguments are logged and ignored
      */
     public static void main(String[] args) {
         try {
@@ -229,10 +231,13 @@ public class IndexCleanupUtility {
     }
 
     /**
-     * Executes the cleanup operation, deleting indexes and collections that match the criteria.
+     * Lists the project's indexes and collections and deletes the test resources in scope, skipping any already
+     * terminating.
+     * <p>
+     * Deletion is started, not awaited. A failure on one resource is logged and counted, and the cleanup moves on.
      *
-     * @return A CleanupResult containing statistics about the cleanup operation
-     * @throws Exception if an error occurs during cleanup
+     * @return counts of resources listed, deleted and failed
+     * @throws Exception if listing indexes or collections fails
      */
     public CleanupResult cleanup() throws Exception {
         CleanupResult result = new CleanupResult();
@@ -378,7 +383,7 @@ public class IndexCleanupUtility {
     }
 
     /**
-     * Result of a cleanup operation, containing statistics about what was processed and deleted.
+     * Counts from one {@link IndexCleanupUtility#cleanup()} run.
      */
     public static class CleanupResult {
         private int indexesProcessed = 0;
@@ -388,11 +393,46 @@ public class IndexCleanupUtility {
         private int collectionsDeleted = 0;
         private int collectionsFailed = 0;
         
+        /**
+         * Number of indexes listed in the project, including ones skipped as out of scope.
+         *
+         * @return the count
+         */
         public int getIndexesProcessed() { return indexesProcessed; }
+
+        /**
+         * Number of indexes whose deletion was started; always 0 in a dry run.
+         *
+         * @return the count
+         */
         public int getIndexesDeleted() { return indexesDeleted; }
+
+        /**
+         * Number of indexes that hit an error while turning off deletion protection or deleting.
+         *
+         * @return the count
+         */
         public int getIndexesFailed() { return indexesFailed; }
+
+        /**
+         * Number of collections listed in the project, including ones skipped as out of scope.
+         *
+         * @return the count
+         */
         public int getCollectionsProcessed() { return collectionsProcessed; }
+
+        /**
+         * Number of collections whose deletion was started; always 0 in a dry run.
+         *
+         * @return the count
+         */
         public int getCollectionsDeleted() { return collectionsDeleted; }
+
+        /**
+         * Number of collections that hit an error while being deleted.
+         *
+         * @return the count
+         */
         public int getCollectionsFailed() { return collectionsFailed; }
         
         void incrementIndexesProcessed() { indexesProcessed++; }

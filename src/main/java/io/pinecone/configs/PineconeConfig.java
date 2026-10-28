@@ -7,40 +7,24 @@ import okhttp3.OkHttpClient;
 import static io.pinecone.commons.Constants.pineconeClientVersion;
 
 /**
- * The {@link PineconeConfig} class is responsible for managing the configuration settings
- * required to interact with the Pinecone API. It provides methods to set and retrieve
- * the necessary API key, host, source tag, proxyConfig, and custom managed channel.
+ * Settings the client uses to reach Pinecone: API key, source tag, proxy, custom HTTP client, TLS, index host and
+ * response metadata listener.
+ * <p>
+ * Most callers never construct one: {@link io.pinecone.clients.Pinecone.Builder} builds it from the {@code with...}
+ * methods. Construct one yourself when you already know an index's host and want to open a data-plane connection
+ * without the describe-index call that {@link io.pinecone.clients.Pinecone#getIndexConnection(String)} makes, for
+ * example against a local emulator. In that case pass it to both {@link PineconeConnection} and the
+ * {@link io.pinecone.clients.Index} constructor. A config built this way applies its proxy to the gRPC connection,
+ * and its proxy or custom {@link OkHttpClient} to the index's HTTP calls; index connections opened through
+ * {@link io.pinecone.clients.Pinecone} use neither.
  * <pre>{@code
+ * PineconeConfig config = new PineconeConfig(System.getenv("PINECONE_API_KEY"));
+ * config.setHost("localhost:5081");
+ * config.setTLSEnabled(false);
  *
- *     import io.grpc.ManagedChannel;
- *     import io.grpc.netty.GrpcSslContexts;
- *     import io.grpc.netty.NegotiationType;
- *     import io.grpc.netty.NettyChannelBuilder;
- *     import io.pinecone.configs.PineconeConfig;
- *     import io.pinecone.exceptions.PineconeException;
- *
- *     import javax.net.ssl.SSLException;
- *     import java.util.concurrent.TimeUnit;
- * ...
- *
- *
- *     PineconeConfig config = new PineconeConfig("apikey");
- *     String endpoint = "some-endpoint";
- *     NettyChannelBuilder builder = NettyChannelBuilder.forTarget(endpoint);
- *
- *     // Custom channel with timeouts
- *     try {
- *         builder = builder.overrideAuthority(endpoint)
- *             .negotiationType(NegotiationType.TLS)
- *             .keepAliveTimeout(5, TimeUnit.SECONDS)
- *             .sslContext(GrpcSslContexts.forClient().build());
- *     } catch (SSLException e) {
- *         throw new PineconeException("SSL error opening gRPC channel", e);
- *     }
- *
- *     // Build the managed channel with the configured options
- *     ManagedChannel channel = builder.build();
- *     config.setCustomManagedChannel(channel);
+ * PineconeConnection connection = new PineconeConnection(config, "product-catalog");
+ * Index index = new Index(config, connection, "product-catalog");
+ * index.upsert("item-1", Arrays.asList(0.12f, 0.45f, 0.33f));
  * }</pre>
  */
 public class PineconeConfig {
@@ -58,32 +42,35 @@ public class PineconeConfig {
     private ResponseMetadataListener responseMetadataListener;
 
     /**
-     * Constructs a {@link PineconeConfig} instance with the specified API key.
+     * Creates a config with only an API key; TLS is on and every other setting is unset.
      *
-     * @param apiKey The API key required to authenticate with the Pinecone API.
+     * @param apiKey the Pinecone API key sent with every request; {@link #validate()} rejects null or empty
      */
     public PineconeConfig(String apiKey) {
         this(apiKey, null);
     }
 
     /**
-     * Constructs a {@link PineconeConfig} instance with the specified API key and source tag.
+     * Creates a config with an API key and a source tag. The tag is stored as given; use
+     * {@link #setSourceTag(String)} if you want it normalized.
      *
-     * @param apiKey    The API key required to authenticate with the Pinecone API.
-     * @param sourceTag An optional source tag to be included in the user agent.
+     * @param apiKey    the Pinecone API key sent with every request; {@link #validate()} rejects null or empty
+     * @param sourceTag a tag added to the User-Agent header that identifies the application or integration making
+     *                  the calls, such as {@code "support_bot"}; null leaves it out
      */
     public PineconeConfig(String apiKey, String sourceTag) {
         this(apiKey, sourceTag, null, null);
     }
 
     /**
-     * Constructs a {@link PineconeConfig} instance with the specified API key, source tag, a HTTP proxy configuration,
-     * and a custom OkHttpClient.
+     * Creates a config with an API key, source tag, proxy and custom HTTP client. The source tag is stored as given.
      *
-     * @param apiKey The API key required to authenticate with the Pinecone API.
-     * @param sourceTag An optional source tag to be included in the user agent.
-     * @param proxyConfig The proxy configuration for control and data plane requests. Can be null if not set.
-     * @param customOkHttpClient The custom OkHttpClient for making HTTP requests. Can be null if not set.
+     * @param apiKey             the Pinecone API key sent with every request; {@link #validate()} rejects null or
+     *                           empty
+     * @param sourceTag          a tag added to the User-Agent header, such as {@code "support_bot"}; null leaves it out
+     * @param proxyConfig        the HTTP proxy to send requests through; null connects directly
+     * @param customOkHttpClient the {@link OkHttpClient} to use for HTTP requests, for example one with longer
+     *                           timeouts; null lets the client build its own
      */
     public PineconeConfig(String apiKey, String sourceTag, ProxyConfig proxyConfig, OkHttpClient customOkHttpClient) {
         this.apiKey = apiKey;
@@ -93,124 +80,155 @@ public class PineconeConfig {
     }
 
     /**
-     * Returns the API key.
+     * The Pinecone API key sent with every request.
      *
-     * @return The API key.
+     * @return the API key, or null if none was set
      */
     public String getApiKey() {
         return apiKey;
     }
 
     /**
-     * Sets the API key.
+     * Replaces the API key. Connections already built from this config keep the key they were built with.
      *
-     * @param apiKey The new API key.
+     * @param apiKey the Pinecone API key
      */
     public void setApiKey(String apiKey) {
         this.apiKey = apiKey;
     }
 
     /**
-     * Returns the host.
+     * The index host a {@link PineconeConnection} built from this config connects to.
      *
-     * @return The host.
+     * @return the host, or null if none was set
      */
     public String getHost() {
         return host;
     }
 
     /**
-     * Sets the host.
+     * Sets the index host that {@link PineconeConnection} and {@link io.pinecone.clients.Index} connect to. Pass the
+     * host without a scheme, as {@code describeIndex(...).getHost()} returns it; {@link #setTLSEnabled(boolean)}
+     * decides between HTTPS and plain HTTP.
      *
-     * @param host The new host.
+     * @param host the index host, such as {@code "product-catalog-abc1234.svc.aped-4627-b74a.pinecone.io"}, or
+     *             {@code "localhost:5081"} for a local emulator
      */
     public void setHost(String host) {
         this.host = host;
     }
 
     /**
-     * Returns the source tag.
+     * The tag added to the User-Agent header to identify the application or integration making the calls.
      *
-     * @return The source tag.
+     * @return the source tag, or null if none was set
      */
     public String getSourceTag() {
         return sourceTag;
     }
 
     /**
-     * Sets the source tag. The source tag is normalized before being stored.
+     * Sets the source tag after normalizing it: lowercased, characters other than letters, digits, underscores,
+     * colons and spaces removed, surrounding spaces trimmed, and each run of spaces replaced with one underscore. So
+     * {@code "Support Bot!"} is stored as {@code "support_bot"}.
      *
-     * @param sourceTag The new source tag.
+     * @param sourceTag the tag identifying your application or integration; null clears it
      */
     public void setSourceTag(String sourceTag) {
         this.sourceTag = normalizeSourceTag(sourceTag);
     }
 
     /**
-     * Returns the proxy configuration for control and data plane requests.
+     * The HTTP proxy requests are sent through.
      *
-     * @return The proxy configuration for control and data plane requests, or null if not set.
+     * @return the proxy, or null to connect directly
      */
     public ProxyConfig getProxyConfig() {
         return proxyConfig;
     }
 
     /**
-     * Sets the proxy configuration for control and data plane requests.
+     * Sets the HTTP proxy to send requests through. A {@link PineconeConnection} built from this config sends its gRPC
+     * traffic through the proxy, and an {@link io.pinecone.clients.Index} built from it uses the proxy for its HTTP
+     * calls unless a custom {@link OkHttpClient} is also set. Index connections opened with
+     * {@link io.pinecone.clients.Pinecone#getIndexConnection(String)} do not use the proxy set on the
+     * {@link io.pinecone.clients.Pinecone} client.
      *
-     * @param proxyConfig The new proxy configuration for control and data plane requests.
+     * @param proxyConfig the proxy host and port, or null to connect directly
      */
     public void setProxyConfig(ProxyConfig proxyConfig) {
         this.proxyConfig = proxyConfig;
     }
 
     /**
-     * Returns the custom gRPC managed channel.
+     * The gRPC channel a {@link PineconeConnection} uses instead of building its own.
      *
-     * @return The custom gRPC managed channel.
+     * @return the channel, or null to let the connection build one from the host
      */
     public ManagedChannel getCustomManagedChannel() {
         return this.customManagedChannel;
     }
 
     /**
-     * Gets a custom OkHttpClient for making HTTP requests.
+     * The {@link OkHttpClient} used for HTTP requests instead of one the client builds.
      *
-     * @return The custom OkHttpClient for control plane or inference api calls.
+     * @return the custom HTTP client, or null if none was set
      */
     public OkHttpClient getCustomOkHttpClient() {
         return customOkHttpClient;
     }
 
     /**
-     * Sets a custom OkHttpClient for making HTTP requests.
+     * Sets the {@link OkHttpClient} for HTTP requests, for example one with longer timeouts. An
+     * {@link io.pinecone.clients.Index} or {@link io.pinecone.clients.Inference} client built from this config uses it
+     * for its HTTP calls, in place of the proxy setting. It does not affect gRPC calls, which go through
+     * {@link PineconeConnection}.
      *
-     * @param customOkHttpClient The custom OkHttpClient.
+     * @param customOkHttpClient the HTTP client to use, or null to let the client build its own
      */
     public void setCustomOkHttpClient(OkHttpClient customOkHttpClient) {
         this.customOkHttpClient = customOkHttpClient;
     }
 
     /**
-     * Sets the custom gRPC managed channel if the user is not interested in using default gRPC channel initialized
-     * and set in the Pinecone Builder class.
+     * Sets a gRPC channel for {@link PineconeConnection} to use instead of building its own, when you need channel
+     * options the client does not expose, such as keepalive settings. The connection uses the channel as given, so
+     * configure TLS, the target address and any proxy on it yourself; {@link PineconeConnection#close()} shuts it down.
+     * Set the host as well if you call the record methods on {@link io.pinecone.clients.Index}, which send HTTP
+     * requests to the host rather than using the channel.
+     * <pre>{@code
+     * ManagedChannel channel = NettyChannelBuilder
+     *         .forTarget("product-catalog-abc1234.svc.aped-4627-b74a.pinecone.io")
+     *         .keepAliveTime(30, TimeUnit.SECONDS)
+     *         .build();
+     * config.setCustomManagedChannel(channel);
+     * }</pre>
      *
-     * @param customManagedChannel The new custom gRPC managed channel.
+     * @param customManagedChannel the channel to use, or null to let the connection build one from the host
      */
     public void setCustomManagedChannel(ManagedChannel customManagedChannel) {
         this.customManagedChannel = customManagedChannel;
     }
 
+    /**
+     * A factory for a gRPC channel. The client never calls it; to supply your own channel, pass it to
+     * {@link #setCustomManagedChannel(ManagedChannel)}.
+     */
     public interface CustomChannelBuilder {
+        /**
+         * Builds the channel.
+         *
+         * @return a new gRPC channel
+         */
         ManagedChannel buildChannel();
     }
 
     /**
-     * Validates the configuration settings of the Pinecone client.
-     * This method ensures that the API key is not null or empty, and validates the proxy configurations if set.
-     * Throws a PineconeConfigurationException if the API key is null or empty, or if any of the proxy configurations are invalid.
+     * Checks that the API key is set and, if a proxy is set, that it has a host and a positive port.
+     * {@link io.pinecone.clients.Pinecone.Builder#build()} calls this; {@link PineconeConnection} does not, so call it
+     * yourself on a config you construct.
      *
-     * @throws PineconeConfigurationException If the API key is null or empty, or if any of the proxy configurations are invalid.
+     * @throws PineconeConfigurationException if the API key is null or empty, or the proxy host or port is invalid
      */
     public void validate() {
         if (apiKey == null || apiKey.isEmpty())
@@ -223,46 +241,48 @@ public class PineconeConfig {
     }
 
     /**
-     * Builds the user agent string for the Pinecone client.
+     * The User-Agent value the client sends: the language, the client version and, if set, the source tag.
      *
-     * @return The user agent string.
+     * @return a value such as {@code "lang=java; pineconeClientVersion=v6.2.0; source_tag=support_bot"}
      */
     public String getUserAgent() {
         return buildUserAgent();
     }
 
     /**
-     * Returns true if TLS is enabled or false otherwise.
+     * Whether data-plane connections use TLS. On by default.
      *
-     * @return enableTls
+     * @return true for TLS (HTTPS), false for plain-text connections
      */
     public boolean isTLSEnabled() {
         return enableTLS;
     }
 
     /**
-     * Sets whether TLS is enabled.
+     * Turns TLS on or off for data-plane connections. Turn it off only to reach a local emulator that serves plain
+     * text, never for a Pinecone index.
      *
-     * @param enableTLS true to enable TLS, false to disable it.
+     * @param enableTLS true for TLS (the default), false for plain-text gRPC and HTTP
      */
     public void setTLSEnabled(boolean enableTLS) {
         this.enableTLS = enableTLS;
     }
 
     /**
-     * Returns the response metadata listener, or null if not configured.
+     * The listener that receives timing and status details for data-plane calls.
      *
-     * @return The response metadata listener for capturing timing metrics from data plane operations.
+     * @return the listener, or null if none was set
      */
     public ResponseMetadataListener getResponseMetadataListener() {
         return responseMetadataListener;
     }
 
     /**
-     * Sets the response metadata listener for capturing timing metrics from data plane operations.
-     * The listener is invoked after each upsert, query, fetch, update, or delete operation completes.
+     * Sets the listener that receives a {@link ResponseMetadata} after each upsert, query, fetch, update, delete or
+     * list call. Set it before constructing the {@link PineconeConnection}; a connection built earlier does not report
+     * to it.
      *
-     * @param responseMetadataListener The listener to receive response metadata.
+     * @param responseMetadataListener the listener, or null for none
      */
     public void setResponseMetadataListener(ResponseMetadataListener responseMetadataListener) {
         this.responseMetadataListener = responseMetadataListener;

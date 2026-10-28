@@ -1,27 +1,24 @@
 package io.pinecone.configs;
 
 /**
- * Captures response metadata from Pinecone data plane operations.
- * Contains timing information for observability and monitoring.
+ * Timing, outcome and usage details for one data-plane call, passed to a {@link ResponseMetadataListener}.
  *
- * <p>This class provides:
- * <ul>
- *   <li>{@link #getClientDurationMs()} - Total round-trip time measured by the client</li>
- *   <li>{@link #getServerDurationMs()} - Server processing time from x-pinecone-response-duration-ms header</li>
- *   <li>{@link #getNetworkOverheadMs()} - Computed network + serialization overhead</li>
- *   <li>{@link #getReadUnits()} - Number of read units consumed (query, fetch, list operations)</li>
- *   <li>{@link #getUpsertedCount()} - Number of records upserted (upsert operations)</li>
- *   <li>{@link #getMatchedRecords()} - Number of records matched (update operations)</li>
- * </ul>
+ * <p>The client creates one for each upsert, query, fetch, update, delete and list call made through an
+ * {@link io.pinecone.clients.Index} or {@link io.pinecone.clients.AsyncIndex}, whether the call succeeds or fails,
+ * when a listener is set with {@link io.pinecone.clients.Pinecone.Builder#withResponseMetadataListener
+ * Pinecone.Builder.withResponseMetadataListener}. You read
+ * these values in the listener; you don't construct this class. All durations are whole milliseconds.
  *
- * <p>Example usage with a listener:
  * <pre>{@code
- * Pinecone client = new Pinecone.Builder(apiKey)
+ * Pinecone pc = new Pinecone.Builder(System.getenv("PINECONE_API_KEY"))
  *     .withResponseMetadataListener(metadata -> {
- *         System.out.println("Operation: " + metadata.getOperationName());
- *         System.out.println("Server duration: " + metadata.getServerDurationMs() + "ms");
- *         System.out.println("Client duration: " + metadata.getClientDurationMs() + "ms");
- *         System.out.println("Network overhead: " + metadata.getNetworkOverheadMs() + "ms");
+ *         if (!metadata.isSuccess()) {
+ *             System.err.println(metadata.getOperationName() + " on " + metadata.getIndexName()
+ *                 + " failed: " + metadata.getGrpcStatusCode());
+ *         } else if (metadata.getServerDurationMs() != null) {
+ *             System.out.println(metadata.getOperationName() + " took " + metadata.getClientDurationMs()
+ *                 + " ms, " + metadata.getNetworkOverheadMs() + " ms outside the server");
+ *         }
  *     })
  *     .build();
  * }</pre>
@@ -57,59 +54,66 @@ public class ResponseMetadata {
     }
 
     /**
-     * Returns the operation name (e.g., "upsert", "query", "fetch", "update", "delete").
-     * Corresponds to OTel attribute: db.operation.name
+     * The kind of call, in lower case: "upsert", "query", "fetch", "update", "delete" or "list".
+     *
+     * @return the operation name; matches the OpenTelemetry {@code db.operation.name} attribute
      */
     public String getOperationName() {
         return operationName;
     }
 
     /**
-     * Returns the Pinecone index name.
-     * Corresponds to OTel attribute: pinecone.index_name
+     * The name of the index the call went to, as passed to {@code getIndexConnection}.
+     *
+     * @return the index name
      */
     public String getIndexName() {
         return indexName;
     }
 
     /**
-     * Returns the Pinecone namespace (empty string if default namespace).
-     * Corresponds to OTel attribute: db.namespace
+     * The namespace named in the request.
+     *
+     * @return the namespace, or an empty string when the request used the default namespace; never null
      */
     public String getNamespace() {
         return namespace;
     }
 
     /**
-     * Returns the server address/host.
-     * Corresponds to OTel attribute: server.address
+     * The index host the call was sent to.
+     *
+     * @return the host, or an empty string when the connection was built without one
      */
     public String getServerAddress() {
         return serverAddress;
     }
 
     /**
-     * Returns the total client-side duration in milliseconds.
-     * Measured from request initiation to response completion.
-     * Corresponds to metric: db.client.operation.duration
+     * Wall-clock time the client spent on the call, from starting the request to receiving the final status,
+     * including network and serialization time.
+     *
+     * @return the duration in milliseconds
      */
     public long getClientDurationMs() {
         return clientDurationMs;
     }
 
     /**
-     * Returns the server processing duration in milliseconds, or null if the
-     * x-pinecone-response-duration-ms header was not present.
-     * Corresponds to metric: pinecone.server.processing.duration
+     * Time the server reports it spent processing the request, read from the
+     * {@code x-pinecone-response-duration-ms} response header.
+     *
+     * @return the duration in milliseconds, or null when the response did not include that header
      */
     public Long getServerDurationMs() {
         return serverDurationMs;
     }
 
     /**
-     * Returns the computed network overhead in milliseconds (client duration minus server duration),
-     * or null if server duration is not available.
-     * This includes network latency, serialization, and deserialization time.
+     * Time spent outside the server: {@link #getClientDurationMs()} minus {@link #getServerDurationMs()}. A large
+     * value points at network latency or serialization rather than server work.
+     *
+     * @return the overhead in milliseconds, or null when the server duration is null
      */
     public Long getNetworkOverheadMs() {
         if (serverDurationMs == null) {
@@ -119,61 +123,85 @@ public class ResponseMetadata {
     }
 
     /**
-     * Returns the operation status: "success" or "error".
-     * Corresponds to OTel attribute: status
+     * Whether the call succeeded, as a string suited to metric labels.
+     *
+     * @return "success" or "error"
      */
     public String getStatus() {
         return status;
     }
 
     /**
-     * Returns the raw gRPC status code (e.g., "OK", "UNAVAILABLE", "DEADLINE_EXCEEDED").
-     * Corresponds to OTel attribute: db.response.status_code
+     * The gRPC status code the call ended with, such as "OK", "NOT_FOUND" or "UNAVAILABLE".
+     *
+     * @return the name of the {@link io.grpc.Status.Code}
      */
     public String getGrpcStatusCode() {
         return grpcStatusCode;
     }
 
     /**
-     * Returns the error type category, or null if status is "success".
-     * Possible values: "validation", "connection", "server", "rate_limit", "timeout", "auth", "not_found"
-     * Corresponds to OTel attribute: error.type
+     * A coarse category for a failed call, derived from the gRPC status code, for grouping errors in metrics:
+     * "validation" (bad request), "auth", "not_found" (also used for ALREADY_EXISTS), "rate_limit", "timeout"
+     * (also used for a cancelled call), "connection", "server" or "unknown".
+     *
+     * @return the category, or null when the call succeeded
      */
     public String getErrorType() {
         return errorType;
     }
 
     /**
-     * Returns the number of read units consumed by the operation, or null if not applicable.
-     * Populated for query, fetch, and list operations.
+     * Read units the server charged for a query, fetch or list call.
+     *
+     * @return the read units, or null for other operations and when the response reported no usage
      */
     public Integer getReadUnits() {
         return readUnits;
     }
 
     /**
-     * Returns the number of records upserted, or null if not applicable.
-     * Populated for upsert operations.
+     * Number of records the server accepted in an upsert call.
+     *
+     * @return the count, or null for other operations and for a failed upsert
      */
     public Integer getUpsertedCount() {
         return upsertedCount;
     }
 
     /**
-     * Returns the number of records matched by the operation, or null if not applicable.
-     * Populated for update operations.
+     * Number of records an update call matched.
+     *
+     * @return the count, or null for other operations and when the server did not report it
      */
     public Integer getMatchedRecords() {
         return matchedRecords;
     }
 
     /**
-     * Returns true if the operation was successful.
+     * Whether the call ended with gRPC status OK.
+     *
+     * @return true when {@link #getStatus()} is "success"
      */
     public boolean isSuccess() {
         return "success".equals(status);
     }
 
+    /**
+     * Starts a builder. The client uses it to create instances; callers normally don't need it, except to create
+     * test values for their own listener.
+     *
+     * <pre>{@code
+     * ResponseMetadata metadata = ResponseMetadata.builder()
+     *     .operationName("query")
+     *     .indexName("product-catalog")
+     *     .clientDurationMs(48)
+     *     .serverDurationMs(31L)
+     *     .build();
+     * }</pre>
+     *
+     * @return a builder with status "success", gRPC status "OK" and an empty namespace
+     */
     public static Builder builder() {
         return new Builder();
     }
@@ -208,6 +236,20 @@ public class ResponseMetadata {
         return sb.toString();
     }
 
+    /**
+     * Builds {@link ResponseMetadata} values. Each setter sets the field read by the matching getter on
+     * {@link ResponseMetadata}; unset counts and the server duration stay null.
+     *
+     * <pre>{@code
+     * ResponseMetadata failed = ResponseMetadata.builder()
+     *     .operationName("upsert")
+     *     .indexName("product-catalog")
+     *     .status("error")
+     *     .grpcStatusCode("UNAVAILABLE")
+     *     .errorType("connection")
+     *     .build();
+     * }</pre>
+     */
     public static class Builder {
         private String operationName;
         private String indexName;
@@ -222,66 +264,143 @@ public class ResponseMetadata {
         private Integer upsertedCount;
         private Integer matchedRecords;
 
+        /**
+         * Sets the value returned by {@link ResponseMetadata#getOperationName()}.
+         *
+         * @param operationName the lower-case operation name, such as "query"
+         * @return this builder
+         */
         public Builder operationName(String operationName) {
             this.operationName = operationName;
             return this;
         }
 
+        /**
+         * Sets the value returned by {@link ResponseMetadata#getIndexName()}.
+         *
+         * @param indexName the index name
+         * @return this builder
+         */
         public Builder indexName(String indexName) {
             this.indexName = indexName;
             return this;
         }
 
+        /**
+         * Sets the value returned by {@link ResponseMetadata#getNamespace()}.
+         *
+         * @param namespace the namespace; null is stored as an empty string
+         * @return this builder
+         */
         public Builder namespace(String namespace) {
             this.namespace = namespace != null ? namespace : "";
             return this;
         }
 
+        /**
+         * Sets the value returned by {@link ResponseMetadata#getServerAddress()}.
+         *
+         * @param serverAddress the index host
+         * @return this builder
+         */
         public Builder serverAddress(String serverAddress) {
             this.serverAddress = serverAddress;
             return this;
         }
 
+        /**
+         * Sets the value returned by {@link ResponseMetadata#getClientDurationMs()}.
+         *
+         * @param clientDurationMs the client-measured duration in milliseconds
+         * @return this builder
+         */
         public Builder clientDurationMs(long clientDurationMs) {
             this.clientDurationMs = clientDurationMs;
             return this;
         }
 
+        /**
+         * Sets the value returned by {@link ResponseMetadata#getServerDurationMs()}.
+         *
+         * @param serverDurationMs the server-reported duration in milliseconds, or null if unknown
+         * @return this builder
+         */
         public Builder serverDurationMs(Long serverDurationMs) {
             this.serverDurationMs = serverDurationMs;
             return this;
         }
 
+        /**
+         * Sets the value returned by {@link ResponseMetadata#getStatus()}.
+         *
+         * @param status "success" or "error"
+         * @return this builder
+         */
         public Builder status(String status) {
             this.status = status;
             return this;
         }
 
+        /**
+         * Sets the value returned by {@link ResponseMetadata#getGrpcStatusCode()}.
+         *
+         * @param grpcStatusCode the gRPC status code name, such as "OK"
+         * @return this builder
+         */
         public Builder grpcStatusCode(String grpcStatusCode) {
             this.grpcStatusCode = grpcStatusCode;
             return this;
         }
 
+        /**
+         * Sets the value returned by {@link ResponseMetadata#getErrorType()}.
+         *
+         * @param errorType the error category, or null for a successful call
+         * @return this builder
+         */
         public Builder errorType(String errorType) {
             this.errorType = errorType;
             return this;
         }
 
+        /**
+         * Sets the value returned by {@link ResponseMetadata#getReadUnits()}.
+         *
+         * @param readUnits the read units charged, or null
+         * @return this builder
+         */
         public Builder readUnits(Integer readUnits) {
             this.readUnits = readUnits;
             return this;
         }
 
+        /**
+         * Sets the value returned by {@link ResponseMetadata#getUpsertedCount()}.
+         *
+         * @param upsertedCount the number of records upserted, or null
+         * @return this builder
+         */
         public Builder upsertedCount(Integer upsertedCount) {
             this.upsertedCount = upsertedCount;
             return this;
         }
 
+        /**
+         * Sets the value returned by {@link ResponseMetadata#getMatchedRecords()}.
+         *
+         * @param matchedRecords the number of records matched, or null
+         * @return this builder
+         */
         public Builder matchedRecords(Integer matchedRecords) {
             this.matchedRecords = matchedRecords;
             return this;
         }
 
+        /**
+         * Creates the {@link ResponseMetadata}.
+         *
+         * @return a new instance with the values set on this builder
+         */
         public ResponseMetadata build() {
             return new ResponseMetadata(this);
         }

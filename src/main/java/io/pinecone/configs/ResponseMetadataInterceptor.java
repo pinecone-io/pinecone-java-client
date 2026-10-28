@@ -9,8 +9,22 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * gRPC ClientInterceptor that captures response metadata from Pinecone data plane operations.
- * Extracts timing information from the x-pinecone-response-duration-ms trailing header.
+ * gRPC interceptor that builds a {@link ResponseMetadata} for each upsert, query, fetch, update, delete and list
+ * call and passes it to a {@link ResponseMetadataListener}.
+ *
+ * <p>The client installs it on index connections when you set a listener with
+ * {@link io.pinecone.clients.Pinecone.Builder#withResponseMetadataListener
+ * Pinecone.Builder.withResponseMetadataListener}, so you don't create one yourself. You
+ * would construct it only to attach the same reporting to a gRPC stub you build on your own channel.
+ *
+ * <pre>{@code
+ * ResponseMetadataInterceptor interceptor = new ResponseMetadataInterceptor(
+ *     metadata -> System.out.println(metadata),
+ *     "product-catalog",
+ *     "product-catalog-abc123.svc.aped-4627-b74a.pinecone.io");
+ * VectorServiceGrpc.VectorServiceBlockingStub stub =
+ *     VectorServiceGrpc.newBlockingStub(channel).withInterceptors(interceptor);
+ * }</pre>
  */
 public class ResponseMetadataInterceptor implements ClientInterceptor {
 
@@ -29,11 +43,11 @@ public class ResponseMetadataInterceptor implements ClientInterceptor {
     private final String serverAddress;
 
     /**
-     * Creates a new interceptor.
+     * Creates an interceptor that reports calls to {@code listener}, labeled with the given index name and host.
      *
-     * @param listener      The listener to receive response metadata
-     * @param indexName     The name of the Pinecone index
-     * @param serverAddress The server address/host
+     * @param listener      receives one {@link ResponseMetadata} per tracked call; must not be null
+     * @param indexName     the index name to report, such as "product-catalog"
+     * @param serverAddress the index host to report
      */
     public ResponseMetadataInterceptor(ResponseMetadataListener listener, String indexName, String serverAddress) {
         this.listener = listener;

@@ -9,18 +9,22 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * This class represents the response to a query, where the {@link ScoredVector} objects in the `matches` list
- * contain {@link SparseValuesWithUnsignedIndices} instead of the standard SparseValues.
- * <p>
- * The {@link QueryResponseWithUnsignedIndices} class contains the following fields:
- * - matches: a list of {@link ScoredVectorWithUnsignedIndices} objects, representing the matching vectors
- * - namespace: the namespace of the index to retrieve search results from
- * - usage: the usage information for the queryS
- * <p>
- * The class provides a constructor that takes a {@link QueryResponse} object and converts it to a
- * {@link QueryResponseWithUnsignedIndices} object, as well as getter and setter methods for each of the fields.
- * It also includes a method to convert a list of `ScoredVector` objects to a list of
- * {@link ScoredVectorWithUnsignedIndices} objects.
+ * The result of a query on {@link io.pinecone.clients.Index} or {@link io.pinecone.clients.AsyncIndex}: the
+ * matching vectors, best match first, plus the namespace searched and the read units used.
+ *
+ * <p>Returned by the {@code query}, {@code queryByVector} and {@code queryByVectorId} methods (wrapped in a
+ * {@code ListenableFuture} on {@code AsyncIndex}); you do not normally construct one. It is the same as the
+ * generated {@link QueryResponse} class except that sparse indices in the matches are {@code Long}, so they hold the
+ * full unsigned 32-bit range.
+ *
+ * <pre>{@code
+ * QueryResponseWithUnsignedIndices response =
+ *     index.queryByVector(5, Arrays.asList(0.12f, -0.03f, 0.48f), "articles-en", false, true);
+ * for (ScoredVectorWithUnsignedIndices match : response.getMatchesList()) {
+ *     System.out.println(match.getId() + " " + match.getScore());
+ * }
+ * System.out.println("Read units: " + response.getUsage().getReadUnits());
+ * }</pre>
  */
 public class QueryResponseWithUnsignedIndices {
 
@@ -40,10 +44,15 @@ public class QueryResponseWithUnsignedIndices {
     private Usage usage;
 
     /**
-     * Constructs a {@link QueryResponseWithUnsignedIndices} object from a {@link QueryResponse} object, converting the
-     * `ScoredVector` objects to {@link ScoredVectorWithUnsignedIndices} objects.
+     * Creates a result from the generated {@link QueryResponse} class, converting the sparse indices in each
+     * match to unsigned values. The query methods call this for you.
      *
-     * @param queryResponse The {@link QueryResponse} object to convert
+     * <pre>{@code
+     * QueryResponseWithUnsignedIndices response = new QueryResponseWithUnsignedIndices(queryResponse);
+     * }</pre>
+     *
+     * @param queryResponse a query response read from gRPC; null gives no matches, an empty namespace and a null
+     *                      usage
      */
     public QueryResponseWithUnsignedIndices(QueryResponse queryResponse) {
         if (queryResponse == null) {
@@ -58,30 +67,37 @@ public class QueryResponseWithUnsignedIndices {
     }
 
     /**
-     * Returns the list of matching vectors, where each vector contains sparse values with unsigned 32-bit integer indices.
+     * The matching vectors, best match first, at most {@code topK} of them.
      *
-     * @return The list of {@link ScoredVectorWithUnsignedIndices} objects
+     * @return the matches; empty if nothing matched
      */
     public List<ScoredVectorWithUnsignedIndices> getMatchesList() {
         return matches;
     }
 
     /**
-     * Returns the {@link ScoredVectorWithUnsignedIndices} object at the specified index in the `matches` list.
+     * The match at a position in {@link #getMatchesList()}; {@code getMatches(0)} is the best match.
      *
-     * @param index The index of the {@link ScoredVectorWithUnsignedIndices} object to return
-     * @return The {@link ScoredVectorWithUnsignedIndices} object at the specified index
+     * @param index the position, starting at 0
+     * @return the match at that position
+     * @throws IndexOutOfBoundsException if there are not that many matches
      */
     public ScoredVectorWithUnsignedIndices getMatches(int index) {
         return matches.get(index);
     }
 
     /**
-     * Converts a list of {@link ScoredVector} objects to a list of {@link ScoredVectorWithUnsignedIndices} objects.
+     * Converts matches from the generated {@link ScoredVector} class, as the constructor does. Callers do not
+     * normally need it.
      *
-     * @param matches The list of {@link ScoredVector} objects to convert
-     * @return The list of {@link ScoredVectorWithUnsignedIndices} objects
-     * @throws IllegalArgumentException If the matches list is null
+     * <pre>{@code
+     * List<ScoredVectorWithUnsignedIndices> matches =
+     *     response.convertToScoredVectorWithUnsignedIndices(queryResponse.getMatchesList());
+     * }</pre>
+     *
+     * @param matches matches read from a gRPC query response
+     * @return the converted matches, in the same order
+     * @throws IllegalArgumentException if {@code matches} is null
      */
     public List<ScoredVectorWithUnsignedIndices> convertToScoredVectorWithUnsignedIndices(List<ScoredVector> matches) {
         if (matches == null) {
@@ -95,45 +111,45 @@ public class QueryResponseWithUnsignedIndices {
     }
 
     /**
-     * Sets the list of matching vectors, where each vector contains sparse values with unsigned 32-bit integer indices.
+     * Replaces the matches, for example in test data.
      *
-     * @param matches The new list of {@link ScoredVectorWithUnsignedIndices} objects
+     * @param matches the matches, best match first
      */
     public void setMatches(List<ScoredVectorWithUnsignedIndices> matches) {
         this.matches = matches;
     }
 
     /**
-     * Returns the namespace of the query.
+     * The namespace the query searched.
      *
-     * @return The namespace
+     * @return the namespace name, such as {@code "articles-en"}
      */
     public String getNamespace() {
         return namespace;
     }
 
     /**
-     * Sets the namespace of the query.
+     * Replaces the namespace, for example in test data.
      *
-     * @param namespace The new namespace
+     * @param namespace the namespace
      */
     public void setNamespace(String namespace) {
         this.namespace = namespace;
     }
 
     /**
-     * Returns the usage information for the query.
+     * What the query cost; {@link Usage#getReadUnits()} gives the read units it used.
      *
-     * @return The usage
+     * @return the usage, or null if the result was created from a null response
      */
     public Usage getUsage() {
         return usage;
     }
 
     /**
-     * Sets the usage information for the query.
+     * Replaces the usage, for example in test data.
      *
-     * @param usage The new usage
+     * @param usage the usage
      */
     public void setUsage(Usage usage) {
         this.usage = usage;

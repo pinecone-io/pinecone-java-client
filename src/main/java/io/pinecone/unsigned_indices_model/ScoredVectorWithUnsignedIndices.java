@@ -7,20 +7,20 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * This class represents a scored vector with unsigned 32-bit integer indices for the sparse values.
- * Unlike the {@link ScoredVector} class, which uses the SparseValues class to represent the sparse values,
- * this class uses the {@link SparseValuesWithUnsignedIndices} class, which allows for the use of unsigned 32-bit
- * integers as indices.
- * <p>
- * The {@link ScoredVectorWithUnsignedIndices} class contains the following fields:
- * - score: the score associated with the vector
- * - id: the identifier of the vector
- * - values: the dense vector values
- * - metadata: the metadata associated with the vector
- * - sparseValuesWithUnsignedIndices: the sparse values associated with the vector, using unsigned 32-bit integer indices
- * <p>
- * The class provides a constructor that takes a {@link ScoredVector} object and converts it to a
- * {@link ScoredVectorWithUnsignedIndices} object, as well as getter and setter methods for each of the fields.
+ * One match from a query on {@link io.pinecone.clients.Index} or {@link io.pinecone.clients.AsyncIndex}: the
+ * vector's id, its similarity score, and its values and metadata if you asked for them.
+ *
+ * <p>The same as the generated {@link ScoredVector} class except that sparse indices are {@code Long}, so they
+ * hold the full unsigned 32-bit range. You get these from
+ * {@link QueryResponseWithUnsignedIndices#getMatchesList()}; you do not normally construct one.
+ *
+ * <pre>{@code
+ * QueryResponseWithUnsignedIndices response =
+ *     index.queryByVector(5, Arrays.asList(0.12f, -0.03f, 0.48f), "articles-en", false, true);
+ * for (ScoredVectorWithUnsignedIndices match : response.getMatchesList()) {
+ *     System.out.println(match.getId() + " " + match.getScore() + " " + match.getMetadata());
+ * }
+ * }</pre>
  */
 public class ScoredVectorWithUnsignedIndices {
 
@@ -50,10 +50,15 @@ public class ScoredVectorWithUnsignedIndices {
     private SparseValuesWithUnsignedIndices sparseValuesWithUnsignedIndices;
 
     /**
-     * Constructs a {@link ScoredVectorWithUnsignedIndices} object from a {@link ScoredVector} object, converting the
-     * SparseValues to {@link SparseValuesWithUnsignedIndices}.
+     * Creates a match from the generated {@link ScoredVector} class, converting its sparse indices to
+     * unsigned values. The query methods call this for you.
      *
-     * @param scoredVector the {@link ScoredVector} object to convert
+     * <pre>{@code
+     * ScoredVectorWithUnsignedIndices match = new ScoredVectorWithUnsignedIndices(scoredVector);
+     * }</pre>
+     *
+     * @param scoredVector a match read from a gRPC query response; null gives a match with an empty id, a score
+     *                     of 0 and empty values, metadata and sparse values
      */
     public ScoredVectorWithUnsignedIndices(ScoredVector scoredVector) {
         if (scoredVector == null) {
@@ -72,90 +77,94 @@ public class ScoredVectorWithUnsignedIndices {
     }
 
     /**
-     * Returns the score associated with the vector.
+     * How similar the vector is to the query, computed with the index's metric. For cosine and dotproduct a
+     * higher score is more similar; for euclidean a lower score is more similar.
      *
-     * @return The score
+     * @return the similarity score
      */
     public float getScore() {
         return score;
     }
 
     /**
-     * Sets the score associated with the vector.
+     * Replaces the score, for example in test data.
      *
-     * @param score The new score
+     * @param score the similarity score
      */
     public void setScore(float score) {
         this.score = score;
     }
 
     /**
-     * Returns the identifier of the vector.
+     * The id of the matching vector.
      *
-     * @return The id
+     * @return the vector id, such as {@code "doc-42"}
      */
     public String getId() {
         return id;
     }
 
     /**
-     * Sets the identifier of the vector.
+     * Replaces the id, for example in test data.
      *
-     * @param id The new id
+     * @param id the vector id
      */
     public void setId(String id) {
         this.id = id;
     }
 
     /**
-     * Returns the dense vector values.
+     * The matching vector's dense values. The server returns them only when the query set
+     * {@code includeValues} to true.
      *
-     * @return The list of values
+     * @return the dense values, or an empty list if they were not requested
      */
     public List<Float> getValuesList() {
         return values;
     }
 
     /**
-     * Sets the dense vector values.
+     * Replaces the dense values, for example in test data.
      *
-     * @param values The new list of values
+     * @param values the dense values
      */
     public void setValues(List<Float> values) {
         this.values = values;
     }
 
     /**
-     * Returns the metadata associated with the vector.
+     * The matching vector's metadata. The server returns it only when the query set {@code includeMetadata} to
+     * true.
      *
-     * @return The metadata
+     * @return the metadata, or an empty {@link Struct} if it was not requested or the vector has none
      */
     public Struct getMetadata() {
         return metadata;
     }
 
     /**
-     * Sets the metadata associated with the vector.
+     * Replaces the metadata, for example in test data.
      *
-     * @param metadata The new metadata
+     * @param metadata the metadata
      */
     public void setMetadata(Struct metadata) {
         this.metadata = metadata;
     }
 
     /**
-     * Returns the sparse values associated with the vector, using unsigned 32-bit integer indices.
+     * The matching vector's sparse values. The server returns them only when the query set
+     * {@code includeValues} to true.
      *
-     * @return The {@link SparseValuesWithUnsignedIndices} object
+     * @return the sparse values; never null, with empty lists if they were not requested or the vector has none
      */
     public SparseValuesWithUnsignedIndices getSparseValuesWithUnsignedIndices() {
         return sparseValuesWithUnsignedIndices;
     }
 
     /**
-     * Sets the sparse values associated with the vector, using unsigned 32-bit integer indices.
+     * Replaces the sparse values, for example in test data.
      *
-     * @param sparseValuesWithUnsignedIndices The new {@link SparseValuesWithUnsignedIndices} object
+     * @param sparseValuesWithUnsignedIndices the sparse values
      */
     public void setSparseValuesWithUnsignedIndices(SparseValuesWithUnsignedIndices sparseValuesWithUnsignedIndices) {
         this.sparseValuesWithUnsignedIndices = sparseValuesWithUnsignedIndices;

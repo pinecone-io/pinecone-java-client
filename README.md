@@ -155,7 +155,7 @@ public class DisableTLSExample {
 
 #### Capturing response metadata for observability
 
-The SDK supports capturing response metadata for all data plane operations (upsert, query, fetch, update, delete). This enables you to track latency metrics and integrate with observability tools like OpenTelemetry, Prometheus, or Datadog.
+The SDK supports capturing response metadata for all data plane operations (upsert, query, fetch, update, delete, list). This enables you to track latency metrics and integrate with observability tools like OpenTelemetry, Prometheus, or Datadog.
 
 ```java
 import io.pinecone.clients.Pinecone;
@@ -192,7 +192,7 @@ The `ResponseMetadata` object provides:
 
 | Method | Description |
 |--------|-------------|
-| `getOperationName()` | Operation type: upsert, query, fetch, update, delete |
+| `getOperationName()` | Operation type: upsert, query, fetch, update, delete, list |
 | `getClientDurationMs()` | Total round-trip time measured by the client |
 | `getServerDurationMs()` | Server processing time from `x-pinecone-response-duration-ms` header |
 | `getNetworkOverheadMs()` | Computed: client duration - server duration |

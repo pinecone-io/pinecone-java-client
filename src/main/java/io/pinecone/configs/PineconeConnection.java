@@ -20,27 +20,23 @@ import java.net.SocketAddress;
 import java.util.concurrent.TimeUnit;
 
 /**
- * The {@link PineconeConnection} class handles communication with a Pinecone service or router. One PineconeConnection
- * can be shared and used concurrently by multiple threads.
- *  <pre>{@code
+ * The gRPC channel and stubs that an {@link io.pinecone.clients.Index} or {@link io.pinecone.clients.AsyncIndex} uses
+ * to reach one index. Safe to share across threads.
+ * <p>
+ * {@link io.pinecone.clients.Pinecone#getIndexConnection(String)} creates and caches one per index name, so most
+ * callers never construct one. Construct it yourself, from a {@link PineconeConfig} that has the index host, when you
+ * want to skip the describe-index call, connect to a local emulator, or supply your own gRPC channel. Close it when
+ * you are done: it holds threads and network connections.
+ * <pre>{@code
+ * PineconeConfig config = new PineconeConfig(System.getenv("PINECONE_API_KEY"));
+ * config.setHost("product-catalog-abc1234.svc.aped-4627-b74a.pinecone.io");
  *
- *  import io.pinecone.clients.AsyncIndex;
- *  import io.pinecone.clients.Index;
- *  import io.pinecone.configs.PineconeConnection;
- *  ...
- *
- *  // Construct the connection object
- *  PineconeConnection connection = new PineconeConnection(config);
- *
- *  // Construct the index object for synchronous data plane operations
- *  Index index = new Index(connection, "example-index");
- *  index.describeIndexStats();
- *
- *  // Construct the async index object for asynchronous data plane operations
- *  AsyncIndex asyncIndex = new AsyncIndex(connection, "example-index");
- *  asyncIndex.describeIndexStats();
- *
- *  }</pre>
+ * try (PineconeConnection connection = new PineconeConnection(config, "product-catalog")) {
+ *     Index index = new Index(config, connection, "product-catalog");
+ *     DescribeIndexStatsResponse stats = index.describeIndexStats();
+ *     System.out.println(stats.getTotalVectorCount());
+ * }
+ * }</pre>
  */
 public class PineconeConnection implements AutoCloseable {
 
@@ -62,27 +58,27 @@ public class PineconeConnection implements AutoCloseable {
     private VectorServiceGrpc.VectorServiceFutureStub asyncStub;
 
     /**
-     * Constructs a {@link PineconeConnection} instance with the specified {@link PineconeConfig}.
-     * If a custom gRPC ManagedChannel is provided in the {@link PineconeConfig}, it will be used.
-     * Otherwise, a new gRPC ManagedChannel will be built using the host specified in the {@link PineconeConfig}.
-     * <p>
+     * Opens a connection without an index name. Same as {@link #PineconeConnection(PineconeConfig, String)}, except
+     * that {@link ResponseMetadata#getIndexName()} is empty for calls on this connection.
      *
-     * @param config The {@link PineconeConfig} containing configuration settings for the PineconeConnection.
-     * @throws PineconeValidationException If index name or host is not provided for data plane operations.
+     * @param config the API key, index host and connection settings
+     * @throws PineconeValidationException if the config has no custom channel and no host
      */
     public PineconeConnection(PineconeConfig config) {
         this(config, null);
     }
 
     /**
-     * Constructs a {@link PineconeConnection} instance with the specified {@link PineconeConfig} and index name.
-     * If a custom gRPC ManagedChannel is provided in the {@link PineconeConfig}, it will be used.
-     * Otherwise, a new gRPC ManagedChannel will be built using the host specified in the {@link PineconeConfig}.
-     * <p>
+     * Opens a connection to the index host in {@code config}, or uses the channel from
+     * {@link PineconeConfig#setCustomManagedChannel(ManagedChannel)} if one is set. The channel is built with the
+     * config's TLS and proxy settings and connects lazily, so an unreachable host surfaces on the first call, not
+     * here. The API key and response metadata listener are read now; later changes to the config do not affect this
+     * connection.
      *
-     * @param config    The {@link PineconeConfig} containing configuration settings for the PineconeConnection.
-     * @param indexName The name of the index, used for response metadata tracking.
-     * @throws PineconeValidationException If index name or host is not provided for data plane operations.
+     * @param config    the API key, index host and connection settings
+     * @param indexName the index name reported in {@link ResponseMetadata#getIndexName()}, such as
+     *                  {@code "product-catalog"}; null reports an empty name
+     * @throws PineconeValidationException if the config has no custom channel and no host
      */
     public PineconeConnection(PineconeConfig config, String indexName) {
         this.config = config;
@@ -145,23 +141,29 @@ public class PineconeConnection implements AutoCloseable {
     }
 
     /**
-     * Returns the gRPC channel.
+     * The gRPC channel this connection sends calls on, either built from the config or the custom one supplied.
+     *
+     * @return the channel
      */
     public ManagedChannel getChannel() {
         return channel;
     }
 
     /**
-     * Return the gRPC stub used for sending requests to Pinecone.
-     * @return The blocking stub
+     * The blocking stub {@link io.pinecone.clients.Index} uses. It already sends the API key and, if a listener is set,
+     * reports response metadata, so use it for a call the {@link io.pinecone.clients.Index} methods don't cover.
+     *
+     * @return the blocking stub
      */
     public VectorServiceGrpc.VectorServiceBlockingStub getBlockingStub() {
         return blockingStub;
     }
 
     /**
-     * Return the gRPC async stub to allow clients to do ListenableFuture-style rpc calls to Pinecone.
-     * @return The async stub
+     * The future-returning stub {@link io.pinecone.clients.AsyncIndex} uses. It already sends the API key and, if a
+     * listener is set, reports response metadata.
+     *
+     * @return the async stub
      */
     public VectorServiceGrpc.VectorServiceFutureStub getAsyncStub() {
         return asyncStub;
@@ -220,6 +222,14 @@ public class PineconeConnection implements AutoCloseable {
         return metadata;
     }
 
+    /**
+     * Removes a leading {@code http://} or {@code https://} from a host so it can be used as a gRPC target.
+     *
+     * @param host a host with or without a scheme, such as
+     *             {@code "https://product-catalog-abc1234.svc.aped-4627-b74a.pinecone.io"}
+     * @return the host without the scheme
+     * @throws PineconeValidationException if {@code host} is null or empty
+     */
     public static String formatEndpoint(String host) {
         if (host != null && !host.isEmpty()) {
             return host.replaceFirst("https?://", "");
@@ -229,9 +239,9 @@ public class PineconeConnection implements AutoCloseable {
     }
 
     /**
-     * Close the connection and release all resources. A PineconeConnection's underlying gRPC components use resources
-     * like threads and TCP connections. To prevent leaking these resources the connection should be closed when it
-     * will no longer be used. If it may be used again leave it running.
+     * Shuts down the channel, including a custom one, cancels calls still in flight, and waits up to 5 seconds for it
+     * to terminate. Close a connection once nothing will use it again; any {@link io.pinecone.clients.Index} or
+     * {@link io.pinecone.clients.AsyncIndex} built on it stops working.
      */
     @Override
     public void close() {

@@ -7,16 +7,19 @@ import java.util.List;
 
 import static io.pinecone.utils.SparseIndicesConverter.convertSigned32IntToUnsigned32Int;
 /**
- * This class represents a set of sparse values, where the indices are represented as unsigned 32-bit integers.
- * Unlike the {@link SparseValues} class, which uses signed 32-bit integers for the indices, this class uses {@link Long}
- * to represent the indices, allowing for the full range of unsigned 32-bit integers (0 to 4,294,967,295).
- * <p>
- * The indicesWithUnsigned32Int list contains the indices, while the values list contains the corresponding
- * values. The two lists are parallel, meaning that the value at index i in the values list corresponds to
- * the index at index i in the indicesWithUnsigned32Int list.
- * <p>
- * This class provides a constructor that takes a {@link SparseValues} object and converts the signed 32-bit integer
- * indices to unsigned 32-bit integers, as well as methods to get and set the indices and values.
+ * The sparse part of a vector: two parallel lists, where the value at position i belongs to the index at
+ * position i.
+ *
+ * <p>Indices are {@code Long} so they can hold the full unsigned 32-bit range, 0 to 4294967295, which the
+ * generated {@link SparseValues} class can only store as signed {@code int}. You get one from each match of a
+ * query on {@link io.pinecone.clients.Index} or {@link io.pinecone.clients.AsyncIndex}, and you can build one to
+ * attach to a {@link VectorWithUnsignedIndices} for upsert.
+ *
+ * <pre>{@code
+ * SparseValuesWithUnsignedIndices sparse = new SparseValuesWithUnsignedIndices(
+ *     Arrays.asList(102L, 4017L, 3000000000L),
+ *     Arrays.asList(0.62f, 0.31f, 0.07f));
+ * }</pre>
  */
 public class SparseValuesWithUnsignedIndices {
 
@@ -31,7 +34,7 @@ public class SparseValuesWithUnsignedIndices {
     private List<Float> values;
 
     /**
-     * Constructs an empty {@link SparseValuesWithUnsignedIndices} object with empty lists for indices and values.
+     * Creates sparse values with no indices and no values.
      */
     public SparseValuesWithUnsignedIndices() {
         this.indicesWithUnsigned32Int = Collections.emptyList();
@@ -39,10 +42,21 @@ public class SparseValuesWithUnsignedIndices {
     }
 
     /**
-     * Constructs a {@link SparseValuesWithUnsignedIndices} object with the given lists of indices and values.
+     * Creates sparse values from parallel lists of indices and values.
      *
-     * @param indicesWithUnsigned32Int The list of indices, represented as unsigned 32-bit integers
-     * @param values The list of values corresponding to the indices
+     * <p>The constructor does not check the lists. When you upsert, the client rejects lists of different lengths
+     * and indices outside 0 to 4294967295 with a
+     * {@link io.pinecone.exceptions.PineconeValidationException}.
+     *
+     * <pre>{@code
+     * SparseValuesWithUnsignedIndices sparse = new SparseValuesWithUnsignedIndices(
+     *     Arrays.asList(102L, 4017L),
+     *     Arrays.asList(0.62f, 0.31f));
+     * }</pre>
+     *
+     * @param indicesWithUnsigned32Int the dimensions that have a value, each from 0 to 4294967295, such as
+     *                                 token ids from a sparse embedding
+     * @param values the value for each index, in the same order and of the same length
      */
     public SparseValuesWithUnsignedIndices(List<Long> indicesWithUnsigned32Int, List<Float> values) {
         this.indicesWithUnsigned32Int = indicesWithUnsigned32Int;
@@ -50,10 +64,15 @@ public class SparseValuesWithUnsignedIndices {
     }
 
     /**
-     * Constructs a {@link SparseValuesWithUnsignedIndices} object from a {@link SparseValues} object, converting the
-     * signed 32-bit integer indices to unsigned 32-bit integers.
+     * Creates sparse values from the generated {@link SparseValues} class, converting each index back to its
+     * unsigned value.
      *
-     * @param sparseValues The {@link SparseValues} object to convert
+     * <pre>{@code
+     * SparseValuesWithUnsignedIndices sparse =
+     *     new SparseValuesWithUnsignedIndices(vector.getSparseValues());
+     * }</pre>
+     *
+     * @param sparseValues sparse values read from a gRPC response, such as a fetched vector; null gives empty lists
      */
     public SparseValuesWithUnsignedIndices(SparseValues sparseValues) {
         if (sparseValues == null) {
@@ -66,36 +85,36 @@ public class SparseValuesWithUnsignedIndices {
     }
 
     /**
-     * Returns the list of indices, represented as unsigned 32-bit integers.
+     * The dimensions that have a value, each from 0 to 4294967295.
      *
-     * @return The list of indices
+     * @return the indices, parallel to {@link #getValuesList()}
      */
     public List<Long> getIndicesWithUnsigned32IntList() {
         return indicesWithUnsigned32Int;
     }
 
     /**
-     * Sets the list of indices, represented as unsigned 32-bit integers.
+     * Replaces the indices; keep them the same length as the values.
      *
-     * @param indicesWithUnsigned32Int The new list of indices
+     * @param indicesWithUnsigned32Int the dimensions that have a value, each from 0 to 4294967295
      */
     public void setIndicesWithUnsigned32Int(List<Long> indicesWithUnsigned32Int) {
         this.indicesWithUnsigned32Int = indicesWithUnsigned32Int;
     }
 
     /**
-     * Returns the list of values corresponding to the indices.
+     * The value at each index.
      *
-     * @return The list of values
+     * @return the values, parallel to {@link #getIndicesWithUnsigned32IntList()}
      */
     public List<Float> getValuesList() {
         return values;
     }
 
     /**
-     * Sets the list of values corresponding to the indices.
+     * Replaces the values; keep them the same length as the indices.
      *
-     * @param values The new list of values
+     * @param values the value for each index, in the same order
      */
     public void setValues(List<Float> values) {
         this.values = values;
