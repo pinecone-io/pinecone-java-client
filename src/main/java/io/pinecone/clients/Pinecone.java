@@ -5,16 +5,23 @@ import io.pinecone.configs.PineconeConnection;
 import io.pinecone.configs.ProxyConfig;
 import io.pinecone.configs.ResponseMetadataListener;
 import io.pinecone.exceptions.*;
+import okhttp3.HttpUrl;
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.logging.HttpLoggingInterceptor;
 import org.openapitools.db_control.client.ApiClient;
 import org.openapitools.db_control.client.ApiException;
 import org.openapitools.db_control.client.Configuration;
 import org.openapitools.db_control.client.api.ManageIndexesApi;
 import org.openapitools.db_control.client.model.*;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -1788,7 +1795,7 @@ public class Pinecone {
             apiClient.addDefaultHeader("X-Pinecone-Api-Version", Configuration.VERSION);
 
             if (Boolean.parseBoolean(System.getenv("PINECONE_DEBUG"))) {
-                apiClient.setDebugging(true);
+                enableDebugLogging(apiClient);
             }
 
             ManageIndexesApi manageIndexesApi = new ManageIndexesApi();
@@ -1798,12 +1805,44 @@ public class Pinecone {
         }
     }
 
+    static void enableDebugLogging(ApiClient apiClient) {
+        apiClient.setDebugging(true);
+        List<Interceptor> interceptors = apiClient.getHttpClient().interceptors();
+        Interceptor added = interceptors.get(interceptors.size() - 1);
+        if (added instanceof HttpLoggingInterceptor) {
+            ((HttpLoggingInterceptor) added).redactHeader("Api-Key");
+        }
+    }
+
     static OkHttpClient buildOkHttpClient(ProxyConfig proxyConfig) {
-        OkHttpClient.Builder builder = new OkHttpClient.Builder();
+        OkHttpClient.Builder builder = new OkHttpClient.Builder()
+                .addNetworkInterceptor(Pinecone::dropApiKeyOnCrossOriginRedirect);
         if(proxyConfig != null) {
             Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyConfig.getHost(), proxyConfig.getPort()));
             builder.proxy(proxy);
         }
         return builder.build();
+    }
+
+    // OkHttp strips Authorization on a cross-origin redirect but not custom headers like Api-Key.
+    private static Response dropApiKeyOnCrossOriginRedirect(Interceptor.Chain chain) throws IOException {
+        Request request = chain.request();
+        HttpUrl origin = chain.call().request().url();
+        if (keepsApiKey(origin, request.url())) {
+            return chain.proceed(request);
+        }
+        return chain.proceed(request.newBuilder().removeHeader("Api-Key").build());
+    }
+
+    // Same rule as Python requests' should_strip_auth: same origin, or a same-host http->https upgrade on default ports.
+    static boolean keepsApiKey(HttpUrl origin, HttpUrl url) {
+        if (!url.host().equals(origin.host())) {
+            return false;
+        }
+        if (url.scheme().equals(origin.scheme())) {
+            return url.port() == origin.port();
+        }
+        return origin.scheme().equals("http") && origin.port() == 80
+                && url.scheme().equals("https") && url.port() == 443;
     }
 }
