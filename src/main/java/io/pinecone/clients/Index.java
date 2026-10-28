@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static io.pinecone.clients.Pinecone.buildOkHttpClient;
 
@@ -62,7 +63,7 @@ public class Index implements IndexInterface<UpsertResponse,
         NamespaceDescription> {
 
     private final PineconeConnection connection;
-    private final String indexName;
+    private final AtomicBoolean closed = new AtomicBoolean();
     private final VectorServiceGrpc.VectorServiceBlockingStub blockingStub;
     private final VectorOperationsApi vectorOperations;
 
@@ -89,7 +90,6 @@ public class Index implements IndexInterface<UpsertResponse,
         }
 
         this.connection = connection;
-        this.indexName = indexName;
         this.blockingStub = connection.getBlockingStub();
 
         OkHttpClient customOkHttpClient = config.getCustomOkHttpClient();
@@ -1531,12 +1531,14 @@ public class Index implements IndexInterface<UpsertResponse,
      * {@inheritDoc}
      * Closes the current index connection gracefully, releasing any resources associated with it. This method should
      * be called when the index instance is no longer needed, to ensure proper cleanup of network connections and other
-     * resources. It closes both the connection to the Pinecone service identified by {@code indexName} and any internal
-     * resources held by the {@link PineconeConnection} object.
+     * resources. The underlying {@link PineconeConnection} is closed unless another index object obtained from
+     * {@link Pinecone} with the same settings still uses it; it is then closed when the last of them is closed.
+     * Calling this method more than once has no further effect.
      */
     @Override
     public void close() {
-        Pinecone.closeConnection(indexName);
-        connection.close();
+        if (closed.compareAndSet(false, true)) {
+            Pinecone.releaseConnection(connection);
+        }
     }
 }

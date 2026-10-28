@@ -2,6 +2,20 @@
 
 [comment]: <> (When bumping [pc:VERSION_LATEST_RELEASE] create a new entry below)
 ### Unreleased version
+- Fix: index connections are no longer shared between `Pinecone` clients that differ in API key, index host,
+  TLS setting, source tag or response-metadata listener. Previously a second client opening an index with the
+  same name reused the first client's gRPC connection, so its data-plane calls went to the first client's
+  project with the first client's API key, and its listener and TLS settings were ignored (#36).
+- Changed: `Index.close()` and `AsyncIndex.close()` now release only that object. The shared gRPC connection
+  shuts down when the last `Index`/`AsyncIndex` using it is closed; closing one no longer breaks the others.
+  Calling `close()` more than once has no further effect.
+  - Close every `Index`/`AsyncIndex` you open. An index object that is never closed now keeps its connection
+    open even after the others are closed.
+  - Don't use an `Index` after closing it; such calls may still succeed while another index object shares the
+    connection.
+  - Clients share connections only when they use the same listener instance. Building many clients, each with
+    a new lambda or method reference as the listener (for example `metrics::record` per client), opens one
+    connection per client.
 ### 6.2.0
 - Add readUnits, upsertedCount, and matchedRecords to ResponseMetadata
 - Add List operation to ResponseMetadataInterceptor 

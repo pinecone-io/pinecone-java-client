@@ -35,6 +35,7 @@ import org.openapitools.db_data.client.api.BulkOperationsApi;
 import org.openapitools.db_data.client.model.*;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static io.pinecone.clients.Pinecone.buildOkHttpClient;
 
@@ -64,7 +65,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
 
     private final PineconeConnection connection;
     private final VectorServiceGrpc.VectorServiceFutureStub asyncStub;
-    private final String indexName;
+    private final AtomicBoolean closed = new AtomicBoolean();
     BulkOperationsApi bulkOperations;
 
     /**
@@ -89,7 +90,6 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
             throw new PineconeValidationException("Pinecone connection object cannot be null.");
         }
 
-        this.indexName = indexName;
         this.connection = connection;
         this.asyncStub = connection.getAsyncStub();
 
@@ -1538,12 +1538,14 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      * {@inheritDoc}
      * Closes the current index connection gracefully, releasing any resources associated with it. This method should
      * be called when the index instance is no longer needed, to ensure proper cleanup of network connections and other
-     * resources. It closes both the connection to the Pinecone service identified by {@code indexName} and any internal
-     * resources held by the {@link PineconeConnection} object.
+     * resources. The underlying {@link PineconeConnection} is closed unless another index object obtained from
+     * {@link Pinecone} with the same settings still uses it; it is then closed when the last of them is closed.
+     * Calling this method more than once has no further effect.
      */
     @Override
     public void close() {
-        Pinecone.closeConnection(indexName);
-        connection.close();
+        if (closed.compareAndSet(false, true)) {
+            Pinecone.releaseConnection(connection);
+        }
     }
 }

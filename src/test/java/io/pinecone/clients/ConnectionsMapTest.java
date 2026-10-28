@@ -2,205 +2,230 @@ package io.pinecone.clients;
 
 import io.pinecone.configs.PineconeConfig;
 import io.pinecone.configs.PineconeConnection;
+import io.pinecone.configs.ResponseMetadataListener;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedConstruction;
 import org.mockito.Mockito;
 import org.openapitools.db_control.client.ApiException;
 import org.openapitools.db_control.client.Configuration;
 import org.openapitools.db_control.client.api.ManageIndexesApi;
 import org.openapitools.db_control.client.model.IndexModel;
+import org.openapitools.db_data.client.api.BulkOperationsApi;
+import org.openapitools.db_data.client.api.VectorOperationsApi;
 
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 public class ConnectionsMapTest {
 
-    @Test
-    public void testMultiplePineconeInstancesForIndexes() {
-        String host = "some-host";
+    private static ManageIndexesApi describing(String indexName, String host) throws ApiException {
         ManageIndexesApi manageIndexesApi = Mockito.mock(ManageIndexesApi.class);
         IndexModel indexModel = new IndexModel();
         indexModel.setHost(host);
-        PineconeConfig config = new PineconeConfig("testApiKey");
-        config.setHost(host);
-
-        // Create two pinecone objects
-        Pinecone pinecone1 = new Pinecone(config, manageIndexesApi);
-        Pinecone pinecone2 = new Pinecone(config, manageIndexesApi);
-
-        // We don't want to hit the servers for describeIndex()
-        when(pinecone1.describeIndex("index1")).thenReturn(indexModel);
-        when(pinecone1.describeIndex("index2")).thenReturn(indexModel);
-        when(pinecone2.describeIndex("index1")).thenReturn(indexModel);
-        when(pinecone2.describeIndex("index2")).thenReturn(indexModel);
-
-        // Create two pinecone objects with 2 index connections per pinecone object
-        Index index1Pinecone1 = pinecone1.getIndexConnection("index1");
-        Index index1Pinecone2 = pinecone1.getIndexConnection("index2");
-        Index index2Pinecone1 = pinecone2.getIndexConnection("index1");
-        Index index2Pinecone2 = pinecone2.getIndexConnection("index2");
-
-        ConcurrentHashMap<String, PineconeConnection> concurrentHashMap1 = pinecone1.getConnectionsMap();
-        ConcurrentHashMap<String, PineconeConnection> concurrentHashMap2 = pinecone2.getConnectionsMap();
-
-        // Verify that both pinecone objects are of size 2
-        assertEquals(concurrentHashMap1.size(), 2);
-        assertEquals(concurrentHashMap2.size(), 2);
-
-        // Verify that the contents and refer to the same object instance
-        assertEquals(concurrentHashMap1, concurrentHashMap2);
-        assertSame(concurrentHashMap1, concurrentHashMap2);
-
-        index1Pinecone1.close();
-        index2Pinecone1.close();
-        index1Pinecone2.close();
-        index2Pinecone2.close();
-    }
-
-    @Test
-    public void testMultiplePineconeInstancesForAsyncIndexes() {
-        String host = "some-host";
-        ManageIndexesApi manageIndexesApi = Mockito.mock(ManageIndexesApi.class);
-        IndexModel indexModel = new IndexModel();
-        indexModel.setHost(host);
-        PineconeConfig config = new PineconeConfig("testApiKey");
-        config.setHost(host);
-
-        // Create two pinecone objects
-        Pinecone pinecone1 = new Pinecone(config, manageIndexesApi);
-        Pinecone pinecone2 = new Pinecone(config, manageIndexesApi);
-
-        // We don't want to hit the servers for describeIndex()
-        when(pinecone1.describeIndex("index1")).thenReturn(indexModel);
-        when(pinecone1.describeIndex("index2")).thenReturn(indexModel);
-        when(pinecone2.describeIndex("index1")).thenReturn(indexModel);
-        when(pinecone2.describeIndex("index2")).thenReturn(indexModel);
-
-        // Create two pinecone objects with 2 index connections per pinecone object
-        AsyncIndex asyncIndex1Pinecone1 = pinecone1.getAsyncIndexConnection("index1");
-        AsyncIndex asyncIndex2Pinecone1 = pinecone1.getAsyncIndexConnection("index2");
-        AsyncIndex asyncIndex1Pinecone2 = pinecone2.getAsyncIndexConnection("index1");
-        AsyncIndex asyncIndex2Pinecone2 = pinecone2.getAsyncIndexConnection("index2");
-
-        ConcurrentHashMap<String, PineconeConnection> concurrentHashMap1 = pinecone1.getConnectionsMap();
-        ConcurrentHashMap<String, PineconeConnection> concurrentHashMap2 = pinecone2.getConnectionsMap();
-
-        // Verify that both pinecone objects are of size 2
-        assertEquals(concurrentHashMap1.size(), 2);
-        assertEquals(concurrentHashMap2.size(), 2);
-
-        // Verify that the contents and refer to the same object instance
-        assertEquals(concurrentHashMap1, concurrentHashMap2);
-        assertSame(concurrentHashMap1, concurrentHashMap2);
-
-        asyncIndex1Pinecone1.close();
-        asyncIndex2Pinecone1.close();
-        asyncIndex1Pinecone2.close();
-        asyncIndex2Pinecone2.close();
-    }
-
-    @Test
-    public void testDistinctHostsSharedAcrossClients() throws ApiException {
-        String indexName1 = "conn-map-index1";
-        String indexName2 = "conn-map-index2";
-        String host1 = "conn-map-index1-host";
-        String host2 = "conn-map-index2-host";
-
-        ManageIndexesApi manageIndexesApi = Mockito.mock(ManageIndexesApi.class);
-        IndexModel indexModel1 = new IndexModel();
-        indexModel1.setHost(host1);
-        IndexModel indexModel2 = new IndexModel();
-        indexModel2.setHost(host2);
-        when(manageIndexesApi.describeIndex(Configuration.VERSION, indexName1)).thenReturn(indexModel1);
-        when(manageIndexesApi.describeIndex(Configuration.VERSION, indexName2)).thenReturn(indexModel2);
-
-        PineconeConfig config = new PineconeConfig("testApiKey");
-        Pinecone pinecone1 = new Pinecone(config, manageIndexesApi);
-        Pinecone pinecone2 = new Pinecone(config, manageIndexesApi);
-
-        PineconeConfig config1 = new PineconeConfig("testApiKey");
-        config1.setHost(host1);
-        PineconeConfig config2 = new PineconeConfig("testApiKey");
-        config2.setHost(host2);
-
-        Index index1 = pinecone1.getIndexConnection(indexName1);
-        ConcurrentHashMap<String, PineconeConnection> connectionsMap = pinecone1.getConnectionsMap();
-        assertEquals(host1, connectionsMap.get(indexName1).toString());
-
-        Index index2 = pinecone1.getIndexConnection(indexName2);
-        assertEquals(host1, connectionsMap.get(indexName1).toString());
-        assertEquals(host2, connectionsMap.get(indexName2).toString());
-
-        // A second client shares the map and reuses the existing connection for each index
-        assertSame(connectionsMap, pinecone2.getConnectionsMap());
-        assertSame(connectionsMap.get(indexName1), pinecone2.getConnection(indexName1, config1));
-        assertSame(connectionsMap.get(indexName2), pinecone2.getConnection(indexName2, config2));
-
-        index1.close();
-        index2.close();
-
-        assertFalse(connectionsMap.containsKey(indexName1));
-        assertFalse(connectionsMap.containsKey(indexName2));
-    }
-
-    @Test
-    public void testConnectionRemovedOnIndexClose() throws ApiException {
-        String host = "some-host";
-        String indexName = "test-index";
-
-        ManageIndexesApi manageIndexesApi = Mockito.mock(ManageIndexesApi.class);
-        IndexModel indexModel = new IndexModel();
-        indexModel.setHost(host);
-
-        PineconeConfig config = new PineconeConfig("testApiKey");
-        config.setHost(host);
-        Pinecone pinecone = new Pinecone(config, manageIndexesApi);
-
         when(manageIndexesApi.describeIndex(Configuration.VERSION, indexName)).thenReturn(indexModel);
+        return manageIndexesApi;
+    }
 
-        Index index = pinecone.getIndexConnection(indexName);
+    private static List<PineconeConnection> connectionsTo(String host) {
+        return Pinecone.openConnections().stream()
+                .filter(connection -> host.equals(connection.toString()))
+                .collect(Collectors.toList());
+    }
 
-        // Verify that the connection is present in the connections map
-        assertTrue(pinecone.getConnectionsMap().containsKey(indexName));
+    @Test
+    public void testClientsWithSameSettingsShareConnection() throws ApiException {
+        String host = "shared-host-" + System.nanoTime();
+        ManageIndexesApi manageIndexesApi = describing("index1", host);
+        Pinecone pinecone1 = new Pinecone(new PineconeConfig("testApiKey"), manageIndexesApi);
+        Pinecone pinecone2 = new Pinecone(new PineconeConfig("testApiKey"), manageIndexesApi);
 
-        // Verify that the connections map size is 1
-        assertEquals(pinecone.getConnectionsMap().size(), 1);
+        Index index1 = pinecone1.getIndexConnection("index1");
+        Index index2 = pinecone2.getIndexConnection("index1");
+        AsyncIndex asyncIndex = pinecone2.getAsyncIndexConnection("index1");
+        try {
+            assertEquals(1, connectionsTo(host).size());
+        } finally {
+            index1.close();
+            index2.close();
+            asyncIndex.close();
+        }
+        assertEquals(0, connectionsTo(host).size());
+    }
 
-        // Connection should be removed from the connections map after closing it
+    @Test
+    public void testClientsWithDifferentApiKeysGetDistinctConnections() throws ApiException {
+        String host = "same-name-host-" + System.nanoTime();
+        ManageIndexesApi manageIndexesApi = describing("index1", host);
+        Pinecone pinecone1 = new Pinecone(new PineconeConfig("apiKeyA"), manageIndexesApi);
+        Pinecone pinecone2 = new Pinecone(new PineconeConfig("apiKeyB"), manageIndexesApi);
+
+        Index index1 = pinecone1.getIndexConnection("index1");
+        Index index2 = pinecone2.getIndexConnection("index1");
+        try {
+            assertEquals(2, connectionsTo(host).size());
+        } finally {
+            index1.close();
+            index2.close();
+        }
+        assertEquals(0, connectionsTo(host).size());
+    }
+
+    @Test
+    public void testClientsWithDifferentTlsOrListenerGetDistinctConnections() throws ApiException {
+        String host = "settings-host-" + System.nanoTime();
+        ManageIndexesApi manageIndexesApi = describing("index1", host);
+        PineconeConfig plaintext = new PineconeConfig("testApiKey");
+        plaintext.setTLSEnabled(false);
+        PineconeConfig listening = new PineconeConfig("testApiKey");
+        listening.setResponseMetadataListener(metadata -> { });
+
+        Index base = new Pinecone(new PineconeConfig("testApiKey"), manageIndexesApi).getIndexConnection("index1");
+        Index noTls = new Pinecone(plaintext, manageIndexesApi).getIndexConnection("index1");
+        Index withListener = new Pinecone(listening, manageIndexesApi).getIndexConnection("index1");
+        try {
+            assertEquals(3, connectionsTo(host).size());
+        } finally {
+            base.close();
+            noTls.close();
+            withListener.close();
+        }
+        assertEquals(0, connectionsTo(host).size());
+    }
+
+    @Test
+    public void testCloseKeepsConnectionOpenWhileAnotherIndexUsesIt() throws ApiException {
+        String host = "close-host-" + System.nanoTime();
+        ManageIndexesApi manageIndexesApi = describing("index1", host);
+        Pinecone pinecone1 = new Pinecone(new PineconeConfig("testApiKey"), manageIndexesApi);
+        Pinecone pinecone2 = new Pinecone(new PineconeConfig("testApiKey"), manageIndexesApi);
+
+        Index index = pinecone1.getIndexConnection("index1");
+        AsyncIndex asyncIndex = pinecone2.getAsyncIndexConnection("index1");
+        PineconeConnection connection = connectionsTo(host).get(0);
+
         index.close();
+        index.close();
+        assertSame(connection, connectionsTo(host).get(0));
+        assertFalse(connection.getChannel().isShutdown());
 
-        // Verify that the connection is removed from the connections map
-        assertFalse(pinecone.getConnectionsMap().containsKey(indexName));
+        asyncIndex.close();
+        assertTrue(connectionsTo(host).isEmpty());
+        assertTrue(connection.getChannel().isShutdown());
     }
 
     @Test
-    public void testConnectionRemovedOnAsyncIndexClose() throws ApiException {
-        String host = "some-host";
-        String indexName = "test-index";
-        ManageIndexesApi manageIndexesApi = Mockito.mock(ManageIndexesApi.class);
-        IndexModel indexModel = new IndexModel();
-        indexModel.setHost(host);
-
+    public void testCloseShutsDownConnectionNotFromClient() {
         PineconeConfig config = new PineconeConfig("testApiKey");
-        config.setHost(host);
-        Pinecone pinecone = new Pinecone(config, manageIndexesApi);
+        config.setHost("standalone-host");
+        PineconeConnection connection = new PineconeConnection(config);
 
-        when(manageIndexesApi.describeIndex(Configuration.VERSION, indexName)).thenReturn(indexModel);
+        new Index(config, connection, "index1").close();
 
-        AsyncIndex asyncIndex = pinecone.getAsyncIndexConnection(indexName);
+        assertTrue(connection.getChannel().isShutdown());
+    }
 
-        // Verify that the connection is present in the connections map
-        assertTrue(pinecone.getConnectionsMap().containsKey(indexName));
+    @Test
+    public void testClientsWithDifferentSourceTagsGetDistinctConnections() throws ApiException {
+        String host = "source-tag-host-" + System.nanoTime();
+        ManageIndexesApi manageIndexesApi = describing("index1", host);
 
-        // Verify that the connections map size is 1
-        assertEquals(pinecone.getConnectionsMap().size(), 1);
+        Index tagA = new Pinecone(new PineconeConfig("testApiKey", "tag_a"), manageIndexesApi).getIndexConnection("index1");
+        Index tagB = new Pinecone(new PineconeConfig("testApiKey", "tag_b"), manageIndexesApi).getIndexConnection("index1");
+        try {
+            assertEquals(2, connectionsTo(host).size());
+        } finally {
+            tagA.close();
+            tagB.close();
+        }
+        assertEquals(0, connectionsTo(host).size());
+    }
 
-        // Connection should be removed from the connections map after closing it
-        asyncIndex.close();
+    @Test
+    public void testClientsSharingOneListenerInstanceShareConnection() throws ApiException {
+        String host = "shared-listener-host-" + System.nanoTime();
+        ManageIndexesApi manageIndexesApi = describing("index1", host);
+        ResponseMetadataListener listener = metadata -> { };
+        PineconeConfig config1 = new PineconeConfig("testApiKey");
+        config1.setResponseMetadataListener(listener);
+        PineconeConfig config2 = new PineconeConfig("testApiKey");
+        config2.setResponseMetadataListener(listener);
 
-        // Verify that the connection is removed from the connections map
-        assertFalse(pinecone.getConnectionsMap().containsKey(indexName));
+        Index index1 = new Pinecone(config1, manageIndexesApi).getIndexConnection("index1");
+        Index index2 = new Pinecone(config2, manageIndexesApi).getIndexConnection("index1");
+        try {
+            assertEquals(1, connectionsTo(host).size());
+        } finally {
+            index1.close();
+            index2.close();
+        }
+        assertEquals(0, connectionsTo(host).size());
+    }
+
+    @Test
+    public void testReconnectAfterLastCloseOpensNewConnection() throws ApiException {
+        String host = "reconnect-host-" + System.nanoTime();
+        Pinecone pinecone = new Pinecone(new PineconeConfig("testApiKey"), describing("index1", host));
+
+        Index first = pinecone.getIndexConnection("index1");
+        PineconeConnection firstConnection = connectionsTo(host).get(0);
+        first.close();
+        assertTrue(firstConnection.getChannel().isShutdown());
+
+        Index second = pinecone.getIndexConnection("index1");
+        try {
+            PineconeConnection secondConnection = connectionsTo(host).get(0);
+            assertNotSame(firstConnection, secondConnection);
+            assertFalse(secondConnection.getChannel().isShutdown());
+        } finally {
+            second.close();
+        }
+        assertEquals(0, connectionsTo(host).size());
+    }
+
+    @Test
+    public void testAsyncIndexCloseTwiceReleasesOnce() throws ApiException {
+        String host = "async-close-host-" + System.nanoTime();
+        Pinecone pinecone = new Pinecone(new PineconeConfig("testApiKey"), describing("index1", host));
+
+        AsyncIndex asyncIndex = pinecone.getAsyncIndexConnection("index1");
+        Index index = pinecone.getIndexConnection("index1");
+        PineconeConnection connection = connectionsTo(host).get(0);
+        try {
+            asyncIndex.close();
+            asyncIndex.close();
+            assertSame(connection, connectionsTo(host).get(0));
+            assertFalse(connection.getChannel().isShutdown());
+        } finally {
+            index.close();
+        }
+        assertTrue(connectionsTo(host).isEmpty());
+        assertTrue(connection.getChannel().isShutdown());
+    }
+
+    @Test
+    public void testFailedIndexConstructionReleasesConnection() throws ApiException {
+        String host = "failed-index-host-" + System.nanoTime();
+        Pinecone pinecone = new Pinecone(new PineconeConfig("testApiKey"), describing("index1", host));
+
+        try (MockedConstruction<VectorOperationsApi> ignored = mockConstruction(VectorOperationsApi.class,
+                (mock, context) -> { throw new IllegalStateException("boom"); })) {
+            assertThrows(RuntimeException.class, () -> pinecone.getIndexConnection("index1"));
+        }
+        assertTrue(connectionsTo(host).isEmpty());
+    }
+
+    @Test
+    public void testFailedAsyncIndexConstructionReleasesConnection() throws ApiException {
+        String host = "failed-async-index-host-" + System.nanoTime();
+        Pinecone pinecone = new Pinecone(new PineconeConfig("testApiKey"), describing("index1", host));
+
+        try (MockedConstruction<BulkOperationsApi> ignored = mockConstruction(BulkOperationsApi.class,
+                (mock, context) -> { throw new IllegalStateException("boom"); })) {
+            assertThrows(RuntimeException.class, () -> pinecone.getAsyncIndexConnection("index1"));
+        }
+        assertTrue(connectionsTo(host).isEmpty());
     }
 }

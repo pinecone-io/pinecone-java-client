@@ -20,10 +20,13 @@ import org.openapitools.db_control.client.model.*;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The Pinecone class is the main entry point for interacting with Pinecone via the Java SDK.
@@ -52,7 +55,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Pinecone {
 
-    private static final ConcurrentHashMap<String, PineconeConnection> connectionsMap = new ConcurrentHashMap<>();
+    // Keyed by every setting a PineconeConnection captures, so only clients with identical settings share a channel.
+    private static final Map<List<Object>, SharedConnection> connectionsMap = new HashMap<>();
     private final ManageIndexesApi manageIndexesApi;
     private final PineconeConfig config;
 
@@ -1491,7 +1495,12 @@ public class Pinecone {
         }
 
         PineconeConnection connection = getConnection(indexName, perConnectionConfig);
-        return new Index(perConnectionConfig, connection, indexName);
+        try {
+            return new Index(perConnectionConfig, connection, indexName);
+        } catch (RuntimeException e) {
+            releaseConnection(connection);
+            throw e;
+        }
     }
 
     /**
@@ -1527,7 +1536,12 @@ public class Pinecone {
         }
 
         PineconeConnection connection = getConnection(indexName, perConnectionConfig);
-        return new AsyncIndex(perConnectionConfig, connection, indexName);
+        try {
+            return new AsyncIndex(perConnectionConfig, connection, indexName);
+        } catch (RuntimeException e) {
+            releaseConnection(connection);
+            throw e;
+        }
     }
 
     /**
@@ -1543,19 +1557,58 @@ public class Pinecone {
     }
 
     PineconeConnection getConnection(String indexName, PineconeConfig perConnectionConfig) {
-        return connectionsMap.computeIfAbsent(indexName, key -> new PineconeConnection(perConnectionConfig, indexName));
+        List<Object> key = Arrays.asList(indexName, perConnectionConfig.getApiKey(), perConnectionConfig.getHost(),
+                perConnectionConfig.isTLSEnabled(), perConnectionConfig.getUserAgent(),
+                perConnectionConfig.getResponseMetadataListener());
+        synchronized (connectionsMap) {
+            SharedConnection shared = connectionsMap.computeIfAbsent(key,
+                    k -> new SharedConnection(new PineconeConnection(perConnectionConfig, indexName)));
+            shared.users++;
+            return shared.connection;
+        }
     }
 
-    ConcurrentHashMap<String, PineconeConnection> getConnectionsMap() {
-        return connectionsMap;
+    static Collection<PineconeConnection> openConnections() {
+        synchronized (connectionsMap) {
+            List<PineconeConnection> connections = new ArrayList<>();
+            for (SharedConnection shared : connectionsMap.values()) {
+                connections.add(shared.connection);
+            }
+            return connections;
+        }
     }
 
     String getIndexHost(String indexName) {
         return this.describeIndex(indexName).getHost();
     }
 
-    static void closeConnection(String indexName) {
-        connectionsMap.remove(indexName);
+    /**
+     * Closes {@code connection} once no other {@link Index} or {@link AsyncIndex} obtained from
+     * {@link #getIndexConnection} or {@link #getAsyncIndexConnection} still uses it.
+     */
+    static void releaseConnection(PineconeConnection connection) {
+        synchronized (connectionsMap) {
+            for (Iterator<SharedConnection> it = connectionsMap.values().iterator(); it.hasNext(); ) {
+                SharedConnection shared = it.next();
+                if (shared.connection == connection) {
+                    if (--shared.users > 0) {
+                        return;
+                    }
+                    it.remove();
+                    break;
+                }
+            }
+        }
+        connection.close();
+    }
+
+    private static final class SharedConnection {
+        final PineconeConnection connection;
+        int users;
+
+        SharedConnection(PineconeConnection connection) {
+            this.connection = connection;
+        }
     }
 
     private void handleApiException(ApiException apiException) throws PineconeException {
