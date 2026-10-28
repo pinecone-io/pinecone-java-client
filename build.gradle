@@ -166,9 +166,8 @@ tasks.register('generateJavadoc', Javadoc) {
 }
 
 // Javadoc findings (warnings and errors) on the hand-written sources with doclint fully on. Generated
-// code (io/pinecone/proto, org/openapitools) is excluded. Lower the ceiling when you fix findings;
-// never raise it.
-def javadocLintCeiling = 147
+// code (io/pinecone/proto, org/openapitools) is excluded. The ceiling is 0; never raise it.
+def javadocLintCeiling = 0
 
 tasks.register('javadocLint', Javadoc) {
     group = 'verification'

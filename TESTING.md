@@ -76,7 +76,7 @@ java -cp build/libs/*-all.jar io.pinecone.helpers.IndexCleanupUtility --age-thre
 ./gradlew javadocLint
 ```
 
-This runs Javadoc with doclint fully on over the hand-written sources (generated code is skipped), prints every warning and error, and fails if their count exceeds the ceiling set next to the task in `build.gradle`. CI runs it on the JDK 17 leg of `pr.yml`'s `build` job; other JDKs report different findings, so run it on JDK 17 locally too. Fix any finding your change adds. When you fix existing ones, lower the ceiling to the new count. Never raise it.
+This runs Javadoc with doclint fully on over the hand-written sources (generated code is skipped), prints every warning and error, and fails if there are any (the ceiling next to the task in `build.gradle` is 0). CI runs it on the JDK 17 leg of `pr.yml`'s `build` job; other JDKs report different findings, so run it on JDK 17 locally too. Fix any finding your change adds. Never raise the ceiling.
 
 ## Docs previews
 
