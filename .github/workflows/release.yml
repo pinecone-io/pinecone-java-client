@@ -1,87 +1,306 @@
 name: Release
 
+# Publishes io.pinecone:pinecone-client to Maven Central from the public repo. The version is the one
+# in gradle.properties at `ref`, set by a prep PR; this workflow never changes it. See RELEASING.md.
 on:
   workflow_dispatch:
     inputs:
       ref:
-        description: 'Git ref to build (branch name or SHA)'
+        description: 'Commit SHA on main to release'
         required: true
         type: string
-        default: 'main'
-      releaseLevel:
-        description: 'Release level'
+      dryRun:
+        description: 'Dry run: check the version, the signing key and the Central token, upload nothing'
         required: true
-        type: choice
-        default: 'patch'
-        options:
-          - 'patch' # bug fixes
-          - 'minor' # new features, backwards compatible
-          - 'major' # breaking changes
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+env:
+  MAVEN_CENTRAL_DIR: https://repo1.maven.org/maven2/io/pinecone/pinecone-client
+  # The key that signs 6.3.0 and later; every signature must be by it. 2CFDEE6F36609094 signed 6.2.0 and
+  # earlier and is retired. Change this and RELEASING.md together if the key is rotated.
+  SIGNING_KEY_FINGERPRINT: 68D9DCB2AB93798113C29B8DA87EC316B9162471
 
 jobs:
-  release:
+  # Every other job needs this one, so the repository guard here also keeps the internal mirror from
+  # publishing.
+  preflight:
+    if: github.repository == 'pinecone-io/pinecone-java-client'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      actions: read  # read the release environment's protection rules
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      sha: ${{ steps.version.outputs.sha }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          ref: ${{ github.event.inputs.ref }}
+          ref: ${{ inputs.ref }}
+          persist-credentials: false
 
-      - name: Set up JDK 8
-        uses: actions/setup-java@v3
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad  # v6.1.0
         with:
-          java-version: '8'
-          distribution: 'temurin'
+          distribution: temurin
+          java-version: 17
 
-      - name: Bump version
+      - name: Read the version
+        id: version
         run: |
-          # Read current version
-          CURRENT_VERSION=$(grep "pineconeClientVersion" gradle.properties | cut -d'=' -f2 | tr -d ' ')
-          
-          # Split version into components
-          IFS='.' read -r major minor patch <<< "$CURRENT_VERSION"
-          
-          # Bump version based on release level
-          case "${{ github.event.inputs.releaseLevel }}" in
-            "major")
-              NEW_VERSION="$((major + 1)).0.0"
-              ;;
-            "minor")
-              NEW_VERSION="$major.$((minor + 1)).0"
-              ;;
-            "patch")
-              NEW_VERSION="$major.$minor.$((patch + 1))"
-              ;;
-          esac
-          
-          # Update gradle.properties
-          sed -i "s/pineconeClientVersion = .*/pineconeClientVersion = $NEW_VERSION/" gradle.properties
-          
-          # Set output for later steps
-          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+          version=$(sed -n 's/^pineconeClientVersion *= *//p' gradle.properties | tr -d '[:space:]')
+          if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::gradle.properties has pineconeClientVersion '$version'; expected X.Y.Z."
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
-      - name: Build with Gradle
+      - name: Check the release is ready
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          SHA: ${{ steps.version.outputs.sha }}
+          DRY_RUN: ${{ inputs.dryRun }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          failed=0
+          summary() { echo "$1" >> "$GITHUB_STEP_SUMMARY"; }
+          pass() { summary "| ✅ | $1 |"; }
+          warn() { summary "| ⚠️ | $1 |"; echo "::warning::$1"; }
+          fail() { summary "| ❌ | $1 |"; echo "::error::$1"; failed=1; }
+
+          summary "### Preflight: v$VERSION at \`$SHA\`"
+          summary ""
+          summary "| | Check |"
+          summary "|---|---|"
+
+          # identical or ahead: main contains $SHA.
+          status=$(gh api "repos/$GITHUB_REPOSITORY/compare/$SHA...main" --jq .status 2> /dev/null) || status=error
+          case "$status" in
+            identical|ahead) pass "$SHA is on main" ;;
+            *) fail "$SHA is not on main (compare status: $status); release only merged commits" ;;
+          esac
+
+          user_agent=$(sed -n 's/.*pineconeClientVersion = "\(.*\)";.*/\1/p' src/main/java/io/pinecone/commons/Constants.java)
+          if [ "$user_agent" = "v$VERSION" ]; then
+            pass "Constants.java User-Agent version is v$VERSION"
+          else
+            fail "Constants.java User-Agent version is '$user_agent', expected 'v$VERSION'"
+          fi
+
+          if grep -qxF "### $VERSION" CHANGELOG.md; then
+            pass "CHANGELOG.md has a ### $VERSION entry"
+          else
+            fail "CHANGELOG.md has no '### $VERSION' entry"
+          fi
+
+          if git ls-remote --exit-code --tags origin "refs/tags/v$VERSION" > /dev/null; then
+            fail "Tag v$VERSION already exists on $GITHUB_REPOSITORY"
+          else
+            status=$?
+            if [ "$status" -eq 2 ]; then
+              pass "Tag v$VERSION does not exist yet"
+            else
+              fail "Could not list tags on $GITHUB_REPOSITORY (git ls-remote exit $status)"
+            fi
+          fi
+
+          pom_url="$MAVEN_CENTRAL_DIR/$VERSION/pinecone-client-$VERSION.pom"
+          code=$(curl -s -o /dev/null -w '%{http_code}' "$pom_url") || code=000
+          case "$code" in
+            404) pass "$VERSION is not on Maven Central yet" ;;
+            200) fail "$VERSION is already on Maven Central ($pom_url). Central versions are immutable; bump the version" ;;
+            *)   fail "Could not check Maven Central for $VERSION (HTTP $code from $pom_url)" ;;
+          esac
+
+          # GitHub creates a missing environment on first use with no protection, so the upload would
+          # run unapproved.
+          reviewers=$(gh api "repos/$GITHUB_REPOSITORY/environments/release" \
+            --jq '[.protection_rules[]? | select(.type == "required_reviewers")] | length' 2> /dev/null) || reviewers=0
+          if [ "${reviewers:-0}" -gt 0 ]; then
+            pass "The release environment has a required reviewer"
+          elif [ "$DRY_RUN" = true ]; then
+            warn "The release environment is missing or has no required reviewer; the real run will refuse to start until it has one"
+          else
+            fail "The release environment is missing or has no required reviewer (Settings > Environments > release)"
+          fi
+
+          exit "$failed"
+
+      - name: Build and run the unit tests
         run: ./gradlew clean build
 
-      - name: Publish to Maven Central
+  dry-run:
+    needs: preflight
+    if: inputs.dryRun
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      VERSION: ${{ needs.preflight.outputs.version }}
+      ORG_GRADLE_PROJECT_SIGNINGKEY: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEY }}
+      ORG_GRADLE_PROJECT_SIGNINGKEYID: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEYID }}
+      ORG_GRADLE_PROJECT_SIGNINGPASSWORD: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGPASSWORD }}
+      ORG_GRADLE_PROJECT_SONATYPEUSERNAME: ${{ secrets.ORG_GRADLE_PROJECT_SONATYPEUSERNAME }}
+      ORG_GRADLE_PROJECT_SONATYPEPASSWORD: ${{ secrets.ORG_GRADLE_PROJECT_SONATYPEPASSWORD }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          ref: ${{ needs.preflight.outputs.sha }}
+          persist-credentials: false
+
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad  # v6.1.0
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Check the release secrets are set
+        id: secrets
+        run: .github/scripts/release-signing.sh check-secrets
+
+      - name: Sign every artifact with the stored key
+        id: sign
+        run: .github/scripts/release-signing.sh sign
+
+      - name: Verify the signatures against the public keyserver
+        id: verify
+        run: .github/scripts/release-signing.sh verify
+
+      # A read-only Publisher API call; it fails with 401 if the token is wrong.
+      - name: Check the Central Portal token
+        id: portal
+        if: ${{ !cancelled() && steps.secrets.outcome == 'success' }}
+        run: |
+          token=$(printf '%s:%s' "$ORG_GRADLE_PROJECT_SONATYPEUSERNAME" "$ORG_GRADLE_PROJECT_SONATYPEPASSWORD" | base64 -w0)
+          echo "::add-mask::$token"
+          url='https://central.sonatype.com/api/v1/publisher/published?namespace=io.pinecone&name=pinecone-client&version=6.2.0'
+          code=$(printf 'Authorization: Bearer %s\n' "$token" | curl -s -o "$RUNNER_TEMP/portal.json" -w '%{http_code}' -H @- "$url") || code=000
+          if [ "$code" != 200 ]; then
+            echo "::error::Central Portal returned HTTP $code. Check ORG_GRADLE_PROJECT_SONATYPEUSERNAME and ORG_GRADLE_PROJECT_SONATYPEPASSWORD (a Central Portal user token, not a login)."
+            exit 1
+          fi
+          echo "Central Portal: $(cat "$RUNNER_TEMP/portal.json")"
+
+      - name: Summarize the dry run
+        if: always()
         env:
-          ORG_GRADLE_PROJECT_signingKeyId: ${{ secrets.SIGNING_KEY_ID }}
-          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.SIGNING_KEY }}
-          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.SIGNING_PASSWORD }}
-          ORG_GRADLE_PROJECT_sonatypeUsername: ${{ secrets.SONATYPE_USERNAME }}
-          ORG_GRADLE_PROJECT_sonatypePassword: ${{ secrets.SONATYPE_PASSWORD }}
+          SECRETS: ${{ steps.secrets.outcome }}
+          SIGN: ${{ steps.sign.outcome }}
+          VERIFY: ${{ steps.verify.outcome }}
+          KEY_ID: ${{ steps.verify.outputs.key_id }}
+          PORTAL: ${{ steps.portal.outcome }}
+        run: |
+          icon() { case "$1" in success) echo "✅" ;; skipped|'') echo "⏭️" ;; *) echo "❌" ;; esac; }
+          {
+            echo "### Dry run: v$VERSION"
+            echo ""
+            echo "| | Check |"
+            echo "|---|---|"
+            echo "| $(icon "$SECRETS") | Release secrets are set |"
+            echo "| $(icon "$SIGN") | All artifacts signed with the stored key and passphrase |"
+            echo "| $(icon "$VERIFY") | Signatures (by key \`${KEY_ID:-?}\`) verify against release key \`$SIGNING_KEY_FINGERPRINT\` on keyserver.ubuntu.com |"
+            echo "| $(icon "$PORTAL") | Central Portal token authenticates |"
+            echo ""
+            if [ "$SECRETS$SIGN$VERIFY$PORTAL" = successsuccesssuccesssuccess ]; then
+              echo "**Dry run passed.** Nothing was uploaded. To publish, run this workflow again with dryRun unchecked."
+            else
+              echo "**Dry run failed.** Nothing was uploaded. See the failed step's log."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  publish:
+    needs: preflight
+    if: ${{ !inputs.dryRun }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # A required reviewer on this environment approves the upload; preflight refuses a real run without one.
+    environment: release
+    env:
+      ORG_GRADLE_PROJECT_SIGNINGKEY: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEY }}
+      ORG_GRADLE_PROJECT_SIGNINGKEYID: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEYID }}
+      ORG_GRADLE_PROJECT_SIGNINGPASSWORD: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGPASSWORD }}
+      ORG_GRADLE_PROJECT_SONATYPEUSERNAME: ${{ secrets.ORG_GRADLE_PROJECT_SONATYPEUSERNAME }}
+      ORG_GRADLE_PROJECT_SONATYPEPASSWORD: ${{ secrets.ORG_GRADLE_PROJECT_SONATYPEPASSWORD }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          ref: ${{ needs.preflight.outputs.sha }}
+          persist-credentials: false
+
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad  # v6.1.0
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Check the release secrets are set
+        run: .github/scripts/release-signing.sh check-secrets
+
+      # Signing before the upload starts means a bad key fails here, before a staging repository is opened.
+      - name: Sign every artifact with the stored key
+        run: .github/scripts/release-signing.sh sign
+
+      - name: Verify the signatures against the public keyserver
+        run: .github/scripts/release-signing.sh verify
+
+      - name: Publish to Maven Central
         run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository
 
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844  # v1 (v0.1.15)
-        with:
-          name: Release v${{ env.NEW_VERSION }}
-          tag_name: v${{ env.NEW_VERSION }}
-          body: |
-            Release v${{ env.NEW_VERSION }}
-            
-            This release was created automatically by the release workflow.
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+  # A separate job so that, if Central is slow, "Re-run failed jobs" waits again without uploading again.
+  wait-for-central:
+    needs: [preflight, publish]
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      VERSION: ${{ needs.preflight.outputs.version }}
+    steps:
+      - name: Wait for the POM on repo1.maven.org
+        run: |
+          pom_url="$MAVEN_CENTRAL_DIR/$VERSION/pinecone-client-$VERSION.pom"
+          deadline=$((SECONDS + 30 * 60))
+          until curl -sfI -o /dev/null "$pom_url"; do
+            if [ "$SECONDS" -ge "$deadline" ]; then
+              echo "::error::$pom_url is not live after 30 minutes. Open central.sonatype.com > Publish > Deployments; if the deployment is VALIDATED, press Publish. Once the POM loads, re-run this job."
+              exit 1
+            fi
+            sleep 30
+          done
+          echo "Live: $pom_url" | tee -a "$GITHUB_STEP_SUMMARY"
+
+  github-release:
+    needs: [preflight, wait-for-central]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      VERSION: ${{ needs.preflight.outputs.version }}
+      SHA: ${{ needs.preflight.outputs.sha }}
+    steps:
+      # A draft has no tag. Publishing it creates the tag at --target.
+      - name: Create the draft GitHub release
+        run: |
+          tag="v$VERSION"
+          if gh release view "$tag" > /dev/null 2>&1; then
+            gh release edit "$tag" --target "$SHA"
+            note="Release $tag already existed; kept its notes and set its target to \`$SHA\`."
+          else
+            gh release create "$tag" --draft --target "$SHA" --title "$tag Release" \
+              --notes "Replace this text with the release notes before publishing. Changes: [CHANGELOG.md](https://github.com/$GH_REPO/blob/$SHA/CHANGELOG.md). Maven Central: \`io.pinecone:pinecone-client:$VERSION\`."
+            note="Created draft release $tag targeting \`$SHA\`."
+          fi
+          url=$(gh release view "$tag" --json url --jq .url)
+          {
+            echo "### GitHub release"
+            echo ""
+            echo "$note"
+            echo ""
+            echo "Next: write the notes in [the draft]($url) and publish it. Tag \`$tag\` does not exist until the draft is published; publishing creates it at \`$SHA\`. Then run \`scripts/sync_from_public.sh\` in the internal repo to pull the tag back."
+          } >> "$GITHUB_STEP_SUMMARY"

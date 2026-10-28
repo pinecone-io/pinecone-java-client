@@ -8,9 +8,9 @@
 #
 #   - release tags. The release workflow (.github/workflows/release.yml) runs
 #     in the public repo (that's where the Maven Central signing and Sonatype
-#     secrets and the GitHub Release page live). It bumps gradle.properties
-#     only inside the runner -- it does not commit -- then publishes and
-#     creates the GitHub Release, which creates the vX.Y.Z tag.
+#     secrets and the GitHub Release page live). It publishes the version
+#     already in gradle.properties and creates a draft GitHub Release;
+#     publishing that draft creates the vX.Y.Z tag. See RELEASING.md.
 #   - PRs merged directly against the public repo (outside contributions, or
 #     a "prepare to release" version bump made there).
 #
@@ -197,8 +197,8 @@ if [ -n "$new_tags" ]; then
     if [ "$any_off_branch" = true ]; then
         echo ""
         echo "  'off-branch' means the tag drags in a commit that isn't on $BRANCH."
-        echo "  Normal when the release workflow ran against a ref other than"
-        echo "  $BRANCH (e.g. an RC or patch-release branch)."
+        echo "  The release workflow only releases commits on main, so an"
+        echo "  off-branch tag was made by hand; check it before pushing."
     fi
 fi
 
