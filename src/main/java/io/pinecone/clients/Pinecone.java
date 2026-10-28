@@ -29,28 +29,25 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The Pinecone class is the main entry point for interacting with Pinecone via the Java SDK.
- * It is used to create, delete, and manage your indexes and collections, along with the inference api.
- * Note that the Pinecone class instantiates a single shared {@link OkHttpClient} instance,
- * which is used for both control plane and inference operations.The OkHttpClient performs best when you create a single
- * `OkHttpClient` instance and reuse it for all of your HTTP calls. This is because each client holds its own connection
- * pool and thread pools. Reusing connections and threads reduces latency and saves memory. Conversely, creating a
- * client for each request wastes resources on idle pools.
+ * The control-plane client: creates, configures, describes and deletes indexes, collections and backups, and hands
+ * out the data-plane {@link Index} and {@link AsyncIndex} connections and the {@link Inference} client.
  * <p>
- * To instantiate the Pinecone class, use the {@link Pinecone.Builder} class to pass
- * an API key and any other optional configuration.
+ * Build one with {@link Pinecone.Builder} and reuse it for the life of your application. Each instance holds the
+ * HTTP client for its control-plane requests. Repeated calls to {@link #getIndexConnection(String)} for the same
+ * index reuse one gRPC channel, which is also shared with any other {@code Pinecone} instance in the JVM that has the
+ * same API key, source tag, TLS setting and response metadata listener. The channel shuts down when the last
+ * {@link Index} or {@link AsyncIndex} using it is closed. Each call to
+ * {@link #getInferenceClient()} builds a new {@link Inference} client, so call it once and keep the result.
  *
  * <pre>{@code
- *     import io.pinecone.clients.Pinecone;
+ * import io.pinecone.clients.Index;
+ * import io.pinecone.clients.Pinecone;
+ * import java.util.Arrays;
  *
- *     Pinecone client = new Pinecone.Builder("PINECONE_API_KEY").build();
+ * Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
  *
- *     // Use the client to interact with Pinecone
- *     client.describeIndex("YOUR-INDEX");
- *
- *     // Use the client to obtain an Index or AsyncIndex instance to upsert or query
- *     Index index = client.getIndexConnection("YOUR-INDEX");
- *     index.upsert(...);
+ * Index index = pinecone.getIndexConnection("product-catalog");
+ * index.upsert("sku-1001", Arrays.asList(0.12f, 0.48f, 0.91f));
  * }</pre>
  */
 public class Pinecone {
@@ -70,22 +67,40 @@ public class Pinecone {
     }
 
     /**
-     * Creates a new serverless index with the specified parameters.
+     * Creates a serverless index for dense vectors and returns before the index is ready.
      * <p>
-     * Example:
-     * <pre>{@code 
-     *     client.createServerlessIndex("YOUR-INDEX", "cosine", 1536, "aws", "us-west-2", DeletionProtection.ENABLED);
+     * Use this overload for most serverless indexes. Use
+     * {@link #createServerlessIndex(String, String, int, String, String, String, Map, ReadCapacity, BackupModelSchema)
+     * the nine-argument overload} to set dedicated read capacity or limit which metadata fields are indexed,
+     * {@link #createSparseServelessIndex(String, String, String, String, Map, String)} for sparse vectors, and
+     * {@link #createIndexForModel(String, String, String, CreateIndexForModelRequestEmbed, String, Map)} to have
+     * Pinecone embed your text. The index is not ready for reads and writes when this method returns: poll
+     * {@link #describeIndex(String)} until its status reports ready.
+     *
+     * <pre>{@code
+     * IndexModel index = pinecone.createServerlessIndex(
+     *     "product-catalog", "cosine", 1536, "aws", "us-east-1", "disabled", null);
      * }</pre>
      *
-     * @param indexName The name of the index to be created.
-     * @param metric The metric type for the index. Must be one of "cosine", "euclidean", or "dotproduct".
-     * @param dimension The number of dimensions for the index.
-     * @param cloud The cloud provider for the index.
-     * @param region The cloud region for the index.
-     * @param deletionProtection Enable or disable deletion protection for the index.
-     * @param tags A map of tags to associate with the Index.
-     * @return {@link IndexModel} representing the created serverless index.
-     * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
+     * @param indexName Name of the new index, for example {@code "product-catalog"}. Must be unique in the project.
+     * @param metric Similarity metric: {@code "cosine"}, {@code "euclidean"} or {@code "dotproduct"}. Null or empty
+     *               means {@code "cosine"}.
+     * @param dimension Length of the vectors you will store, matching your embedding model's output, for example
+     *                  {@code 1536}.
+     * @param cloud Cloud provider that hosts the index, for example {@code "aws"}.
+     * @param region Region in that cloud, for example {@code "us-east-1"}.
+     * @param deletionProtection {@code "enabled"} to block {@link #deleteIndex(String)} until you disable it with
+     *                           {@link #configureServerlessIndex(String, String, Map, ConfigureIndexRequestEmbed)};
+     *                           {@code "disabled"} or null to allow deletion.
+     * @param tags Key-value labels for the index, for example {@code "team" -> "search"}. Null or empty sends no
+     *             tags.
+     * @return the new index's {@link IndexModel}; its {@code getHost()} is the host data-plane connections use, and
+     *         {@code getStatus()} reports whether the index is ready.
+     * @throws PineconeValidationException if the name, cloud or region is null or empty, or the dimension is less
+     *         than 1. The client checks these before contacting the server.
+     * @throws PineconeBadRequestException if the server rejects the request, for example an index name with
+     *         uppercase letters.
+     * @throws PineconeNotFoundException if the cloud and region pair does not exist.
      */
     public IndexModel createServerlessIndex(String indexName,
                                             String metric,
@@ -98,68 +113,51 @@ public class Pinecone {
     }
 
     /**
-     * Creates a new serverless index with the specified parameters, including optional read capacity and metadata schema configuration.
+     * Creates a serverless index for dense vectors with optional read capacity and metadata schema settings, and
+     * returns before the index is ready.
      * <p>
-     * This method allows you to configure dedicated read capacity nodes for better performance and cost predictability,
-     * and to limit metadata indexing to specific fields for improved performance.
-     * <p>
-     * Example - Create index with OnDemand read capacity (default):
+     * Use this overload when you need dedicated read nodes or want to index only the metadata fields you filter on;
+     * otherwise use {@link #createServerlessIndex(String, String, int, String, String, String, Map) the seven-argument
+     * overload}. The index is not ready for reads and writes when this method returns: poll
+     * {@link #describeIndex(String)} until its status reports ready.
+     *
      * <pre>{@code
-     *     import org.openapitools.db_control.client.model.ReadCapacity;
-     *     import org.openapitools.db_control.client.model.ReadCapacityOnDemandSpec;
-     *     ...
-     *     
-     *     ReadCapacity readCapacity = new ReadCapacity(new ReadCapacityOnDemandSpec().mode("OnDemand"));
-     *     client.createServerlessIndex("YOUR-INDEX", "cosine", 1536, "aws", "us-west-2", 
-     *                                  DeletionProtection.ENABLED, null, readCapacity, null);
-     * }</pre>
-     * <p>
-     * Example - Create index with Dedicated read capacity:
-     * <pre>{@code
-     *     import org.openapitools.db_control.client.model.ReadCapacity;
-     *     import org.openapitools.db_control.client.model.ReadCapacityDedicatedSpec;
-     *     import org.openapitools.db_control.client.model.ReadCapacityDedicatedConfig;
-     *     import org.openapitools.db_control.client.model.ScalingConfigManual;
-     *     ...
-     *     
-     *     ScalingConfigManual manual = new ScalingConfigManual().shards(2).replicas(2);
-     *     ReadCapacityDedicatedConfig dedicated = new ReadCapacityDedicatedConfig()
-     *         .nodeType("t1")
-     *         .scaling("Manual")
-     *         .manual(manual);
-     *     ReadCapacity readCapacity = new ReadCapacity(
-     *         new ReadCapacityDedicatedSpec().mode("Dedicated").dedicated(dedicated));
-     *     client.createServerlessIndex("YOUR-INDEX", "cosine", 1536, "aws", "us-west-2", 
-     *                                  DeletionProtection.ENABLED, null, readCapacity, null);
-     * }</pre>
-     * <p>
-     * Example - Create index with metadata schema:
-     * <pre>{@code
-     *     import org.openapitools.db_control.client.model.BackupModelSchema;
-     *     import org.openapitools.db_control.client.model.BackupModelSchemaFieldsValue;
-     *     ...
-     *     
-     *     Map<String, BackupModelSchemaFieldsValue> fields = new HashMap<>();
-     *     fields.put("genre", new BackupModelSchemaFieldsValue().filterable(true));
-     *     fields.put("year", new BackupModelSchemaFieldsValue().filterable(true));
-     *     BackupModelSchema schema = new BackupModelSchema().fields(fields);
-     *     client.createServerlessIndex("YOUR-INDEX", "cosine", 1536, "aws", "us-west-2", 
-     *                                  DeletionProtection.ENABLED, null, null, schema);
+     * import org.openapitools.db_control.client.model.BackupModelSchema;
+     * import org.openapitools.db_control.client.model.BackupModelSchemaFieldsValue;
+     * import java.util.HashMap;
+     * import java.util.Map;
+     *
+     * Map<String, BackupModelSchemaFieldsValue> fields = new HashMap<>();
+     * fields.put("category", new BackupModelSchemaFieldsValue().filterable(true));
+     * fields.put("price", new BackupModelSchemaFieldsValue().filterable(true));
+     * BackupModelSchema schema = new BackupModelSchema().fields(fields);
+     *
+     * IndexModel index = pinecone.createServerlessIndex(
+     *     "product-catalog", "cosine", 1536, "aws", "us-east-1", "disabled", null, null, schema);
      * }</pre>
      *
-     * @param indexName The name of the index to be created.
-     * @param metric The metric type for the index. Must be one of "cosine", "euclidean", or "dotproduct".
-     * @param dimension The number of dimensions for the index.
-     * @param cloud The cloud provider for the index.
-     * @param region The cloud region for the index.
-     * @param deletionProtection Enable or disable deletion protection for the index.
-     * @param tags A map of tags to associate with the Index.
-     * @param readCapacity The read capacity configuration. If null, defaults to OnDemand mode.
-     *                     Use {@link ReadCapacityOnDemandSpec} for OnDemand or {@link ReadCapacityDedicatedSpec} for Dedicated mode.
-     * @param schema The metadata schema configuration. If null, all metadata fields are indexed.
-     *               Use this to limit metadata indexing to specific fields for improved performance.
-     * @return {@link IndexModel} representing the created serverless index.
-     * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
+     * @param indexName Name of the new index, for example {@code "product-catalog"}. Must be unique in the project.
+     * @param metric Similarity metric: {@code "cosine"}, {@code "euclidean"} or {@code "dotproduct"}. Null or empty
+     *               means {@code "cosine"}.
+     * @param dimension Length of the vectors you will store, matching your embedding model's output, for example
+     *                  {@code 1536}.
+     * @param cloud Cloud provider that hosts the index, for example {@code "aws"}.
+     * @param region Region in that cloud, for example {@code "us-east-1"}.
+     * @param deletionProtection {@code "enabled"} to block {@link #deleteIndex(String)} until you disable it;
+     *                           {@code "disabled"} or null to allow deletion.
+     * @param tags Key-value labels for the index. Null or empty sends no tags.
+     * @param readCapacity How read capacity is provisioned: wrap a {@link ReadCapacityDedicatedSpec} to reserve
+     *                     dedicated read nodes, or a {@link ReadCapacityOnDemandSpec} for on-demand capacity. Null
+     *                     means on-demand.
+     * @param schema Metadata fields to index for filtering, each marked filterable. Null means every metadata
+     *               field is indexed.
+     * @return the new index's {@link IndexModel}; its {@code getHost()} is the host data-plane connections use, and
+     *         {@code getStatus()} reports whether the index is ready.
+     * @throws PineconeValidationException if the name, cloud or region is null or empty, or the dimension is less
+     *         than 1. The client checks these before contacting the server.
+     * @throws PineconeBadRequestException if the server rejects the request, for example an index name with
+     *         uppercase letters.
+     * @throws PineconeNotFoundException if the cloud and region pair does not exist.
      */
     public IndexModel createServerlessIndex(String indexName,
                                             String metric,
@@ -224,21 +222,33 @@ public class Pinecone {
     }
 
     /**
-     * Creates a new sparse serverless index.
+     * Creates a serverless index for sparse vectors and returns before the index is ready.
      * <p>
-     * Example:
+     * Sparse indexes store vectors with mostly zero values, such as keyword weights, and always use the
+     * {@code "dotproduct"} metric, which this method sets for you. They take no dimension. For dense vectors use
+     * {@link #createServerlessIndex(String, String, int, String, String, String, Map)}. The index is not ready for
+     * reads and writes when this method returns: poll {@link #describeIndex(String)} until its status reports ready.
+     *
      * <pre>{@code
-     *     client.createServerlessIndex("YOUR-INDEX", "cosine", 1536, "aws", "us-west-2", DeletionProtection.ENABLED);
+     * IndexModel index = pinecone.createSparseServelessIndex(
+     *     "articles-keywords", "aws", "us-east-1", "disabled", null, "sparse");
      * }</pre>
      *
-     * @param indexName The name of the index to be created.
-     * @param cloud The cloud provider for the index.
-     * @param region The cloud region for the index.
-     * @param deletionProtection Enable or disable deletion protection for the index.
-     * @param tags A map of tags to associate with the Index.
-     * @param vectorType The metric type for the index. Must be one of "cosine", "euclidean", or "dotproduct".
-     * @return {@link IndexModel} representing the created serverless index.
-     * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
+     * @param indexName Name of the new index, for example {@code "articles-keywords"}. Must be unique in the project.
+     * @param cloud Cloud provider that hosts the index, for example {@code "aws"}.
+     * @param region Region in that cloud, for example {@code "us-east-1"}.
+     * @param deletionProtection {@code "enabled"} to block {@link #deleteIndex(String)} until you disable it;
+     *                           {@code "disabled"} or null to allow deletion.
+     * @param tags Key-value labels for the index. Null or empty sends no tags.
+     * @param vectorType Pass {@code "sparse"}. Must not be null. The client also accepts {@code "dense"}, but the
+     *                   server rejects it because this method sends no dimension.
+     * @return the new index's {@link IndexModel}; its {@code getHost()} is the host data-plane connections use, and
+     *         {@code getStatus()} reports whether the index is ready.
+     * @throws PineconeValidationException if the name, cloud or region is null or empty, or {@code vectorType} is
+     *         neither {@code "sparse"} nor {@code "dense"}. The client checks these before contacting the server.
+     * @throws PineconeBadRequestException if the server rejects the request, for example an index name with
+     *         uppercase letters or {@code vectorType} {@code "dense"}.
+     * @throws PineconeNotFoundException if the cloud and region pair does not exist.
      */
     public IndexModel createSparseServelessIndex(String indexName,
                                                   String cloud,
@@ -287,30 +297,46 @@ public class Pinecone {
     }
 
     /**
-     * Creates a new serverless index with an associated embedding model.
+     * Creates a serverless index that embeds your text with a Pinecone-hosted model, and returns before the index
+     * is ready.
      * <p>
-     * Example:
+     * Use this when you want to upsert and search plain text with {@link Index#upsertRecords(String, java.util.List) Index.upsertRecords} and
+     * {@link Index#searchRecords Index.searchRecords} instead of computing vectors yourself. The model decides whether the index is dense
+     * or sparse, its dimension and its default metric. Use
+     * {@link #createIndexForModel(String, String, String, CreateIndexForModelRequestEmbed, String, Map, ReadCapacity,
+     * BackupModelSchema) the eight-argument overload} to set read capacity or a metadata schema. The client sends the
+     * request without checking any argument, and the index is not ready for reads and writes when this method
+     * returns: poll {@link #describeIndex(String)} until its status reports ready.
+     *
      * <pre>{@code
-     *     client.createIndexForModel("my-index", CreateIndexForModelRequest.CloudEnum.AWS,
-     *                                            "us-west-2", embedConfig, DeletionProtection.DISABLED, tags);
+     * import org.openapitools.db_control.client.model.CreateIndexForModelRequestEmbed;
+     * import java.util.HashMap;
+     * import java.util.Map;
+     *
+     * Map<String, String> fieldMap = new HashMap<>();
+     * fieldMap.put("text", "chunk_text");
+     * CreateIndexForModelRequestEmbed embed = new CreateIndexForModelRequestEmbed()
+     *     .model("multilingual-e5-large")
+     *     .fieldMap(fieldMap);
+     *
+     * IndexModel index = pinecone.createIndexForModel(
+     *     "articles-en", "aws", "us-east-1", embed, "disabled", null);
      * }</pre>
      *
-     * @param name The name of the index to be created. The name must be between 1 and 45 characters,
-     *             start and end with an alphanumeric character, and consist only of lowercase alphanumeric
-     *             characters or hyphens ('-').
-     * @param cloud The cloud provider where the index will be hosted. Must be one of the supported cloud providers.
-     * @param region The cloud region where the index will be created.
-     * @param embed The embedding model configuration. Once set, the model cannot be changed, but configurations
-     *              such as field map and parameters can be updated.
-     * @param deletionProtection Whether deletion protection is enabled for the index. If enabled, the index
-     *                           cannot be deleted. Defaults to disabled if not provided.
-     * @param tags A map of custom user tags to associate with the index. Keys must be alphanumeric or contain
-     *             underscores ('_') or hyphens ('-'). Values must be alphanumeric, or contain characters such
-     *             as ';', '@', '_', '-', '.', '+', or spaces.
-     * @return {@link IndexModel} representing the created serverless index with the associated embedding model.
-     * @throws PineconeException if the API encounters an error during index creation, or if any of the arguments
-     *                           are invalid.
-     * @throws ApiException if an error occurs while communicating with the API.
+     * @param name Name of the new index, for example {@code "articles-en"}. Must be unique in the project.
+     * @param cloud Cloud provider that hosts the index, for example {@code "aws"}.
+     * @param region Region in that cloud, for example {@code "us-east-1"}.
+     * @param embed The embedding model and field map. The field map names the record field to embed, for example
+     *              {@code "text" -> "chunk_text"}. You can set the metric and dimension here when the model
+     *              supports more than one; otherwise the model's defaults apply. The model cannot be changed later.
+     * @param deletionProtection {@code "enabled"} to block {@link #deleteIndex(String)} until you disable it;
+     *                           {@code "disabled"} or null to allow deletion.
+     * @param tags Key-value labels for the index. Null or empty sends no tags.
+     * @return the new index's {@link IndexModel}; its {@code getHost()} is the host data-plane connections use,
+     *         {@code getStatus()} reports whether the index is ready, and {@code getEmbed()} describes the model.
+     * @throws ApiException if the server rejects the request, for example an unknown model name, a field map
+     *         without the key the model expects, or an index name with uppercase letters. {@code getCode()} returns
+     *         the HTTP status. This method does not convert server errors to {@link PineconeException} subclasses.
      */
     public IndexModel createIndexForModel(String name,
                                                      String cloud,
@@ -322,78 +348,55 @@ public class Pinecone {
     }
 
     /**
-     * Creates a new serverless index with an associated embedding model, including optional read capacity and metadata schema configuration.
+     * Creates a serverless index that embeds your text with a Pinecone-hosted model, with optional read capacity and
+     * metadata schema settings, and returns before the index is ready.
      * <p>
-     * This method allows you to configure dedicated read capacity nodes for better performance and cost predictability,
-     * and to limit metadata indexing to specific fields for improved performance.
-     * <p>
-     * Example - Create index for model with Dedicated read capacity:
+     * Use this overload when you need dedicated read nodes or want to index only the metadata fields you filter on;
+     * otherwise use {@link #createIndexForModel(String, String, String, CreateIndexForModelRequestEmbed, String, Map)
+     * the six-argument overload}. The client sends the request without checking any argument, and the index is not
+     * ready for reads and writes when this method returns: poll {@link #describeIndex(String)} until its status
+     * reports ready.
+     *
      * <pre>{@code
-     *     import org.openapitools.db_control.client.model.ReadCapacity;
-     *     import org.openapitools.db_control.client.model.ReadCapacityDedicatedSpec;
-     *     import org.openapitools.db_control.client.model.ReadCapacityDedicatedConfig;
-     *     import org.openapitools.db_control.client.model.ScalingConfigManual;
-     *     ...
-     *     
-     *     ScalingConfigManual manual = new ScalingConfigManual().shards(1).replicas(1);
-     *     ReadCapacityDedicatedConfig dedicated = new ReadCapacityDedicatedConfig()
-     *         .nodeType("t1")
-     *         .scaling("Manual")
-     *         .manual(manual);
-     *     ReadCapacity readCapacity = new ReadCapacity(
-     *         new ReadCapacityDedicatedSpec().mode("Dedicated").dedicated(dedicated));
-     *     
-     *     CreateIndexForModelRequestEmbed embed = new CreateIndexForModelRequestEmbed();
-     *     embed.model("multilingual-e5-large");
-     *     Map<String, String> fieldMap = new HashMap<>();
-     *     fieldMap.put("text", "my-sample-text");
-     *     embed.fieldMap(fieldMap);
-     *     
-     *     client.createIndexForModel("my-index", "aws", "us-east-1", embed, 
-     *                                DeletionProtection.DISABLED, null, readCapacity, null);
-     * }</pre>
-     * <p>
-     * Example - Create index for model with metadata schema:
-     * <pre>{@code
-     *     import org.openapitools.db_control.client.model.BackupModelSchema;
-     *     import org.openapitools.db_control.client.model.BackupModelSchemaFieldsValue;
-     *     ...
-     *     
-     *     Map<String, BackupModelSchemaFieldsValue> fields = new HashMap<>();
-     *     fields.put("category", new BackupModelSchemaFieldsValue().filterable(true));
-     *     fields.put("tags", new BackupModelSchemaFieldsValue().filterable(true));
-     *     BackupModelSchema schema = new BackupModelSchema().fields(fields);
-     *     
-     *     CreateIndexForModelRequestEmbed embed = new CreateIndexForModelRequestEmbed();
-     *     embed.model("multilingual-e5-large");
-     *     Map<String, String> fieldMap = new HashMap<>();
-     *     fieldMap.put("text", "my-sample-text");
-     *     embed.fieldMap(fieldMap);
-     *     
-     *     client.createIndexForModel("my-index", "aws", "us-east-1", embed, 
-     *                                DeletionProtection.DISABLED, null, null, schema);
+     * import org.openapitools.db_control.client.model.BackupModelSchema;
+     * import org.openapitools.db_control.client.model.BackupModelSchemaFieldsValue;
+     * import org.openapitools.db_control.client.model.CreateIndexForModelRequestEmbed;
+     * import java.util.HashMap;
+     * import java.util.Map;
+     *
+     * Map<String, String> fieldMap = new HashMap<>();
+     * fieldMap.put("text", "chunk_text");
+     * CreateIndexForModelRequestEmbed embed = new CreateIndexForModelRequestEmbed()
+     *     .model("multilingual-e5-large")
+     *     .fieldMap(fieldMap);
+     *
+     * Map<String, BackupModelSchemaFieldsValue> fields = new HashMap<>();
+     * fields.put("category", new BackupModelSchemaFieldsValue().filterable(true));
+     * BackupModelSchema schema = new BackupModelSchema().fields(fields);
+     *
+     * IndexModel index = pinecone.createIndexForModel(
+     *     "articles-en", "aws", "us-east-1", embed, "disabled", null, null, schema);
      * }</pre>
      *
-     * @param name The name of the index to be created. The name must be between 1 and 45 characters,
-     *             start and end with an alphanumeric character, and consist only of lowercase alphanumeric
-     *             characters or hyphens ('-').
-     * @param cloud The cloud provider where the index will be hosted. Must be one of the supported cloud providers.
-     * @param region The cloud region where the index will be created.
-     * @param embed The embedding model configuration. Once set, the model cannot be changed, but configurations
-     *              such as field map and parameters can be updated.
-     * @param deletionProtection Whether deletion protection is enabled for the index. If enabled, the index
-     *                           cannot be deleted. Defaults to disabled if not provided.
-     * @param tags A map of custom user tags to associate with the index. Keys must be alphanumeric or contain
-     *             underscores ('_') or hyphens ('-'). Values must be alphanumeric, or contain characters such
-     *             as ';', '@', '_', '-', '.', '+', or spaces.
-     * @param readCapacity The read capacity configuration. If null, defaults to OnDemand mode.
-     *                     Use {@link ReadCapacityOnDemandSpec} for OnDemand or {@link ReadCapacityDedicatedSpec} for Dedicated mode.
-     * @param schema The metadata schema configuration. If null, all metadata fields are indexed.
-     *               Use this to limit metadata indexing to specific fields for improved performance.
-     * @return {@link IndexModel} representing the created serverless index with the associated embedding model.
-     * @throws PineconeException if the API encounters an error during index creation, or if any of the arguments
-     *                           are invalid.
-     * @throws ApiException if an error occurs while communicating with the API.
+     * @param name Name of the new index, for example {@code "articles-en"}. Must be unique in the project.
+     * @param cloud Cloud provider that hosts the index, for example {@code "aws"}.
+     * @param region Region in that cloud, for example {@code "us-east-1"}.
+     * @param embed The embedding model and field map. The field map names the record field to embed, for example
+     *              {@code "text" -> "chunk_text"}. You can set the metric and dimension here when the model
+     *              supports more than one; otherwise the model's defaults apply. The model cannot be changed later.
+     * @param deletionProtection {@code "enabled"} to block {@link #deleteIndex(String)} until you disable it;
+     *                           {@code "disabled"} or null to allow deletion.
+     * @param tags Key-value labels for the index. Null or empty sends no tags.
+     * @param readCapacity How read capacity is provisioned: wrap a {@link ReadCapacityDedicatedSpec} to reserve
+     *                     dedicated read nodes, or a {@link ReadCapacityOnDemandSpec} for on-demand capacity. Null
+     *                     means on-demand.
+     * @param schema Metadata fields to index for filtering, each marked filterable. Null means every metadata
+     *               field is indexed.
+     * @return the new index's {@link IndexModel}; its {@code getHost()} is the host data-plane connections use,
+     *         {@code getStatus()} reports whether the index is ready, and {@code getEmbed()} describes the model.
+     * @throws ApiException if the server rejects the request, for example an unknown model name, a field map
+     *         without the key the model expects, or an index name with uppercase letters. {@code getCode()} returns
+     *         the HTTP status. This method does not convert server errors to {@link PineconeException} subclasses.
      */
     public IndexModel createIndexForModel(String name,
                                           String cloud,
@@ -424,22 +427,31 @@ public class Pinecone {
     }
 
     /**
-     * Creates a new BYOC (Bring Your Own Cloud) index with minimal required parameters.
+     * Creates a BYOC index for dense vectors with deletion protection off, and returns before the index is ready.
      * <p>
-     * BYOC indexes allow you to deploy Pinecone indexes in your own cloud infrastructure.
-     * You must have a BYOC environment set up with Pinecone before creating a BYOC index.
-     * <p>
-     * Example:
+     * A BYOC (bring your own cloud) index runs in a Pinecone environment deployed in your own cloud account, which
+     * must already be set up. Use {@link #createByocIndex(String, String, int, String, String, Map,
+     * BackupModelSchema) the seven-argument overload} to turn on deletion protection, add tags or set a metadata
+     * schema. The index is not ready for reads and writes when this method returns: poll
+     * {@link #describeIndex(String)} until its status reports ready.
+     *
      * <pre>{@code
-     *     client.createByocIndex("YOUR-INDEX", "cosine", 1536, "your-byoc-environment");
+     * IndexModel index = pinecone.createByocIndex("product-catalog", "cosine", 1536, "aws-us-east-1-b921");
      * }</pre>
      *
-     * @param indexName The name of the index to be created.
-     * @param metric The metric type for the index. Must be one of "cosine", "euclidean", or "dotproduct".
-     * @param dimension The number of dimensions for the index.
-     * @param environment The BYOC environment where the index will be hosted. This is provided during BYOC onboarding.
-     * @return {@link IndexModel} representing the created BYOC index.
-     * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
+     * @param indexName Name of the new index, for example {@code "product-catalog"}. Must be unique in the project.
+     * @param metric Similarity metric: {@code "cosine"}, {@code "euclidean"} or {@code "dotproduct"}. Null or empty
+     *               means {@code "cosine"}.
+     * @param dimension Length of the vectors you will store, matching your embedding model's output, for example
+     *                  {@code 1536}.
+     * @param environment Name of your BYOC environment, for example {@code "aws-us-east-1-b921"}. Pinecone gives
+     *                    you this name when the environment is set up.
+     * @return the new index's {@link IndexModel}; its {@code getHost()} is the host data-plane connections use, and
+     *         {@code getStatus()} reports whether the index is ready.
+     * @throws PineconeValidationException if the name or environment is null or empty, or the dimension is less
+     *         than 1. The client checks these before contacting the server.
+     * @throws PineconeBadRequestException if the server rejects the request, for example an index name with
+     *         uppercase letters.
      */
     public IndexModel createByocIndex(String indexName,
                                       String metric,
@@ -449,35 +461,46 @@ public class Pinecone {
     }
 
     /**
-     * Creates a new BYOC (Bring Your Own Cloud) index with the specified parameters, including optional deletion protection, tags, and metadata schema configuration.
+     * Creates a BYOC index for dense vectors with optional deletion protection, tags and metadata schema, and
+     * returns before the index is ready.
      * <p>
-     * BYOC indexes allow you to deploy Pinecone indexes in your own cloud infrastructure.
-     * You must have a BYOC environment set up with Pinecone before creating a BYOC index.
-     * <p>
-     * Example with metadata schema:
-     * <pre>{@code
-     *     import org.openapitools.db_control.client.model.BackupModelSchema;
-     *     import org.openapitools.db_control.client.model.BackupModelSchemaFieldsValue;
-     *     ...
+     * Use this overload to set any of those options; otherwise use
+     * {@link #createByocIndex(String, String, int, String) the four-argument overload}. The BYOC environment must
+     * already be set up in your cloud account. The index is not ready for reads and writes when this method returns:
+     * poll {@link #describeIndex(String)} until its status reports ready.
      *
-     *     Map<String, BackupModelSchemaFieldsValue> fields = new HashMap<>();
-     *     fields.put("genre", new BackupModelSchemaFieldsValue().filterable(true));
-     *     fields.put("year", new BackupModelSchemaFieldsValue().filterable(true));
-     *     BackupModelSchema schema = new BackupModelSchema().fields(fields);
-     *     client.createByocIndex("YOUR-INDEX", "cosine", 1536, "aws-us-east-1-b921",
-     *                            DeletionProtection.ENABLED, null, schema);
+     * <pre>{@code
+     * import org.openapitools.db_control.client.model.BackupModelSchema;
+     * import org.openapitools.db_control.client.model.BackupModelSchemaFieldsValue;
+     * import java.util.HashMap;
+     * import java.util.Map;
+     *
+     * Map<String, BackupModelSchemaFieldsValue> fields = new HashMap<>();
+     * fields.put("category", new BackupModelSchemaFieldsValue().filterable(true));
+     * BackupModelSchema schema = new BackupModelSchema().fields(fields);
+     *
+     * IndexModel index = pinecone.createByocIndex(
+     *     "product-catalog", "cosine", 1536, "aws-us-east-1-b921", "enabled", null, schema);
      * }</pre>
      *
-     * @param indexName The name of the index to be created.
-     * @param metric The metric type for the index. Must be one of "cosine", "euclidean", or "dotproduct".
-     * @param dimension The number of dimensions for the index.
-     * @param environment The BYOC environment where the index will be hosted. This is provided during BYOC onboarding.
-     * @param deletionProtection Enable or disable deletion protection for the index.
-     * @param tags A map of tags to associate with the Index.
-     * @param schema The metadata schema configuration. If null, all metadata fields are indexed.
-     *               Use this to limit metadata indexing to specific fields for improved performance.
-     * @return {@link IndexModel} representing the created BYOC index.
-     * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
+     * @param indexName Name of the new index, for example {@code "product-catalog"}. Must be unique in the project.
+     * @param metric Similarity metric: {@code "cosine"}, {@code "euclidean"} or {@code "dotproduct"}. Null or empty
+     *               means {@code "cosine"}.
+     * @param dimension Length of the vectors you will store, matching your embedding model's output, for example
+     *                  {@code 1536}.
+     * @param environment Name of your BYOC environment, for example {@code "aws-us-east-1-b921"}. Pinecone gives
+     *                    you this name when the environment is set up.
+     * @param deletionProtection {@code "enabled"} to block {@link #deleteIndex(String)} until you disable it;
+     *                           {@code "disabled"} or null to allow deletion.
+     * @param tags Key-value labels for the index. Null or empty sends no tags.
+     * @param schema Metadata fields to index for filtering, each marked filterable. Null means every metadata
+     *               field is indexed.
+     * @return the new index's {@link IndexModel}; its {@code getHost()} is the host data-plane connections use, and
+     *         {@code getStatus()} reports whether the index is ready.
+     * @throws PineconeValidationException if the name or environment is null or empty, or the dimension is less
+     *         than 1. The client checks these before contacting the server.
+     * @throws PineconeBadRequestException if the server rejects the request, for example an index name with
+     *         uppercase letters.
      */
     public IndexModel createByocIndex(String indexName,
                                       String metric,
@@ -532,19 +555,29 @@ public class Pinecone {
     }
 
     /**
-     * Overload for creating a new pods index with environment and podType, the minimum required parameters.
+     * Creates a pod-based index with one pod and the cosine metric, and returns before the index is ready.
      * <p>
-     * Example:
-     * <pre>{@code 
-     *     client.createPodsIndex("YOUR-INDEX", 1536, "us-east4-gcp", "p1.x2");
+     * Poll {@link #describeIndex(String)} until the status is ready before connecting with
+     * {@link #getIndexConnection(String)}. Each other overload adds one or two settings; to combine settings that no
+     * single overload offers, use the
+     * {@link #createPodsIndex(String, Integer, String, String, String, Integer, Integer, Integer, PodSpecMetadataConfig, String, String, Map) twelve-argument overload}
+     * and pass null for what you leave out.
+     *
+     * <pre>{@code
+     *     IndexModel index = pinecone.createPodsIndex("product-catalog", 1536, "us-east-1-aws", "p1.x1");
      * }</pre>
      *
-     * @param indexName The name of the index to be created.
-     * @param dimension The number of dimensions for the index.
-     * @param environment The cloud environment where you want the index to be hosted.
-     * @param podType The type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
-     * @return {@link IndexModel} representing the created serverless index.
-     * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
+     * @param indexName   the name of the new index, for example {@code "product-catalog"}.
+     * @param dimension   the length of the vectors the index stores, for example {@code 1536}. It must match the
+     *                    output of your embedding model.
+     * @param environment the pod environment to host the index in, for example {@code "us-east-1-aws"}.
+     * @param podType     the pod type and size, for example {@code "p1.x1"}.
+     * @return the new index as the server reports it right after creation, usually not ready yet.
+     *         {@link IndexModel#getStatus()} reports readiness.
+     * @throws PineconeValidationException if a required argument is null or empty, or a count is less than 1. The
+     *                                     client checks these before sending the request.
+     * @throws PineconeBadRequestException if the server rejects a value, such as an invalid index name or pod
+     *                                     type.
      */
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment, String podType) {
         return createPodsIndex(indexName, dimension, environment, podType, null, null, null,
@@ -552,20 +585,28 @@ public class Pinecone {
     }
 
     /**
-     * Overload for creating a new pods index with environment, podType, and deletion protection.
+     * Creates a pod-based index with deletion protection set, and returns before the index is ready.
      * <p>
-     * Example:
+     * With deletion protection enabled, {@link #deleteIndex(String)} fails until you disable it with
+     * {@link #configurePodsIndex(String, String)}.
+     *
      * <pre>{@code
-     *     client.createPodsIndex("YOUR-INDEX", 1536, "us-east4-gcp", "p1.x2", DeletionProtection.ENABLED);
+     *     pinecone.createPodsIndex("product-catalog", 1536, "us-east-1-aws", "p1.x1", "enabled");
      * }</pre>
      *
-     * @param indexName The name of the index to be created.
-     * @param dimension The number of dimensions for the index.
-     * @param environment The cloud environment where you want the index to be hosted.
-     * @param podType The type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
-     * @param deletionProtection Enable or disable deletion protection for the index.
-     * @return {@link IndexModel} representing the created serverless index.
-     * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
+     * @param indexName   the name of the new index, for example {@code "product-catalog"}.
+     * @param dimension   the length of the vectors the index stores, for example {@code 1536}. It must match the
+     *                    output of your embedding model.
+     * @param environment the pod environment to host the index in, for example {@code "us-east-1-aws"}.
+     * @param podType     the pod type and size, for example {@code "p1.x1"}.
+     * @param deletionProtection {@code "enabled"} to block deletion, or {@code "disabled"}. Pass null to leave it
+     *                    disabled.
+     * @return the new index as the server reports it right after creation, usually not ready yet.
+     *         {@link IndexModel#getStatus()} reports readiness.
+     * @throws PineconeValidationException if a required argument is null or empty, or a count is less than 1. The
+     *                                     client checks these before sending the request.
+     * @throws PineconeBadRequestException if the server rejects a value, such as an invalid index name, pod type or
+     *                                     deletion protection value.
      */
     public IndexModel createPodsIndex(String indexName,
                                       Integer dimension,
@@ -577,29 +618,31 @@ public class Pinecone {
     }
 
     /**
-     * Overload for creating a new pods index with environment, podType, metric, and metadataConfig.
-     * <p>
-     * Example:
-     * <pre>{@code 
-     *     import org.openapitools.control.client.model.PodSpecMetadataConfig;
-     *     ...
+     * Creates a pod-based index with a chosen metric that indexes only some metadata fields, and returns before the
+     * index is ready.
      *
-     *     PodSpecMetadataConfig metadataConfig =
-     *         new PodSpecMetadataConfig()
-     *         .fields(Arrays.asList("genre", "year"));
-     *
-     *     client.createPodsIndex("YOUR-INDEX", 1536, "us-east4-gcp", "p1.x2", "cosine", metadataConfig);
+     * <pre>{@code
+     *     PodSpecMetadataConfig metadataConfig = new PodSpecMetadataConfig()
+     *             .indexed(Arrays.asList("category", "brand"));
+     *     pinecone.createPodsIndex("product-catalog", 1536, "us-east-1-aws", "p1.x1", "cosine", metadataConfig);
      * }</pre>
      *
-     * @param indexName The name of the index to be created.
-     * @param dimension The number of dimensions for the index.
-     * @param environment The cloud environment where you want the index to be hosted.
-     * @param podType The type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
-     * @param metric The metric type for the index. Must be one of "cosine", "euclidean", or "dotproduct".
-     * @param metadataConfig The configuration for the behavior of Pinecone's internal metadata index. By default, all metadata is indexed;
-     *                       when metadataConfig is present, only specified metadata fields are indexed.
-     * @return {@link IndexModel} representing the created serverless index.
-     * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
+     * @param indexName   the name of the new index, for example {@code "product-catalog"}.
+     * @param dimension   the length of the vectors the index stores, for example {@code 1536}. It must match the
+     *                    output of your embedding model.
+     * @param environment the pod environment to host the index in, for example {@code "us-east-1-aws"}.
+     * @param podType     the pod type and size, for example {@code "p1.x1"}.
+     * @param metric      the similarity metric: {@code "cosine"}, {@code "euclidean"} or {@code "dotproduct"}. Pass
+     *                    null for cosine.
+     * @param metadataConfig the metadata fields to index, for example
+     *                    {@code new PodSpecMetadataConfig().indexed(Arrays.asList("category", "brand"))}.
+     *                    Pass null to index every metadata field.
+     * @return the new index as the server reports it right after creation, usually not ready yet.
+     *         {@link IndexModel#getStatus()} reports readiness.
+     * @throws PineconeValidationException if a required argument is null or empty, or a count is less than 1. The
+     *                                     client checks these before sending the request.
+     * @throws PineconeBadRequestException if the server rejects a value, such as an invalid index name or pod
+     *                                     type.
      */
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String podType, String metric, PodSpecMetadataConfig metadataConfig) {
@@ -608,21 +651,29 @@ public class Pinecone {
     }
 
     /**
-     * Overload for creating a new pods index with environment, podType, metric, and sourceCollection.
+     * Creates a pod-based index loaded with the vectors of a collection, and returns before the index is ready.
      * <p>
-     * Example:
-     * <pre>{@code 
-     *     client.createPodsIndex("YOUR-INDEX", 1536, "us-east4-gcp", "p1.x2", "cosine", "my-collection");
+     * The collection must be in the same environment as the new index.
+     *
+     * <pre>{@code
+     *     pinecone.createPodsIndex("product-catalog-restored", 1536, "us-east-1-aws", "p1.x1", "cosine",
+     *             "product-catalog-snapshot");
      * }</pre>
      *
-     * @param indexName The name of the index to be created.
-     * @param dimension The number of dimensions for the index.
-     * @param environment The cloud environment where you want the index to be hosted.
-     * @param podType The type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
-     * @param metric The metric type for the index. Must be one of "cosine", "euclidean", or "dotproduct".
-     * @param sourceCollection The name of the collection to be used as the source for the index. Collections are snapshots of an index at a point in time.
-     * @return {@link IndexModel} representing the created serverless index.
-     * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
+     * @param indexName   the name of the new index, for example {@code "product-catalog"}.
+     * @param dimension   the length of the vectors the index stores, for example {@code 1536}. It must match the
+     *                    output of your embedding model.
+     * @param environment the pod environment to host the index in, for example {@code "us-east-1-aws"}.
+     * @param podType     the pod type and size, for example {@code "p1.x1"}.
+     * @param metric      the similarity metric: {@code "cosine"}, {@code "euclidean"} or {@code "dotproduct"}. Pass
+     *                    null for cosine.
+     * @param sourceCollection the name of the collection to load, for example {@code "product-catalog-snapshot"}.
+     * @return the new index as the server reports it right after creation, usually not ready yet.
+     *         {@link IndexModel#getStatus()} reports readiness.
+     * @throws PineconeValidationException if a required argument is null or empty, or a count is less than 1. The
+     *                                     client checks these before sending the request.
+     * @throws PineconeException if the server rejects the request, for example because the collection does not
+     *                           exist or is in a different environment.
      */
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String podType, String metric, String sourceCollection) {
@@ -631,20 +682,27 @@ public class Pinecone {
     }
 
     /**
-     * Overload for creating a new pods index with environment, podType, and pods.
+     * Creates a pod-based index with a given number of pods, and returns before the index is ready.
      * <p>
-     * Example:
-     * <pre>{@code 
-     *     client.createPodsIndex("YOUR-INDEX", 1536, "us-east4-gcp", "p1.x2", "cosine", 6);
+     * The pods are used as shards with one replica. To set replicas, use
+     * {@link #createPodsIndex(String, Integer, String, String, Integer, Integer)}.
+     *
+     * <pre>{@code
+     *     pinecone.createPodsIndex("product-catalog", 1536, "us-east-1-aws", "p1.x1", 2);
      * }</pre>
      *
-     * @param indexName The name of the index to be created.
-     * @param dimension The number of dimensions for the index.
-     * @param environment The cloud environment where you want the index to be hosted.
-     * @param podType The type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
-     * @param pods The number of pods to be used in the index.
-     * @return {@link IndexModel} representing the created serverless index.
-     * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
+     * @param indexName   the name of the new index, for example {@code "product-catalog"}.
+     * @param dimension   the length of the vectors the index stores, for example {@code 1536}. It must match the
+     *                    output of your embedding model.
+     * @param environment the pod environment to host the index in, for example {@code "us-east-1-aws"}.
+     * @param podType     the pod type and size, for example {@code "p1.x1"}.
+     * @param pods        the number of pods, for example {@code 2}.
+     * @return the new index as the server reports it right after creation, usually not ready yet.
+     *         {@link IndexModel#getStatus()} reports readiness.
+     * @throws PineconeValidationException if a required argument is null or empty, or a count is less than 1. The
+     *                                     client checks these before sending the request.
+     * @throws PineconeBadRequestException if the server rejects a value, such as an invalid index name or pod
+     *                                     type.
      */
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String podType, Integer pods) {
@@ -653,26 +711,32 @@ public class Pinecone {
     }
 
     /**
-     * Overload for creating a new pods index with environment, podType, pods, and metadataConfig.
+     * Creates a pod-based index with a given number of pods that indexes only some metadata fields, and returns
+     * before the index is ready.
      * <p>
-     * Example:
-     * <pre>{@code 
-     *     import org.openapitools.control.client.model.PodSpecMetadataConfig;
-     *     ...
+     * The pods are used as shards with one replica.
      *
-     *     PodSpecMetadataConfig metadataConfig =
-     *         new PodSpecMetadataConfig()
-     *         .fields(Arrays.asList("genre", "year"));
-     *     client.createPodsIndex("YOUR-INDEX", 1536, "us-east4-gcp", "p1.x2", "cosine", 6);
+     * <pre>{@code
+     *     PodSpecMetadataConfig metadataConfig = new PodSpecMetadataConfig()
+     *             .indexed(Arrays.asList("category", "brand"));
+     *     pinecone.createPodsIndex("product-catalog", 1536, "us-east-1-aws", "p1.x1", 2, metadataConfig);
      * }</pre>
      *
-     * @param indexName The name of the index to be created.
-     * @param dimension The number of dimensions for the index.
-     * @param environment The cloud environment where you want the index to be hosted.
-     * @param podType The type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
-     * @param pods The number of pods to be used in the index.
-     * @return {@link IndexModel} representing the created serverless index.
-     * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
+     * @param indexName   the name of the new index, for example {@code "product-catalog"}.
+     * @param dimension   the length of the vectors the index stores, for example {@code 1536}. It must match the
+     *                    output of your embedding model.
+     * @param environment the pod environment to host the index in, for example {@code "us-east-1-aws"}.
+     * @param podType     the pod type and size, for example {@code "p1.x1"}.
+     * @param pods        the number of pods, for example {@code 2}.
+     * @param metadataConfig the metadata fields to index, for example
+     *                    {@code new PodSpecMetadataConfig().indexed(Arrays.asList("category", "brand"))}.
+     *                    Pass null to index every metadata field.
+     * @return the new index as the server reports it right after creation, usually not ready yet.
+     *         {@link IndexModel#getStatus()} reports readiness.
+     * @throws PineconeValidationException if a required argument is null or empty, or a count is less than 1. The
+     *                                     client checks these before sending the request.
+     * @throws PineconeBadRequestException if the server rejects a value, such as an invalid index name or pod
+     *                                     type.
      */
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String podType, Integer pods,
@@ -682,21 +746,28 @@ public class Pinecone {
     }
 
     /**
-     * Overload for creating a new pods index with environment, podType, replicas, and shards.
+     * Creates a pod-based index with a given number of replicas and shards, and returns before the index is ready.
      * <p>
-     * Example:
+     * The index uses replicas times shards pods.
+     *
      * <pre>{@code
-     *     client.createPodsIndex("YOUR-INDEX", 1536, "us-east4-gcp", "p1.x2", "cosine", 2, 2);
+     *     pinecone.createPodsIndex("product-catalog", 1536, "us-east-1-aws", "p1.x1", 2, 2);
      * }</pre>
      *
-     * @param indexName The name of the index to be created.
-     * @param dimension The number of dimensions for the index.
-     * @param environment The cloud environment where you want the index to be hosted.
-     * @param podType The type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
-     * @param replicas The number of replicas. Replicas duplicate your index. They provide higher availability and throughput and can be scaled.
-     * @param shards The number of shards. Shards split your data across multiple pods so you can fit more data into an index.
-     * @return {@link IndexModel} representing the created serverless index.
-     * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
+     * @param indexName   the name of the new index, for example {@code "product-catalog"}.
+     * @param dimension   the length of the vectors the index stores, for example {@code 1536}. It must match the
+     *                    output of your embedding model.
+     * @param environment the pod environment to host the index in, for example {@code "us-east-1-aws"}.
+     * @param podType     the pod type and size, for example {@code "p1.x1"}.
+     * @param replicas    the number of copies of the index, for more throughput and availability. Pass null for
+     *                    one.
+     * @param shards      the number of pods to split the data across, for more capacity. Pass null for one.
+     * @return the new index as the server reports it right after creation, usually not ready yet.
+     *         {@link IndexModel#getStatus()} reports readiness.
+     * @throws PineconeValidationException if a required argument is null or empty, or a count is less than 1. The
+     *                                     client checks these before sending the request.
+     * @throws PineconeBadRequestException if the server rejects a value, such as an invalid index name or pod
+     *                                     type.
      */
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String podType, Integer replicas,
@@ -706,27 +777,34 @@ public class Pinecone {
     }
 
     /**
-     * Overload for creating a new pods index with environment, podType, replicas, shards, and metadataConfig.
+     * Creates a pod-based index with a given number of replicas and shards that indexes only some metadata fields,
+     * and returns before the index is ready.
      * <p>
-     * Example:
-     * <pre>{@code 
-     *     import org.openapitools.control.client.model.PodSpecMetadataConfig;
-     *     ...
+     * The index uses replicas times shards pods.
      *
-     *     PodSpecMetadataConfig metadataConfig =
-     *         new PodSpecMetadataConfig()
-     *         .fields(Arrays.asList("genre", "year"));
-     *     client.createPodsIndex("YOUR-INDEX", 1536, "us-east4-gcp", "p1.x2", "cosine", 2, 2, metadataConfig);
+     * <pre>{@code
+     *     PodSpecMetadataConfig metadataConfig = new PodSpecMetadataConfig()
+     *             .indexed(Arrays.asList("category", "brand"));
+     *     pinecone.createPodsIndex("product-catalog", 1536, "us-east-1-aws", "p1.x1", 2, 2, metadataConfig);
      * }</pre>
      *
-     * @param indexName The name of the index to be created.
-     * @param dimension The number of dimensions for the index.
-     * @param environment The cloud environment where you want the index to be hosted.
-     * @param podType The type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
-     * @param replicas The number of replicas. Replicas duplicate your index. They provide higher availability and throughput and can be scaled.
-     * @param shards The number of shards. Shards split your data across multiple pods so you can fit more data into an index.
-     * @return {@link IndexModel} representing the created serverless index.
-     * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
+     * @param indexName   the name of the new index, for example {@code "product-catalog"}.
+     * @param dimension   the length of the vectors the index stores, for example {@code 1536}. It must match the
+     *                    output of your embedding model.
+     * @param environment the pod environment to host the index in, for example {@code "us-east-1-aws"}.
+     * @param podType     the pod type and size, for example {@code "p1.x1"}.
+     * @param replicas    the number of copies of the index, for more throughput and availability. Pass null for
+     *                    one.
+     * @param shards      the number of pods to split the data across, for more capacity. Pass null for one.
+     * @param metadataConfig the metadata fields to index, for example
+     *                    {@code new PodSpecMetadataConfig().indexed(Arrays.asList("category", "brand"))}.
+     *                    Pass null to index every metadata field.
+     * @return the new index as the server reports it right after creation, usually not ready yet.
+     *         {@link IndexModel#getStatus()} reports readiness.
+     * @throws PineconeValidationException if a required argument is null or empty, or a count is less than 1. The
+     *                                     client checks these before sending the request.
+     * @throws PineconeBadRequestException if the server rejects a value, such as an invalid index name or pod
+     *                                     type.
      */
     public IndexModel createPodsIndex(String indexName, Integer dimension, String environment,
                                       String podType, Integer replicas,
@@ -738,34 +816,47 @@ public class Pinecone {
     }
 
     /**
-     * Creates a new pods index with the specified parameters.
+     * Creates a pod-based index with every setting available, and returns before the index is ready.
      * <p>
-     * Example:
-     * <pre>{@code 
-     *     import org.openapitools.control.client.model.PodSpecMetadataConfig;
-     *     ...
+     * Use this overload to combine settings that no shorter overload offers, and pass null for what you leave out.
+     * Poll {@link #describeIndex(String)} until the status is ready before connecting.
      *
-     *     PodSpecMetadataConfig metadataConfig =
-     *         new PodSpecMetadataConfig()
-     *         .fields(Arrays.asList("genre", "year"));
-     *     client.createPodsIndex("YOUR-INDEX", 1536, "us-east4-gcp", "p1.x2", "cosine", 2, 2, 4, null, null, DeletionProtection.DISABLED);
+     * <pre>{@code
+     *     Map<String, String> tags = new HashMap<>();
+     *     tags.put("team", "search");
+     *     pinecone.createPodsIndex("product-catalog", 1536, "us-east-1-aws", "p1.x1", "cosine",
+     *             2, 1, null, null, null, "enabled", tags);
      * }</pre>
      *
-     * @param indexName The name of the index to be created.
-     * @param dimension The number of dimensions for the index.
-     * @param environment The cloud environment where you want the index to be hosted.
-     * @param podType The type of pod to use. A string with one of s1, p1, or p2 appended with a "." and one of x1, x2, x4, or x8.
-     * @param metric The metric type for the index. Must be one of "cosine", "euclidean", or "dotproduct".
-     * @param replicas The number of replicas. Replicas duplicate your index. They provide higher availability and throughput and can be scaled.
-     * @param shards The number of shards. Shards split your data across multiple pods so you can fit more data into an index.
-     * @param pods The number of pods to be used in the index. This should be equal to shards x replicas.
-     * @param metadataConfig The configuration for the behavior of Pinecone's internal metadata index. By default, all metadata is indexed;
-     *                       when metadataConfig is present, only specified metadata fields are indexed.
-     * @param sourceCollection The name of the collection to be used as the source for the index. Collections are snapshots of an index at a point in time.
-     * @param deletionProtection Enable or disable deletion protection for the index.
-     * @param tags A map of tags to associate with the Index.
-     * @return {@link IndexModel} representing the created serverless index.
-     * @throws PineconeException if the API encounters an error during index creation or if any of the arguments are invalid.
+     * @param indexName   the name of the new index, for example {@code "product-catalog"}.
+     * @param dimension   the length of the vectors the index stores, for example {@code 1536}. It must match the
+     *                    output of your embedding model.
+     * @param environment the pod environment to host the index in, for example {@code "us-east-1-aws"}.
+     * @param podType     the pod type and size, for example {@code "p1.x1"}.
+     * @param metric      the similarity metric: {@code "cosine"}, {@code "euclidean"} or {@code "dotproduct"}. Pass
+     *                    null for cosine.
+     * @param replicas    the number of copies of the index, for more throughput and availability. Pass null for
+     *                    one.
+     * @param shards      the number of pods to split the data across, for more capacity. Pass null for one.
+     * @param pods        the total number of pods. If replicas and shards are also set, it must equal replicas times
+     *                    shards. Pass null to use replicas times shards.
+     * @param metadataConfig the metadata fields to index, for example
+     *                    {@code new PodSpecMetadataConfig().indexed(Arrays.asList("category", "brand"))}.
+     *                    Pass null to index every metadata field.
+     * @param sourceCollection the name of a collection to load vectors from, for example
+     *                    {@code "product-catalog-snapshot"}. It must be in the same environment. Pass null to
+     *                    start empty.
+     * @param deletionProtection {@code "enabled"} to block {@link #deleteIndex(String)}, or {@code "disabled"}. Pass
+     *                    null to leave it disabled.
+     * @param tags        labels to attach to the index, for example {@code team=search}. Pass null or an empty map
+     *                    for no tags.
+     * @return the new index as the server reports it right after creation, usually not ready yet.
+     *         {@link IndexModel#getStatus()} reports readiness.
+     * @throws PineconeValidationException if a required argument is null or empty, a count is less than 1, or pods
+     *                                     does not equal replicas times shards. The client checks these before
+     *                                     sending the request.
+     * @throws PineconeException if the server rejects the request, for example because of an invalid index name or
+     *                           pod type, or a source collection that does not exist.
      */
     public IndexModel createPodsIndex(String indexName,
                                       Integer dimension,
@@ -809,6 +900,27 @@ public class Pinecone {
         return indexModel;
     }
 
+    /**
+     * Checks pod-based index arguments the same way {@link #createPodsIndex(String, Integer, String, String)} and its
+     * overloads do, without contacting the server.
+     * <p>
+     * Only the client-side checks run, so passing does not guarantee that the server accepts the values.
+     *
+     * <pre>{@code
+     *     Pinecone.validatePodIndexParams("product-catalog", 1536, "us-east-1-aws", "p1.x1", "cosine", 2, 1, 2);
+     * }</pre>
+     *
+     * @param indexName   the index name. Must not be null or empty.
+     * @param dimension   the vector dimension. Must not be null and must be at least 1.
+     * @param environment the pod environment. Must not be null or empty.
+     * @param podType     the pod type. Must not be null or empty.
+     * @param metric      the similarity metric. Null is allowed; an empty string is not.
+     * @param replicas    the number of replicas. Null is allowed; otherwise at least 1.
+     * @param shards      the number of shards. Null is allowed; otherwise at least 1.
+     * @param pods        the number of pods. Null is allowed; otherwise at least 1, and equal to replicas times
+     *                    shards when all three are set.
+     * @throws PineconeValidationException if any check fails. The message names the argument.
+     */
     public static void validatePodIndexParams(String indexName, Integer dimension, String environment,
                                               String podType, String metric,
                                               Integer replicas, Integer shards, Integer pods) {
@@ -855,19 +967,24 @@ public class Pinecone {
     }
 
     /**
-     * Retrieves information about an existing index.
+     * Returns the current configuration and status of an index.
      * <p>
-     * Example:
-     * <pre>{@code 
-     *     import org.openapitools.control.client.model.IndexModel;
-     *     ...
+     * Call this to find out whether a newly created or reconfigured index is ready ({@code getStatus().getReady()})
+     * and to read its host, dimension, metric, spec and deletion protection setting. It is the usual way to poll
+     * after a create, configure or delete call, all of which return before the server finishes.
      *
-     *     IndexModel indexModel = client.describeIndex("YOUR-INDEX");
+     * <pre>{@code
+     * IndexModel index = pinecone.describeIndex("product-catalog");
+     * if (Boolean.TRUE.equals(index.getStatus().getReady())) {
+     *     System.out.println("Ready at " + index.getHost());
+     * }
      * }</pre>
      *
-     * @param indexName The name of the index to describe.
-     * @return {@link IndexModel} with the details of the index.
-     * @throws PineconeException if an error occurs during the operation or the index does not exist.
+     * @param indexName the name of the index, for example {@code "product-catalog"}.
+     * @return the {@link IndexModel}; {@code getStatus()} gives the readiness flag and state (for example
+     *         {@code Initializing}, {@code Ready}, {@code Terminating}), and {@code getHost()} the host that
+     *         {@link #getIndexConnection(String)} connects to.
+     * @throws PineconeNotFoundException if no index with that name exists in the project.
      */
     public IndexModel describeIndex(String indexName) throws PineconeException {
         IndexModel indexModel = null;
@@ -880,27 +997,38 @@ public class Pinecone {
     }
 
     /**
-     * Configures an existing pod-based index with new settings.
+     * Changes the pod type, replica count, deletion protection or tags of a pod-based index, and returns before the
+     * change is applied.
      * <p>
-     * Example:
-     * <pre>{@code 
-     *     import org.openapitools.control.client.model.IndexModel;
-     *     ...
+     * Use this overload to change the pod type or tags; the
+     * {@link #configurePodsIndex(String, Integer, String) three-argument overload} changes replicas and the
+     * {@link #configurePodsIndex(String, String) two-argument overload} changes only deletion protection. Pass null
+     * for anything you want to leave as it is. The server applies the change in the background: poll
+     * {@link #describeIndex(String)} to see it take effect. The method fails for serverless and BYOC indexes; use
+     * {@link #configureServerlessIndex(String, String, Map, ConfigureIndexRequestEmbed)} for those.
      *
-     *     // Make a configuration change
-     *     IndexModel indexModel = client.configurePodsIndex("YOUR-INDEX", "p1.x2", 4, DeletionProtection.ENABLED);
-     *
-     *     // Call describeIndex to see the index status as the change is applied.
-     *     indexModel = client.describeIndex("YOUR-INDEX");
+     * <pre>{@code
+     * IndexModel index = pinecone.configurePodsIndex("product-catalog", "p1.x2", null, null, null);
      * }</pre>
      *
-     * @param indexName The name of the index to configure.
-     * @param podType The new podType for the index. Can be null if not changing the pod type.
-     * @param replicas The desired number of replicas for the index, lowest value is 0. Can be null if not changing the number of replicas.
-     * @param deletionProtection Enable or disable deletion protection for the index.
-     * @param tags A map of tags to associate with the Index.
-     * @return {@link IndexModel} representing the configured index.
-     * @throws PineconeException if an error occurs during the operation, the index does not exist, or if any of the arguments are invalid.
+     * @param indexName Name of the index to change, for example {@code "product-catalog"}.
+     * @param podType Larger pod size in the same family, for example {@code "p1.x2"} for an index on
+     *                {@code "p1.x1"}. The server rejects a different family or a smaller size. Null keeps the
+     *                current pod type.
+     * @param replicas New number of replicas, at least 1. Add replicas for more query throughput; remove them to
+     *                 cut cost. Null keeps the current count.
+     * @param deletionProtection {@code "enabled"} to block {@link #deleteIndex(String)}, {@code "disabled"} to
+     *                           allow it. Null leaves the setting unchanged.
+     * @param tags Tags to add or update, for example {@code "team" -> "search"}. Tags not in the map are kept, and a
+     *             tag whose value is an empty string is removed. Null or empty leaves the tags unchanged.
+     * @return the {@link IndexModel} of the index; poll {@link #describeIndex(String)} and check
+     *         {@code getStatus()} and {@code getSpec()} to see when the change has been applied.
+     * @throws PineconeValidationException if the index name is null or empty, or replicas is less than 1. The
+     *         client checks these before contacting the server.
+     * @throws PineconeNotFoundException if no index with that name exists.
+     * @throws PineconeBadRequestException if the server rejects the change, for example a pod type in a different
+     *         family or a smaller size, or an index that is not pod-based.
+     * @throws PineconeForbiddenException if the change would exceed the project's pod quota.
      */
     public IndexModel configurePodsIndex(String indexName,
                                          String podType,
@@ -942,78 +1070,88 @@ public class Pinecone {
     }
 
     /**
-     * Overload for configurePodsIndex to change the number of replicas and deletion protection for an index.
+     * Changes the replica count and deletion protection of a pod-based index, and returns before the change is
+     * applied.
      * <p>
-     * Example:
-     * <pre>{@code 
-     *     import org.openapitools.control.client.model.IndexModel;
-     *     ...
+     * This is the usual way to scale a pod-based index. The server applies the change in the background: poll
+     * {@link #describeIndex(String)} to see it take effect. To change the pod type or tags, use
+     * {@link #configurePodsIndex(String, String, Integer, String, Map) the five-argument overload}.
      *
-     *     IndexModel indexModel = client.configurePodsIndex("YOUR-INDEX", 4, DeletionProtection.ENABLED);
+     * <pre>{@code
+     * IndexModel index = pinecone.configurePodsIndex("product-catalog", 3, null);
      * }</pre>
      *
-     * @param indexName The name of the index.
-     * @param replicas The desired number of replicas for the index, lowest value is 0.
-     * @param deletionProtection Enable or disable deletion protection for the index.
-     * @return {@link IndexModel} of the configured index.
-     * @throws PineconeException if an error occurs during the operation, the index does not exist, or if the number of replicas is invalid.
+     * @param indexName Name of the index to change, for example {@code "product-catalog"}.
+     * @param replicas New number of replicas, at least 1. Null keeps the current count.
+     * @param deletionProtection {@code "enabled"} to block {@link #deleteIndex(String)}, {@code "disabled"} to
+     *                           allow it. Null leaves the setting unchanged.
+     * @return the {@link IndexModel} of the index; poll {@link #describeIndex(String)} and check
+     *         {@code getStatus()} and {@code getSpec()} to see when the change has been applied.
+     * @throws PineconeValidationException if the index name is null or empty, or replicas is less than 1. The
+     *         client checks these before contacting the server.
+     * @throws PineconeNotFoundException if no index with that name exists.
+     * @throws PineconeBadRequestException if the server rejects the change, for example because the index is not
+     *         pod-based.
+     * @throws PineconeForbiddenException if the change would exceed the project's pod quota.
      */
     public IndexModel configurePodsIndex(String indexName, Integer replicas, String deletionProtection) throws PineconeException {
         return configurePodsIndex(indexName, null, replicas, deletionProtection, null);
     }
 
     /**
-     * Overload for configurePodsIndex to only change the deletion protection of an index.
+     * Turns deletion protection on or off for a pod-based index.
      * <p>
-     * Example:
-     * <pre>{@code
-     *     import org.openapitools.control.client.model.IndexModel;
-     *     ...
+     * Disable deletion protection before calling {@link #deleteIndex(String)} on a protected index. For serverless
+     * and BYOC indexes, use {@link #configureServerlessIndex(String, String, Map, ConfigureIndexRequestEmbed)}
+     * instead.
      *
-     *     IndexModel indexModel = client.configurePodsIndex("YOUR-INDEX", DeletionProtection.ENABLED);
+     * <pre>{@code
+     * IndexModel index = pinecone.configurePodsIndex("product-catalog", "enabled");
      * }</pre>
      *
-     * @param indexName The name of the index.
-     * @param deletionProtection Enable or disable deletion protection for the index.
-     * @return {@link IndexModel} of the configured index.
-     * @throws PineconeException if an error occurs during the operation, the index does not exist, or if the podType is invalid.
+     * @param indexName Name of the index to change, for example {@code "product-catalog"}.
+     * @param deletionProtection {@code "enabled"} to block {@link #deleteIndex(String)}, {@code "disabled"} to
+     *                           allow it.
+     * @return the {@link IndexModel} of the index; {@code getDeletionProtection()} reports the setting.
+     * @throws PineconeValidationException if the index name is null or empty. The client checks this before
+     *         contacting the server.
+     * @throws PineconeNotFoundException if no index with that name exists.
+     * @throws PineconeBadRequestException if the server rejects the change, for example a value other than
+     *         {@code "enabled"} or {@code "disabled"}, or an index that is not pod-based.
      */
     public IndexModel configurePodsIndex(String indexName, String deletionProtection) throws PineconeException {
         return configurePodsIndex(indexName, null, null, deletionProtection, null);
     }
 
     /**
-     * Configures an existing serverless index with deletion protection.
+     * Changes the deletion protection, tags or integrated embedding of a serverless or BYOC index.
      * <p>
-     * Example:
+     * Use this overload for most changes; use
+     * {@link #configureServerlessIndex(String, String, Map, ConfigureIndexRequestEmbed, String, String, Integer,
+     * Integer) the eight-argument overload} to change read capacity. Pass null for anything you want to leave as it
+     * is. Use {@link #configurePodsIndex(String, String, Integer, String, Map)} for pod-based indexes.
+     *
      * <pre>{@code
-     *     import org.openapitools.control.client.model.IndexModel;
-     *     ...
-     *
-     *     HashMap<String, String> tags = new HashMap<>();
-     *     tags.put("env", "test);
-     *
-     *     ConfigureIndexRequestEmbed embed = new ConfigureIndexRequestEmbed();
-     *     embed.model("multilingual-e5-large");
-     *     HashMap<String, String> fieldMap = new HashMap<>();
-     *     fieldMap.put("text", "your-text-field");
-     *     embed.fieldMap(fieldMap);
-     *
-     *     // Make a configuration change
-     *     IndexModel indexModel = client.configureServerlessIndex("YOUR-INDEX", DeletionProtection.ENABLED, tags, embed);
-     *
-     *     // Call describeIndex to see the index status as the change is applied.
-     *     indexModel = client.describeIndex("YOUR-INDEX");
+     * IndexModel index = pinecone.configureServerlessIndex("product-catalog", "enabled", null, null);
      * }</pre>
      *
-     * @param indexName The name of the index to configure.
-     * @param deletionProtection Enable or disable deletion protection for the index.
-     * @param tags A map of tags to associate with the Index.
-     * @param embed Convert an existing index to an integrated index by specifying the embedding model and field_map.
-     *              The index vector type and dimension must match the model vector type and dimension, and the index
-     *              similarity metric must be supported by the model
-     * @return {@link IndexModel} representing the configured index.
-     * @throws PineconeException if an error occurs during the operation, the index does not exist, or if any of the arguments are invalid.
+     * @param indexName Name of the index to change, for example {@code "product-catalog"}.
+     * @param deletionProtection {@code "enabled"} to block {@link #deleteIndex(String)}, {@code "disabled"} to
+     *                           allow it. Null leaves the setting unchanged.
+     * @param tags Tags to add or update, for example {@code "team" -> "search"}. Tags not in the map are kept, and a
+     *             tag whose value is an empty string is removed. Null or empty leaves the tags unchanged.
+     * @param embed Embedding settings for a serverless index. On an index without integrated embedding, set the
+     *              model and field map to have Pinecone embed text on upsert and search; the model must produce
+     *              vectors of the index's type and dimension and support its metric. On an index that already has
+     *              one, the model cannot be changed, but the field map and model parameters can. Null leaves the
+     *              embedding settings unchanged.
+     * @return the {@link IndexModel} of the index with the updated settings.
+     * @throws PineconeValidationException if the index name is null or empty. The client checks this before
+     *         contacting the server.
+     * @throws PineconeNotFoundException if no index with that name exists.
+     * @throws PineconeBadRequestException if the server rejects the change, for example an invalid deletion
+     *         protection value, an embedding model that does not match the index, or embedding settings on an
+     *         index that is not serverless.
      */
     public IndexModel configureServerlessIndex(String indexName,
                                                String deletionProtection,
@@ -1023,43 +1161,42 @@ public class Pinecone {
     }
 
     /**
-     * Configures an existing serverless index with deletion protection, tags, embed settings, and optional read capacity configuration.
+     * Changes the read capacity of a serverless index, along with any of its deletion protection, tags or integrated
+     * embedding, and returns before a capacity change is applied.
      * <p>
-     * This method allows you to configure or change the read capacity mode of an existing serverless index.
-     * You can switch between OnDemand and Dedicated modes, or scale dedicated read nodes.
-     * <p>
-     * Example - Switch to OnDemand read capacity:
+     * Use this overload to switch between on-demand and dedicated read capacity or to resize dedicated read nodes;
+     * otherwise use {@link #configureServerlessIndex(String, String, Map, ConfigureIndexRequestEmbed) the
+     * four-argument overload}. Dedicated read capacity uses manual scaling with the shard and replica counts you
+     * give, and is available only on paid plans. The server resizes in the background: poll
+     * {@link #describeIndex(String)} to see the change take effect. Pass null for anything you want to leave as it
+     * is.
+     *
      * <pre>{@code
-     *     client.configureServerlessIndex("my-index", "enabled", null, null, "OnDemand", null, null, null);
-     * }</pre>
-     * <p>
-     * Example - Switch to Dedicated read capacity with manual scaling:
-     * <pre>{@code
-     *     client.configureServerlessIndex("my-index", "enabled", null, null, "Dedicated", "t1", 2, 2);
-     * }</pre>
-     * <p>
-     * Example - Scale up dedicated read capacity:
-     * <pre>{@code
-     *     // Scale up by increasing shards and replicas
-     *     client.configureServerlessIndex("my-index", "enabled", null, null, "Dedicated", "t1", 4, 3);
-     *     
-     *     // Verify the configuration was applied
-     *     IndexModel desc = client.describeIndex("my-index");
-     *     // Check desc.getSpec().getServerless().getReadCapacity()...
+     * IndexModel index = pinecone.configureServerlessIndex(
+     *     "product-catalog", null, null, null, "Dedicated", "t1", 1, 2);
      * }</pre>
      *
-     * @param indexName The name of the index to configure.
-     * @param deletionProtection Enable or disable deletion protection for the index.
-     * @param tags A map of tags to associate with the Index.
-     * @param embed Convert an existing index to an integrated index by specifying the embedding model and field_map.
-     *              The index vector type and dimension must match the model vector type and dimension, and the index
-     *              similarity metric must be supported by the model
-     * @param readCapacityMode The read capacity mode. Must be "OnDemand" or "Dedicated". If null, read capacity is not changed.
-     * @param nodeType The node type for Dedicated mode (e.g., "t1"). Required if readCapacityMode is "Dedicated", ignored otherwise.
-     * @param shards The number of shards for Dedicated mode. Required if readCapacityMode is "Dedicated", ignored otherwise.
-     * @param replicas The number of replicas for Dedicated mode. Required if readCapacityMode is "Dedicated", ignored otherwise.
-     * @return {@link IndexModel} representing the configured index.
-     * @throws PineconeException if an error occurs during the operation, the index does not exist, or if any of the arguments are invalid.
+     * @param indexName Name of the index to change, for example {@code "product-catalog"}.
+     * @param deletionProtection {@code "enabled"} to block {@link #deleteIndex(String)}, {@code "disabled"} to
+     *                           allow it. Null leaves the setting unchanged.
+     * @param tags Tags to add or update. Tags not in the map are kept, and a tag whose value is an empty string is
+     *             removed. Null or empty leaves the tags unchanged.
+     * @param embed Embedding settings, as in the four-argument overload. Null leaves them unchanged.
+     * @param readCapacityMode {@code "OnDemand"} or {@code "Dedicated"}, case-sensitive. Null leaves read capacity
+     *                         unchanged and ignores the next three arguments.
+     * @param nodeType Dedicated node type, for example {@code "t1"}. Required for {@code "Dedicated"}; ignored
+     *                 otherwise.
+     * @param shards Number of dedicated shards, at least 1. Required for {@code "Dedicated"}; ignored otherwise.
+     * @param replicas Number of dedicated replicas, at least 1. Add replicas for more query throughput. Required for
+     *                 {@code "Dedicated"}; ignored otherwise.
+     * @return the {@link IndexModel} of the index. Its serverless spec's {@code getReadCapacity()} reports the
+     *         requested capacity and, for dedicated capacity, a status with the current shards and replicas.
+     * @throws PineconeValidationException if the index name is null or empty, the mode is not one of the two
+     *         values, or a dedicated request is missing the node type or has fewer than 1 shard or replica. The
+     *         client checks these before contacting the server.
+     * @throws PineconeNotFoundException if no index with that name exists.
+     * @throws PineconeBadRequestException if the server rejects the change, for example dedicated capacity on a
+     *         free plan or read capacity on an index that is not serverless.
      */
     public IndexModel configureServerlessIndex(String indexName,
                                                String deletionProtection,
@@ -1133,18 +1270,19 @@ public class Pinecone {
     }
 
     /**
-     * Lists all indexes in your project, including the index name, dimension, metric, status, and spec.
+     * Lists every index in the project the API key belongs to.
      * <p>
-     * Example:
-     * <pre>{@code 
-     *     import org.openapitools.control.client.model.IndexList;
-     *     ...
+     * The result is not paginated: one call returns all indexes, each with the same fields as
+     * {@link #describeIndex(String)}.
      *
-     *     IndexList indexes = client.listIndexes();
+     * <pre>{@code
+     * for (IndexModel index : pinecone.listIndexes().getIndexes()) {
+     *     System.out.println(index.getName() + ": " + index.getStatus().getState());
+     * }
      * }</pre>
      *
-     * @return {@link IndexList} containing all indexes.
-     * @throws PineconeException if an error occurs during the operation.
+     * @return the {@link IndexList}; {@code getIndexes()} gives one {@link IndexModel} per index, and is empty when
+     *         the project has none.
      */
     public IndexList listIndexes() throws PineconeException {
         IndexList indexList = null;
@@ -1157,32 +1295,23 @@ public class Pinecone {
     }
 
     /**
-     * Deletes an index.
+     * Permanently deletes an index and all its data, and returns before the deletion finishes.
      * <p>
-     * Deleting an index is an irreversible operation. All data in the index will be lost.
-     * When you use this command, a request is sent to the Pinecone control plane to delete
-     * the index, but the termination is not synchronous because resources take a few moments to
-     * be released.
-     * <p>
-     * You can check the status of the index by calling the describeIndex command.
-     * With repeated polling of the describeIndex command, you will see the index transition to a
-     * Terminating state before eventually resulting in a 404 after it has been removed.
-     * <p>
-     * Example:
-     * <pre>{@code 
-     *     import org.openapitools.control.client.model.IndexModel;
-     *     ...
+     * The deletion cannot be undone. The index shows the {@code Terminating} state for a short time and then
+     * {@link #describeIndex(String)} throws {@link PineconeNotFoundException}. The server refuses to delete an index
+     * whose deletion protection is enabled; turn it off first with
+     * {@link #configureServerlessIndex(String, String, Map, ConfigureIndexRequestEmbed)} or
+     * {@link #configurePodsIndex(String, String)}. Deleting the index does not close a connection already obtained
+     * from {@link #getIndexConnection(String)}; call {@link Index#close()} on it.
      *
-     *     // Delete an index
-     *     client.deleteIndex("YOUR-INDEX");
-     *
-     *     // Get index status with describeIndex
-     *     IndexModel indexModel = client.describeIndex("YOUR-INDEX");
-     *     indexModel.getStatus().getState();
+     * <pre>{@code
+     * pinecone.deleteIndex("product-catalog");
      * }</pre>
      *
-     * @param indexName The name of the index to delete.
-     * @throws PineconeException if an error occurs during the deletion operation or the index does not exist.
+     * @param indexName the name of the index to delete, for example {@code "product-catalog"}.
+     * @throws PineconeNotFoundException if no index with that name exists in the project.
+     * @throws PineconeForbiddenException if deletion protection is enabled for the index.
+     * @throws PineconeUnmappedHttpException if a collection is still being created from the index.
      */
     public void deleteIndex(String indexName) throws PineconeException {
         try {
@@ -1193,12 +1322,24 @@ public class Pinecone {
     }
 
     /**
-     * Create a backup of an index
+     * Starts a backup of a serverless index and returns before the backup is ready.
+     * <p>
+     * The backup starts in the {@code Initializing} status. Poll {@link #describeBackup(String)} until the status
+     * is {@code Ready} before restoring from it with {@link #createIndexFromBackup(String, String)}. Pod-based
+     * indexes cannot be backed up.
      *
-     * @param indexName   Name of the index to backup (required)
-     * @param backupName  Name of the backup (optional)
-     * @param description A description of the backup. (optional)
-     * @return BackupModel
+     * <pre>{@code
+     *     BackupModel backup = pinecone.createBackup("product-catalog", "product-catalog-nightly", null);
+     *     String backupId = backup.getBackupId();
+     * }</pre>
+     *
+     * @param indexName   the name of the index to back up, for example {@code "product-catalog"}.
+     * @param backupName  a name for the backup, for example {@code "product-catalog-nightly"}. Pass null to omit it.
+     * @param description a free-text description of the backup. Pass null to omit it.
+     * @return the new backup. {@link BackupModel#getBackupId()} is the ID the other backup methods take, and
+     *         {@link BackupModel#getStatus()} reports its progress.
+     * @throws ApiException if {@code indexName} is null, or the server rejects the request, for example because
+     *                      the index does not exist or is pod-based.
      */
     public BackupModel createBackup(String indexName, String backupName, String description) throws ApiException {
         return manageIndexesApi.createBackup(Configuration.VERSION, indexName,
@@ -1206,77 +1347,152 @@ public class Pinecone {
     }
 
     /**
-     * Overload to list all backups for an index with default limit = 10 and pagination token = null.
+     * Lists the first page of backups of one index, up to 10 backups.
+     * <p>
+     * Use {@link #listIndexBackups(String, Integer, String)} to choose the page size or fetch later pages, and
+     * {@link #listProjectBackups()} to list backups of every index in the project.
      *
-     * @param indexName Name of the backed up index (required)
-     *                  limit which is the number of results to return per page is set to 10 by default.
-     *                  paginationToken which is the token to use to retrieve the next page of results is set to null.
-     * @return BackupList
+     * <pre>{@code
+     *     for (BackupModel backup : pinecone.listIndexBackups("product-catalog").getData()) {
+     *         System.out.println(backup.getBackupId() + " " + backup.getStatus());
+     *     }
+     * }</pre>
+     *
+     * @param indexName the name of the index whose backups to list, for example {@code "product-catalog"}.
+     * @return one page of backups. {@link BackupList#getData()} holds the backups, and
+     *         {@link BackupList#getPagination()} holds the token for the next page.
+     * @throws ApiException if {@code indexName} is null, or the server rejects the request, for example because
+     *                      the index does not exist.
      */
     public BackupList listIndexBackups(String indexName) throws ApiException {
         return manageIndexesApi.listIndexBackups(Configuration.VERSION, indexName, 10, null);
     }
 
     /**
-     * List all backups for an index.
+     * Lists one page of backups of one index.
+     * <p>
+     * Returns a single page. To read every backup, call again with the token from the previous page until no
+     * token comes back.
      *
-     * @param indexName       Name of the backed up index (required)
-     * @param limit           The number of results to return per page. (optional, default to 10)
-     * @param paginationToken The token to use to retrieve the next page of results. (optional)
-     * @return BackupList
+     * <pre>{@code
+     *     BackupList page = pinecone.listIndexBackups("product-catalog", 25, null);
+     * }</pre>
+     *
+     * @param indexName       the name of the index whose backups to list, for example {@code "product-catalog"}.
+     * @param limit           the maximum number of backups to return. Pass null for the server default.
+     * @param paginationToken the token from {@link BackupList#getPagination()} of the previous page. Pass null
+     *                        for the first page.
+     * @return one page of backups. {@link BackupList#getData()} holds the backups, and
+     *         {@link BackupList#getPagination()} holds the token for the next page.
+     * @throws ApiException if {@code indexName} is null, or the server rejects the request, for example because
+     *                      the index does not exist or the token is invalid.
      */
     public BackupList listIndexBackups(String indexName, Integer limit, String paginationToken) throws ApiException {
         return manageIndexesApi.listIndexBackups(Configuration.VERSION, indexName, limit, paginationToken);
     }
 
     /**
-     * List backups for all indexes in a project
+     * Lists the first page of backups of every index in the project.
+     * <p>
+     * The page size is the server default. Use {@link #listProjectBackups(Integer, String)} to choose the page
+     * size or fetch later pages.
      *
-     * @return BackupList
+     * <pre>{@code
+     *     for (BackupModel backup : pinecone.listProjectBackups().getData()) {
+     *         System.out.println(backup.getSourceIndexName() + " " + backup.getBackupId());
+     *     }
+     * }</pre>
+     *
+     * @return one page of backups. {@link BackupList#getData()} holds the backups, and
+     *         {@link BackupList#getPagination()} holds the token for the next page.
+     * @throws ApiException if the server rejects the request.
      */
     public BackupList listProjectBackups() throws ApiException {
         return listProjectBackups(null, null);
     }
 
     /**
-     * List backups for all indexes in a project
-     * @param limit The number of results to return per page. (optional)
-     * @param paginationToken The token to use to retrieve the next page of results. (optional)
+     * Lists one page of backups of every index in the project.
+     * <p>
+     * Returns a single page. To read every backup, call again with the token from the previous page until no
+     * token comes back.
      *
-     * @return BackupList
+     * <pre>{@code
+     *     BackupList page = pinecone.listProjectBackups(25, null);
+     * }</pre>
+     *
+     * @param limit           the maximum number of backups to return. Pass null for the server default.
+     * @param paginationToken the token from {@link BackupList#getPagination()} of the previous page. Pass null
+     *                        for the first page.
+     * @return one page of backups. {@link BackupList#getData()} holds the backups, and
+     *         {@link BackupList#getPagination()} holds the token for the next page.
+     * @throws ApiException if the server rejects the request, for example because the token is invalid.
      */
     public BackupList listProjectBackups(Integer limit, String paginationToken) throws ApiException {
         return manageIndexesApi.listProjectBackups(Configuration.VERSION, limit, paginationToken);
     }
 
     /**
-     * Describe a backup
+     * Describes a backup, including its status.
+     * <p>
+     * Call this to wait for a backup created with {@link #createBackup(String, String, String)} to reach the
+     * {@code Ready} status before restoring from it.
      *
-     * @param backupId The ID of the backup to describe. (required)
-     * @return BackupModel
+     * <pre>{@code
+     *     BackupModel backup = pinecone.describeBackup(backupId);
+     *     boolean ready = "Ready".equals(backup.getStatus());
+     * }</pre>
+     *
+     * @param backupId the ID of the backup, from {@link BackupModel#getBackupId()}.
+     * @return the backup. {@link BackupModel#getStatus()} is its status, and the model also carries the source
+     *         index name, dimension, metric, and record count.
+     * @throws ApiException if {@code backupId} is null, or the server rejects the request, for example because
+     *                      the backup does not exist.
      */
     public BackupModel describeBackup(String backupId) throws ApiException {
         return manageIndexesApi.describeBackup(Configuration.VERSION, backupId);
     }
 
     /**
-     * Delete a backup
+     * Deletes a backup permanently.
+     * <p>
+     * The index the backup was taken from is not affected.
      *
-     * @param backupId The ID of the backup to delete. (required)
+     * <pre>{@code
+     *     pinecone.deleteBackup(backupId);
+     * }</pre>
+     *
+     * @param backupId the ID of the backup to delete, from {@link BackupModel#getBackupId()}.
+     * @throws ApiException if {@code backupId} is null, or the server rejects the request, for example because
+     *                      the backup does not exist.
      */
     public void deleteBackup(String backupId) throws ApiException {
         manageIndexesApi.deleteBackup(Configuration.VERSION, backupId);
     }
 
     /**
-     * Create an index from a backup
+     * Starts creating a new index from a backup, with tags and deletion protection, and returns before the index
+     * is ready.
+     * <p>
+     * This overload does not return the restore job. Use {@link #createIndexFromBackup(String, String)} when you
+     * need the restore job ID to track progress, or {@link #listRestoreJobs(Integer)} to find the job later. The
+     * backup must have the {@code Ready} status.
      *
-     * @param backupId           The ID of the backup to create an index from. (required)
-     * @param indexName          The name of the index. Resource name must be 1-45 characters long, start and end with an
-     *                           alphanumeric character, and consist only of lower case alphanumeric characters. (required)
-     * @param tags               Custom user tags added to an index. (optional)
-     * @param deletionProtection Whether deletion protection is enabled for the index. If enabled, the index
-     *                           cannot be deleted. Defaults to disabled if not provided.
+     * <pre>{@code
+     *     Map<String, String> tags = new HashMap<>();
+     *     tags.put("env", "staging");
+     *     pinecone.createIndexFromBackup(backupId, "product-catalog-restored", tags, "enabled");
+     * }</pre>
+     *
+     * @param backupId           the ID of the backup to restore, from {@link BackupModel#getBackupId()}.
+     * @param indexName          the name of the new index, for example {@code "product-catalog-restored"}. It must
+     *                           not match an existing index.
+     * @param tags               tags for the new index, for example {@code {"env": "staging"}}. Pass null to copy
+     *                           the tags of the backup.
+     * @param deletionProtection {@code "enabled"} to prevent the new index from being deleted until the setting is
+     *                           turned off, or {@code "disabled"}. Pass null for {@code "disabled"}.
+     * @throws ApiException if {@code backupId} is null, or the server rejects the request, for example because
+     *                      the backup does not exist or is not ready, or the index name is taken or invalid.
      */
     public void createIndexFromBackup(String backupId, String indexName, Map<String, String> tags, String deletionProtection) throws ApiException {
         CreateIndexFromBackupRequest createIndexFromBackupRequest = new CreateIndexFromBackupRequest()
@@ -1290,13 +1506,26 @@ public class Pinecone {
     }
 
     /**
-     * Overload to create an index from a backup with name and backupId.
+     * Starts creating a new index from a backup and returns the restore job, before the index is ready.
+     * <p>
+     * The new index gets the tags of the backup and has deletion protection disabled. Track progress with
+     * {@link #describeRestoreJob(String)} or {@link #describeIndex(String)}. The backup must have the
+     * {@code Ready} status. Use {@link #createIndexFromBackup(String, String, Map, String)} to set tags or
+     * deletion protection.
      *
-     * @param backupId  The ID of the backup to create an index from. (required)
-     * @param indexName The name of the index. Resource name must be 1-45 characters long, start and end with an
-     *                  alphanumeric character, and consist only of lower case alphanumeric characters. (required)
-     *                  cannot be deleted. Defaults to disabled if not provided.
-     * @return CreateIndexFromBackupResponse
+     * <pre>{@code
+     *     CreateIndexFromBackupResponse response =
+     *             pinecone.createIndexFromBackup(backupId, "product-catalog-restored");
+     *     String restoreJobId = response.getRestoreJobId();
+     * }</pre>
+     *
+     * @param backupId  the ID of the backup to restore, from {@link BackupModel#getBackupId()}.
+     * @param indexName the name of the new index, for example {@code "product-catalog-restored"}. It must not match
+     *                  an existing index.
+     * @return the restore job ID from {@link CreateIndexFromBackupResponse#getRestoreJobId()} and the new index ID
+     *         from {@link CreateIndexFromBackupResponse#getIndexId()}.
+     * @throws ApiException if {@code backupId} is null, or the server rejects the request, for example because
+     *                      the backup does not exist or is not ready, or the index name is taken or invalid.
      */
     public CreateIndexFromBackupResponse createIndexFromBackup(String backupId, String indexName) throws ApiException {
         CreateIndexFromBackupRequest createIndexFromBackupRequest = new CreateIndexFromBackupRequest()
@@ -1305,65 +1534,114 @@ public class Pinecone {
     }
 
     /**
-     * Describe a restore job
-     * Get a description of a restore job.
+     * Describes a restore job, the operation that builds an index from a backup.
+     * <p>
+     * Poll this after {@link #createIndexFromBackup(String, String)} until the status is {@code Completed} or
+     * {@code Failed}.
      *
-     * @param jobId The ID of the restore job to describe. (required)
-     * @return RestoreJobModel
+     * <pre>{@code
+     *     RestoreJobModel job = pinecone.describeRestoreJob(restoreJobId);
+     *     System.out.println(job.getStatus() + " " + job.getPercentComplete());
+     * }</pre>
+     *
+     * @param jobId the ID of the restore job, from {@link CreateIndexFromBackupResponse#getRestoreJobId()}.
+     * @return the restore job. {@link RestoreJobModel#getStatus()} is its status,
+     *         {@link RestoreJobModel#getPercentComplete()} its progress, and
+     *         {@link RestoreJobModel#getTargetIndexName()} the index being created.
+     * @throws ApiException if {@code jobId} is null, or the server rejects the request, for example because the
+     *                      restore job does not exist.
      */
     public RestoreJobModel describeRestoreJob(String jobId) throws ApiException {
         return manageIndexesApi.describeRestoreJob(Configuration.VERSION, jobId);
     }
 
     /**
-     * Overload to list restore jobs
-     * List all restore jobs for a project.
+     * Lists the first page of restore jobs in the project, with a chosen page size.
+     * <p>
+     * Use {@link #listRestoreJobs(Integer, String)} to fetch later pages.
      *
-     * @param limit The number of results to return per page.
-     * @return RestoreJobList
+     * <pre>{@code
+     *     for (RestoreJobModel job : pinecone.listRestoreJobs(25).getData()) {
+     *         System.out.println(job.getTargetIndexName() + " " + job.getStatus());
+     *     }
+     * }</pre>
+     *
+     * @param limit the maximum number of restore jobs to return, for example {@code 25}. Pass null for the server
+     *              default.
+     * @return one page of restore jobs. {@link RestoreJobList#getData()} holds the jobs, and
+     *         {@link RestoreJobList#getPagination()} holds the token for the next page.
+     * @throws ApiException if the server rejects the request.
      */
     public RestoreJobList listRestoreJobs(Integer limit) throws ApiException {
         return manageIndexesApi.listRestoreJobs(Configuration.VERSION, limit, null);
     }
 
     /**
-     * Overload to list restore jobs
-     * List all restore jobs for a project.
+     * Lists the next page of restore jobs in the project, up to 10 jobs.
+     * <p>
+     * Use {@link #listRestoreJobs(Integer, String)} to choose the page size as well.
      *
-     * @param paginationToken The token to use to retrieve the next page of results.
-     * @return RestoreJobList
+     * <pre>{@code
+     *     RestoreJobList nextPage = pinecone.listRestoreJobs(firstPage.getPagination().getNext());
+     * }</pre>
+     *
+     * @param paginationToken the token from {@link RestoreJobList#getPagination()} of the previous page. Pass null
+     *                        for the first page.
+     * @return one page of restore jobs. {@link RestoreJobList#getData()} holds the jobs, and
+     *         {@link RestoreJobList#getPagination()} holds the token for the next page.
+     * @throws ApiException if the server rejects the request, for example because the token is invalid.
      */
     public RestoreJobList listRestoreJobs(String paginationToken) throws ApiException {
         return manageIndexesApi.listRestoreJobs(Configuration.VERSION, 10, paginationToken);
     }
 
     /**
-     * List restore jobs
-     * List all restore jobs for a project.
+     * Lists one page of restore jobs in the project.
+     * <p>
+     * Returns a single page. To read every restore job, call again with the token from the previous page until no
+     * token comes back.
      *
-     * @param limit           The number of results to return per page. (optional, default to 10)
-     * @param paginationToken The token to use to retrieve the next page of results. (optional)
-     * @return RestoreJobList
+     * <pre>{@code
+     *     RestoreJobList page = pinecone.listRestoreJobs(25, null);
+     * }</pre>
+     *
+     * @param limit           the maximum number of restore jobs to return. Pass null for the server default.
+     * @param paginationToken the token from {@link RestoreJobList#getPagination()} of the previous page. Pass null
+     *                        for the first page.
+     * @return one page of restore jobs. {@link RestoreJobList#getData()} holds the jobs, and
+     *         {@link RestoreJobList#getPagination()} holds the token for the next page.
+     * @throws ApiException if the server rejects the request, for example because the token is invalid.
      */
     public RestoreJobList listRestoreJobs(Integer limit, String paginationToken) throws ApiException {
         return manageIndexesApi.listRestoreJobs(Configuration.VERSION, limit, paginationToken);
     }
 
     /**
-     * Creates a new collection from a source index.
+     * Starts creating a collection, a static copy of a pod-based index's vectors and metadata.
      * <p>
-     * Example:
-     * <pre>{@code 
-     *     import org.openapitools.control.client.model.CollectionModel;
-     *     ...
+     * Use a collection to back up a pod-based index or to create new pod-based indexes from it with
+     * {@link #createPodsIndex(String, Integer, String, String, String, String) createPodsIndex}. The source index must
+     * be pod-based and ready; for serverless indexes, use {@link #createBackup(String, String, String) createBackup}
+     * instead. The method returns before the collection is ready: the returned collection's status is
+     * {@code Initializing}, and you poll {@link #describeCollection(String)} until it is {@code Ready}.
      *
-     *     CollectionModel collection = client.createCollection("my-collection", "my-source-index");
+     * <pre>{@code
+     *     CollectionModel collection = pinecone.createCollection("product-catalog-snapshot", "product-catalog");
      * }</pre>
      *
-     * @param collectionName The name of the new collection.
-     * @param sourceIndex The name of the source index.
-     * @return {@link CollectionModel} representing the created collection.
-     * @throws PineconeException if an error occurs during the operation, or the source collection is invalid.
+     * @param collectionName the name of the new collection, for example {@code "product-catalog-snapshot"}. Must not
+     *                       be null or empty.
+     * @param sourceIndex    the name of the pod-based index to copy, for example {@code "product-catalog"}. Must not
+     *                       be null or empty.
+     * @return the new collection. {@link CollectionModel#getStatus()} is {@code Initializing}, and
+     *         {@link CollectionModel#getEnvironment()} and {@link CollectionModel#getDimension()} come from the
+     *         source index.
+     * @throws PineconeValidationException if {@code collectionName} or {@code sourceIndex} is null or empty. The
+     *                                     client checks this before sending the request.
+     * @throws PineconeNotFoundException   if the source index does not exist.
+     * @throws PineconeBadRequestException if the server rejects the request, for example because the source index
+     *                                     is serverless or not ready, or the collection name is invalid.
+     * @throws PineconeForbiddenException  if the project has reached its collection quota.
      */
     public CollectionModel createCollection(String collectionName, String sourceIndex) throws PineconeException {
         if (collectionName == null || collectionName.isEmpty()) {
@@ -1387,20 +1665,24 @@ public class Pinecone {
     }
 
     /**
-     * Describes an existing collection.
+     * Describes a collection, including its status, size and vector count.
      * <p>
-     * Example:
-     * <pre>{@code 
-     *     import io.pinecone.clients.Pinecone;
-     *     import org.openapitools.control.client.model.CollectionModel;
-     *     ...
+     * Poll this after {@link #createCollection(String, String)} until the status is {@code Ready}, the point at which
+     * the collection can be used to create an index.
      *
-     *     CollectionModel collection = client.describeCollection("my-collection");
+     * <pre>{@code
+     *     CollectionModel collection = pinecone.describeCollection("product-catalog-snapshot");
+     *     if ("Ready".equals(collection.getStatus())) {
+     *         System.out.println(collection.getVectorCount() + " vectors in " + collection.getEnvironment());
+     *     }
      * }</pre>
      *
-     * @param collectionName The name of the collection to describe.
-     * @return {@link CollectionModel} with the description of the collection.
-     * @throws PineconeException if an error occurs during the operation or the collection does not exist.
+     * @param collectionName the name of the collection, for example {@code "product-catalog-snapshot"}.
+     * @return the collection. {@link CollectionModel#getStatus()} is {@code Initializing}, {@code Ready} or
+     *         {@code Terminating}; {@link CollectionModel#getEnvironment()} is the environment an index created from
+     *         it must use. {@link CollectionModel#getSize()} and {@link CollectionModel#getVectorCount()} can be
+     *         null while the collection is initializing.
+     * @throws PineconeNotFoundException if the collection does not exist.
      */
     public CollectionModel describeCollection(String collectionName) throws PineconeException {
         CollectionModel collection = null;
@@ -1413,18 +1695,18 @@ public class Pinecone {
     }
 
     /**
-     * Lists all collections in the project.
+     * Lists every collection in the project.
      * <p>
-     * Example:
-     * <pre>{@code 
-     *     import org.openapitools.control.client.model.CollectionList;
-     *     ...
+     * One call returns all collections; there is no pagination.
      *
-     *     CollectionList collections = client.listCollections();
+     * <pre>{@code
+     *     for (CollectionModel collection : pinecone.listCollections().getCollections()) {
+     *         System.out.println(collection.getName() + " " + collection.getStatus());
+     *     }
      * }</pre>
      *
-     * @return {@link CollectionList} containing all collections.
-     * @throws PineconeException if an error occurs during the listing operation.
+     * @return the collections. {@link CollectionList#getCollections()} holds one {@link CollectionModel} per
+     *         collection, with the same fields as {@link #describeCollection(String)}.
      */
     public CollectionList listCollections() throws PineconeException {
         CollectionList collections = null;
@@ -1437,22 +1719,17 @@ public class Pinecone {
     }
 
     /**
-     * Deletes a collection.
+     * Starts deleting a collection. The deletion is permanent.
      * <p>
-     * Deleting a collection is an irreversible operation. All data in the collection will be lost.
-     * This method tells Pinecone you would like to delete a collection, but it takes a few moments to complete the operation.
-     * Use the describeCollection() method to confirm that the collection has been deleted.
-     * <p>
-     * Example:
-     * <pre>{@code 
-     *     client.deleteCollection('my-collection');
+     * The method returns before the deletion finishes: the collection's status becomes {@code Terminating}, and once
+     * it is gone {@link #describeCollection(String)} throws {@link PineconeNotFoundException}.
      *
-     *     // Verify collection status with describeCollection
-     *     client.describeCollection('my-collection');
+     * <pre>{@code
+     *     pinecone.deleteCollection("product-catalog-snapshot");
      * }</pre>
      *
-     * @param collectionName The name of the collection to delete.
-     * @throws PineconeException if an error occurs during the deletion operation or the collection does not exist.
+     * @param collectionName the name of the collection to delete, for example {@code "product-catalog-snapshot"}.
+     * @throws PineconeNotFoundException if the collection does not exist.
      */
     public void deleteCollection(String collectionName) throws PineconeException {
         try {
@@ -1463,24 +1740,24 @@ public class Pinecone {
     }
 
     /**
-     * Retrieves a connection to a specific index for synchronous operations. This method initializes
-     * and returns an {@link Index} object that represents a connection to an index and allowing for
-     * synchronous operations against it.
+     * Returns an {@link Index} for upserting, querying and otherwise working with the data in one index.
      * <p>
-     * Example:
-     * <pre>{@code 
-     *     import io.pinecone.clients.Index;
-     *     ...
+     * Each call describes the index to look up its host, so it makes one control-plane request and fails if the
+     * index does not exist. Call it once per index and reuse the result. Every {@code Index} and {@link AsyncIndex}
+     * returned for the same index name, API key, index host, TLS setting, source tag and response metadata listener
+     * shares one gRPC channel, across all {@code Pinecone} instances in the JVM; a client with a different API key
+     * or other settings gets its own channel. Use {@link #getAsyncIndexConnection(String)} for non-blocking calls.
      *
-     *     Index index = client.getIndexConnection("YOUR-INDEX");
-     *
-     *     // Use the index object to interact with the index
-     *     index.describeIndexStats();
+     * <pre>{@code
+     *     Index index = pinecone.getIndexConnection("product-catalog");
+     *     index.upsert("sku-1001", Arrays.asList(0.12f, 0.48f, 0.91f));
      * }</pre>
      *
-     * @param indexName The name of the index to connect to. Must not be null or empty.
-     * @return An {@link Index} object representing the connection to the specified index.
-     * @throws PineconeValidationException If the indexName is null or empty.
+     * @param indexName the name of the index to connect to, for example {@code "product-catalog"}.
+     * @return the index connection. Call {@link Index#close()} when you are done with it; the shared channel shuts
+     *         down once every {@code Index} and {@code AsyncIndex} using it is closed.
+     * @throws PineconeValidationException if {@code indexName} is null or empty.
+     * @throws PineconeNotFoundException if the index does not exist.
      */
     public Index getIndexConnection(String indexName) throws PineconeValidationException {
         if(indexName == null || indexName.isEmpty()) {
@@ -1504,24 +1781,25 @@ public class Pinecone {
     }
 
     /**
-     * Retrieves a connection to a specific index for asynchronous operations. This method initializes
-     * and returns an {@link AsyncIndex} object that represents a connection to an index and allowing for
-     * synchronous operations against it.
+     * Returns an {@link AsyncIndex} for working with the data in one index through non-blocking calls that return
+     * {@code ListenableFuture}.
      * <p>
-     * Example:
-     * <pre>{@code 
-     *     import io.pinecone.clients.AsyncIndex;
-     *     ...
+     * It behaves like {@link #getIndexConnection(String)}: each call describes the index to look up its host, and
+     * it shares one gRPC channel with every {@link Index} and {@code AsyncIndex} returned for the same index and the
+     * same client settings. Use {@link #getIndexConnection(String)} for blocking calls.
      *
-     *     AsyncIndex asyncIndex = client.getAsyncIndexConnection("YOUR-INDEX");
-     *
-     *     // Use the index object to interact with the index
-     *     asyncIndex.describeIndexStats();
+     * <pre>{@code
+     *     AsyncIndex asyncIndex = pinecone.getAsyncIndexConnection("product-catalog");
+     *     ListenableFuture<UpsertResponse> future =
+     *             asyncIndex.upsert("sku-1001", Arrays.asList(0.12f, 0.48f, 0.91f));
+     *     System.out.println(future.get().getUpsertedCount());
      * }</pre>
      *
-     * @param indexName The name of the index to connect to. Must not be null or empty.
-     * @return An {@link AsyncIndex} object representing the connection to the specified index.
-     * @throws PineconeValidationException If the indexName is null or empty.
+     * @param indexName the name of the index to connect to, for example {@code "product-catalog"}.
+     * @return the asynchronous index connection. Call {@link AsyncIndex#close()} when you are done with it; the
+     *         shared channel shuts down once every {@code Index} and {@code AsyncIndex} using it is closed.
+     * @throws PineconeValidationException if {@code indexName} is null or empty.
+     * @throws PineconeNotFoundException if the index does not exist.
      */
     public AsyncIndex getAsyncIndexConnection(String indexName) throws PineconeValidationException {
         if(indexName == null || indexName.isEmpty()) {
@@ -1545,12 +1823,22 @@ public class Pinecone {
     }
 
     /**
-     * A method to create and return a new instance of the {@link Inference} client.
+     * Returns a new {@link Inference} client for generating embeddings, reranking documents and listing the
+     * hosted models.
      * <p>
-     * This method initializes the Inference client using the current {@link PineconeConfig} instance which is
-     * initialized as a part of the Builder class. The {@link Inference} client can then be used to interact with
-     * Pinecone's inference API.
-     * @return A new {@link Inference} client instance.
+     * The client uses this instance's API key, source tag, proxy and custom {@code OkHttpClient}, and always sends
+     * requests to Pinecone's public API. Each call builds a new client, with its own HTTP client unless a custom
+     * {@code OkHttpClient} is set, so call it once and reuse the result.
+     *
+     * <pre>{@code
+     *     Inference inference = pinecone.getInferenceClient();
+     *     Map<String, Object> parameters = new HashMap<>();
+     *     parameters.put("input_type", "passage");
+     *     EmbeddingsList embeddings = inference.embed("multilingual-e5-large", parameters,
+     *             Arrays.asList("Wireless noise-cancelling headphones"));
+     * }</pre>
+     *
+     * @return a new inference client.
      */
     public Inference getInferenceClient() {
         return new Inference(config);
@@ -1619,8 +1907,17 @@ public class Pinecone {
     }
 
     /**
-     * A builder class for creating a {@link Pinecone} instance. This builder allows for configuring a {@link Pinecone}
-     * instance with custom parameters including an API key, a source tag, and a custom OkHttpClient.
+     * Configures and builds a {@link Pinecone} client.
+     * <p>
+     * Only the API key is required. The defaults suit most applications: requests go to Pinecone's public API over
+     * TLS through a client-managed HTTP client. Each {@code with*} method returns the builder for chaining;
+     * {@link #build()} checks the settings and makes no network calls.
+     *
+     * <pre>{@code
+     * Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY"))
+     *     .withSourceTag("acme_search")
+     *     .build();
+     * }</pre>
      */
     public static class Builder {
         // Required fields
@@ -1635,40 +1932,40 @@ public class Pinecone {
         private ResponseMetadataListener responseMetadataListener;
 
         /**
-         * Constructs a new {@link Builder} with the mandatory API key.
+         * Starts a builder for a client that authenticates with the given API key.
+         * <p>
+         * The key is checked when you call {@link #build()}, not here.
          *
          * <pre>{@code
-         *     import io.pinecone.clients.Pinecone;
-         *
-         *     Pinecone client = new Pinecone.Builder("PINECONE_API_KEY").build();
+         * Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
          * }</pre>
          *
-         * @param apiKey The API key required for authenticating requests to Pinecone services.
+         * @param apiKey Your Pinecone API key, sent with every control-plane, data-plane and inference request.
+         *               Read it from the environment or a secret store rather than hard-coding it. A null or empty
+         *               key makes {@link #build()} throw.
          */
         public Builder(String apiKey) {
             this.apiKey = apiKey;
         }
 
         /**
-         * Sets the source tag to include with all requests made by the Pinecone client.
+         * Sets a source tag that identifies your application or integration in the {@code User-Agent} of every
+         * request.
          * <p>
-         * Source tag is an optional string identifier used to help Pinecone attribute API activity to our partners.
-         * For more info, see
-         * <a href="https://docs.pinecone.io/integrations/build-integration/attribute-api-activity">
-         *    https://docs.pinecone.io/integrations/build-integration/attribute-api-activity
-         * </a>
+         * Partners building on Pinecone use it so Pinecone can attribute API activity to them; see
+         * <a href="https://docs.pinecone.io/integrations/build-integration/attribute-api-activity">Attribute API
+         * activity</a>. The client sends the tag exactly as given, so pass it already in the expected form:
+         * lowercase letters, digits, underscores and colons.
          *
          * <pre>{@code
-         *     Pinecone client = new Pinecone.Builder("PINECONE_API_KEY")
-         *         .withSourceTag("YOUR_SOURCE_TAG")
-         *         .build();
-         *
-         *     // The tag will be included in all requests made by the client, e.g.
-         *     client.listIndexes();
+         * Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY"))
+         *     .withSourceTag("acme_search")
+         *     .build();
          * }</pre>
          *
-         * @param sourceTag The source tag to identify the origin of the requests.
-         * @return This {@link Builder} instance for chaining method calls.
+         * @param sourceTag The tag to send, for example {@code "acme_search"}. Null or empty (the default) sends no
+         *                  tag.
+         * @return This builder.
          */
         public Builder withSourceTag(String sourceTag) {
             this.sourceTag = sourceTag;
@@ -1676,22 +1973,32 @@ public class Pinecone {
         }
 
         /**
-         * Sets a custom OkHttpClient for the Pinecone client to use for making HTTP requests.
+         * Supplies your own {@link OkHttpClient} for control-plane and inference requests, for example to set
+         * timeouts or add interceptors.
+         * <p>
+         * Requests from an {@link Index} or {@link AsyncIndex} do not use it. When a custom client is set, the client
+         * ignores {@link #withHost(String)} and sends control-plane requests to Pinecone's public API. It cannot be
+         * combined with {@link #withProxy(String, int)}: configure the proxy on your {@code OkHttpClient} instead.
+         * <p>
+         * The HTTP clients the SDK builds itself remove the {@code Api-Key} header when a redirect goes to a
+         * different host, scheme or port (an {@code http} to {@code https} upgrade on the same host and default
+         * ports keeps it). The client does not add this to your {@code OkHttpClient}, so a cross-origin redirect
+         * sends your API key to the new host unless you handle it yourself.
          *
          * <pre>{@code
-         *     import okhttp3.OkHttpClient;
+         * import java.util.concurrent.TimeUnit;
+         * import okhttp3.OkHttpClient;
          *
-         *     OkHttpClient myClient = new OkHttpClient();
-         *     Pinecone client = new Pinecone.Builder("PINECONE_API_KEY")
-         *         .withOkHttpClient(myClient)
-         *         .build();
-         *
-         *     // Network requests will now be made using your custom OkHttpClient
-         *     client.listIndexes();
+         * OkHttpClient httpClient = new OkHttpClient.Builder()
+         *     .readTimeout(60, TimeUnit.SECONDS)
+         *     .build();
+         * Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY"))
+         *     .withOkHttpClient(httpClient)
+         *     .build();
          * }</pre>
          *
-         * @param okHttpClient The custom OkHttpClient to be used. Must not be null.
-         * @return This {@link Builder} instance for chaining method calls.
+         * @param okHttpClient The HTTP client to use. Null (the default) lets the client build its own.
+         * @return This builder.
          */
         public Builder withOkHttpClient(OkHttpClient okHttpClient) {
             this.customOkHttpClient = okHttpClient;
@@ -1699,34 +2006,22 @@ public class Pinecone {
         }
 
         /**
-         * Sets a proxy for the Pinecone client to use for control and data plane requests.
+         * Routes control-plane and inference requests through an HTTP proxy.
          * <p>
-         * When a proxy is configured using this method, all control and data plane requests made by the Pinecone client
-         * will be routed through the specified proxy server.
-         * <p>
-         * It's important to note that both proxyHost and proxyPort parameters should be provided to establish
-         * the connection to the proxy server.
-         * <p>
-         * Example usage:
+         * Index connections do not go through the proxy: upserts, queries and other data-plane calls on an
+         * {@link Index} or {@link AsyncIndex} connect to the index host directly. Cannot be combined with
+         * {@link #withOkHttpClient(OkHttpClient)}.
+         *
          * <pre>{@code
-         *
-         * String proxyHost = System.getenv("PROXY_HOST");
-         * int proxyPort = Integer.parseInt(System.getenv("PROXY_PORT"));
-         * Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY")
-         *     .withProxy(proxyHost, proxyPort)
+         * Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY"))
+         *     .withProxy("proxy.example.com", 8080)
          *     .build();
-         *
-         * // Network requests for control plane operations will now be made using the specified proxy.
-         * pinecone.listIndexes();
-         *
-         * // Network requests for data plane operations will now be made using the specified proxy.
-         * Index index = pinecone.getIndexConnection("PINECONE_INDEX");
-         * index.describeIndexStats();
          * }</pre>
          *
-         * @param proxyHost The hostname or IP address of the proxy server. Must not be null.
-         * @param proxyPort The port number of the proxy server. Must not be null.
-         * @return This {@link Builder} instance for chaining method calls.
+         * @param proxyHost The proxy's hostname or IP address, for example {@code "proxy.example.com"}. Must not be
+         *                  null or empty.
+         * @param proxyPort The proxy's port, for example {@code 8080}. Must be greater than 0.
+         * @return This builder.
          */
         public Builder withProxy(String proxyHost, int proxyPort) {
             this.proxyConfig = new ProxyConfig(proxyHost, proxyPort);
@@ -1734,22 +2029,21 @@ public class Pinecone {
         }
 
         /**
-         * Sets a custom host URL for the control and data plane operations.
+         * Sends control-plane requests to a different base URL, such as a local emulator.
          * <p>
-         * This method allows you to specify a custom base URL for Pinecone control and data plane requests.
-         * <p>
-         * Example usage:
+         * Only control-plane requests use this URL. Index connections go to the host the control plane reports for
+         * each index, and inference requests go to Pinecone's public API. The client ignores this setting when
+         * {@link #withOkHttpClient(OkHttpClient)} is also set.
+         *
          * <pre>{@code
-         * Pinecone client = new Pinecone.Builder("PINECONE_API_KEY")
+         * Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY"))
          *     .withHost("http://localhost:5080")
          *     .build();
-         *
-         * // Requests will now be sent to the specified host.
-         * client.listIndexes();
          * }</pre>
          *
-         * @param host The custom host URL for the Pinecone service. Must be a valid URL.
-         * @return This {@link Builder} instance for chaining method calls.
+         * @param host The base URL including the scheme, for example {@code "http://localhost:5080"}. Null or empty
+         *             (the default) uses Pinecone's public API.
+         * @return This builder.
          */
         public Builder withHost(String host) {
             this.host = host;
@@ -1757,27 +2051,20 @@ public class Pinecone {
         }
 
         /**
-         * Configures whether TLS (Transport Layer Security) should be enabled for data plane operations.
+         * Turns TLS on or off for requests an {@link Index} or {@link AsyncIndex} sends to the index host.
          * <p>
-         * By default, TLS is enabled for data plane requests to ensure secure communication for data plane operations.
-         * This method can be used to disable TLS if needed (e.g., for testing or when communicating with non-secure
-         * endpoints). Disabling TLS in a production environment is not recommended due to potential security risks.
-         * <p>
-         * Example usage:
+         * Turn it off only to reach an index that does not serve TLS, such as one in a local emulator. Control-plane
+         * and inference requests are unaffected; their scheme comes from the base URL.
+         *
          * <pre>{@code
-         * Pinecone client = new Pinecone.Builder("PINECONE_API_KEY")
+         * Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY"))
+         *     .withHost("http://localhost:5080")
          *     .withTlsEnabled(false)
          *     .build();
-         *
-         * // Get index for data plane operations
-         * Index index = pinecone.getIndexConnection("PINECONE_INDEX_NAME");
-         *
-         * // Requests will now be made without TLS encryption (not recommended for production use).
-         * index.upsert("v1", Arrays.asList(1f, 2f, 3f));
          * }</pre>
          *
-         * @param enableTls {@code true} to enable TLS (default), {@code false} to disable it.
-         * @return This {@link Builder} instance for chaining method calls.
+         * @param enableTls {@code true} (the default) to use TLS, {@code false} to connect in plain text.
+         * @return This builder.
          */
         public Builder withTlsEnabled(boolean enableTls) {
             this.enableTls = enableTls;
@@ -1785,27 +2072,24 @@ public class Pinecone {
         }
 
         /**
-         * Sets a listener to receive response metadata from data plane operations.
+         * Registers a listener that receives timing and status for each data-plane call, for logging, custom
+         * metrics or OpenTelemetry.
          * <p>
-         * The listener is invoked after each upsert, query, fetch, update, or delete operation completes.
-         * Use this for custom metrics, logging, or OpenTelemetry integration.
-         * <p>
-         * Example usage:
-         * <pre>{@code
-         * Pinecone client = new Pinecone.Builder("PINECONE_API_KEY")
-         *     .withResponseMetadataListener(metadata -> {
-         *         System.out.println("Operation: " + metadata.getOperationName());
-         *         System.out.println("Server time: " + metadata.getServerDurationMs() + "ms");
-         *         System.out.println("Total time: " + metadata.getClientDurationMs() + "ms");
-         *     })
-         *     .build();
+         * The listener runs after each upsert, query, fetch, update, delete and list call on an {@link Index} or
+         * {@link AsyncIndex}; control-plane and inference calls do not report to it. Index connections from clients
+         * with different listeners do not share a gRPC channel, so each client's calls report to its own listener.
          *
-         * Index index = client.getIndexConnection("my-index");
-         * index.query(...);  // Listener is automatically invoked
+         * <pre>{@code
+         * Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY"))
+         *     .withResponseMetadataListener(metadata ->
+         *         System.out.println(metadata.getOperationName() + " took "
+         *             + metadata.getClientDurationMs() + " ms"))
+         *     .build();
          * }</pre>
          *
-         * @param listener The listener to receive response metadata.
-         * @return This {@link Builder} instance for chaining method calls.
+         * @param listener Receives a {@link io.pinecone.configs.ResponseMetadata} per call. Null (the default)
+         *                 disables reporting.
+         * @return This builder.
          */
         public Builder withResponseMetadataListener(ResponseMetadataListener listener) {
             this.responseMetadataListener = listener;
@@ -1813,13 +2097,20 @@ public class Pinecone {
         }
 
         /**
-         * Builds and returns a {@link Pinecone} instance configured with the provided API key, optional source tag,
-         * and OkHttpClient.
+         * Checks the settings and builds the client.
          * <p>
-         * This method also performs configuration validation, sets up the internal API client, and manages indexes API
-         * with debugging options based on the environment variables.
+         * Makes no network calls. If the {@code PINECONE_DEBUG} environment variable is {@code true}, the client
+         * logs every control-plane request and response in full, with the {@code Api-Key} header value replaced by
+         * {@code ██}. Logging interceptors you add to your own {@code OkHttpClient} are not changed and can still
+         * log the key.
          *
-         * @return A new {@link Pinecone} instance configured based on the builder parameters.
+         * <pre>{@code
+         * Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+         * }</pre>
+         *
+         * @return A new {@link Pinecone} client.
+         * @throws PineconeConfigurationException If the API key is null or empty, the proxy host or port is invalid,
+         *                                        or both a proxy and a custom {@code OkHttpClient} are set.
          */
         public Pinecone build() {
             PineconeConfig config = new PineconeConfig(apiKey, sourceTag, proxyConfig, customOkHttpClient);
