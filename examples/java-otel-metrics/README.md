@@ -1,6 +1,6 @@
 # Pinecone Java SDK - OpenTelemetry Metrics Example
 
-This example demonstrates how to integrate OpenTelemetry metrics with the Pinecone Java SDK using the `ResponseMetadataListener` feature. It captures latency metrics for all data plane operations and exports them to Prometheus/Grafana for visualization.
+This example demonstrates how to integrate OpenTelemetry metrics with the Pinecone Java SDK using the `ResponseMetadataListener` feature. It captures latency metrics for the upsert, query, fetch, update, delete and list calls made through an index connection and exports them to Prometheus/Grafana for visualization.
 
 ## What This Example Does
 
@@ -22,11 +22,12 @@ This example demonstrates how to integrate OpenTelemetry metrics with the Pineco
 | Attribute | Description |
 |-----------|-------------|
 | `db.system` | Always "pinecone" |
-| `db.operation.name` | Operation type (upsert, query, fetch, update, delete) |
+| `db.operation.name` | Operation type (upsert, query, fetch, update, delete, list) |
 | `db.namespace` | Pinecone namespace |
 | `pinecone.index_name` | Index name |
 | `server.address` | Pinecone host |
 | `status` | "success" or "error" |
+| `error.type` | Error category, set only when `status` is "error" |
 
 ## Prerequisites
 
@@ -144,7 +145,7 @@ Pinecone client = new Pinecone.Builder(apiKey)
     .withResponseMetadataListener(recorder)
     .build();
 
-// All operations now emit metrics automatically
+// Upsert, query, fetch, update, delete and list calls now emit metrics
 Index index = client.getIndexConnection(indexName);
 index.upsert(...);  // Metrics recorded!
 index.query(...);   // Metrics recorded!

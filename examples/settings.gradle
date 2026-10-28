@@ -1,0 +1,8 @@
+// Compiles the examples against the client in the parent directory instead of a published release.
+rootProject.name = 'pinecone-examples'
+
+includeBuild('..') {
+    dependencySubstitution {
+        substitute module('io.pinecone:pinecone-client') using project(':')
+    }
+}

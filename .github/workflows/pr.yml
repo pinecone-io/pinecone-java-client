@@ -180,3 +180,25 @@ jobs:
         java -cp build/libs/*-all.jar io.pinecone.helpers.IndexCleanupUtility --run-id "$GITHUB_RUN_ID"
       env:
         PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
+
+  # Compiles the runnable examples under examples/ and the README's Java snippets against the client
+  # built from this commit, with Java 8 API checking, so a client change that breaks either fails the PR.
+  examples:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: 17
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
+
+    - name: Compile examples
+      run: ./gradlew -p examples build
+
+    - name: Compile README snippets
+      run: ./gradlew -p examples checkReadmeSnippets

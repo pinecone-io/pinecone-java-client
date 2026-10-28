@@ -15,7 +15,7 @@ Maven:
 <dependency>
   <groupId>io.pinecone</groupId>
   <artifactId>pinecone-client</artifactId>
-  <version>6.0.0</version>
+  <version>6.2.0</version>
 </dependency>
 ```
 
@@ -23,12 +23,12 @@ Maven:
 
 Gradle:
 ```
-implementation "io.pinecone:pinecone-client:6.0.0"
+implementation "io.pinecone:pinecone-client:6.2.0"
 ```
 
 [comment]: <> (^ [pc:VERSION_LATEST_RELEASE])
 
-Alternatively, you can use our standalone uberjar [pinecone-client-6.0.0-all.jar](https://repo1.maven.org/maven2/io/pinecone/pinecone-client/6.0.0/pinecone-client-6.0.0-all.jar), which bundles the Pinecone
+Alternatively, you can use our standalone uberjar [pinecone-client-6.2.0-all.jar](https://repo1.maven.org/maven2/io/pinecone/pinecone-client/6.2.0/pinecone-client-6.2.0-all.jar), which bundles the Pinecone
 SDK and all dependencies together. You can include this in your classpath like you do with any 3rd party JAR without
 having to obtain the *pinecone-client* dependencies separately.
 
@@ -43,125 +43,104 @@ console dashboard at [https://app.pinecone.io](https://app.pinecone.io).
 
 #### Using apiKey
 
-The `Pinecone` class is your main entry point into the Pinecone Java SDK. You can instantiate the client with 
-your `apiKey`, either by passing it as an argument in your code or by setting it as an environment variable called 
-`PINECONE_API_KEY`.
-
-This internally instantiates a single shared OkHttpClient instance, which is used for both control plane and inference
-operations. Note that the OkHttpClient performs best when you create a single `OkHttpClient` instance and reuse it 
-for all of your HTTP calls. This is because each client holds its own connection pool and thread pools. Reusing 
-connections and threads reduces latency and saves memory. Conversely, creating a client for each request wastes 
-resources on idle pools. More details on the OkHttpClient can be found [here](https://github.com/square/okhttp/blob/f2771425cb714a5b0b27238bd081b2516b4d640f/okhttp/src/main/kotlin/okhttp3/OkHttpClient.kt#L54).
+The `Pinecone` class is your main entry point into the Pinecone Java SDK. Build it with your API key. The client does
+not read the `PINECONE_API_KEY` environment variable on its own, so pass the value in yourself. Create one `Pinecone`
+instance and reuse it, because each instance holds its own HTTP connection pool.
 
 ```java
 import io.pinecone.clients.Pinecone;
 
 public class InitializeClientExample {
     public static void main(String[] args) {
-        Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+        Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
     }
 }
 ```
 
-#### Passing OkHttpClient for control plane operations
+#### Passing a custom OkHttpClient
 
-If you need to provide a custom `OkHttpClient`, you can do so by using the `withOkHttpClient()` method of the 
-`Pinecone.Builder` class to pass in your `OkHttpClient` object.
+To control timeouts or other HTTP settings, pass your own `OkHttpClient` to `withOkHttpClient()`. The client uses it
+for control plane calls and for calls made through `getInferenceClient()`. Index connections from
+`getIndexConnection()` and `getAsyncIndexConnection()` do not use it. Do not combine it with `withHost()`: when a
+custom `OkHttpClient` is set, control plane calls ignore the host you passed.
 
 ```java
 import io.pinecone.clients.Pinecone;
 import okhttp3.OkHttpClient;
 
-public class InitializeClientExample {
+import java.util.concurrent.TimeUnit;
+
+public class CustomHttpClientExample {
     public static void main(String[] args) {
-        OkHttpClient.Builder builder = new OkHttpClient.Builder()
-                .connectTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
-                .readTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
-                .writeTimeout(30, java.util.concurrent.TimeUnit.SECONDS);
+        OkHttpClient httpClient = new OkHttpClient.Builder()
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .writeTimeout(30, TimeUnit.SECONDS)
+                .build();
 
-        OkHttpClient httpClient = builder.build();
-
-        Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").withOkHttpClient(httpClient).build();
+        Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY"))
+                .withOkHttpClient(httpClient)
+                .build();
     }
 }
 ```
 
-#### Configuring HTTP proxy for both control and data plane operations
+#### Configuring an HTTP proxy for control plane and inference operations
 
-If your network setup requires you to interact with Pinecone via a proxy, you will need to pass additional 
-configuration using the parameters `host` and `port` of the `ProxyConfig` class.
+If your network requires an HTTP proxy, pass its host and port to `withProxy()`. Control plane calls (creating,
+describing, and deleting indexes) and calls made through `getInferenceClient()` go through the proxy. Index
+connections from `getIndexConnection()` and `getAsyncIndexConnection()` do not use it: upserts, queries, and other
+data plane calls connect to the index host directly. You cannot combine `withProxy()` with `withOkHttpClient()`;
+`build()` throws a `PineconeConfigurationException` if both are set.
+
+```java
+import io.pinecone.clients.Pinecone;
+import org.openapitools.db_control.client.model.IndexModel;
+
+public class ProxyExample {
+    public static void main(String[] args) {
+        Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY"))
+                .withProxy("proxy.example.com", 8080)
+                .build();
+
+        // Sent through the proxy
+        IndexModel indexModel = pinecone.describeIndex("product-catalog");
+    }
+}
+```
+
+#### Disabling TLS for data plane operations
+
+To send data plane requests without TLS, for example to a local Pinecone emulator, build the client with
+`withTlsEnabled(false)`. Data plane traffic is then unencrypted, so do not disable TLS in production.
 
 ```java
 import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
-import io.pinecone.proto.UpsertResponse;
-import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
-import org.openapitools.db_control.client.model.IndexModel;
-
-import java.util.Arrays;
-
-public class ProxyExample {
-    public static void main(String[] args) {
-        String apiKey = "PINECONE_API_KEY";
-        String proxyHost = "PROXY_HOST";
-        int proxyPort = 8080; // Port can be configured based on your setup
-
-        Pinecone pinecone = new Pinecone.Builder(apiKey)
-                .withProxy(proxyHost, proxyPort)
-                .build();
-
-        // Control plane operation routed through the proxy server
-        IndexModel indexModel = pinecone.describeIndex("PINECONE_INDEX");
-
-        // Data plane operations routed through the proxy server
-        Index index = pinecone.getIndexConnection("PINECONE_INDEX_NAME");
-        // 1. Upsert data
-        UpsertResponse upsertResponse = index.upsert("v1", Arrays.asList(1F, 2F, 3F, 4F));
-        // 2. Query vector
-        QueryResponseWithUnsignedIndices queryResponse = index.queryByVectorId(1, "v1", true, true);
-    }
-}
-```
-
-#### Disabling SSL verification for data plane operations
-
-If you would like to disable TLS verification for data plane operations, you can disable it by setting `enableTLS`
-parameter of `PineconeConfig` class to false. We do not recommend going to production with TLS verification disabled.
-
-```java
-import io.pinecone.clients.Index;
-import io.pinecone.configs.PineconeConfig;
-import io.pinecone.configs.PineconeConnection;
-import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
-import io.pinecone.proto.UpsertResponse;
-import java.util.Arrays;
+import io.pinecone.proto.DescribeIndexStatsResponse;
 
 public class DisableTLSExample {
     public static void main(String[] args) {
-        PineconeConfig config = new PineconeConfig("api");
-        config.setHost("localhost:5081");
-        config.setTLSEnabled(false);
-        PineconeConnection connection = new PineconeConnection(config);
-        Index index = new Index(connection, "example-index");
-        
-        // Data plane operations
-        // 1. Upsert data
-        UpsertResponse upsertResponse = index.upsert("v1", Arrays.asList(1f, 2f, 3f));
-        // 2. Query data
-        QueryResponseWithUnsignedIndices queryResponse = index.queryByVectorId(1, "v1", true, true);
+        Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY"))
+                .withHost("http://localhost:5080")
+                .withTlsEnabled(false)
+                .build();
+        Index index = pinecone.getIndexConnection("product-catalog");
+
+        DescribeIndexStatsResponse stats = index.describeIndexStats();
     }
 }
 ```
 
 #### Capturing response metadata for observability
 
-The SDK supports capturing response metadata for all data plane operations (upsert, query, fetch, update, delete, list). This enables you to track latency metrics and integrate with observability tools like OpenTelemetry, Prometheus, or Datadog.
+The SDK can report response metadata for upsert, query, fetch, update, delete and list calls made through an index connection. Other calls, such as `describeIndexStats` and `fetchByMetadata`, do not report it. This enables you to track latency metrics and integrate with observability tools like OpenTelemetry, Prometheus, or Datadog.
 
 ```java
 import io.pinecone.clients.Pinecone;
 import io.pinecone.clients.Index;
 
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY")
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY"))
     .withResponseMetadataListener(metadata -> {
         System.out.printf("Operation: %s | Client: %dms | Server: %dms | Network: %dms%n",
             metadata.getOperationName(),
@@ -182,11 +161,12 @@ Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY")
     })
     .build();
 
-Index index = pinecone.getIndexConnection("example-index");
-index.query(5, Arrays.asList(1.0f, 2.0f, 3.0f));
-// Output: Operation: query | Client: 45ms | Server: 32ms | Network: 13ms
-//         Read units consumed: 5
+Index index = pinecone.getIndexConnection("product-catalog");
+index.queryByVectorId(3, "article-1", "articles-en");
+// Prints, for example: Operation: query | Client: 45ms | Server: 32ms | Network: 13ms
 ```
+
+The client calls the listener after each of these calls completes, on every index connection obtained from that `Pinecone` instance. An exception thrown by the listener is logged and does not fail the call.
 
 The `ResponseMetadata` object provides:
 
@@ -194,8 +174,8 @@ The `ResponseMetadata` object provides:
 |--------|-------------|
 | `getOperationName()` | Operation type: upsert, query, fetch, update, delete, list |
 | `getClientDurationMs()` | Total round-trip time measured by the client |
-| `getServerDurationMs()` | Server processing time from `x-pinecone-response-duration-ms` header |
-| `getNetworkOverheadMs()` | Computed: client duration - server duration |
+| `getServerDurationMs()` | Server processing time from the `x-pinecone-response-duration-ms` header, or null if the server did not send it |
+| `getNetworkOverheadMs()` | Client duration minus server duration, or null if the server duration is unknown |
 | `getIndexName()` | Name of the index |
 | `getNamespace()` | Namespace used |
 | `isSuccess()` | Whether the operation succeeded |
@@ -213,8 +193,8 @@ Operations related to the building and managing of Pinecone indexes are called [
 
 ## Create Index
 
-You can use the Java SDK to create two types of indexes: [serverless indexes](https://docs.pinecone.io/guides/indexes/understanding-indexes#serverless-indexes) (recommended for most use cases) and 
-[pod-based indexes](https://docs.pinecone.io/guides/indexes/understanding-indexes#pod-based-indexes) (recommended for high-throughput use cases).
+You can use the Java SDK to create [serverless indexes](https://docs.pinecone.io/guides/indexes/understanding-indexes#serverless-indexes),
+[pod-based indexes](https://docs.pinecone.io/guides/indexes/understanding-indexes#pod-based-indexes), and BYOC indexes.
 
 ### Create a dense serverless index
 
@@ -227,11 +207,11 @@ import org.openapitools.db_control.client.model.IndexModel;
 import java.util.HashMap;
 ...
 
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
         
-String indexName = "example-index";
+String indexName = "product-catalog";
 String similarityMetric = "cosine";
-int dimension = 1538;
+int dimension = 1536;
 String cloud = "aws";
 String region = "us-west-2";
 HashMap<String, String> tags = new HashMap<>();
@@ -242,7 +222,7 @@ IndexModel indexModel = pinecone.createServerlessIndex(indexName, similarityMetr
 
 ### Create a serverless index with dedicated read capacity
 
-The following example creates a serverless index with dedicated read capacity nodes for better performance and cost predictability. For more information, see [Dedicated Read Nodes](https://docs.pinecone.io/guides/index-data/dedicated-read-nodes).
+The following example creates a serverless index served by dedicated read nodes. For more information, see [Dedicated Read Nodes](https://docs.pinecone.io/guides/index-data/dedicated-read-nodes).
 
 ```java
 import io.pinecone.clients.Pinecone;
@@ -254,11 +234,11 @@ import org.openapitools.db_control.client.model.ScalingConfigManual;
 import java.util.HashMap;
 ...
 
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
         
-String indexName = "example-index";
+String indexName = "product-catalog";
 String similarityMetric = "cosine";
-int dimension = 1538;
+int dimension = 1536;
 String cloud = "aws";
 String region = "us-west-2";
 HashMap<String, String> tags = new HashMap<>();
@@ -279,7 +259,7 @@ IndexModel indexModel = pinecone.createServerlessIndex(indexName, similarityMetr
 
 ### Create a serverless index with OnDemand read capacity
 
-The following example explicitly creates a serverless index with OnDemand read capacity (the default mode). OnDemand provides pay-per-use pricing with automatic scaling.
+OnDemand is the read capacity mode a serverless index gets when you pass `null` for `readCapacity`. The following example sets it explicitly.
 
 ```java
 import io.pinecone.clients.Pinecone;
@@ -289,17 +269,16 @@ import org.openapitools.db_control.client.model.ReadCapacityOnDemandSpec;
 import java.util.HashMap;
 ...
 
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
         
-String indexName = "example-index";
+String indexName = "product-catalog";
 String similarityMetric = "cosine";
-int dimension = 1538;
+int dimension = 1536;
 String cloud = "aws";
 String region = "us-west-2";
 HashMap<String, String> tags = new HashMap<>();
 tags.put("env", "test");
 
-// Configure OnDemand read capacity (optional - this is the default)
 ReadCapacity readCapacity = new ReadCapacity(new ReadCapacityOnDemandSpec().mode("OnDemand"));
 
 IndexModel indexModel = pinecone.createServerlessIndex(indexName, similarityMetric, dimension, 
@@ -308,7 +287,7 @@ IndexModel indexModel = pinecone.createServerlessIndex(indexName, similarityMetr
 
 ### Create a serverless index with metadata schema
 
-The following example creates a serverless index with metadata schema configuration to limit metadata indexing to specific fields for improved performance.
+By default, every metadata field is indexed. When you pass a schema, only the fields marked `filterable(true)` are indexed, so only those fields can be used in metadata filters.
 
 ```java
 import io.pinecone.clients.Pinecone;
@@ -318,21 +297,19 @@ import org.openapitools.db_control.client.model.BackupModelSchemaFieldsValue;
 import java.util.HashMap;
 ...
 
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
         
-String indexName = "example-index";
+String indexName = "product-catalog";
 String similarityMetric = "cosine";
-int dimension = 1538;
+int dimension = 1536;
 String cloud = "aws";
 String region = "us-west-2";
 HashMap<String, String> tags = new HashMap<>();
 tags.put("env", "test");
 
-// Configure metadata schema to only index specific fields
 HashMap<String, BackupModelSchemaFieldsValue> fields = new HashMap<>();
 fields.put("genre", new BackupModelSchemaFieldsValue().filterable(true));
 fields.put("year", new BackupModelSchemaFieldsValue().filterable(true));
-fields.put("description", new BackupModelSchemaFieldsValue().filterable(true));
 BackupModelSchema schema = new BackupModelSchema().fields(fields);
 
 IndexModel indexModel = pinecone.createServerlessIndex(indexName, similarityMetric, dimension, 
@@ -341,8 +318,7 @@ IndexModel indexModel = pinecone.createServerlessIndex(indexName, similarityMetr
 
 ### Create a sparse serverless index
 
-The following is an example of creating a sparse serverless index in the `us-east-1` region of AWS. For more information on
-serverless and regional availability, see [Understanding indexes](https://docs.pinecone.io/guides/indexes/sparse-indexes).
+The following is an example of creating a sparse serverless index in the `us-east-1` region of AWS. Sparse indexes have no dimension, and the client always creates them with the `dotproduct` metric. For more information, see [Sparse indexes](https://docs.pinecone.io/guides/indexes/sparse-indexes).
 
 ```java
 import io.pinecone.clients.Pinecone;
@@ -350,9 +326,9 @@ import org.openapitools.db_control.client.model.IndexModel;
 import java.util.HashMap;
 ...
 
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
         
-String indexName = "example-index";
+String indexName = "product-catalog-sparse";
 String cloud = "aws";
 String region = "us-east-1";
 HashMap<String, String> tags = new HashMap<>();
@@ -364,18 +340,17 @@ IndexModel indexModel = pinecone.createSparseServelessIndex(indexName, cloud, re
 
 ### Create a pod index
 
-The following is a minimal example of creating a pod-based index. For all the possible configuration options, see 
-`main/java/io/pinecone/clients/Pinecone.java`.
+The following is a minimal example of creating a pod-based index. Other `createPodsIndex` overloads also take the metric, replica, shard and pod counts, and a metadata config.
 
 ```java
 import io.pinecone.clients.Pinecone;
 import org.openapitools.db_control.client.model.IndexModel;
 ...
         
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
         
-String indexName = "example-index";
-int dimension = 1538;
+String indexName = "product-catalog";
+int dimension = 1536;
 String environment = "us-east-1-aws";
 String podType = "p1.x1";
 
@@ -384,18 +359,17 @@ IndexModel indexModel = pinecone.createPodsIndex(indexName, dimension, environme
 
 ### Create a pod index with deletion protection enabled
 
-The following is an example of creating a pod-based index with deletion protection enabled. For all the possible
-configuration options, see `main/java/io/pinecone/clients/Pinecone.java`.
+The following is an example of creating a pod-based index with deletion protection enabled.
 
 ```java
 import io.pinecone.clients.Pinecone;
 import org.openapitools.db_control.client.model.IndexModel;
 ...
         
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
         
-String indexName = "example-index";
-int dimension = 1538;
+String indexName = "product-catalog";
+int dimension = 1536;
 String environment = "us-east-1-aws";
 String podType = "p1.x1";
 
@@ -404,26 +378,26 @@ IndexModel indexModel = pinecone.createPodsIndex(indexName, dimension, environme
 
 ### Create a BYOC index
 
-The following is an example of creating a BYOC (Bring Your Own Cloud) index. BYOC indexes allow you to deploy Pinecone indexes in your own cloud infrastructure. You must have a BYOC environment set up with Pinecone before creating a BYOC index. The BYOC environment name is provided during BYOC onboarding.
+A BYOC (bring your own cloud) index runs in your own cloud account. You need a BYOC environment set up with Pinecone first; you receive its name during BYOC onboarding.
 
 ```java
 import io.pinecone.clients.Pinecone;
 import org.openapitools.db_control.client.model.IndexModel;
 ...
         
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
         
-String indexName = "example-index";
+String indexName = "product-catalog";
 String similarityMetric = "cosine";
-int dimension = 1538;
-String byocEnvironment = "your-byoc-environment";
+int dimension = 1536;
+String byocEnvironment = "aws-us-east-1-b921";
 
 IndexModel indexModel = pinecone.createByocIndex(indexName, similarityMetric, dimension, byocEnvironment);
 ```
 
 ### Create a BYOC index with metadata schema
 
-The following example creates a BYOC index with metadata schema configuration to limit metadata indexing to specific fields for improved performance.
+As with serverless indexes, a schema limits metadata indexing to the fields marked `filterable(true)`.
 
 ```java
 import io.pinecone.clients.Pinecone;
@@ -434,20 +408,18 @@ import java.util.HashMap;
 import java.util.Map;
 ...
         
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
         
-String indexName = "example-index";
+String indexName = "product-catalog";
 String similarityMetric = "cosine";
-int dimension = 1538;
-String byocEnvironment = "your-byoc-environment";
+int dimension = 1536;
+String byocEnvironment = "aws-us-east-1-b921";
 HashMap<String, String> tags = new HashMap<>();
 tags.put("env", "production");
 
-// Configure metadata schema
 Map<String, BackupModelSchemaFieldsValue> fields = new HashMap<>();
 fields.put("genre", new BackupModelSchemaFieldsValue().filterable(true));
 fields.put("year", new BackupModelSchemaFieldsValue().filterable(true));
-fields.put("description", new BackupModelSchemaFieldsValue().filterable(true));
 BackupModelSchema schema = new BackupModelSchema().fields(fields);
 
 IndexModel indexModel = pinecone.createByocIndex(
@@ -456,60 +428,57 @@ IndexModel indexModel = pinecone.createByocIndex(
 
 ## List indexes
 
-The following example returns all indexes (and their corresponding metadata) in your project.
+The following example returns every index in your project, with each index's name, dimension, metric, host, status and spec.
 
 ```java
 import io.pinecone.clients.Pinecone;
 import org.openapitools.db_control.client.model.IndexList;
 ...
-        
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
 IndexList indexesInYourProject = pinecone.listIndexes();
 ```
 
 ## Describe index
 
-The following example returns metadata about an index.
+The following example returns the configuration and status of an index.
 
 ```java
 import io.pinecone.clients.Pinecone;
 import org.openapitools.db_control.client.model.IndexModel;
 ...
-        
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build(); 
-IndexModel indexMetadata = pinecone.describeIndex("example-index");
+
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+IndexModel indexMetadata = pinecone.describeIndex("product-catalog");
 ```
 
 ## Delete an index
 
-The following example deletes an index.
+The following example deletes an index and all of its data. This cannot be undone, and the server rejects the request while deletion protection is enabled.
 
 ```java
 import io.pinecone.clients.Pinecone;
 ...
-        
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
-pinecone.deleteIndex("example-index");
+
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+pinecone.deleteIndex("product-catalog");
 ```
 
 ## Scale replicas
 
-The following example changes the number of replicas for an index.
-
-Note: scaling replicas is only applicable to pod-based indexes.
+The following example changes the number of replicas for a pod-based index. Every `configurePodsIndex` and `configureServerlessIndex` call also sets deletion protection, so pass the value the index should keep.
 
 ```java
 import io.pinecone.clients.Pinecone;
 ...
-        
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
 
-String indexName = "example-index";
-String podType = "p1.x1";
-int newNumberOfReplicas = 7;
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+
+String indexName = "product-catalog";
+int newNumberOfReplicas = 4;
 String deletionProtection = "disabled";
 
-pinecone.configurePodsIndex(indexName, podType, newNumberOfReplicas, deletionProtection);
+pinecone.configurePodsIndex(indexName, newNumberOfReplicas, deletionProtection);
 ```
 
 ## Enable deletion protection for pod index
@@ -519,10 +488,10 @@ The following example enables deletion protection for a pod-based index.
 ```java
 import io.pinecone.clients.Pinecone;
 ...
-        
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
 
-String indexName = "example-index";
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+
+String indexName = "product-catalog";
 String deletionProtection = "enabled";
 
 pinecone.configurePodsIndex(indexName, deletionProtection);
@@ -534,53 +503,34 @@ The following example enables deletion protection for a serverless index.
 
 ```java
 import io.pinecone.clients.Pinecone;
-import java.util.HashMap;
 ...
-        
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
 
-String indexName = "example-index";
-HashMap<String, String> tags = new HashMap<>();
-tags.put("env", "test");
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
 
-pinecone.configureServerlessIndex(indexName, "enabled", tags);
+String indexName = "product-catalog";
+
+pinecone.configureServerlessIndex(indexName, "enabled", null, null);
 ```
 
 ### Configure read capacity on an existing serverless index
 
-The following example shows how to configure or change the read capacity mode of an existing serverless index. You can switch between OnDemand and Dedicated modes, or scale dedicated read nodes.
-
-**Note:** Read capacity settings can only be updated once per hour per index.
+The following example switches an existing serverless index to Dedicated read capacity with 3 shards and 2 replicas of node type `t1`. To switch back, pass `"OnDemand"` as the read capacity mode and `null` for the node type, shards and replicas.
 
 ```java
 import io.pinecone.clients.Pinecone;
 import org.openapitools.db_control.client.model.IndexModel;
-import java.util.HashMap;
 ...
 
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
 
-String indexName = "example-index";
-HashMap<String, String> tags = new HashMap<>();
-tags.put("env", "test");
-
-// Switch to Dedicated read capacity with manual scaling
 // Parameters: indexName, deletionProtection, tags, embed, readCapacityMode, nodeType, shards, replicas
 IndexModel indexModel = pinecone.configureServerlessIndex(
-    indexName, "enabled", tags, null, "Dedicated", "t1", 3, 2);
-
-// Switch to OnDemand read capacity
-IndexModel onDemandIndex = pinecone.configureServerlessIndex(
-    indexName, "enabled", tags, null, "OnDemand", null, null, null);
-
-// Verify the configuration was applied
-IndexModel desc = pinecone.describeIndex(indexName);
-// Check desc.getSpec().getServerless().getReadCapacity()...
+    "product-catalog", "disabled", null, null, "Dedicated", "t1", 3, 2);
 ```
 
 ## Describe index statistics
 
-The following example returns statistics about an index.
+The following example returns statistics about an index, such as its dimension, total vector count and the vector count of each namespace.
 
 ```java
 import io.pinecone.clients.Index;
@@ -588,9 +538,9 @@ import io.pinecone.clients.Pinecone;
 import io.pinecone.proto.DescribeIndexStatsResponse;
 ...
         
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
 
-Index index = pinecone.getIndexConnection("example-index");
+Index index = pinecone.getIndexConnection("product-catalog");
 DescribeIndexStatsResponse indexStatsResponse = index.describeIndexStats();
 ```
 
@@ -599,73 +549,48 @@ DescribeIndexStatsResponse indexStatsResponse = index.describeIndexStats();
 Operations related to the indexing, deleting, and querying of vectors are called [data plane](https://docs.pinecone.io/reference/api/introduction#data-plane) 
 operations.
 
-The following example upserts vectors to `example-index`.
+The following example upserts two vectors with metadata into the namespace `articles-en` of `product-catalog`. Each vector
+must have as many values as the index dimension (1536 here); upserting an existing ID overwrites that vector.
 
 ```java
 import com.google.protobuf.Struct;
+import com.google.protobuf.Value;
 import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
+import io.pinecone.proto.UpsertResponse;
 import io.pinecone.unsigned_indices_model.VectorWithUnsignedIndices;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import static io.pinecone.commons.IndexInterface.buildUpsertVectorWithUnsignedIndices;
 ...
 
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+Index index = pinecone.getIndexConnection("product-catalog");
 
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
-Index index = pinecone.getIndexConnection("example-index");
-// Vector ids to be upserted
-List<String> upsertIds = Arrays.asList("v1", "v2", "v3");
+// Placeholder values; use the 1536-value embeddings from your embedding model
+List<Float> embedding1 = Collections.nCopies(1536, 0.1f);
+List<Float> embedding2 = Collections.nCopies(1536, 0.2f);
 
-// List of values to be upserted
-List<List<Float>> values = new ArrayList<>();
-values.add(Arrays.asList(1.0f, 2.0f, 3.0f));
-values.add(Arrays.asList(4.0f, 5.0f, 6.0f));
-values.add(Arrays.asList(7.0f, 8.0f, 9.0f));
+Struct metadata1 = Struct.newBuilder()
+        .putFields("category", Value.newBuilder().setStringValue("sports").build())
+        .putFields("year", Value.newBuilder().setNumberValue(2024).build())
+        .build();
+Struct metadata2 = Struct.newBuilder()
+        .putFields("category", Value.newBuilder().setStringValue("finance").build())
+        .putFields("year", Value.newBuilder().setNumberValue(2025).build())
+        .build();
 
-// List of sparse indices to be upserted
-List<List<Long>> sparseIndices = new ArrayList<>();
-sparseIndices.add(Arrays.asList(1L, 2L, 3L));
-sparseIndices.add(Arrays.asList(4L, 5L, 6L));
-sparseIndices.add(Arrays.asList(7L, 8L, 9L));
-
-// List of sparse values to be upserted
-List<List<Float>> sparseValues = new ArrayList<>();
-sparseValues.add(Arrays.asList(1000f, 2000f, 3000f));
-sparseValues.add(Arrays.asList(4000f, 5000f, 6000f));
-sparseValues.add(Arrays.asList(7000f, 8000f, 9000f));
-
-List<VectorWithUnsignedIndices> vectors = new ArrayList<>(3);
-
-// metadata to be upserted
-Struct metadataStruct1 = Struct.newBuilder()
-.putFields("genre", Value.newBuilder().setStringValue("action").build())
-.putFields("year", Value.newBuilder().setNumberValue(2019).build())
-.build();
-
-Struct metadataStruct2 = Struct.newBuilder()
-.putFields("genre", Value.newBuilder().setStringValue("thriller").build())
-.putFields("year", Value.newBuilder().setNumberValue(2020).build())
-.build();
-
-Struct metadataStruct3 = Struct.newBuilder()
-.putFields("genre", Value.newBuilder().setStringValue("comedy").build())
-.putFields("year", Value.newBuilder().setNumberValue(2021).build())
-.build();
-List<Struct> metadataStructList = Arrays.asList(metadataStruct1, metadataStruct2, metadataStruct3);
-
-// Upsert data
-for (int i=0; i<metadataStructList.size(); i++) {
-    vectors.add(buildUpsertVectorWithUnsignedIndices(upsertIds.get(i), values.get(i), sparseIndices.get(i), sparseValues.get(i), metadataStructList.get(i)));
-}
-UpsertResponse upsertResponse = index.upsert(vectors, "example-namespace");
+List<VectorWithUnsignedIndices> vectors = Arrays.asList(
+        buildUpsertVectorWithUnsignedIndices("article-1", embedding1, null, null, metadata1),
+        buildUpsertVectorWithUnsignedIndices("article-2", embedding2, null, null, metadata2));
+UpsertResponse upsertResponse = index.upsert(vectors, "articles-en");
 ```
 
 ## Query an index
 
-The following example queries the index `example-index` with metadata
-filtering.
+The following example returns the IDs and similarity scores of the 3 vectors in `articles-en` most similar to the
+stored vector `article-1`. To query with your own embedding instead, use `queryByVector`.
 
 ```java
 import io.pinecone.clients.Index;
@@ -673,9 +598,9 @@ import io.pinecone.clients.Pinecone;
 import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
 ...
         
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
-Index index = pinecone.getIndexConnection("example-index");
-QueryResponseWithUnsignedIndices queryRespone = index.queryByVectorId(3, "v1", "example-namespace");
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+Index index = pinecone.getIndexConnection("product-catalog");
+QueryResponseWithUnsignedIndices queryResponse = index.queryByVectorId(3, "article-1", "articles-en");
 ```
 
 ## Delete vectors
@@ -685,14 +610,15 @@ The following example deletes vectors by ID.
 ```java
 import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
+import io.pinecone.proto.DeleteResponse;
 import java.util.Arrays;
 import java.util.List;
 ...
 
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
-Index index = pinecone.getIndexConnection("example-index");
-List<String> ids = Arrays.asList("v1", "v2", "v3");
-DeleteResponse deleteResponse = index.deleteByIds(ids, "example-namespace");
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+Index index = pinecone.getIndexConnection("product-catalog");
+List<String> ids = Arrays.asList("article-1", "article-2");
+DeleteResponse deleteResponse = index.deleteByIds(ids, "articles-en");
 ```
 
 ## Fetch vectors
@@ -707,20 +633,17 @@ import java.util.Arrays;
 import java.util.List;
 ...
 
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
-Index index = pinecone.getIndexConnection("example-index");
-List<String> ids = Arrays.asList("v1", "v2", "v3");
-FetchResponse fetchResponse = index.fetch(ids, "example-namespace");
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+Index index = pinecone.getIndexConnection("product-catalog");
+List<String> ids = Arrays.asList("article-1", "article-2");
+FetchResponse fetchResponse = index.fetch(ids, "articles-en");
 ```
 
 ## List vector IDs
 
-The following example lists up to 100 vector IDs from a Pinecone index.
-
-This method accepts optional parameters for `namespace`, `prefix`, `limit`, and `paginationToken`. 
-
-The following demonstrates how to use the `list` endpoint to get vector IDs from a specific `namespace`, filtered by a 
-given `prefix`.
+The following example lists the IDs of vectors in `articles-en` that start with the prefix `article-`. Each call
+returns one page of IDs (100 by default); other `list` overloads take a `limit` and the pagination token from the
+previous response's `getPagination().getNext()`.
 
 ```java
 import io.pinecone.clients.Index;
@@ -728,32 +651,34 @@ import io.pinecone.clients.Pinecone;
 import io.pinecone.proto.ListResponse;
 
 Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
-String indexName = "example-index";
-Index index = pinecone.getIndexConnection(indexName);
-ListResponse listResponse = index.list("example-namespace", "prefix-");
+Index index = pinecone.getIndexConnection("product-catalog");
+ListResponse listResponse = index.list("articles-en", "article-");
 ```
 
 ## Update vectors
 
-The following example updates vectors by ID.
+The following example replaces the values of the vector `article-1`.
 
 ```java
 import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.proto.UpdateResponse;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 ...
 
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
-Index index = pinecone.getIndexConnection("example-index");
-List<Float> values = Arrays.asList(1F, 2F, 3F);
-UpdateResponse updateResponse = index.update("v1", values, "example-namespace");
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+Index index = pinecone.getIndexConnection("product-catalog");
+// Placeholder values; use a 1536-value embedding from your embedding model
+List<Float> values = Collections.nCopies(1536, 0.3f);
+UpdateResponse updateResponse = index.update("article-1", values, "articles-en");
 ```
 
 ## Fetch vectors by metadata
 
-The following example fetches vectors by metadata filter.
+The following example fetches the vectors in `articles-en` whose `category` metadata is `sports`, up to 100 per call.
+Pass the previous response's `getPagination().getNext()` to get the next page. The client requires a non-empty
+namespace.
 
 ```java
 import io.pinecone.clients.Index;
@@ -763,38 +688,30 @@ import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
 ...
 
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
-Index index = pinecone.getIndexConnection("example-index");
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+Index index = pinecone.getIndexConnection("product-catalog");
 
-// Create a metadata filter
+// {"category": {"$eq": "sports"}}
 Struct filter = Struct.newBuilder()
-    .putFields("genre", Value.newBuilder()
+    .putFields("category", Value.newBuilder()
         .setStructValue(Struct.newBuilder()
-            .putFields("$eq", Value.newBuilder()
-                .setStringValue("action")
-                .build()))
+            .putFields("$eq", Value.newBuilder().setStringValue("sports").build()))
         .build())
     .build();
 
-// Fetch vectors by metadata with limit
-FetchByMetadataResponse response = index.fetchByMetadata("example-namespace", filter, 10, null);
+FetchByMetadataResponse page = index.fetchByMetadata("articles-en", filter, 100, null);
 
-// Fetch with pagination
-String paginationToken = null;
-FetchByMetadataResponse fetchResponse = index.fetchByMetadata("example-namespace", filter, 100, paginationToken);
-
-// Continue pagination if needed
-if (fetchResponse.hasPagination() && 
-    fetchResponse.getPagination().getNext() != null && 
-    !fetchResponse.getPagination().getNext().isEmpty()) {
-    FetchByMetadataResponse nextPage = index.fetchByMetadata(
-        "example-namespace", filter, 100, fetchResponse.getPagination().getNext());
+// Fetch the next page, if there is one
+if (page.hasPagination() && !page.getPagination().getNext().isEmpty()) {
+    page = index.fetchByMetadata("articles-en", filter, 100, page.getPagination().getNext());
 }
 ```
 
 ## Update vectors by metadata
 
-The following example updates vectors by metadata filter.
+The following example sets `reviewed: true` on every vector in `articles-en` whose `category` is `sports`. Fields in the
+new metadata are added or overwrite existing values; other metadata fields are kept. Passing `true` as the last argument
+(dry run) returns the number of matching vectors without updating them.
 
 ```java
 import io.pinecone.clients.Index;
@@ -804,168 +721,124 @@ import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
 ...
 
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
-Index index = pinecone.getIndexConnection("example-index");
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+Index index = pinecone.getIndexConnection("product-catalog");
 
-// Create a filter to match vectors
+// {"category": {"$eq": "sports"}}
 Struct filter = Struct.newBuilder()
-    .putFields("genre", Value.newBuilder()
+    .putFields("category", Value.newBuilder()
         .setStructValue(Struct.newBuilder()
-            .putFields("$eq", Value.newBuilder()
-                .setStringValue("action")
-                .build()))
+            .putFields("$eq", Value.newBuilder().setStringValue("sports").build()))
         .build())
     .build();
 
-// Create new metadata to apply
 Struct newMetadata = Struct.newBuilder()
-    .putFields("updated", Value.newBuilder().setStringValue("true").build())
-    .putFields("year", Value.newBuilder().setStringValue("2024").build())
+    .putFields("reviewed", Value.newBuilder().setBoolValue(true).build())
     .build();
 
-// Dry run to check how many records would be updated
-UpdateResponse dryRunResponse = index.updateByMetadata(filter, newMetadata, "example-namespace", true);
+// Dry run: count the matching vectors without updating them
+UpdateResponse dryRunResponse = index.updateByMetadata(filter, newMetadata, "articles-en", true);
 int matchedRecords = dryRunResponse.getMatchedRecords();
 
-// Actually perform the update
-UpdateResponse updateResponse = index.updateByMetadata(filter, newMetadata, "example-namespace", false);
+UpdateResponse updateResponse = index.updateByMetadata(filter, newMetadata, "articles-en", false);
 ```
 
 ## Create namespace
 
-The following example shows how to create a namespace.
+The following example creates the namespace `articles-de` with a metadata schema, so only the `category` field is
+indexed for filtering. Call `createNamespace("articles-de")` to create it without a schema, which indexes all metadata.
 
 ```java
-import io.pinecone.clients.AsyncIndex;
 import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.proto.MetadataFieldProperties;
 import io.pinecone.proto.MetadataSchema;
 import io.pinecone.proto.NamespaceDescription;
-
-import java.util.concurrent.ExecutionException;
 ...
 
-String indexName = "PINECONE_INDEX_NAME";
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
-Index index = pinecone.getIndexConnection(indexName);
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+Index index = pinecone.getIndexConnection("product-catalog");
 
-// create a namespace
-NamespaceDescription namespaceDescription = index.createNamespace("some-namespace");
-
-// create a namespace with metadata schema
 MetadataSchema schema = MetadataSchema.newBuilder()
-    .putFields("genre", MetadataFieldProperties.newBuilder().setFilterable(true).build())
-    .putFields("year", MetadataFieldProperties.newBuilder().setFilterable(true).build())
+    .putFields("category", MetadataFieldProperties.newBuilder().setFilterable(true).build())
     .build();
-NamespaceDescription namespaceWithSchema = index.createNamespace("some-namespace", schema);
+NamespaceDescription namespaceDescription = index.createNamespace("articles-de", schema);
 ```
 
 ## List namespaces
 
-The following example shows various methods to list namespaces.
+The following example lists up to 10 namespaces whose names start with `articles-`, then fetches the next page.
+`listNamespaces()` with no arguments returns the first page of all namespaces (100 by default). `getTotalCount()`
+returns the number of namespaces that match the prefix.
 
 ```java
-import io.pinecone.clients.AsyncIndex;
 import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.proto.ListNamespacesResponse;
-
-import java.util.concurrent.ExecutionException;
 ...
 
-String indexName = "PINECONE_INDEX_NAME";
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
-Index index = pinecone.getIndexConnection(indexName);
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+Index index = pinecone.getIndexConnection("product-catalog");
 
-// list namespaces without pagination token and limit (if no limit is passed, it'll default to 100)
-ListNamespacesResponse listNamespacesResponse = index.listNamespaces();
+ListNamespacesResponse page = index.listNamespaces("articles-", null, 10);
+int totalCount = page.getTotalCount();
 
-// list namespaces with pagination token
-listNamespacesResponse = index.listNamespaces("some-pagination-token");
-
-// list namespaces with pagination token and a custom limit of 5
-listNamespacesResponse = index.listNamespaces("some-pagination-token", 5);
-
-// The totalCount field returns the total number of namespaces in the index
-// When prefix filtering is used, it returns the count of namespaces matching the prefix
-int totalCount = listNamespacesResponse.getTotalCount();
-
-// list namespaces with prefix filtering
-// Prefix filtering allows you to filter namespaces that start with a specific prefix
-listNamespacesResponse = index.listNamespaces("test-", null, 10);
-totalCount = listNamespacesResponse.getTotalCount(); // Total count of namespaces matching "test-" prefix
-
-// list namespaces with prefix, pagination token, and limit
-listNamespacesResponse = index.listNamespaces("test-", "some-pagination-token", 10);
-totalCount = listNamespacesResponse.getTotalCount();
+// Fetch the next page, if there is one
+if (page.hasPagination() && !page.getPagination().getNext().isEmpty()) {
+    page = index.listNamespaces("articles-", page.getPagination().getNext(), 10);
+}
 ```
 
 ## Describe namespace
 
-The following example shows how to describe a namespace.
+The following example describes the namespace `articles-en`. The response includes its name, record count and
+metadata schema, if it has one.
 
 ```java
-import io.pinecone.clients.AsyncIndex;
 import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.proto.NamespaceDescription;
-
-import java.util.concurrent.ExecutionException;
 ...
 
-String indexName = "PINECONE_INDEX_NAME";
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
-Index index = pinecone.getIndexConnection(indexName);
-
-// describe a namespace
-NamespaceDescription namespaceDescription = index.describeName("some-namespace");
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+Index index = pinecone.getIndexConnection("product-catalog");
+NamespaceDescription namespaceDescription = index.describeNamespace("articles-en");
 ```
 
 ## Delete namespace
 
-The following example shows how to describe a namespace.
+The following example deletes the namespace `articles-de`.
 
 ```java
-import io.pinecone.clients.AsyncIndex;
 import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
-
-import java.util.concurrent.ExecutionException;
 ...
 
-String indexName = "PINECONE_INDEX_NAME";
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
-Index index = pinecone.getIndexConnection(indexName);
-
-// delete a namespace
-index.deleteName("some-namespace");
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+Index index = pinecone.getIndexConnection("product-catalog");
+index.deleteNamespace("articles-de");
 ```
 
 # Collections
 
-Collections fall under control plane operations.
+A collection is a static copy of a pod-based index. You can create a new pod-based index from it.
 
 ## Create collection
 
-The following example creates the collection `example-collection` from
-`example-index`.
+The following example creates the collection `product-catalog-backup` from the pod-based index `product-catalog`. The server rejects a serverless or BYOC source index, and a source index that is not ready. The call returns while the collection is still initializing; check its status with `describeCollection`.
 
 ```java
 import io.pinecone.clients.Pinecone;
 import org.openapitools.db_control.client.model.CollectionModel;
 ...
 
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
-String collectionName = "example-collection";
-String sourceIndex = "an-index-you-want-a-static-copy-of";
-
-CollectionModel collectionModel = pinecone.createCollection(collectionName, sourceIndex);
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+CollectionModel collection = pinecone.createCollection("product-catalog-backup", "product-catalog");
 ```
 
 ## List collections
 
-The following example returns a list of the collections in the current project.
+The following example returns the collections in the current project.
 
 ```java
 import io.pinecone.clients.Pinecone;
@@ -973,83 +846,78 @@ import org.openapitools.db_control.client.model.CollectionModel;
 import java.util.List;
 ...
 
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
-List<CollectionModel> collectionModels = pinecone.listCollections().getCollections();
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+List<CollectionModel> collections = pinecone.listCollections().getCollections();
 ```
 
 ## Describe a collection
 
-The following example returns a description of the collection
+The following example returns the collection `product-catalog-backup`, including its status, dimension, vector count and size.
 
 ```java
 import io.pinecone.clients.Pinecone;
 import org.openapitools.db_control.client.model.CollectionModel;
 ...
-        
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
-CollectionModel model = pinecone.describeCollection("example-collection");
+
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+CollectionModel collection = pinecone.describeCollection("product-catalog-backup");
 ```
 
 ## Delete a collection
 
-The following example deletes the collection `example-collection`.
+The following example deletes the collection `product-catalog-backup`.
 
 ```java
 import io.pinecone.clients.Pinecone;
 ...
-        
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
-pinecone.deleteCollection("example-collection");
+
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+pinecone.deleteCollection("product-catalog-backup");
 ```
 
 # Inference
 ## Embed
 
-The Pinecone SDK now supports creating embeddings via the [Inference API](https://docs.pinecone.io/guides/inference/understanding-inference).
+The inference client turns text into embeddings with a model hosted by Pinecone. Set `input_type` to `passage` for text you store and to `query` for search text; `multilingual-e5-large` requires it and returns 1024-value dense embeddings.
 
 ```java
 import io.pinecone.clients.Inference;
 import io.pinecone.clients.Pinecone;
 import org.openapitools.inference.client.ApiException;
-import org.openapitools.inference.client.model.Embedding;
 import org.openapitools.inference.client.model.EmbeddingsList;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 ...
 
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
 Inference inference = pinecone.getInferenceClient();
 
-// Prepare input sentences to be embedded
-List<String> inputs = new ArrayList<>();
-inputs.add("The quick brown fox jumps over the lazy dog.");
-inputs.add("Lorem ipsum");
-
-// Specify the embedding model and parameters
-String embeddingModel = "multilingual-e5-large";
+List<String> inputs = Arrays.asList(
+        "Apple unveiled a new iPhone at its September event.",
+        "The city council approved the new park budget.");
 
 Map<String, Object> parameters = new HashMap<>();
-parameters.put("input_type", "query");
+parameters.put("input_type", "passage");
 parameters.put("truncate", "END");
 
-// Generate embeddings for the input data
-EmbeddingsList embeddings = inference.embed(embeddingModel, parameters, inputs);
+EmbeddingsList embeddings = inference.embed("multilingual-e5-large", parameters, inputs);
 
-// Get embedded data
-List<Embedding> embeddedData = embeddings.getData();
+// One embedding per input, in input order
+List<Float> firstValues = embeddings.getData().get(0).getDenseEmbedding().getValues();
 ```
 
 ## Rerank
 
-The following example shows how to rerank items according to their relevance to a query.
+The following example reranks documents by their relevance to a query and returns the two best matches with their scores. The shorter `rerank(model, query, documents)` overload ranks by the `text` field and returns every document.
 
 ```java
 import io.pinecone.clients.Inference;
 import io.pinecone.clients.Pinecone;
 import org.openapitools.inference.client.ApiException;
+import org.openapitools.inference.client.model.RankedDocument;
 import org.openapitools.inference.client.model.RerankResult;
 
 import java.util.*;
@@ -1058,57 +926,33 @@ import java.util.*;
 Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
 Inference inference = pinecone.getInferenceClient();
 
-// The model to use for reranking
-String model = "bge-reranker-v2-m3";
-
-// The query to rerank documents against
 String query = "The tech company Apple is known for its innovative products like the iPhone.";
 
-// Add the documents to rerank
 List<Map<String, Object>> documents = new ArrayList<>();
-Map<String, Object> doc1 = new HashMap<>();
-doc1.put("id", "vec1");
-doc1.put("my_field", "Apple is a popular fruit known for its sweetness and crisp texture.");
-documents.add(doc1);
+String[] texts = {
+        "Apple is a popular fruit known for its sweetness and crisp texture.",
+        "Apple Inc. has revolutionized the tech industry with its sleek designs.",
+        "An apple a day keeps the doctor away, as the saying goes."
+};
+for (int i = 0; i < texts.length; i++) {
+    Map<String, Object> doc = new HashMap<>();
+    doc.put("id", "article-" + (i + 1));
+    doc.put("body", texts[i]);
+    documents.add(doc);
+}
 
-Map<String, Object> doc2 = new HashMap<>();
-doc2.put("id", "vec2");
-doc2.put("my_field", "Many people enjoy eating apples as a healthy snack.");
-documents.add(doc2);
+// Rank by the "body" field, return the top 2 with their documents
+RerankResult result = inference.rerank("bge-reranker-v2-m3", query, documents,
+        Arrays.asList("body"), 2, true, new HashMap<>());
 
-Map<String, Object> doc3 = new HashMap<>();
-doc3.put("id", "vec3");
-doc3.put("my_field", "Apple Inc. has revolutionized the tech industry with its sleek designs and user-friendly interfaces.");
-documents.add(doc3);
-
-Map<String, Object> doc4 = new HashMap<>();
-doc4.put("id", "vec4");
-doc4.put("my_field", "An apple a day keeps the doctor away, as the saying goes.");
-documents.add(doc4);
-
-// The fields to rank the documents by. If not provided, the default is "text"
-List<String> rankFields = Arrays.asList("my_field");
-
-// The number of results to return sorted by relevance. Defaults to the number of inputs
-int topN = 2;
-
-// Whether to return the documents in the response
-boolean returnDocuments = true;
-
-// Additional model-specific parameters for the reranker
-Map<String, Object> parameters = new HashMap<>();
-parameters.put("truncate", "END");
-
-// Send ranking request
-RerankResult result = inference.rerank(model, query, documents, rankFields, topN, returnDocuments, parameters);
-
-// Get ranked data
-System.out.println(result.getData());
+for (RankedDocument ranked : result.getData()) {
+    System.out.println(ranked.getDocument().get("id") + " " + ranked.getScore());
+}
 ```
 
 ## Models
 
-The following example shows how to list and describe an embedding model.
+The following example lists the hosted models, first all of them and then filtered by type (`embed` or `rerank`) and, for embedding models, by vector type (`dense` or `sparse`). `describeModel` returns one model's details, such as its default dimension and supported parameters.
 
 ```java
 import io.pinecone.clients.Inference;
@@ -1124,19 +968,19 @@ Pinecone pinecone = new Pinecone
 
 Inference inference = pinecone.getInferenceClient();
 
-// list models
+// List all models
 ModelInfoList models = inference.listModels();
 System.out.println(models);
 
-// list models by filtering with type
+// List reranking models
 models = inference.listModels("rerank");
 System.out.println(models);
 
-// list models by filtering with type and vectorType
+// List dense embedding models
 models = inference.listModels("embed", "dense");
 System.out.println(models);
 
-// describe a model
+// Describe one model
 ModelInfo modelInfo = inference.describeModel("llama-text-embed-v2");
 System.out.println(modelInfo);
 ```
@@ -1144,145 +988,107 @@ System.out.println(modelInfo);
 # Imports
 ## Start an import
 
-The following example initiates an asynchronous import of vectors from object storage into the index.
+An import loads vectors from Parquet files in object storage (`s3://`, `gs://`, or an Azure Blob Storage `https://` URI) into a serverless index. The import methods are on `AsyncIndex`, but they return once the server responds; the import itself runs in the background, and `startImport` returns its ID. Pass the ID of a storage integration that can read the bucket, or `null` if none is needed. Pass `"continue"` to keep importing past failures, or `null` to use the default, `"abort"`.
 
 ```java
 import io.pinecone.clients.Pinecone;
 import io.pinecone.clients.AsyncIndex;
-import org.openapitools.db_data.client.ApiException;
 import org.openapitools.db_data.client.model.StartImportResponse;
 ...
 
-// Initialize pinecone object
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
-// Get async imports connection object
-AsyncIndex asyncIndex = pinecone.getAsyncIndexConnection("PINECONE_INDEX_NAME");
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+AsyncIndex asyncIndex = pinecone.getAsyncIndexConnection("product-catalog");
 
-// s3 uri
-String uri = "s3://path/to/file.parquet";
-
-// Start an import
-StartImportResponse response = asyncIndex.startImport(uri, "123-456-789", "continue");
+StartImportResponse response = asyncIndex.startImport("s3://product-catalog-data/vectors/", null, "continue");
+String importId = response.getId();
 ```
 
 ## List imports
 
-The following example lists all recent and ongoing import operations for the specified index.
+The following example lists recent and ongoing imports for the index, up to 100 per page. When there are more, `getPagination().getNext()` returns a token to pass to `listImports(limit, paginationToken)`.
 
 ```java
 import io.pinecone.clients.Pinecone;
 import io.pinecone.clients.AsyncIndex;
-import org.openapitools.db_data.client.ApiException;
+import org.openapitools.db_data.client.model.ImportModel;
 import org.openapitools.db_data.client.model.ListImportsResponse;
 ...
 
-// Initialize pinecone object
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
-// Get async imports connection object
-AsyncIndex asyncIndex = pinecone.getAsyncIndexConnection("PINECONE_INDEX_NAME");
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+AsyncIndex asyncIndex = pinecone.getAsyncIndexConnection("product-catalog");
 
-// List imports
-ListImportsResponse response = asyncIndex.listImports(100, "some-pagination-token");
+ListImportsResponse response = asyncIndex.listImports();
+for (ImportModel importModel : response.getData()) {
+    System.out.println(importModel.getId() + ": " + importModel.getStatus());
+}
 ```
 
 ## Describe an import
 
-The following example retrieves detailed information about a specific import operation using its unique identifier.
+The following example checks the progress of an import by its ID. The status is `Pending`, `InProgress`, `Completed`, `Failed`, or `Cancelled`; `getError()` explains a failure.
 
 ```java
 import io.pinecone.clients.Pinecone;
 import io.pinecone.clients.AsyncIndex;
-import org.openapitools.db_data.client.ApiException;
 import org.openapitools.db_data.client.model.ImportModel;
 ...
 
-// Initialize pinecone object
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
-// Get async imports connection object
-AsyncIndex asyncIndex = pinecone.getAsyncIndexConnection("PINECONE_INDEX_NAME");
-        
-// Describe import
-ImportModel importDetails = asyncIndex.describeImport("1");
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+AsyncIndex asyncIndex = pinecone.getAsyncIndexConnection("product-catalog");
+
+ImportModel importModel = asyncIndex.describeImport("101");
+System.out.println(importModel.getStatus() + ", " + importModel.getPercentComplete() + "% complete");
 ```
 
 ## Cancel an import
 
-The following example attempts to cancel an ongoing import operation using its unique identifier.
+The following example cancels an import that has not finished.
 
 ```java
 import io.pinecone.clients.Pinecone;
 import io.pinecone.clients.AsyncIndex;
-import org.openapitools.db_data.client.ApiException;
 ...
 
-// Initialize pinecone object
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
-// Get async imports connection object
-AsyncIndex asyncIndex = pinecone.getAsyncIndexConnection("PINECONE_INDEX_NAME");
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
+AsyncIndex asyncIndex = pinecone.getAsyncIndexConnection("product-catalog");
 
-// Cancel import
-asyncIndex.cancelImport("2");
+asyncIndex.cancelImport("101");
 ```
 # Backups and restore
 
-The following example shows how to backup and restore from a serverless index. 
+A backup is a static copy of a serverless index. Pod-based indexes cannot be backed up. `createBackup` returns while the backup is still initializing. Wait until `describeBackup` reports the status `Ready`, then pass the backup ID to `createIndexFromBackup`. That call creates a new serverless index and starts a restore job, which you can track with `describeRestoreJob`. `listProjectBackups()` lists the backups of every index in the project, `listRestoreJobs(limit)` lists restore jobs, and `deleteBackup(backupId)` deletes a backup.
 
 ```java
 import io.pinecone.clients.Pinecone;
-import org.openapitools.db_control.client.ApiException;
 import org.openapitools.db_control.client.model.*;
 
 ...
 
-Pinecone pinecone = new Pinecone.Builder("PINECONE_API_KEY").build();
+Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).build();
 
-String indexName1 = "test-index-1";
-String indexName2 = "test-index-2";
+// The backup name and description are optional
+BackupModel backup = pinecone.createBackup("product-catalog", "product-catalog-nightly", "Nightly copy of product-catalog");
+String backupId = backup.getBackupId();
 
-// create a backup from index
-BackupModel backupModel1 = pinecone.createBackup(indexName1, "backup-id-1", "description-for-backup-1");
-System.out.println("backupModel1: " + backupModel1);
+String status = backup.getStatus();
+while ("Initializing".equals(status)) {
+    Thread.sleep(5000);
+    status = pinecone.describeBackup(backupId).getStatus();
+}
+if (!"Ready".equals(status)) {
+    throw new IllegalStateException("Backup " + backupId + " is " + status + ", not Ready");
+}
 
-BackupModel backupModel2 = pinecone.createBackup(indexName2, "backup-id-2", "description-for-backup-2");
-System.out.println("backupModel2: " + backupModel2);
+// The first 10 backups of one index
+for (BackupModel b : pinecone.listIndexBackups("product-catalog").getData()) {
+    System.out.println(b.getBackupId() + " " + b.getName() + " " + b.getStatus());
+}
 
-// list all backups for an index
-BackupList backupList = pinecone.listIndexBackups(indexName1);
-System.out.println("backupList for index1: " + backupList);
-
-// list all backups for a project
-backupList = pinecone.listProjectBackups(3, "some-pagination-token");
-System.out.println("backupList for project: " + backupList);
-
-// describe backup
-backupModel1 = pinecone.describeBackup(backupModel1.getBackupId());
-System.out.println("describe backup for index1: " + backupModel1);
-
-backupModel2 = pinecone.describeBackup(backupModel2.getBackupId());
-System.out.println("describe backup index2: " + backupModel2);
-
-// delete backup
-pinecone.deleteBackup(backupModel1.getBackupId());
-
-// wait for the backup to be ready
-Thread.sleep(10000);
-
-// create index from a backup
-CreateIndexFromBackupResponse backupResponse = pinecone.createIndexFromBackup(backupModel1.getBackupId(), "test-index-3");
-System.out.println(backupResponse.getRestoreJobId());
-
-// wait for index to be created
-Thread.sleep(5000);
-
-// describeRestoreJob
-RestoreJobModel restoreJobModel = pinecone.describeRestoreJob(backupResponse.getRestoreJobId());
-System.out.println("restore model: " + restoreJobModel);
-
-// listRestoreJobs
-RestoreJobList restoreJobList = pinecone.listRestoreJobs(2);
-System.out.println("restore job list: " + restoreJobList);
+CreateIndexFromBackupResponse restore = pinecone.createIndexFromBackup(backupId, "product-catalog-restored");
+RestoreJobModel job = pinecone.describeRestoreJob(restore.getRestoreJobId());
+System.out.println(job.getTargetIndexName() + " " + job.getStatus());
 ```
 
 ## Examples
 
-- The data and control plane operation examples can be found in `io/pinecone/integration` folder.
+Runnable examples are in [examples](examples/): [java-basic-mvn](examples/java-basic-mvn/) upserts a vector and queries it, and [java-otel-metrics](examples/java-otel-metrics/) records response metadata as OpenTelemetry metrics. The integration tests under `src/integration/java/io/pinecone/integration` show more control plane, data plane and inference calls.

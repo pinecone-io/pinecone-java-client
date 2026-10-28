@@ -1,22 +1,28 @@
-// Note: this build script is for development only, for compilation checking and IDE integration.
-// End users should use the example-specific build setups
+// Compile check for the examples against the client in this repository:
+//   ./gradlew -p examples build
+// Compile check for the README's Java snippets:
+//   ./gradlew -p examples checkReadmeSnippets
+// To run an example, use its own Maven project instead.
 plugins {
     id 'java'
-    id 'groovy'
 }
 
 repositories {
     mavenCentral()
-    jcenter()
+}
+
+if (JavaVersion.current().isJava9Compatible()) {
+    tasks.withType(JavaCompile).configureEach {
+        options.release = 8
+    }
 }
 
 def opentelemetryVersion = '1.35.0'
 
 dependencies {
-    implementation project(':pinecone-client')
+    implementation 'io.pinecone:pinecone-client'
 
-    implementation "org.slf4j:slf4j-simple:1.7.30"
-    implementation 'org.codehaus.groovy:groovy-all:2.4.15'
+    implementation "org.slf4j:slf4j-simple:1.7.36"
 
     // OpenTelemetry dependencies for java-otel-metrics example
     implementation "io.opentelemetry:opentelemetry-sdk:${opentelemetryVersion}"
@@ -28,10 +34,67 @@ dependencies {
 sourceSets {
     main {
         java {
-            srcDirs = ['java-basic-mvn/src', 'java-otel-metrics/src/main/java']
-        }
-        groovy {
-            srcDirs = ['groovy-basic']
+            srcDirs = ['java-basic-mvn/src/main/java', 'java-otel-metrics/src/main/java']
         }
     }
+}
+
+def readmeFile = file('../README.md')
+def readmeSnippetsDir = layout.buildDirectory.dir('generated/readme-snippets')
+
+sourceSets {
+    readmeSnippets {
+        java {
+            srcDir readmeSnippetsDir
+        }
+        compileClasspath += configurations.runtimeClasspath
+    }
+}
+
+// Each README java block becomes its own package. A block that declares a class compiles as is; any other
+// block keeps its imports and has the remaining lines, minus "..." placeholders, wrapped in a main method.
+def generateReadmeSnippets = tasks.register('generateReadmeSnippets') {
+    inputs.file readmeFile
+    outputs.dir readmeSnippetsDir
+    doLast {
+        def outDir = readmeSnippetsDir.get().asFile
+        project.delete(outDir)
+        def blocks = (readmeFile.text =~ /(?ms)^```java\n(.*?)^```$/).collect { it[1] }
+        if (blocks.isEmpty()) {
+            throw new GradleException("No java blocks found in ${readmeFile}")
+        }
+        blocks.eachWithIndex { String block, int i ->
+            def pkg = String.format('readme.snippet%02d', i + 1)
+            def classMatch = block =~ /(?m)^public class (\w+)/
+            def className
+            def source
+            if (classMatch.find()) {
+                className = classMatch.group(1)
+                source = "package ${pkg};\n\n${block}"
+            } else {
+                className = 'Snippet'
+                def lines = block.readLines()
+                def imports = lines.findAll { it.startsWith('import ') }
+                def body = lines.findAll { !it.startsWith('import ') && it.trim() != '...' }
+                source = "package ${pkg};\n\n${imports.join('\n')}\n\n" +
+                        "public class Snippet {\n" +
+                        "    public static void main(String[] args) throws Exception {\n" +
+                        "${body.join('\n')}\n" +
+                        "    }\n" +
+                        "}\n"
+            }
+            def target = new File(outDir, "${pkg.replace('.', '/')}/${className}.java")
+            target.parentFile.mkdirs()
+            target.text = source
+        }
+        logger.lifecycle("Generated ${blocks.size()} README snippets")
+    }
+}
+
+tasks.named('compileReadmeSnippetsJava') {
+    dependsOn generateReadmeSnippets
+}
+
+tasks.register('checkReadmeSnippets') {
+    dependsOn tasks.named('compileReadmeSnippetsJava')
 }

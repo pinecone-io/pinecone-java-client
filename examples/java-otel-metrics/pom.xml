@@ -24,7 +24,7 @@
     <dependency>
       <groupId>io.pinecone</groupId>
       <artifactId>pinecone-client</artifactId>
-      <version>6.1.0</version>
+      <version>6.2.0</version>
     </dependency>
 
     <!-- OpenTelemetry SDK -->

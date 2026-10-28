@@ -21,7 +21,7 @@
     <dependency>
       <groupId>io.pinecone</groupId>
       <artifactId>pinecone-client</artifactId>
-      <version>1.0.0</version> <!-- [pc:VERSION_NEXT] -->
+      <version>6.2.0</version> <!-- [pc:VERSION_NEXT] -->
     </dependency>
     <dependency> <!-- Add an slf4j binding like this if you want to see logs emitted by pinecone-client -->
       <groupId>org.slf4j</groupId>
