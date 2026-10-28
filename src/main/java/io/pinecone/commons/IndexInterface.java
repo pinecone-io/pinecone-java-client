@@ -14,11 +14,11 @@ import java.util.List;
 import static io.pinecone.utils.SparseIndicesConverter.convertUnsigned32IntToSigned32Int;
 
 /**
- * The {@code IndexInterface} provides a set of methods for performing operations
- * such as upserting, querying, fetching, updating, and deleting vectors in an index.
- * It supports operations with various types of data including dense vectors, sparse vectors,
- * and metadata associated with the vectors. This interface is designed to be generic to support
- * different implementations for handling vector storage and retrieval.
+ * The vector operations shared by {@link io.pinecone.clients.Index} and {@link io.pinecone.clients.AsyncIndex},
+ * plus helper methods that validate input and build the gRPC requests they send.
+ *
+ * <p>Application code uses {@code Index} or {@code AsyncIndex} directly; the type parameters let the same method
+ * return a plain response in {@code Index} and a {@code ListenableFuture} of it in {@code AsyncIndex}.
  *
  * @param <T> The return type for upsert operations.
  * @param <U> The return type for query operations.
@@ -33,16 +33,28 @@ import static io.pinecone.utils.SparseIndicesConverter.convertUnsigned32IntToSig
 public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable {
 
     /**
-     * Validates and builds an upsert request with a single vector and optional namespace.
+     * Checks one vector and builds the gRPC upsert request that carries it.
      *
-     * @param id The unique identifier of the vector
-     * @param values The values of the dense vector
-     * @param sparseIndices The indices for the sparse vector representation
-     * @param sparseValues The values corresponding to the indices in the sparse vector representation
-     * @param metadata The metadata associated with the vector
-     * @param namespace The namespace of the vector (optional)
-     * @return An {@link UpsertRequest} built from the provided arguments
-     * @throws PineconeValidationException if there are invalid arguments
+     * <p>{@link io.pinecone.clients.Index} and {@link io.pinecone.clients.AsyncIndex} call this for each single-vector
+     * {@code upsert}, so application code does not need to. The vector is checked as
+     * {@link #buildUpsertVector buildUpsertVector} checks it.
+     *
+     * <pre>{@code
+     * UpsertRequest request = index.validateUpsertRequest(
+     *         "doc-1", Arrays.asList(0.12f, 0.48f, 0.91f), null, null, null, "articles-en");
+     * }</pre>
+     *
+     * @param id the vector id, such as {@code "doc-1"}; must not be null or empty
+     * @param values the dense values; must not be null, so pass an empty list for a sparse index
+     * @param sparseIndices the sparse indices as unsigned 32-bit values, or null for no sparse values; set together
+     *                      with {@code sparseValues}
+     * @param sparseValues the values for {@code sparseIndices}, the same length as it, or null for no sparse values
+     * @param metadata the metadata to store with the vector, or null for none
+     * @param namespace the namespace to write to, such as {@code "articles-en"}; null or {@code ""} means the default
+     *                  namespace
+     * @return the request, holding one vector
+     * @throws PineconeValidationException if the id is null or empty, only one of the sparse lists is set, the sparse
+     *         lists differ in length, or a sparse index is outside the unsigned 32-bit range
      */
     default UpsertRequest validateUpsertRequest(String id,
                                                 List<Float> values,
@@ -63,13 +75,25 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
     }
 
     /**
-     * Validates and builds an upsert request with a list of vectors and optional namespace. This method
-     * is useful for batch upsert operations.
+     * Checks a batch of vectors and builds the gRPC upsert request that carries them.
      *
-     * @param vectorWithUnsignedIndicesList A list of {@link VectorWithUnsignedIndices} objects representing the vectors to upsert.
-     * @param namespace The namespace within which these vectors should be upserted. This parameter is optional.
-     * @return An {@link UpsertRequest} object constructed based on the provided vectors and namespace.
-     * @throws PineconeValidationException if any of the vectors contain invalid arguments.
+     * <p>{@link io.pinecone.clients.Index} and {@link io.pinecone.clients.AsyncIndex} call this for
+     * {@code upsert(List, String)}, so application code does not need to. Each vector is checked as
+     * {@link #buildUpsertVector buildUpsertVector} checks it.
+     *
+     * <pre>{@code
+     * UpsertRequest request = index.validateUpsertRequest(Arrays.asList(
+     *         IndexInterface.buildUpsertVectorWithUnsignedIndices("doc-1", Arrays.asList(0.12f, 0.48f, 0.91f), null, null, null),
+     *         IndexInterface.buildUpsertVectorWithUnsignedIndices("doc-2", Arrays.asList(0.33f, 0.05f, 0.72f), null, null, null)),
+     *         "articles-en");
+     * }</pre>
+     *
+     * @param vectorWithUnsignedIndicesList the vectors to write; must not be null
+     * @param namespace the namespace to write to, such as {@code "articles-en"}; {@code ""} means the default
+     *                  namespace. Must not be null.
+     * @return the request, holding every vector in the list
+     * @throws PineconeValidationException if a vector has no id, has only one of the sparse lists, has sparse lists
+     *         of different lengths, or has a sparse index outside the unsigned 32-bit range
      */
     default UpsertRequest validateUpsertRequest(List<VectorWithUnsignedIndices> vectorWithUnsignedIndicesList,
                                                 String namespace) {
@@ -95,16 +119,27 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
     }
 
     /**
-     * Constructs a {@link Vector} object while validating the provided arguments. This helper method is used in a
-     * variety of upsert operations.
+     * Checks one vector's fields and builds the gRPC {@link Vector} that an upsert request carries.
      *
-     * @param id The unique identifier for the vector.
-     * @param values The dense vector values.
-     * @param sparseIndices Indices for sparse vector representation.
-     * @param sparseValues Values for the sparse indices.
-     * @param metadata Metadata associated with the vector.
-     * @return A {@link Vector} object constructed from the provided arguments.
-     * @throws PineconeValidationException if there are invalid arguments.
+     * <p>{@code Index} and {@code AsyncIndex} call this for every vector they upsert, so application code rarely needs
+     * it: to write vectors, pass them to an {@code upsert} overload, or build a batch with
+     * {@link #buildUpsertVectorWithUnsignedIndices buildUpsertVectorWithUnsignedIndices}.
+     *
+     * <pre>{@code
+     * Vector vector = index.buildUpsertVector(
+     *         "doc-1", Arrays.asList(0.12f, 0.48f, 0.91f), Arrays.asList(10L, 45L), Arrays.asList(0.5f, 0.3f), null);
+     * }</pre>
+     *
+     * @param id the vector id, such as {@code "doc-1"}; must not be null or empty
+     * @param values the dense values, whose length must match the index dimension; must not be null, so pass an empty
+     *               list for a sparse index
+     * @param sparseIndices the sparse indices as unsigned 32-bit values, or null for no sparse values; set together
+     *                      with {@code sparseValues}
+     * @param sparseValues the values for {@code sparseIndices}, the same length as it, or null for no sparse values
+     * @param metadata the metadata to store with the vector, or null for none
+     * @return the vector, with sparse indices converted to the signed form the gRPC message uses
+     * @throws PineconeValidationException if the id is null or empty, only one of the sparse lists is set, the sparse
+     *         lists differ in length, or a sparse index is outside the unsigned 32-bit range
      */
     default Vector buildUpsertVector(String id,
                                      List<Float> values,
@@ -144,16 +179,31 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
     }
 
     /**
-     * Constructs a {@link VectorWithUnsignedIndices} object while validating the provided arguments. This helper method
-     * is used in a variety of upsert operations.
+     * Builds a {@link VectorWithUnsignedIndices} to pass to {@code upsert(List, String)} when writing a batch.
      *
-     * @param id The unique identifier for the vector.
-     * @param values The dense vector values.
-     * @param sparseIndices Indices for sparse vector representation, using unsigned integers.
-     * @param sparseValues Values for the sparse indices.
-     * @param metadata Metadata associated with the vector.
-     * @return A {@link VectorWithUnsignedIndices} object constructed from the provided arguments.
-     * @throws PineconeValidationException if there are invalid arguments.
+     * <p>The dense values must not be empty, so this cannot build a vector for a sparse index; for that, construct a
+     * {@code VectorWithUnsignedIndices} with an empty values list and a {@code SparseValuesWithUnsignedIndices}. Sparse
+     * indices are checked against the unsigned 32-bit range when the batch is upserted, not here.
+     *
+     * <pre>{@code
+     * Struct metadata = Struct.newBuilder()
+     *         .putFields("category", Value.newBuilder().setStringValue("news").build())
+     *         .build();
+     * VectorWithUnsignedIndices vector = IndexInterface.buildUpsertVectorWithUnsignedIndices(
+     *         "doc-1", Arrays.asList(0.12f, 0.48f, 0.91f), null, null, metadata);
+     *
+     * index.upsert(Collections.singletonList(vector), "articles-en");
+     * }</pre>
+     *
+     * @param id the vector id, such as {@code "doc-1"}; must not be null or empty
+     * @param values the dense values, whose length must match the index dimension; must not be null or empty
+     * @param sparseIndices the sparse indices as unsigned 32-bit values, or null for no sparse values; set together
+     *                      with {@code sparseValues}
+     * @param sparseValues the values for {@code sparseIndices}, the same length as it, or null for no sparse values
+     * @param metadata the metadata to store with the vector, or null for none
+     * @return the vector, ready to add to the list passed to {@code upsert}
+     * @throws PineconeValidationException if the id or values are null or empty, only one of the sparse lists is set,
+     *         or the sparse lists differ in length
      */
     static VectorWithUnsignedIndices buildUpsertVectorWithUnsignedIndices(String id,
                                                                           List<Float> values,
@@ -192,19 +242,33 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
     }
 
     /**
-     * Validates and constructs a {@link QueryRequest} object.
+     * Checks the arguments of a query and builds the gRPC query request.
      *
-     * @param topK The number of top matching vectors to retrieve.
-     * @param vector The query vector for similarity search. If querying with vector, id must be null.
-     * @param sparseIndices Indices for sparse query vector.
-     * @param sparseValues Values for the sparse query vector.
-     * @param id The unique identifier of the vector to query. If querying with id, vector must be null.
-     * @param namespace The namespace from which to query vectors.
-     * @param filter The filter to apply. You can use vector metadata to limit your search.
-     * @param includeValues Flag indicating whether to include vector values in the response.
-     * @param includeMetadata Flag indicating whether to include metadata in the response.
-     * @return A {@link QueryRequest} object constructed from the provided arguments.
-     * @throws PineconeValidationException if there are invalid request arguments.
+     * <p>{@link io.pinecone.clients.Index} and {@link io.pinecone.clients.AsyncIndex} call this for each
+     * {@code query}, {@code queryByVector} and {@code queryByVectorId} call, so application code does not need to.
+     * Pass either a query vector or the id of a stored vector, not both.
+     *
+     * <pre>{@code
+     * QueryRequest request = index.validateQueryRequest(
+     *         10, Arrays.asList(0.12f, 0.48f, 0.91f), null, null, null, "articles-en", null, false, true);
+     * }</pre>
+     *
+     * @param topK the number of matches to return, such as 10
+     * @param vector the dense query vector, or null or empty when querying by {@code id} or with sparse values only
+     * @param sparseIndices the sparse query indices as unsigned 32-bit values, or null for none; set together with
+     *                      {@code sparseValues}
+     * @param sparseValues the values for {@code sparseIndices}, the same length as it, or null for none
+     * @param id the id of a stored vector to use as the query, such as {@code "doc-1"}, or null or empty when
+     *           querying with a vector
+     * @param namespace the namespace to search, such as {@code "articles-en"}; null or {@code ""} means the default
+     *                  namespace
+     * @param filter a metadata filter such as {@code {"category": {"$eq": "news"}}} built as a {@code Struct}, or
+     *               null for no filter
+     * @param includeValues whether matches include their vector values
+     * @param includeMetadata whether matches include their metadata
+     * @return the request
+     * @throws PineconeValidationException if both {@code vector} and {@code id} are set, only one of the sparse lists
+     *         is set, the sparse lists differ in length, or a sparse index is outside the unsigned 32-bit range
      */
     default QueryRequest validateQueryRequest(int topK,
                                               List<Float> vector,
@@ -261,12 +325,20 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
     }
 
     /**
-     * Validates and constructs a fetch request for retrieving vectors by their ids from a namespace.
+     * Checks the arguments of a fetch by id and builds the gRPC fetch request.
      *
-     * @param ids The list of vector IDs to fetch.
-     * @param namespace The namespace to fetch vectors from. If not specified, the default namespace is used.
-     * @return A {@link FetchRequest} object constructed from the provided IDs and namespace.
-     * @throws PineconeValidationException if the vector IDs are not provided.
+     * <p>{@link io.pinecone.clients.Index} and {@link io.pinecone.clients.AsyncIndex} call this for each
+     * {@code fetch}, so application code does not need to.
+     *
+     * <pre>{@code
+     * FetchRequest request = index.validateFetchRequest(Arrays.asList("doc-1", "doc-2"), "articles-en");
+     * }</pre>
+     *
+     * @param ids the ids to fetch, such as {@code "doc-1"}; must not be null or empty
+     * @param namespace the namespace to fetch from, such as {@code "articles-en"}; null or {@code ""} means the
+     *                  default namespace
+     * @return the request
+     * @throws PineconeValidationException if {@code ids} is null or empty
      */
     default FetchRequest validateFetchRequest(List<String> ids, String namespace) {
         FetchRequest.Builder fetchRequest = FetchRequest.newBuilder();
@@ -284,14 +356,31 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
     }
 
     /**
-     * Validates and constructs a fetch by metadata request for retrieving vectors that match a metadata filter.
+     * Checks the arguments of a fetch by metadata and builds the gRPC request.
      *
-     * @param namespace The namespace to fetch vectors from.
-     * @param filter A metadata filter expression. Only vectors matching this filter will be returned.
-     * @param limit The maximum number of vectors to return.
-     * @param paginationToken The token to continue a previous listing operation.
-     * @return A {@link FetchByMetadataRequest} object constructed from the provided parameters.
-     * @throws PineconeValidationException if the namespace is not provided.
+     * <p>{@link io.pinecone.clients.Index} and {@link io.pinecone.clients.AsyncIndex} call this for each
+     * {@code fetchByMetadata}, so application code does not need to. Unlike most operations, the namespace is
+     * required: pass {@code "__default__"} for the default namespace.
+     *
+     * <pre>{@code
+     * Struct filter = Struct.newBuilder()
+     *         .putFields("category", Value.newBuilder()
+     *                 .setStructValue(Struct.newBuilder()
+     *                         .putFields("$eq", Value.newBuilder().setStringValue("news").build()))
+     *                 .build())
+     *         .build();
+     * FetchByMetadataRequest request = index.validateFetchByMetadataRequest("articles-en", filter, 50, null);
+     * }</pre>
+     *
+     * @param namespace the namespace to fetch from, such as {@code "articles-en"}; must not be null or empty
+     * @param filter a metadata filter such as {@code {"category": {"$eq": "news"}}} built as a {@code Struct}; the
+     *               client accepts null, but the server rejects a request without a filter
+     * @param limit the most vectors to return in one page, such as 50; null, zero or a negative value means the
+     *              server's default
+     * @param paginationToken the token from the previous page's {@code getPagination().getNext()}, or null or empty
+     *                        for the first page
+     * @return the request
+     * @throws PineconeValidationException if {@code namespace} is null or empty
      */
     default FetchByMetadataRequest validateFetchByMetadataRequest(String namespace,
                                                                   Struct filter,
@@ -320,16 +409,28 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
     }
 
     /**
-     * Validates and constructs an update request for modifying an existing vector.
+     * Checks the arguments of an update by id and builds the gRPC update request.
      *
-     * @param id The unique ID of the vector to update.
-     * @param values The new values for the vector. If provided, these values replace the existing ones.
-     * @param metadata The new metadata for the vector. If provided, it replaces the existing metadata.
-     * @param namespace The namespace of the vector to be updated. If not specified, the default namespace is used.
-     * @param sparseIndices Indices for updating a sparse vector representation.
-     * @param sparseValues Values corresponding to the sparse indices.
-     * @return An {@link UpdateRequest} object constructed from the provided parameters.
-     * @throws PineconeValidationException if there are invalid arguments.
+     * <p>{@link io.pinecone.clients.Index} and {@link io.pinecone.clients.AsyncIndex} call this for each
+     * {@code update}, so application code does not need to. Metadata passed here is merged into the vector's
+     * existing metadata, not swapped in for it.
+     *
+     * <pre>{@code
+     * UpdateRequest request = index.validateUpdateRequest(
+     *         "doc-1", Arrays.asList(0.12f, 0.48f, 0.91f), null, "articles-en", null, null);
+     * }</pre>
+     *
+     * @param id the id of the vector to update, such as {@code "doc-1"}; must not be null
+     * @param values the new dense values, or null to keep the current ones
+     * @param metadata the metadata fields to set, or null to keep the current metadata
+     * @param namespace the namespace that holds the vector, such as {@code "articles-en"}; null or {@code ""} means
+     *                  the default namespace
+     * @param sparseIndices the new sparse indices as unsigned 32-bit values, or null to keep the current sparse
+     *                      values; set together with {@code sparseValues}
+     * @param sparseValues the values for {@code sparseIndices}, the same length as it, or null
+     * @return the request
+     * @throws PineconeValidationException if the id is null, only one of the sparse lists is set, the sparse lists
+     *         differ in length, or a sparse index is outside the unsigned 32-bit range
      */
     default UpdateRequest validateUpdateRequest(String id,
                                                 List<Float> values,
@@ -375,16 +476,33 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
     }
 
     /**
-     * Validates and constructs an update request for modifying vectors by metadata filter.
+     * Checks the arguments of an update by metadata filter and builds the gRPC update request.
      *
-     * @param filter A metadata filter expression. When updating metadata across records in a namespace,
-     *               the update is applied to all records that match the filter.
-     * @param metadata The new metadata to set for the vectors. If provided, it replaces the existing metadata.
-     * @param namespace The namespace containing the records to update.
-     * @param dryRun If true, return the number of records that match the filter, but do not execute the update.
-     *               Default is false.
-     * @return An {@link UpdateRequest} object constructed from the provided parameters.
-     * @throws PineconeValidationException if there are invalid arguments.
+     * <p>{@link io.pinecone.clients.Index} and {@link io.pinecone.clients.AsyncIndex} call this for each
+     * {@code updateByMetadata}, so application code does not need to. The metadata is merged into every matching
+     * vector's existing metadata.
+     *
+     * <pre>{@code
+     * Struct filter = Struct.newBuilder()
+     *         .putFields("category", Value.newBuilder()
+     *                 .setStructValue(Struct.newBuilder()
+     *                         .putFields("$eq", Value.newBuilder().setStringValue("news").build()))
+     *                 .build())
+     *         .build();
+     * Struct metadata = Struct.newBuilder()
+     *         .putFields("archived", Value.newBuilder().setBoolValue(true).build())
+     *         .build();
+     * UpdateRequest request = index.validateUpdateByMetadataRequest(filter, metadata, "articles-en", true);
+     * }</pre>
+     *
+     * @param filter a metadata filter such as {@code {"category": {"$eq": "news"}}} built as a {@code Struct} that
+     *               selects the vectors to update; must not be null
+     * @param metadata the metadata fields to set on each matching vector, or null for none
+     * @param namespace the namespace to update, such as {@code "articles-en"}; null or {@code ""} means the default
+     *                  namespace
+     * @param dryRun true to only count the matching vectors without changing them; null means false
+     * @return the request
+     * @throws PineconeValidationException if {@code filter} is null
      */
     default UpdateRequest validateUpdateByMetadataRequest(Struct filter,
                                                           Struct metadata,
@@ -413,15 +531,23 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
     }
 
     /**
-     * Validates and constructs a delete request for removing vectors by their IDs or based on a filter.
-     * Can also handle requests for deleting all vectors within a namespace.
+     * Builds the gRPC delete request from ids, a delete-all flag or a metadata filter.
      *
-     * @param ids The list of vector IDs to delete.
-     * @param deleteAll Flag indicating whether to delete all vectors in the namespace.
-     * @param namespace The namespace from which to delete the vectors. This parameter is optional if deleteAll is true.
-     * @param filter A metadata filter used to select the vectors to delete. Mutually exclusive with ids and deleteAll.
-     * @return A {@link DeleteRequest} object constructed from the provided parameters.
-     * @throws PineconeValidationException if the request parameters are invalid.
+     * <p>{@link io.pinecone.clients.Index} and {@link io.pinecone.clients.AsyncIndex} call this for each delete
+     * method, so application code does not need to. Despite its name, it does not check the arguments: it copies
+     * whichever are set into the request, so set exactly one of {@code ids}, {@code deleteAll} or {@code filter}.
+     *
+     * <pre>{@code
+     * DeleteRequest request = index.validateDeleteRequest(Arrays.asList("doc-1", "doc-2"), false, "articles-en", null);
+     * }</pre>
+     *
+     * @param ids the ids to delete, such as {@code "doc-1"}, or null or empty when deleting by flag or filter
+     * @param deleteAll true to delete every vector in the namespace, which can't be undone
+     * @param namespace the namespace to delete from, such as {@code "articles-en"}; null or {@code ""} means the
+     *                  default namespace
+     * @param filter a metadata filter such as {@code {"category": {"$eq": "news"}}} built as a {@code Struct}, or
+     *               null when deleting by ids or flag
+     * @return the request
      */
     default DeleteRequest validateDeleteRequest(List<String> ids,
                                                 boolean deleteAll,
@@ -444,10 +570,19 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
     }
 
     /**
-     * Validates and constructs a request to describe the statistics of the index.
+     * Builds the gRPC request for index statistics, with an optional metadata filter.
      *
-     * @param filter If a filter is provided, the operation returns statistics for vectors that match the filter.
-     * @return A {@link DescribeIndexStatsRequest} object constructed from the provided filter.
+     * <p>{@link io.pinecone.clients.Index} and {@link io.pinecone.clients.AsyncIndex} call this for each
+     * {@code describeIndexStats}, so application code does not need to. It does not check the filter; serverless
+     * indexes reject a non-empty one.
+     *
+     * <pre>{@code
+     * DescribeIndexStatsRequest request = index.validateDescribeIndexStatsRequest(null);
+     * }</pre>
+     *
+     * @param filter a metadata filter such as {@code {"category": {"$eq": "news"}}} built as a {@code Struct}, or
+     *               null for statistics over every vector
+     * @return the request
      */
     default DescribeIndexStatsRequest validateDescribeIndexStatsRequest(Struct filter) {
         DescribeIndexStatsRequest.Builder describeIndexStatsRequest = DescribeIndexStatsRequest.newBuilder();
@@ -459,381 +594,641 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
     }
 
     /**
-     * Performs an upsert operation for a list of vectors within a namespace. If namespace is empty a default namespace is used.
+     * Writes a batch of vectors to a namespace, replacing any existing vector with the same id.
      *
-     * @param vectorList A list of vectors with unsigned indices to upsert.
-     * @param namespace The namespace where the vectors should be upserted. This is optional.
-     * @return A generic type {@code T} indicating the result of the upsert operation.
+     * <p>Use this overload to load data: one request carries many vectors. The server rejects a request that is too
+     * large, so split big loads into several calls. To write a single vector, the other {@code upsert} overloads are
+     * shorter. A namespace that does not exist yet is created. Writes are not visible instantly: a query or stats call
+     * made right after an upsert may not reflect it yet.
+     *
+     * @param vectorList the vectors to write, for example built with
+     *                   {@link IndexInterface#buildUpsertVectorWithUnsignedIndices}; each needs an id and dense values
+     *                   whose length matches the index dimension (an empty list, not null, for a sparse index)
+     * @param namespace the namespace to write to, such as {@code "articles-en"}; {@code ""} writes to the default
+     *                  namespace. Must not be null.
+     * @return the server's response, including the number of vectors written
+     * @throws PineconeValidationException if a vector has no id, has sparse indices without sparse values or the
+     *         reverse, has sparse lists of different lengths, or has a sparse index outside the unsigned 32-bit range;
+     *         {@code AsyncIndex} throws it from the call, not through the future
      */
     T upsert(List<VectorWithUnsignedIndices> vectorList, String namespace);
 
     /**
-     * Performs an upsert operation for a single vector in the default namespace.
+     * Writes one dense vector to the default namespace, replacing any existing vector with the same id.
      *
-     * @param id The unique identifier of the vector.
-     * @param values The list of floating-point values that represent the vector.
-     * @return A generic type {@code T} indicating the result of the upsert operation.
+     * <p>To write to a named namespace, use {@link #upsert(String, List, String)}; to write many vectors, use
+     * {@link #upsert(List, String)}. A query made right after an upsert may not reflect it yet.
+     *
+     * @param id the vector id, such as {@code "doc-1"}; must not be null or empty
+     * @param values the dense values; the length must match the index dimension. Must not be null.
+     * @return the server's response, including the number of vectors written
+     * @throws PineconeValidationException if {@code id} is null or empty; {@code AsyncIndex} throws it from the
+     *         call, not through the future
      */
     T upsert(String id, List<Float> values);
 
     /**
-     * Performs an upsert operation for a single vector in the specified namespace.
+     * Writes one dense vector to a namespace, replacing any existing vector with the same id.
      *
-     * @param id The unique identifier of the vector.
-     * @param values The list of floating-point values that represent the vector.
-     * @param namespace The namespace where the vector should be upserted. This is optional.
-     * @return A generic type {@code T} indicating the result of the upsert operation.
+     * <p>A namespace that does not exist yet is created. To add sparse values or metadata, use
+     * {@link #upsert(String, List, List, List, Struct, String)}; to write many vectors, use
+     * {@link #upsert(List, String)}. A query made right after an upsert may not reflect it yet.
+     *
+     * @param id the vector id, such as {@code "doc-1"}; must not be null or empty
+     * @param values the dense values; the length must match the index dimension. Must not be null.
+     * @param namespace the namespace to write to, such as {@code "articles-en"}; null or {@code ""} writes to the
+     *                  default namespace
+     * @return the server's response, including the number of vectors written
+     * @throws PineconeValidationException if {@code id} is null or empty; {@code AsyncIndex} throws it from the
+     *         call, not through the future
      */
     T upsert(String id, List<Float> values, String namespace);
 
     /**
-     * Upserts a vector with both dense and sparse components, and optional metadata, into a specified namespace.
+     * Writes one vector, with optional sparse values and metadata, to a namespace, replacing any existing vector
+     * with the same id.
      *
-     * @param id The unique identifier for the vector.
-     * @param values The dense vector values.
-     * @param sparseIndices Indices for sparse vector representation.
-     * @param sparseValues Values for the sparse indices.
-     * @param metadata Metadata associated with the vector.
-     * @param namespace The namespace to upsert the vector into. This is optional.
-     * @return A generic type {@code T} indicating the result of the upsert operation.
+     * <p>Use this overload when the vector has sparse values or metadata to filter on; pass null for the parts it
+     * does not have. A namespace that does not exist yet is created. To write many vectors, use
+     * {@link #upsert(List, String)}. A query made right after an upsert may not reflect it yet.
+     *
+     * @param id the vector id, such as {@code "doc-1"}; must not be null or empty
+     * @param values the dense values; the length must match the index dimension. For a sparse index, pass an empty
+     *               list. Must not be null.
+     * @param sparseIndices the positions of the sparse values as unsigned 32-bit integers, such as
+     *                      {@code Arrays.asList(10L, 45L)}; null if the vector has no sparse values
+     * @param sparseValues the sparse values, one per entry in {@code sparseIndices}; null if the vector has no sparse
+     *                     values
+     * @param metadata fields to store with the vector and filter on in queries, such as a category or a year; null
+     *                 for none
+     * @param namespace the namespace to write to, such as {@code "articles-en"}; null or {@code ""} writes to the
+     *                  default namespace
+     * @return the server's response, including the number of vectors written
+     * @throws PineconeValidationException if {@code id} is null or empty, only one of {@code sparseIndices} and
+     *         {@code sparseValues} is given, they differ in length, or a sparse index is outside the unsigned 32-bit
+     *         range;
+     *         {@code AsyncIndex} throws it from the call, not through the future
      */
     T upsert(String id, List<Float> values, List<Long> sparseIndices, List<Float> sparseValues, Struct metadata,
              String namespace);
 
     /**
-     * Queries a namespace using a query vector. Retrieves the ids of the most similar items, along with their similarity scores.
+     * Searches the default namespace for the vectors most similar to a vector already stored in it and returns their
+     * ids and scores.
      *
-     * @param topK The number of top similar vectors to retrieve.
-     * @param id The unique id of a vector to be used as a query vector.
-     * @return A generic type {@code U} representing the query results.
+     * <p>If no vector has the id, the response has no matches. To search a named namespace, filter on metadata, or get
+     * each match's metadata, use {@link #queryByVectorId(int, String, String, Struct, boolean, boolean)}.
+     *
+     * @param topK the number of matches to return, such as {@code 10}; the server rejects values below 1 or
+     *             above its limit
+     * @param id the id of a stored vector to search from, such as {@code "doc-1"}; if no vector has this id,
+     *           the response has no matches
+     * @return the matches; {@code getMatchesList()} holds up to {@code topK} matches, each with {@code getId()}
+     *         and {@code getScore()}
      */
     U queryByVectorId(int topK, String id);
 
     /**
-     * Queries a namespace using a query vector identified by an ID, with options to include values and metadata in the results.
-     * Retrieves the IDs of the most similar items, along with their similarity scores, and optionally, their values and metadata.
+     * Searches the default namespace for the vectors most similar to a vector already stored in it.
      *
-     * @param topK The number of top similar vectors to retrieve.
-     * @param id The unique ID of a vector to be used as a query vector.
-     * @param includeValues Flag indicating whether to include the vector values in the query results.
-     * @param includeMetadata Flag indicating whether to include the vector metadata in the query results.
-     * @return A generic type {@code U} representing the query results, including optional values and metadata based on parameters.
+     * <p>If no vector has the id, the response has no matches. To search a named namespace or filter on metadata, use
+     * {@link #queryByVectorId(int, String, String, Struct, boolean, boolean)}.
+     *
+     * @param topK the number of matches to return, such as {@code 10}; the server rejects values below 1 or
+     *             above its limit
+     * @param id the id of a stored vector to search from, such as {@code "doc-1"}; if no vector has this id,
+     *           the response has no matches
+     * @param includeValues true to return each match's vector values; false to leave them out
+     * @param includeMetadata true to return each match's metadata; false to leave it out
+     * @return the matches; {@code getMatchesList()} holds up to {@code topK} matches, each with {@code getId()},
+     *         {@code getScore()} and, when requested, {@code getValuesList()} and {@code getMetadata()}
      */
     U queryByVectorId(int topK, String id, boolean includeValues, boolean includeMetadata);
 
     /**
-     * Queries a specified namespace using a vector ID. Retrieves the IDs of the most similar items, along with their similarity scores.
+     * Searches a namespace for the vectors most similar to a vector already stored in it and returns their ids and
+     * scores.
      *
-     * @param topK The number of top similar vectors to retrieve.
-     * @param id The unique ID of a vector to be used as a query vector.
-     * @param namespace The namespace within which the query is performed.
-     * @return A generic type {@code U} representing the query results.
+     * <p>If no vector has the id, the response has no matches. To filter on metadata or get each match's metadata or
+     * values, use {@link #queryByVectorId(int, String, String, Struct, boolean, boolean)}.
+     *
+     * @param topK the number of matches to return, such as {@code 10}; the server rejects values below 1 or
+     *             above its limit
+     * @param id the id of a stored vector to search from, such as {@code "doc-1"}; if no vector has this id,
+     *           the response has no matches
+     * @param namespace the namespace to search, such as {@code "articles-en"}; null or {@code ""} searches the
+     *                  default namespace
+     * @return the matches; {@code getMatchesList()} holds up to {@code topK} matches, each with {@code getId()}
+     *         and {@code getScore()}
      */
     U queryByVectorId(int topK, String id, String namespace);
 
     /**
-     * Queries a specified namespace using a vector ID, with options to include values and metadata in the results.
-     * Retrieves the IDs of the most similar items, along with their similarity scores, and optionally, their values and metadata.
+     * Searches a namespace for the vectors most similar to a vector already stored in it.
      *
-     * @param topK The number of top similar vectors to retrieve.
-     * @param id The unique ID of a vector to be used as a query vector.
-     * @param namespace The namespace within which the query is performed.
-     * @param includeValues Flag indicating whether to include the vector values in the query results.
-     * @param includeMetadata Flag indicating whether to include the vector metadata in the query results.
-     * @return A generic type {@code U} representing the query results, including optional values and metadata based on parameters.
+     * <p>If no vector has the id, the response has no matches. To filter on metadata, use
+     * {@link #queryByVectorId(int, String, String, Struct, boolean, boolean)}.
+     *
+     * @param topK the number of matches to return, such as {@code 10}; the server rejects values below 1 or
+     *             above its limit
+     * @param id the id of a stored vector to search from, such as {@code "doc-1"}; if no vector has this id,
+     *           the response has no matches
+     * @param namespace the namespace to search, such as {@code "articles-en"}; null or {@code ""} searches the
+     *                  default namespace
+     * @param includeValues true to return each match's vector values; false to leave them out
+     * @param includeMetadata true to return each match's metadata; false to leave it out
+     * @return the matches; {@code getMatchesList()} holds up to {@code topK} matches, each with {@code getId()},
+     *         {@code getScore()} and, when requested, {@code getValuesList()} and {@code getMetadata()}
      */
     U queryByVectorId(int topK, String id, String namespace, boolean includeValues, boolean includeMetadata);
 
     /**
-     * Queries a specified namespace using a vector ID and a custom filter. Retrieves the IDs of the most similar items, along with their similarity scores.
+     * Searches a namespace for the vectors most similar to a vector already stored in it, keeping only those whose
+     * metadata matches a filter, and returns their ids and scores.
      *
-     * @param topK The number of top similar vectors to retrieve.
-     * @param id The unique ID of a vector to be used as a query vector.
-     * @param namespace The namespace within which the query is performed.
-     * @param filter A Struct defining additional filtering criteria for the query.
-     * @return A generic type {@code U} representing the query results, filtered according to the provided criteria.
+     * <p>If no vector has the id, the response has no matches. To also get each match's metadata or values, use
+     * {@link #queryByVectorId(int, String, String, Struct, boolean, boolean)}.
+     *
+     * @param topK the number of matches to return, such as {@code 10}; the server rejects values below 1 or
+     *             above its limit
+     * @param id the id of a stored vector to search from, such as {@code "doc-1"}; if no vector has this id,
+     *           the response has no matches
+     * @param namespace the namespace to search, such as {@code "articles-en"}; null or {@code ""} searches the
+     *                  default namespace
+     * @param filter a metadata filter in Pinecone's filter syntax, such as {@code {"category": {"$eq": "news"}}}
+     *               built as a {@code Struct}; only vectors whose metadata matches are returned. Null for no
+     *               filter.
+     * @return the matches; {@code getMatchesList()} holds up to {@code topK} matches, each with {@code getId()}
+     *         and {@code getScore()}
      */
     U queryByVectorId(int topK, String id, String namespace, Struct filter);
 
     /**
-     * Queries a specified namespace using a vector ID, a custom filter, and options to include values and metadata in the results.
-     * Retrieves the IDs of the most similar items, along with their similarity scores, and optionally, their values and metadata, all while applying a filter.
+     * Searches a namespace for the vectors most similar to a vector already stored in it, keeping only those whose
+     * metadata matches a filter.
      *
-     * @param topK The number of top similar vectors to retrieve.
-     * @param id The unique ID of a vector to be used as a query vector.
-     * @param namespace The namespace within which the query is performed.
-     * @param filter A Struct defining additional filtering criteria for the query.
-     * @param includeValues Flag indicating whether to include the vector values in the query results.
-     * @param includeMetadata Flag indicating whether to include the vector metadata in the query results.
-     * @return A generic type {@code U} representing the query results, including optional values and metadata based on parameters and filtered according to the provided criteria.
+     * <p>Use this to find items similar to one you already have, such as related articles, without sending its values;
+     * the server uses the stored values of the vector with that id. Pass a null filter to search every vector in the
+     * namespace. If no vector has the id, the response has no matches rather than an error. To search with values you
+     * supply, use {@link #queryByVector(int, List, String, Struct, boolean, boolean)}.
+     *
+     * @param topK the number of matches to return, such as {@code 10}; the server rejects values below 1 or
+     *             above its limit
+     * @param id the id of a stored vector to search from, such as {@code "doc-1"}; if no vector has this id,
+     *           the response has no matches
+     * @param namespace the namespace to search, such as {@code "articles-en"}; null or {@code ""} searches the
+     *                  default namespace
+     * @param filter a metadata filter in Pinecone's filter syntax, such as {@code {"category": {"$eq": "news"}}}
+     *               built as a {@code Struct}; only vectors whose metadata matches are returned. Null for no
+     *               filter.
+     * @param includeValues true to return each match's vector values; false to leave them out
+     * @param includeMetadata true to return each match's metadata; false to leave it out
+     * @return the matches; {@code getMatchesList()} holds up to {@code topK} matches, each with {@code getId()},
+     *         {@code getScore()} and, when requested, {@code getValuesList()} and {@code getMetadata()}
      */
     U queryByVectorId(int topK, String id, String namespace, Struct filter, boolean includeValues, boolean includeMetadata);
 
     /**
-     * Queries the default namespace using a provided query vector. Retrieves the IDs of the most similar items,
-     * along with their similarity scores.
+     * Searches the default namespace for the vectors most similar to a dense query vector and returns their ids and
+     * scores.
      *
-     * @param topK The number of top similar vectors to retrieve.
-     * @param vector The query vector as a list of floating-point values.
-     * @return A generic type {@code U} representing the query results.
+     * <p>To search a named namespace, filter on metadata, or get each match's metadata, use
+     * {@link #queryByVector(int, List, String, Struct, boolean, boolean)}.
+     *
+     * @param topK the number of matches to return, such as {@code 10}; the server rejects values below 1 or
+     *             above its limit
+     * @param vector the dense query vector, such as {@code Arrays.asList(0.12f, 0.48f, 0.91f)}; the server rejects
+     *               a vector whose length does not match the index dimension
+     * @return the matches; {@code getMatchesList()} holds up to {@code topK} matches, each with {@code getId()}
+     *         and {@code getScore()}
      */
     U queryByVector(int topK, List<Float> vector);
 
     /**
-     * Queries the default namespace using a provided query vector, with options to include values and metadata in the results.
-     * Retrieves the IDs of the most similar items, along with their similarity scores, and optionally, their values and metadata.
+     * Searches the default namespace for the vectors most similar to a dense query vector.
      *
-     * @param topK The number of top similar vectors to retrieve.
-     * @param vector The query vector as a list of floating-point values.
-     * @param includeValues Flag indicating whether to include the vector values in the query results.
-     * @param includeMetadata Flag indicating whether to include the vector metadata in the query results.
-     * @return A generic type {@code U} representing the query results, including optional values and metadata based on parameters.
+     * <p>To search a named namespace or filter on metadata, use
+     * {@link #queryByVector(int, List, String, Struct, boolean, boolean)}.
+     *
+     * @param topK the number of matches to return, such as {@code 10}; the server rejects values below 1 or
+     *             above its limit
+     * @param vector the dense query vector, such as {@code Arrays.asList(0.12f, 0.48f, 0.91f)}; the server rejects
+     *               a vector whose length does not match the index dimension
+     * @param includeValues true to return each match's vector values; false to leave them out
+     * @param includeMetadata true to return each match's metadata; false to leave it out
+     * @return the matches; {@code getMatchesList()} holds up to {@code topK} matches, each with {@code getId()},
+     *         {@code getScore()} and, when requested, {@code getValuesList()} and {@code getMetadata()}
      */
     U queryByVector(int topK, List<Float> vector, boolean includeValues, boolean includeMetadata);
 
     /**
-     * Queries a specified namespace using a provided query vector. Retrieves the IDs of the most similar items,
-     * along with their similarity scores.
+     * Searches a namespace for the vectors most similar to a dense query vector and returns their ids and scores.
      *
-     * @param topK The number of top similar vectors to retrieve.
-     * @param vector The query vector as a list of floating-point values.
-     * @param namespace The namespace within which the query is performed.
-     * @return A generic type {@code U} representing the query results.
+     * <p>To filter on metadata or get each match's metadata or values, use
+     * {@link #queryByVector(int, List, String, Struct, boolean, boolean)}.
+     *
+     * @param topK the number of matches to return, such as {@code 10}; the server rejects values below 1 or
+     *             above its limit
+     * @param vector the dense query vector, such as {@code Arrays.asList(0.12f, 0.48f, 0.91f)}; the server rejects
+     *               a vector whose length does not match the index dimension
+     * @param namespace the namespace to search, such as {@code "articles-en"}; null or {@code ""} searches the
+     *                  default namespace
+     * @return the matches; {@code getMatchesList()} holds up to {@code topK} matches, each with {@code getId()}
+     *         and {@code getScore()}
      */
     U queryByVector(int topK, List<Float> vector, String namespace);
 
     /**
-     * Queries a specified namespace using a provided query vector, with options to include values and metadata in the results.
-     * Retrieves the IDs of the most similar items, along with their similarity scores, and optionally, their values and metadata.
+     * Searches a namespace for the vectors most similar to a dense query vector.
      *
-     * @param topK The number of top similar vectors to retrieve.
-     * @param vector The query vector as a list of floating-point values.
-     * @param namespace The namespace within which the query is performed.
-     * @param includeValues Flag indicating whether to include the vector values in the query results.
-     * @param includeMetadata Flag indicating whether to include the vector metadata in the query results.
-     * @return A generic type {@code U} representing the query results, including optional values and metadata based on parameters.
+     * <p>To keep only matches whose metadata matches a filter, use
+     * {@link #queryByVector(int, List, String, Struct, boolean, boolean)}.
+     *
+     * @param topK the number of matches to return, such as {@code 10}; the server rejects values below 1 or
+     *             above its limit
+     * @param vector the dense query vector, such as {@code Arrays.asList(0.12f, 0.48f, 0.91f)}; the server rejects
+     *               a vector whose length does not match the index dimension
+     * @param namespace the namespace to search, such as {@code "articles-en"}; null or {@code ""} searches the
+     *                  default namespace
+     * @param includeValues true to return each match's vector values; false to leave them out
+     * @param includeMetadata true to return each match's metadata; false to leave it out
+     * @return the matches; {@code getMatchesList()} holds up to {@code topK} matches, each with {@code getId()},
+     *         {@code getScore()} and, when requested, {@code getValuesList()} and {@code getMetadata()}
      */
     U queryByVector(int topK, List<Float> vector, String namespace, boolean includeValues, boolean includeMetadata);
 
     /**
-     * Queries a specified namespace using a provided query vector and a custom filter. Retrieves the IDs of the most similar items,
-     * along with their similarity scores.
+     * Searches a namespace for the vectors most similar to a dense query vector, keeping only those whose metadata
+     * matches a filter, and returns their ids and scores.
      *
-     * @param topK The number of top similar vectors to retrieve.
-     * @param vector The query vector as a list of floating-point values.
-     * @param namespace The namespace within which the query is performed.
-     * @param filter A Struct defining additional filtering criteria for the query.
-     * @return A generic type {@code U} representing the query results, filtered according to the provided criteria.
+     * <p>To also get each match's metadata or values, use
+     * {@link #queryByVector(int, List, String, Struct, boolean, boolean)}.
+     *
+     * @param topK the number of matches to return, such as {@code 10}; the server rejects values below 1 or
+     *             above its limit
+     * @param vector the dense query vector, such as {@code Arrays.asList(0.12f, 0.48f, 0.91f)}; the server rejects
+     *               a vector whose length does not match the index dimension
+     * @param namespace the namespace to search, such as {@code "articles-en"}; null or {@code ""} searches the
+     *                  default namespace
+     * @param filter a metadata filter in Pinecone's filter syntax, such as {@code {"category": {"$eq": "news"}}}
+     *               built as a {@code Struct}; only vectors whose metadata matches are returned. Null for no
+     *               filter.
+     * @return the matches; {@code getMatchesList()} holds up to {@code topK} matches, each with {@code getId()}
+     *         and {@code getScore()}
      */
     U queryByVector(int topK, List<Float> vector, String namespace, Struct filter);
 
     /**
-     * Queries a specified namespace using a provided query vector, a custom filter, and options to include values and metadata in the results.
-     * Retrieves the IDs of the most similar topK items, along with their similarity scores.
+     * Searches a namespace for the vectors most similar to a dense query vector, keeping only those whose metadata
+     * matches a filter.
      *
-     * @param topK The number of top similar vectors to retrieve.
-     * @param vector The query vector as a list of floating-point values.
-     * @param namespace The namespace within which the query is performed.
-     * @param filter A Struct defining additional filtering criteria for the query.
-     * @param includeValues Flag indicating whether to include the vector values in the query results.
-     * @param includeMetadata Flag indicating whether to include the vector metadata in the query results.
-     * @return A generic type {@code U} representing the query results, including optional values and metadata based on parameters and filtered according to the provided criteria.
+     * <p>This is the overload for most dense searches; pass a null filter to search every vector in the namespace. To
+     * search from a vector already stored in the index, use
+     * {@link #queryByVectorId(int, String, String, Struct, boolean, boolean)}; for sparse or hybrid queries, use
+     * {@link #query(int, List, List, List, String, String, Struct, boolean, boolean)}. A query made right after an
+     * upsert may not reflect it yet.
+     *
+     * @param topK the number of matches to return, such as {@code 10}; the server rejects values below 1 or
+     *             above its limit
+     * @param vector the dense query vector, such as {@code Arrays.asList(0.12f, 0.48f, 0.91f)}; the server rejects
+     *               a vector whose length does not match the index dimension
+     * @param namespace the namespace to search, such as {@code "articles-en"}; null or {@code ""} searches the
+     *                  default namespace
+     * @param filter a metadata filter in Pinecone's filter syntax, such as {@code {"category": {"$eq": "news"}}}
+     *               built as a {@code Struct}; only vectors whose metadata matches are returned. Null for no
+     *               filter.
+     * @param includeValues true to return each match's vector values; false to leave them out
+     * @param includeMetadata true to return each match's metadata; false to leave it out
+     * @return the matches; {@code getMatchesList()} holds up to {@code topK} matches, each with {@code getId()},
+     *         {@code getScore()} and, when requested, {@code getValuesList()} and {@code getMetadata()}
      */
     U queryByVector(int topK, List<Float> vector, String namespace, Struct filter, boolean includeValues, boolean includeMetadata);
 
     /**
-     * Queries a namespace using a provided query vector. Retrieves the IDs of the most similar items, along with their similarity scores.
+     * Searches a namespace for the vectors most similar to a query given as dense values, sparse values, both, or the
+     * id of a stored vector.
      *
-     * @param topK The number of top similar vectors to retrieve.
-     * @param vector The dense query vector as a list of floating-point values. Each query can contain only one of the parameters: vector or id.
-     * @param sparseIndices The indices of the sparse vector representation, if applicable.
-     * @param sparseValues The values at the specified indices of the sparse vector representation.
-     * @param id The unique ID of a vector to be used as a query vector. Each query can contain only one of the parameters: vector or id.
-     * @param namespace The namespace within which the query is performed.
-     * @param filter A Struct defining additional filtering criteria for the query.
-     * @param includeValues Flag indicating whether to include the vector values in the query results.
-     * @param includeMetadata Flag indicating whether to include the vector metadata in the query results.
-     * @return A generic type {@code U} representing the query results containing a list of the closest vectors and a namespace name.
+     * <p>Use this overload for sparse indexes and for hybrid queries that combine dense and sparse values; for a
+     * dense-only query, {@link #queryByVector(int, List, String, Struct, boolean, boolean)} and
+     * {@link #queryByVectorId(int, String, String, Struct, boolean, boolean)} are shorter. Give either values or an id,
+     * not both. A dense index needs dense values (sparse values alone are rejected) and accepts sparse values only if
+     * its metric is dotproduct; a sparse index needs sparse values and rejects dense ones. The server checks this, not
+     * the client. A query made right after an upsert may not reflect it yet.
      *
+     * @param topK the number of matches to return, such as {@code 10}; the server rejects values below 1 or
+     *             above its limit
+     * @param vector the dense query values, such as {@code Arrays.asList(0.12f, 0.48f, 0.91f)}; their length
+     *               must match the index dimension. Null or empty to query by sparse values only or by {@code id}.
+     * @param sparseIndices the positions of the sparse query values as unsigned 32-bit integers, such as
+     *                      {@code Arrays.asList(10L, 45L)}; null for no sparse values
+     * @param sparseValues the sparse query values, one per entry in {@code sparseIndices}; null for no sparse values
+     * @param id the id of a stored vector to search from instead of passing values, such as {@code "doc-1"}; null
+     *           or empty to search with the values given. If no vector has this id, the response has no matches.
+     * @param namespace the namespace to search, such as {@code "articles-en"}; null or {@code ""} searches the
+     *                  default namespace
+     * @param filter a metadata filter in Pinecone's filter syntax, such as {@code {"category": {"$eq": "news"}}}
+     *               built as a {@code Struct}; only vectors whose metadata matches are returned. Null for no
+     *               filter.
+     * @param includeValues true to return each match's vector values; false to leave them out
+     * @param includeMetadata true to return each match's metadata; false to leave it out
+     * @return the matches; {@code getMatchesList()} holds up to {@code topK} matches, each with {@code getId()},
+     *         {@code getScore()} and, when requested, {@code getValuesList()} and {@code getMetadata()}
+     * @throws PineconeValidationException if both {@code id} and {@code vector} are given, only one of
+     *         {@code sparseIndices} and {@code sparseValues} is given, they differ in length, or a sparse index is
+     *         outside the unsigned 32-bit range;
+     *         {@code AsyncIndex} throws it from the call, not through the future
      */
     U query(int topK, List<Float> vector, List<Long> sparseIndices, List<Float> sparseValues, String id,
             String namespace, Struct filter, boolean includeValues, boolean includeMetadata);
 
     /**
-     * Looks up vectors by ID from the default namespace.
+     * Fetches vectors by id from the default namespace, with their values and metadata.
      *
-     * @param ids A list of unique identifiers for the vectors to fetch.
-     * @return A generic type {@code V} representing the fetched vectors and the namespace.
+     * <p>To fetch from a named namespace, use {@link #fetch(List, String)}. Ids that are not in the namespace are
+     * left out of the result rather than reported as an error, so check the returned map for each id you need.
+     *
+     * @param ids the ids of the vectors to fetch, such as {@code Arrays.asList("doc-1", "doc-2")}; must not be null
+     *            or empty, and the server rejects a request with too many ids
+     * @return the fetched vectors; {@code getVectorsMap()} maps each id that was found to its {@code Vector}, which
+     *         holds {@code getValuesList()}, {@code getSparseValues()} and {@code getMetadata()}
+     * @throws PineconeValidationException if {@code ids} is null or empty; {@code AsyncIndex} throws it from the
+     *         call, not through the future
      */
     V fetch(List<String> ids);
 
     /**
-     * Looks up vectors by ID from a specified namespace.
+     * Fetches vectors by id from a namespace, with their values and metadata.
      *
-     * @param ids A list of unique identifiers for the vectors to fetch.
-     * @param namespace The namespace to fetch vectors from.
-     * @return A generic type {@code V} representing the fetched vectors and the namespace.
+     * <p>Use this when you know the ids; to find vectors by their metadata instead, use
+     * {@code fetchByMetadata} on {@code Index} or {@code AsyncIndex}. Ids that are not in the namespace are left
+     * out of the result rather than reported as an error, so check the returned map for each id you need. A fetch
+     * made right after an upsert may not reflect it yet.
+     *
+     * @param ids the ids of the vectors to fetch, such as {@code Arrays.asList("doc-1", "doc-2")}; must not be null
+     *            or empty, and the server rejects a request with too many ids
+     * @param namespace the namespace to fetch from, such as {@code "articles-en"}; null or {@code ""} means the
+     *                  default namespace
+     * @return the fetched vectors; {@code getVectorsMap()} maps each id that was found to its {@code Vector}, which
+     *         holds {@code getValuesList()}, {@code getSparseValues()} and {@code getMetadata()}
+     * @throws PineconeValidationException if {@code ids} is null or empty; {@code AsyncIndex} throws it from the
+     *         call, not through the future
      */
     V fetch(List<String> ids, String namespace);
 
 
     /**
-     * Updates an existing vector by ID with new values in the default namespace.
+     * Replaces the dense values of one existing vector in the default namespace, keeping its sparse values and
+     * metadata.
      *
-     * @param id The unique identifier of the vector to update.
-     * @param values The new list of vector values to assign to set.
-     * @return A generic type {@code W} representing the result of the update operation.
+     * <p>To update a vector in a named namespace, use {@link #update(String, List, String)}; to change
+     * metadata or sparse values, use {@link #update(String, List, Struct, String, List, List)}.
+     * If no vector has that id, nothing changes; use upsert to create vectors. A query made right after an
+     * update may not reflect it yet.
+     *
+     * @param id the id of the vector to update, such as {@code "doc-1"}; must not be null, and the server rejects
+     *           an empty id
+     * @param values the new dense values, such as {@code Arrays.asList(0.12f, 0.48f, 0.91f)}; the length must
+     *               match the index dimension
+     * @return the server's response; a normal return means the server accepted the update
+     * @throws PineconeValidationException if {@code id} is null; {@code AsyncIndex} throws it from the call, not
+     *         through the future
      */
     W update(String id, List<Float> values);
 
     /**
-     * Updates an existing vector by ID with new values in a specified namespace.
+     * Replaces the dense values of one existing vector in a namespace, keeping its sparse values and metadata.
      *
-     * @param id The unique identifier of the vector to update.
-     * @param values The new list of vector values to assign to set.
-     * @param namespace The namespace in which to update the vector.
-     * @return A generic type {@code W} representing the result of the update operation.
+     * <p>To change metadata or sparse values, use {@link #update(String, List, Struct, String, List, List)}.
+     * If no vector has that id in the namespace, nothing changes; use upsert to create vectors. A query made
+     * right after an update may not reflect it yet.
+     *
+     * @param id the id of the vector to update, such as {@code "doc-1"}; must not be null, and the server rejects
+     *           an empty id
+     * @param values the new dense values, such as {@code Arrays.asList(0.12f, 0.48f, 0.91f)}; the length must
+     *               match the index dimension
+     * @param namespace the namespace that holds the vector, such as {@code "articles-en"}; null or
+     *                  {@code ""} means the default namespace
+     * @return the server's response; a normal return means the server accepted the update
+     * @throws PineconeValidationException if {@code id} is null; {@code AsyncIndex} throws it from the call, not
+     *         through the future
      */
     W update(String id, List<Float> values, String namespace);
 
     /**
-     * Updates an existing vector by ID in a specified namespace. Allows updating the vector's values, metadata,
-     * and sparse representation.
+     * Changes the dense values, sparse values or metadata of one existing vector in a namespace, keeping the
+     * parts you pass null for.
      *
-     * @param id The unique identifier of the vector to be updated.
-     * @param values The new list of floating-point values for the vector's dense representation. Previous values are overwritten.
-     * @param metadata Optional new metadata to associate with the vector. If provided, it replaces the existing metadata.
-     * @param namespace The namespace in which the vector resides and will be updated.
-     * @param sparseIndices Indices for the sparse vector representation, if applicable.
-     * @param sparseValues Values for the sparse vector representation. Must correspond to the provided indices.
-     * @return A generic type {@code W} representing the result of the update operation.
+     * <p>Metadata is merged: each field you pass is set, and the vector's other fields are kept. To replace all of
+     * a vector's metadata, upsert the vector again. If no vector has that id in the namespace, nothing changes;
+     * use upsert to create vectors. To change every vector that matches a metadata filter, use
+     * {@link #updateByMetadata(Struct, Struct, String)}. A query made right after an update may not reflect it
+     * yet.
+     *
+     * @param id the id of the vector to update, such as {@code "doc-1"}; must not be null, and the server rejects
+     *           an empty id
+     * @param values the new dense values, such as {@code Arrays.asList(0.12f, 0.48f, 0.91f)}; the length must
+     *               match the index dimension. Null or an empty list keeps the current values; pass null for a
+     *               sparse index.
+     * @param metadata the metadata fields to set, such as a new category; null keeps the current metadata
+     * @param namespace the namespace that holds the vector, such as {@code "articles-en"}; null or {@code ""}
+     *                  means the default namespace
+     * @param sparseIndices the positions of the new sparse values as unsigned 32-bit integers, such as
+     *                      {@code Arrays.asList(10L, 45L)}; null keeps the current sparse values
+     * @param sparseValues the new sparse values, one per entry in {@code sparseIndices}; null keeps the current
+     *                     sparse values
+     * @return the server's response; a normal return means the server accepted the update
+     * @throws PineconeValidationException if {@code id} is null, only one of {@code sparseIndices} and
+     *         {@code sparseValues} is given, they differ in length, or a sparse index is outside the unsigned
+     *         32-bit range;
+     *         {@code AsyncIndex} throws it from the call, not through the future
      */
     W update(String id, List<Float> values, Struct metadata, String namespace, List<Long> sparseIndices,
              List<Float> sparseValues);
 
     /**
-     * Updates vectors by metadata filter in a specified namespace. The update is applied to all records that match the filter.
+     * Sets metadata fields on every vector in a namespace whose metadata matches a filter.
      *
-     * @param filter A metadata filter expression. The update is applied to all records that match the filter.
-     * @param metadata The new metadata to set for the vectors. If provided, it replaces the existing metadata.
-     * @param namespace The namespace containing the records to update.
-     * @return A generic type {@code W} representing the result of the update operation.
+     * <p>Metadata is merged: each field you pass is set on every matching vector, and their other fields are kept.
+     * Vector values can't be changed this way; to change one vector's values, use
+     * {@link #update(String, List, Struct, String, List, List)}. To count the matches without changing anything, use
+     * {@link #updateByMetadata(Struct, Struct, String, boolean)} with {@code dryRun} set to true. A query made right
+     * after an update may not reflect it yet.
+     *
+     * @param filter the metadata filter that selects the vectors to update, such as
+     *               {@code {"category": {"$eq": "news"}}} built as a {@code Struct}; must not be null, and the server
+     *               rejects an empty filter
+     * @param metadata the metadata fields to set on each matching vector, such as {@code {"status": "archived"}}
+     * @param namespace the namespace that holds the vectors, such as {@code "articles-en"}; null or {@code ""} means
+     *                  the default namespace
+     * @return the server's response; {@code getMatchedRecords()} is the number of vectors the filter matched, and
+     *         {@code hasMatchedRecords()} is false if the server could not report it
+     * @throws PineconeValidationException if {@code filter} is null; {@code AsyncIndex} throws it from the
+     *         call, not through the future
      */
     W updateByMetadata(Struct filter, Struct metadata, String namespace);
 
     /**
-     * Updates vectors by metadata filter in a specified namespace with optional dry run mode.
-     * The update is applied to all records that match the filter.
+     * Sets metadata fields on every vector in a namespace whose metadata matches a filter, or only counts the
+     * matches.
      *
-     * @param filter A metadata filter expression. The update is applied to all records that match the filter.
-     * @param metadata The new metadata to set for the vectors. If provided, it replaces the existing metadata.
-     * @param namespace The namespace containing the records to update.
-     * @param dryRun If true, return the number of records that match the filter, but do not execute the update.
-     *               Default is false.
-     * @return A generic type {@code W} representing the result of the update operation.
+     * <p>Run it with {@code dryRun} set to true first to see how many vectors the filter matches, then with false to
+     * apply the change. Metadata is merged: each field you pass is set on every matching vector, and their other
+     * fields are kept. Vector values can't be changed this way. A query made right after an update may not reflect it
+     * yet.
+     *
+     * @param filter the metadata filter that selects the vectors to update, such as
+     *               {@code {"category": {"$eq": "news"}}} built as a {@code Struct}; must not be null, and the server
+     *               rejects an empty filter
+     * @param metadata the metadata fields to set on each matching vector, such as {@code {"status": "archived"}}
+     * @param namespace the namespace that holds the vectors, such as {@code "articles-en"}; null or {@code ""} means
+     *                  the default namespace
+     * @param dryRun true to only count the vectors the filter matches, without changing them; false to update them
+     * @return the server's response; {@code getMatchedRecords()} is the number of vectors the filter matched, and
+     *         {@code hasMatchedRecords()} is false if the server could not report it
+     * @throws PineconeValidationException if {@code filter} is null; {@code AsyncIndex} throws it from the
+     *         call, not through the future
      */
     W updateByMetadata(Struct filter, Struct metadata, String namespace, boolean dryRun);
 
     /**
-     * Deletes a list of vectors by ID from the default namespace.
+     * Deletes vectors by id from the default namespace.
      *
-     * @param ids A list of unique vector IDs to be deleted.
-     * @return A generic type {@code X} indicating the result of the delete operation.
+     * <p>To delete from a named namespace, use {@link #deleteByIds(List, String)}. Ids that are not in the namespace
+     * are ignored rather than reported as an error. A query made right after a delete may not reflect it yet.
+     *
+     * @param ids the ids of the vectors to delete, such as {@code Arrays.asList("doc-1", "doc-2")}; the server
+     *            rejects a null or empty list and a request with too many ids
+     * @return the server's response, which has no fields; a normal return means the server accepted the delete
      */
     X deleteByIds(List<String> ids);
 
     /**
-     * Deletes vectors identified by a list of unique IDs from a specified namespace.
+     * Deletes vectors by id from a namespace.
      *
-     * @param ids A list of unique vector IDs to be deleted.
-     * @param namespace The namespace from which the vectors will be deleted.
-     * @return A generic type {@code X} indicating the result of the delete operation.
+     * <p>Ids that are not in the namespace are ignored rather than reported as an error. To delete vectors by metadata
+     * instead, use {@link #deleteByFilter(Struct, String)}. A query made right after a delete may not reflect it yet.
+     *
+     * @param ids the ids of the vectors to delete, such as {@code Arrays.asList("doc-1", "doc-2")}; the server
+     *            rejects a null or empty list and a request with too many ids
+     * @param namespace the namespace to delete from, such as {@code "articles-en"}; null or {@code ""} means the
+     *                  default namespace
+     * @return the server's response, which has no fields; a normal return means the server accepted the delete
      */
     X deleteByIds(List<String> ids, String namespace);
 
     /**
-     * Deletes vectors matching a specific metadata filter criteria from the default namespace.
+     * Deletes every vector in the default namespace whose metadata matches a filter.
      *
-     * @param filter The metadata filter used to select vectors to delete.
-     * @return A generic type {@code X} indicating the result of the delete operation.
+     * <p>To delete from a named namespace, use {@link #deleteByFilter(Struct, String)}. The delete can't be undone, and
+     * a filter broader than you meant deletes more than you meant, so try the filter in a query first. A query made
+     * right after a delete may not reflect it yet.
+     *
+     * @param filter a metadata filter in Pinecone's filter syntax, such as {@code {"category": {"$eq": "archived"}}}
+     *               built as a {@code Struct}; every vector whose metadata matches is deleted. The server rejects
+     *               a null or empty filter.
+     * @return the server's response, which has no fields; a normal return means the server accepted the delete
      */
     X deleteByFilter(Struct filter);
 
     /**
-     * Deletes vectors matching a specific metadata filter criteria from a specified namespace.
+     * Deletes every vector in a namespace whose metadata matches a filter.
      *
-     * @param filter The metadata filter used to select vectors to delete.
-     * @param namespace The namespace from which the vectors matching the filter will be deleted.
-     * @return A generic type {@code X} indicating the result of the delete operation.
+     * <p>The delete can't be undone, and a filter broader than you meant deletes more than you meant, so try the filter
+     * in a query first. To delete specific vectors, use {@link #deleteByIds(List, String)}. A query made right after a
+     * delete may not reflect it yet.
+     *
+     * @param filter a metadata filter in Pinecone's filter syntax, such as {@code {"category": {"$eq": "archived"}}}
+     *               built as a {@code Struct}; every vector whose metadata matches is deleted. The server rejects
+     *               a null or empty filter.
+     * @param namespace the namespace to delete from, such as {@code "articles-en"}; null or {@code ""} means the
+     *                  default namespace
+     * @return the server's response, which has no fields; a normal return means the server accepted the delete
      */
     X deleteByFilter(Struct filter, String namespace);
 
     /**
-     * Deletes all vectors within a specified namespace. If {@code null} is passed, all vectors in the
-     * default namespace are deleted.
+     * Deletes every vector in a namespace.
      *
-     * @param namespace The namespace from which all vectors will be deleted. If not specified the default will be used.
-     * @return A generic type {@code X} indicating the result of the delete all operation.
+     * <p>The delete can't be undone. A null or empty namespace deletes every vector in the default namespace, so check
+     * the argument before you call this. To delete only some vectors, use {@link #deleteByIds(List, String)} or
+     * {@link #deleteByFilter(Struct, String)}. A query made right after a delete may not reflect it yet.
+     *
+     * @param namespace the namespace to empty, such as {@code "articles-en"}; null or {@code ""} means the
+     *                  default namespace
+     * @return the server's response, which has no fields; a normal return means the server accepted the delete
      */
     X deleteAll(String namespace);
 
     /**
-     * A flexible delete operation allowing for the deletion of vectors by ID, by filter, or all vectors in a namespace.
+     * Deletes vectors by id, by metadata filter, or all vectors in a namespace, depending on the arguments.
      *
-     * @param ids A list of unique identifiers for specific vectors to be deleted. Ignored if deleteAll is true.
-     * @param deleteAll A boolean flag indicating whether to delete all vectors in the specified namespace.
-     * @param namespace The namespace from which vectors will be deleted. If not specified, the default namespace is used.
-     * @param filter An optional Struct defining additional filtering criteria for vectors to be deleted. Ignored if deleteAll is true.
-     * @return A generic type {@code X} indicating the result of the delete operation.
+     * <p>{@link #deleteByIds(List, String)}, {@link #deleteByFilter(Struct, String)} and {@link #deleteAll(String)} are
+     * clearer; use this method when the kind of delete is decided at run time. When {@code deleteAll} is true, pass
+     * null for {@code ids} and {@code filter}: the server rejects a request that combines them. When a filter is given,
+     * the server deletes by the filter and ignores {@code ids}. A query made right after a delete may not reflect it
+     * yet.
+     *
+     * @param ids the ids of the vectors to delete, such as {@code Arrays.asList("doc-1", "doc-2")}; null or
+     *            empty when deleting by filter or deleting all. The server rejects a request with too many ids.
+     * @param deleteAll true to delete every vector in the namespace, which can't be undone; false to delete by
+     *                  id or filter
+     * @param namespace the namespace to delete from, such as {@code "articles-en"}; null or {@code ""} means the
+     *                  default namespace
+     * @param filter a metadata filter in Pinecone's filter syntax, such as {@code {"category": {"$eq": "archived"}}}
+     *               built as a {@code Struct}; every vector whose metadata matches is deleted. Null when deleting
+     *               by id or deleting all; the server rejects an empty filter.
+     * @return the server's response, which has no fields; a normal return means the server accepted the delete
      */
     X delete(List<String> ids, boolean deleteAll, String namespace, Struct filter);
 
     /**
-     * Retrieves statistics about the index's contents, such as vector count per namespace, and number of dimensions.
+     * Returns the number of vectors in the index and in each of its namespaces, plus the index's dimension.
      *
-     * @return A generic type {@code Y} that contains the stats about the index.
+     * <p>Use it to check how many vectors a load wrote and which namespaces hold them. Counts can lag behind recent
+     * writes. On serverless indexes the default namespace appears under the key {@code "__default__"}. The server
+     * rejects the call for an index with too many namespaces; use {@link #listNamespaces()} and
+     * {@link #describeNamespace(String)} instead.
+     *
+     * @return the statistics: {@code getTotalVectorCount()}, {@code getNamespacesMap()} (namespace name to a
+     *         summary whose {@code getVectorCount()} is that namespace's count) and {@code getDimension()} (0 for a
+     *         sparse index)
      */
     Y describeIndexStats();
 
     /**
-     * Retrieves statistics about the index's contents for vectors that satisfy the applied metadata filter.
+     * Returns index statistics whose per-namespace counts include only vectors whose metadata matches a filter.
      *
-     * @param filter A metadata filter used to select vectors that satisfy the filter criteria.
-     * @return A generic type {@code Y} that contains the stats about the index.
+     * <p>Only pod-based indexes accept a filter: serverless indexes reject a non-empty filter, so use
+     * {@link #describeIndexStats()} there. The filter narrows the per-namespace counts only;
+     * {@code getTotalVectorCount()} still counts every vector in the index. Counts can lag behind recent writes.
+     *
+     * @param filter a metadata filter in Pinecone's filter syntax, such as {@code {"category": {"$eq": "news"}}}
+     *               built as a {@code Struct}; null or an empty filter returns unfiltered statistics
+     * @return the statistics: {@code getNamespacesMap()} (namespace name to a summary whose {@code getVectorCount()}
+     *         counts the matching vectors), {@code getTotalVectorCount()} and {@code getDimension()}
      */
     Y describeIndexStats(Struct filter);
 
     /**
-     * <p>Validates the parameters for a list endpoint operation.
+     * Checks the arguments of a {@code list} overload and throws for the first one that is missing or invalid.
      *
-     * <p>It throws a {@link PineconeValidationException} if any required validation fails. The {@code "...Required"}
-     * parameters indicate which method signature is used.
+     * <p>{@link io.pinecone.clients.Index} and {@link io.pinecone.clients.AsyncIndex} call this before each list
+     * request, so application code does not need to. Each {@code ...Required} flag says whether the overload takes that
+     * argument; arguments whose flag is false are not checked.
      *
-     * <p>Example
      * <pre>{@code
-     *      try {
-     *          String namespace = "example-namespace";
-     *          String prefix = "example-prefix";
-     *          String paginationToken = "token123";
-     *          Integer limit = 50;
-     *
-     *           // Indicate which parameters are required
-     *          validateListEndpointParameters(namespace, prefix, paginationToken, limit, true, true, true);
-     *
-     *          } catch (PineconeValidationException e) {
-     *           System.err.println("Validation error: " + e.getMessage());
-     *          }
+     * index.validateListEndpointParameters("articles-en", "doc-1#", null, 50, true, true, false, true);
      * }</pre>
-     *:
-     * @param namespace The namespace parameter which is validated based on the {@code namespaceRequired} flag.
-     * @param prefix The prefix parameter which is validated based on the {@code prefixRequired} flag.
-     * @param paginationToken The pagination token parameter which is validated based on the {@code paginationTokenRequired} flag.
-     * @param limit The limit for the number of items, validated to be a positive integer if {@code limitRequired} is true.
-     * @param namespaceRequired Specifies if the namespace parameter is required and should be validated.
-     * @param prefixRequired Specifies if the prefix parameter is required and should be validated.
-     * @param paginationTokenRequired Specifies if the pagination token parameter is required and should be validated.
-     * @param limitRequired Specifies if the limit parameter is required and should be a positive integer.
-     * @throws PineconeValidationException if any parameter fails its validation check based on its requirements.
+     *
+     * @param namespace the namespace; when required it must not be null ({@code ""} is the default namespace)
+     * @param prefix the id prefix; when required it must not be null or empty
+     * @param paginationToken the pagination token; when required it must not be null or empty
+     * @param limit the page size; when required it must not be null and must be positive
+     * @param namespaceRequired whether to check {@code namespace}
+     * @param prefixRequired whether to check {@code prefix}
+     * @param paginationTokenRequired whether to check {@code paginationToken}
+     * @param limitRequired whether to check {@code limit}
+     * @throws PineconeValidationException if a required argument is missing or invalid
      */
     default void validateListEndpointParameters(String namespace, String prefix, String paginationToken,
                                                 Integer limit, boolean namespaceRequired, boolean prefixRequired,
@@ -853,158 +1248,260 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
     }
 
     /**
-     * Retrieves up to {@code 100} vector IDs from an index from the default namespace.
+     * Lists the first page of vector ids in the default namespace.
      *
-     * @return A generic type {@code Y} that contains vector IDs.
+     * <p>Each call returns one page of ids in sorted order. When {@code hasPagination()} is true on the response, pass
+     * {@code getPagination().getNext()} to {@link #list(String, int, String)} to get the next page. To list a named
+     * namespace, use {@link #list(String)}. A vector upserted just before the call may not be listed yet.
+     *
+     * @return the page of ids: {@code getVectorsList()} holds an item per vector, whose {@code getId()} is the id, and
+     *         {@code getPagination().getNext()} is the token for the next page when {@code hasPagination()} is true
      */
     Z list();
 
     /**
-     * Retrieves up to {@code 100} vector IDs from a given namespace.
+     * Lists the first page of vector ids in a namespace.
      *
-     * @param namespace The namespace that holds the vector IDs you want to retrieve.
-     * @return A generic type {@code Y} that contains vector IDs.
+     * <p>Each call returns one page of ids in sorted order. When {@code hasPagination()} is true on the response, pass
+     * {@code getPagination().getNext()} to {@link #list(String, int, String)} to get the next page. To list only ids
+     * that start with a prefix, use {@link #list(String, String)}; to set the page size, use
+     * {@link #list(String, int)}. A vector upserted just before the call may not be listed yet.
+     *
+     * @param namespace the namespace to list, such as {@code "articles-en"}; {@code ""} means the default namespace.
+     *                  Must not be null. A namespace that does not exist returns an empty page.
+     * @return the page of ids: {@code getVectorsList()} holds an item per vector, whose {@code getId()} is the id, and
+     *         {@code getPagination().getNext()} is the token for the next page when {@code hasPagination()} is true
+     * @throws PineconeValidationException if {@code namespace} is null; thrown by the call itself, not through the
+     *                                     future
      */
     Z list(String namespace);
 
     /**
-     * Retrieves up to {@code n} vector IDs from a given namespace, targeted with a specific
-     * paginationToken, where {@code limit} == {@code n}.
+     * Lists the next page of vector ids in a namespace, with a page size.
      *
-     * @param namespace The namespace that holds the vector IDs you want to retrieve.
-     * @param limit The maximum number of vector IDs to retrieve.
-     * @param paginationToken The token to paginate through the list of vector IDs.
-     * @return A generic type {@code Y} that contains vector IDs.
+     * <p>Get the first page with {@link #list(String, int)}, then pass each response's
+     * {@code getPagination().getNext()} here until {@code hasPagination()} is false. Ids come back in sorted order. A
+     * vector upserted just before the call may not be listed yet.
+     *
+     * @param namespace the namespace to list, such as {@code "articles-en"}; {@code ""} means the default namespace.
+     *                  Must not be null. A namespace that does not exist returns an empty page.
+     * @param limit the most ids to return in this page, such as {@code 50}; must be positive, and the server rejects a
+     *              limit above its maximum
+     * @param paginationToken the token for the next page, from {@code getPagination().getNext()} on the previous
+     *                        response. Must not be null or empty.
+     * @return the page of ids: {@code getVectorsList()} holds an item per vector, whose {@code getId()} is the id, and
+     *         {@code getPagination().getNext()} is the token for the next page when {@code hasPagination()} is true
+     * @throws PineconeValidationException if {@code namespace} is null, {@code paginationToken} is null or empty, or
+     *                                     {@code limit} is not positive; thrown by the call itself, not through the
+     *                                     future
      */
     Z list(String namespace, int limit, String paginationToken);
 
     /**
-     * Retrieves up to {@code n} vector IDs from a given namespace, where {@code limit} == {@code n}.
+     * Lists the first page of vector ids in a namespace, with a page size.
      *
-     * @param namespace The namespace that holds the vector IDs you want to retrieve.
-     * @param limit The maximum number of vector IDs to retrieve.
-     * @return A generic type {@code Y} that contains vector IDs.
+     * <p>Each call returns one page of ids in sorted order. When {@code hasPagination()} is true on the response, pass
+     * {@code getPagination().getNext()} to {@link #list(String, int, String)} to get the next page. A vector upserted
+     * just before the call may not be listed yet.
+     *
+     * @param namespace the namespace to list, such as {@code "articles-en"}; {@code ""} means the default namespace.
+     *                  Must not be null. A namespace that does not exist returns an empty page.
+     * @param limit the most ids to return in this page, such as {@code 50}; must be positive, and the server rejects a
+     *              limit above its maximum
+     * @return the page of ids: {@code getVectorsList()} holds an item per vector, whose {@code getId()} is the id, and
+     *         {@code getPagination().getNext()} is the token for the next page when {@code hasPagination()} is true
+     * @throws PineconeValidationException if {@code namespace} is null or {@code limit} is not positive; thrown by the
+     *                                     call itself, not through the future
      */
     Z list(String namespace, int limit);
 
     /**
-     * Retrieves up to {@code 100} vector IDs from a given namespace, filtered by a given prefix.
+     * Lists the first page of vector ids in a namespace that start with a prefix.
      *
-     * @param namespace The namespace that holds the vector IDs you want to retrieve.
-     * @param prefix: The prefix to filter the vector IDs by.
-     * @return A generic type {@code Y} that contains vector IDs.
+     * <p>Give ids a shared prefix when you upsert them, such as {@code "doc-1#chunk-1"} for the chunks of one document,
+     * and this lists them as a group. Each call returns one page of ids in sorted order. When {@code hasPagination()}
+     * is true on the response, pass {@code getPagination().getNext()} to {@link #list(String, String, String)} to get
+     * the next page. A vector upserted just before the call may not be listed yet.
+     *
+     * @param namespace the namespace to list, such as {@code "articles-en"}; {@code ""} means the default namespace.
+     *                  Must not be null. A namespace that does not exist returns an empty page.
+     * @param prefix the start of the ids to list, such as {@code "doc-1#"}, so that only ids beginning with it are
+     *               returned. Must not be null or empty.
+     * @return the page of ids: {@code getVectorsList()} holds an item per vector, whose {@code getId()} is the id, and
+     *         {@code getPagination().getNext()} is the token for the next page when {@code hasPagination()} is true
+     * @throws PineconeValidationException if {@code namespace} is null or {@code prefix} is null or empty; thrown by
+     *                                     the call itself, not through the future
      */
     Z list(String namespace, String prefix);
 
     /**
-     * Retrieves up to {@code n} vector IDs from a given namespace, filtered by a given prefix, where {@code limit}` == {@code n}.
+     * Lists the first page of vector ids in a namespace that start with a prefix, with a page size.
      *
-     * @param namespace The namespace that holds the vector IDs you want to retrieve.
-     * @param prefix The prefix to filter the vector IDs by.
-     * @param limit The maximum number of vector IDs to retrieve.
-     * @return A generic type {@code Y} that contains vector IDs.
+     * <p>Each call returns one page of ids in sorted order. When {@code hasPagination()} is true on the response, pass
+     * {@code getPagination().getNext()} to {@link #list(String, String, String)} to get the next page. A vector
+     * upserted just before the call may not be listed yet.
+     *
+     * @param namespace the namespace to list, such as {@code "articles-en"}; {@code ""} means the default namespace.
+     *                  Must not be null. A namespace that does not exist returns an empty page.
+     * @param prefix the start of the ids to list, such as {@code "doc-1#"}, so that only ids beginning with it are
+     *               returned. Must not be null or empty.
+     * @param limit the most ids to return in this page, such as {@code 50}; must be positive, and the server rejects a
+     *              limit above its maximum
+     * @return the page of ids: {@code getVectorsList()} holds an item per vector, whose {@code getId()} is the id, and
+     *         {@code getPagination().getNext()} is the token for the next page when {@code hasPagination()} is true
+     * @throws PineconeValidationException if {@code namespace} is null, {@code prefix} is null or empty, or
+     *                                     {@code limit} is not positive; thrown by the call itself, not through the
+     *                                     future
      */
     Z list(String namespace, String prefix, int limit);
 
     /**
-     * Retrieves up to {@code 100} vector IDs from a given namespace, filtered by a given prefix, targeted with a
-     * specific
-     * paginationToken.
+     * Lists the next page of vector ids in a namespace that start with a prefix.
      *
-     * @param namespace The namespace that holds the vector IDs you want to retrieve.
-     * @param paginationToken The token to paginate through the list of vector IDs.
-     * @return A generic type {@code Y} that contains vector IDs.
+     * <p>Get the first page with {@link #list(String, String)}, then pass each response's
+     * {@code getPagination().getNext()} here until {@code hasPagination()} is false. Ids come back in sorted order. A
+     * vector upserted just before the call may not be listed yet.
+     *
+     * @param namespace the namespace to list, such as {@code "articles-en"}; {@code ""} means the default namespace.
+     *                  Must not be null. A namespace that does not exist returns an empty page.
+     * @param prefix the start of the ids to list, such as {@code "doc-1#"}, so that only ids beginning with it are
+     *               returned. Must not be null or empty.
+     * @param paginationToken the token for the next page, from {@code getPagination().getNext()} on the previous
+     *                        response. Must not be null or empty. It carries the prefix of the listing that returned
+     *                        it, so pass the same prefix or the server rejects the request.
+     * @return the page of ids: {@code getVectorsList()} holds an item per vector, whose {@code getId()} is the id, and
+     *         {@code getPagination().getNext()} is the token for the next page when {@code hasPagination()} is true
+     * @throws PineconeValidationException if {@code namespace} is null, {@code prefix} is null or empty, or
+     *                                     {@code paginationToken} is null or empty; thrown by the call itself, not
+     *                                     through the future
      */
     Z list(String namespace, String prefix, String paginationToken);
 
     /**
-     * Retrieves up to {@code n} vector IDs from a given namespace, filtered by a given prefix, targeted with a specific
-     * paginationToken, where {@code limit} == {@code n}.
+     * Lists the next page of vector ids in a namespace that start with a prefix, with a page size.
      *
-     * @param namespace The namespace that holds the vector IDs you want to retrieve.
-     * @param prefix The prefix to filter the vector IDs by.
-     * @param paginationToken The token to paginate through the list of vector IDs.
-     * @param limit The maximum number of vector IDs to retrieve.
-     * @return A generic type {@code Y} that contains vector IDs.
+     * <p>Get the first page with {@link #list(String, String, int)}, then pass each response's
+     * {@code getPagination().getNext()} here until {@code hasPagination()} is false. Ids come back in sorted order. A
+     * vector upserted just before the call may not be listed yet.
+     *
+     * @param namespace the namespace to list, such as {@code "articles-en"}; {@code ""} means the default namespace.
+     *                  Must not be null. A namespace that does not exist returns an empty page.
+     * @param prefix the start of the ids to list, such as {@code "doc-1#"}, so that only ids beginning with it are
+     *               returned. Must not be null or empty.
+     * @param paginationToken the token for the next page, from {@code getPagination().getNext()} on the previous
+     *                        response. Must not be null or empty. It carries the prefix of the listing that returned
+     *                        it, so pass the same prefix or the server rejects the request.
+     * @param limit the most ids to return in this page, such as {@code 50}; must be positive, and the server rejects a
+     *              limit above its maximum
+     * @return the page of ids: {@code getVectorsList()} holds an item per vector, whose {@code getId()} is the id, and
+     *         {@code getPagination().getNext()} is the token for the next page when {@code hasPagination()} is true
+     * @throws PineconeValidationException if {@code namespace} is null, {@code prefix} is null or empty,
+     *                                     {@code paginationToken} is null or empty, or {@code limit} is not positive;
+     *                                     thrown by the call itself, not through the future
      */
     Z list(String namespace, String prefix, String paginationToken, int limit);
 
     /**
-     * <pre>
-     * Overload to get a list of all namespaces without limit and pagination token. When limit is not set, it'll
-     * default to 100.
-     * @return {@link ListNamespacesResponse} The response for the list namespace operation.
-     * </pre>
+     * Lists the first page of namespaces in this index.
+     *
+     * <p>Namespace operations work on serverless indexes only; the server rejects them on a pod-based index. Records
+     * written without a namespace are listed under {@code "__default__"}. Each call returns one page: when
+     * {@code hasPagination()} is true on the response, pass {@code getPagination().getNext()} to
+     * {@link #listNamespaces(String)} to get the next page.
+     *
+     * @return the first page of namespaces, with each namespace's name and record count and, when more pages remain,
+     *         the token for the next page
      */
     A listNamespaces();
 
     /**
-     * <pre>
-     * Overload to get a list of all namespaces withing an index with default limit set to 100.
-     * @param paginationToken The token to paginate through the list of vector IDs.
-     * @return {@link ListNamespacesResponse} The response for the list namespace operation.
-     * </pre>
+     * Lists the next page of namespaces in this index, continuing a previous listing.
+     *
+     * <p>Pass the token from {@code getPagination().getNext()} of the previous response. A response without pagination
+     * is the last page. To get the first page, call {@link #listNamespaces()}.
+     *
+     * @param paginationToken the token from the previous page's {@code getPagination().getNext()}; must not be null
+     * @return the next page of namespaces, in the same shape as {@link #listNamespaces()}
      */
     A listNamespaces(String paginationToken);
 
     /**
-     * <pre>
-     * Get list of all namespaces within an index.
-     * @param paginationToken The token to paginate through the list of vector IDs. If pagination token is set to null,
-     *                        it'll be ignored.
-     * @param limit           The maximum number of vector IDs you want to retrieve.
-     * @return {@link ListNamespacesResponse} The response for the list namespace operation.
-     * </pre>
+     * Lists one page of namespaces in this index, with a page size you choose.
+     *
+     * <p>Use this overload to set the page size. Pagination works as in {@link #listNamespaces(String)}.
+     *
+     * @param paginationToken the token from the previous page's {@code getPagination().getNext()}, or null for the
+     *                        first page
+     * @param limit           the maximum number of namespaces to return in this page, for example {@code 10}
+     * @return one page of namespaces, in the same shape as {@link #listNamespaces()}
      */
     A listNamespaces(String paginationToken, int limit);
 
     /**
-     * <pre>
-     * Get list of all namespaces within an index with optional prefix filtering, pagination token, and limit.
-     * @param prefix The prefix to filter namespaces by. Only namespaces starting with this prefix will be returned.
-     *               If null, no prefix filtering is applied.
-     * @param paginationToken The token to paginate through the list of namespaces. If null, it'll be ignored.
-     * @param limit The maximum number of namespaces you want to retrieve.
-     * @return {@link ListNamespacesResponse} The response for the list namespace operation. The totalCount field
-     *         indicates the total number of namespaces matching the prefix (if provided).
-     * </pre>
+     * Lists one page of the namespaces in this index whose names start with a prefix.
+     *
+     * <p>Use this overload when you name namespaces by a convention, such as one namespace per language or per tenant.
+     * {@code getTotalCount()} on the response reports how many namespaces match across all pages. Pagination works as
+     * in {@link #listNamespaces(String)}; pass the same prefix on every page.
+     *
+     * @param prefix          the start of the namespace names to list, for example {@code "articles-"}; null or empty
+     *                        lists every namespace
+     * @param paginationToken the token from the previous page's {@code getPagination().getNext()}, or null for the
+     *                        first page
+     * @param limit           the maximum number of namespaces to return in this page, for example {@code 50}
+     * @return one page of matching namespaces and the number of matches across all pages
      */
     A listNamespaces(String prefix, String paginationToken, int limit);
 
     /**
-     * <pre>
-     * Create a namespace within an index.
-     * @param name The name of the namespace to create.
-     * @return {@link NamespaceDescription} The response for the create namespace operation.
-     * </pre>
+     * Creates an empty namespace in this index.
+     *
+     * <p>Upserting records into a namespace that does not exist creates it, so you need this method only to create a
+     * namespace before writing to it. To choose which metadata fields are indexed for filtering, use
+     * {@link #createNamespace(String, MetadataSchema)} instead. Namespace operations work on serverless indexes only;
+     * the server rejects them on a pod-based index.
+     *
+     * @param name the name of the namespace to create, for example {@code "articles-en"}; the server rejects an empty
+     *             name and {@code "__default__"}
+     * @return the new namespace's description
      */
     B createNamespace(String name);
 
     /**
-     * <pre>
-     * Create a namespace within an index with a metadata schema.
-     * @param name The name of the namespace to create.
-     * @param schema The metadata schema for the namespace.
-     * @return {@link NamespaceDescription} The response for the create namespace operation.
-     * </pre>
+     * Creates an empty namespace in this index that indexes only the metadata fields you list.
+     *
+     * <p>Only fields marked filterable in the schema can be used in metadata filters on records in this namespace.
+     * Without a schema, every metadata field is indexed. Namespace operations work on serverless indexes only; the
+     * server rejects them on a pod-based index.
+     *
+     * @param name   the name of the namespace to create, for example {@code "articles-en"}; the server rejects an empty
+     *               name and {@code "__default__"}
+     * @param schema the metadata fields to index for filtering; null creates the namespace without a schema, so every
+     *               metadata field is indexed
+     * @return the new namespace's description
      */
     B createNamespace(String name, io.pinecone.proto.MetadataSchema schema);
 
     /**
-     * <pre>
-     * Describe a namespace within an index, showing the vector count within the namespace.
-     * @param namespace The namespace to describe.
-     * @return {@link NamespaceDescription} The response for the describe namespace operation.
-     * </pre>
+     * Describes one namespace in this index, including how many records it holds.
+     *
+     * <p>To describe the default namespace, pass {@code "__default__"}; the server rejects an empty string. Namespace
+     * operations work on serverless indexes only; the server rejects them on a pod-based index.
+     *
+     * @param namespace the namespace to describe, for example {@code "articles-en"}; must not be null
+     * @return the namespace's name, record count, and metadata schema if it has one
      */
     B describeNamespace(String namespace);
 
     /**
-     * <pre>
-     * Delete a namespace from an index.
-     * @param namespace The namespace to describe.
-     * @return {@link DeleteResponse} The response for the delete namespace operation.
-     * </pre>
+     * Deletes a namespace and every record in it.
+     *
+     * <p>This cannot be undone. To delete only some records, use {@code deleteByIds} or {@code deleteByFilter} instead.
+     * To delete the default namespace, pass {@code "__default__"}; the server rejects an empty string. Namespace
+     * operations work on serverless indexes only; the server rejects them on a pod-based index.
+     *
+     * @param namespace the namespace to delete, for example {@code "articles-en"}; must not be null
+     * @return an empty delete response
      */
     X deleteNamespace(String namespace);
 }
