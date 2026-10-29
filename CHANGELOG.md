@@ -16,6 +16,7 @@
   - Clients share connections only when they use the same listener instance. Building many clients, each with
     a new lambda or method reference as the listener (for example `metrics::record` per client), opens one
     connection per client.
+- Bump dependencies to resolve security advisories: jackson-core and jackson-databind 2.21.7, Netty 4.1.137.Final, Guava 33.7.2-android (now declared as an `api` dependency, so it is published at compile scope)
 ### 6.2.0
 - Add readUnits, upsertedCount, and matchedRecords to ResponseMetadata
 - Add List operation to ResponseMetadataInterceptor 
