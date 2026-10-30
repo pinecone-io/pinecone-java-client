@@ -5,11 +5,8 @@ import io.pinecone.configs.PineconeConnection;
 import io.pinecone.configs.ProxyConfig;
 import io.pinecone.configs.ResponseMetadataListener;
 import io.pinecone.exceptions.*;
-import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import org.openapitools.db_control.client.ApiClient;
 import org.openapitools.db_control.client.ApiException;
@@ -17,7 +14,6 @@ import org.openapitools.db_control.client.Configuration;
 import org.openapitools.db_control.client.api.ManageIndexesApi;
 import org.openapitools.db_control.client.model.*;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.util.ArrayList;
@@ -1979,11 +1975,6 @@ public class Pinecone {
          * Requests from an {@link Index} or {@link AsyncIndex} do not use it. When a custom client is set, the client
          * ignores {@link #withHost(String)} and sends control-plane requests to Pinecone's public API. It cannot be
          * combined with {@link #withProxy(String, int)}: configure the proxy on your {@code OkHttpClient} instead.
-         * <p>
-         * The HTTP clients the SDK builds itself remove the {@code Api-Key} header when a redirect goes to a
-         * different host, scheme or port (an {@code http} to {@code https} upgrade on the same host and default
-         * ports keeps it). The client does not add this to your {@code OkHttpClient}, so a cross-origin redirect
-         * sends your API key to the new host unless you handle it yourself.
          *
          * <pre>{@code
          * import java.util.concurrent.TimeUnit;
@@ -2159,34 +2150,11 @@ public class Pinecone {
     }
 
     static OkHttpClient buildOkHttpClient(ProxyConfig proxyConfig) {
-        OkHttpClient.Builder builder = new OkHttpClient.Builder()
-                .addNetworkInterceptor(Pinecone::dropApiKeyOnCrossOriginRedirect);
+        OkHttpClient.Builder builder = new OkHttpClient.Builder();
         if(proxyConfig != null) {
             Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyConfig.getHost(), proxyConfig.getPort()));
             builder.proxy(proxy);
         }
         return builder.build();
-    }
-
-    // OkHttp strips Authorization on a cross-origin redirect but not custom headers like Api-Key.
-    private static Response dropApiKeyOnCrossOriginRedirect(Interceptor.Chain chain) throws IOException {
-        Request request = chain.request();
-        HttpUrl origin = chain.call().request().url();
-        if (keepsApiKey(origin, request.url())) {
-            return chain.proceed(request);
-        }
-        return chain.proceed(request.newBuilder().removeHeader("Api-Key").build());
-    }
-
-    // Same rule as Python requests' should_strip_auth: same origin, or a same-host http->https upgrade on default ports.
-    static boolean keepsApiKey(HttpUrl origin, HttpUrl url) {
-        if (!url.host().equals(origin.host())) {
-            return false;
-        }
-        if (url.scheme().equals(origin.scheme())) {
-            return url.port() == origin.port();
-        }
-        return origin.scheme().equals("http") && origin.port() == 80
-                && url.scheme().equals("https") && url.port() == 443;
     }
 }
