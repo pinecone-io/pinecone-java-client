@@ -25,7 +25,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        java: [8, 11, 16, 17]
+        java: [8, 11, 17, 21]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -39,7 +39,7 @@ jobs:
       uses: gradle/actions/setup-gradle@v3
 
     - name: Setup gradle.properties
-      if: matrix.java == 16 || matrix.java == 17
+      if: matrix.java == 17 || matrix.java == 21
       run: |
         echo "org.gradle.jvmargs=-Xmx4096m --add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED --add-exports=java.base/sun.nio.ch=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED" >> gradle.properties
     

@@ -4,7 +4,7 @@ The client has three test tiers. Pick the cheapest one that can catch the bug yo
 
 | Tier | Source | Gradle task | Needs an API key | Runs in CI |
 |---|---|---|---|---|
-| Unit and mocked | `src/test` | `./gradlew test` (part of `./gradlew build`) | No | Every PR and push, Java 8, 11, 16 and 17 (`pr.yml`, job `build`) |
+| Unit and mocked | `src/test` | `./gradlew test` (part of `./gradlew build`) | No | Every PR and push, Java 8, 11, 17 and 21 (`pr.yml`, job `build`) |
 | Smoke | `src/integration`, classes tagged `@Tag("smoke")` | `./gradlew smokeTest` | Yes | Every PR and push to `main`, Java 17 (`pr.yml`, job `smoke-test`) |
 | Full integration | all of `src/integration` except `@Tag("pod")` classes | `./gradlew integrationTest` | Yes | Nightly, on manual dispatch, and on PRs labelled `full-integration`, Java 8 and 17 (`full-integration.yml`, with pod tests) |
 | Pod | `src/integration` classes tagged `@Tag("pod")` | `./gradlew integrationTest -PincludePodTests=true` | Yes | With the full suite in `full-integration.yml` only. Pod indexes count against a small per-project pod quota that parallel PR runs would exhaust |
