@@ -54,9 +54,22 @@ jobs:
           ref: ${{ inputs.ref || github.sha }}
           persist-credentials: false
 
+      # `ref` may be a tag older than this workflow and its scripts, so they come from the commit this
+      # run's workflow file was read from. Under release.yml that is release.yml's commit, in this repo.
+      - name: Checkout this workflow's scripts
+        id: scripts
+        if: steps.checkout.outcome == 'success'
+        continue-on-error: ${{ inputs.from-release == true }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          ref: ${{ github.workflow_sha }}
+          path: .workflow-scripts
+          sparse-checkout: .github/scripts
+          persist-credentials: false
+
       - name: Check the version is released and the deploy key works
         id: check
-        if: steps.checkout.outcome == 'success'
+        if: steps.scripts.outcome == 'success'
         continue-on-error: ${{ inputs.from-release == true }}
         env:
           SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
@@ -91,7 +104,7 @@ jobs:
             fi
           fi
 
-          .github/scripts/check-sdk-docs-key.sh
+          .workflow-scripts/.github/scripts/check-sdk-docs-key.sh
 
       # JDK 8, as in pr.yml's docs-html build that PR previews show.
       - name: Setup Java
@@ -143,6 +156,7 @@ jobs:
           VERSION: ${{ steps.check.outputs.version }}
           SHA: ${{ steps.check.outputs.sha }}
           CHECKOUT: ${{ steps.checkout.outcome }}
+          SCRIPTS: ${{ steps.scripts.outcome }}
           CHECK: ${{ steps.check.outcome }}
           JAVA: ${{ steps.java.outcome }}
           BUILD: ${{ steps.build.outcome }}
@@ -150,13 +164,14 @@ jobs:
         run: |
           icon() { case "$1" in success) echo "✅" ;; skipped|'') echo "⏭️" ;; *) echo "❌" ;; esac; }
           v=${VERSION:-X.Y.Z}
+          if [ "$CHECKOUT" = success ]; then checkout=$SCRIPTS; else checkout=$CHECKOUT; fi
           if [ "$JAVA" = success ]; then build=$BUILD; else build=$JAVA; fi
           {
             echo "### Docs: v$v to https://sdk.pinecone.io/java/"
             echo ""
             echo "| | Step |"
             echo "|---|---|"
-            echo "| $(icon "$CHECKOUT") | Check out \`${SHA:-the ref}\` |"
+            echo "| $(icon "$checkout") | Check out \`${SHA:-the ref}\` and this workflow's scripts |"
             echo "| $(icon "$CHECK") | v$v is on Maven Central, the ref is its release commit, SSH_DEPLOY_KEY can push to sdk-docs |"
             echo "| $(icon "$build") | Build the Javadoc on JDK 8 |"
             echo "| $(icon "$PUSH") | Push it to java/ in pinecone-io/sdk-docs |"
