@@ -187,6 +187,15 @@ jobs:
           fi
           echo "Central Portal: $(cat "$RUNNER_TEMP/portal.json")"
 
+      # The publish-docs job needs this key. A bad key does not block the release, so it only warns.
+      - name: Check the sdk-docs deploy key
+        id: docskey
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        env:
+          SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
+        run: .github/scripts/check-sdk-docs-key.sh
+
       - name: Summarize the dry run
         if: always()
         env:
@@ -195,6 +204,7 @@ jobs:
           VERIFY: ${{ steps.verify.outcome }}
           KEY_ID: ${{ steps.verify.outputs.key_id }}
           PORTAL: ${{ steps.portal.outcome }}
+          DOCSKEY: ${{ steps.docskey.outcome }}
         run: |
           icon() { case "$1" in success) echo "✅" ;; skipped|'') echo "⏭️" ;; *) echo "❌" ;; esac; }
           {
@@ -206,6 +216,11 @@ jobs:
             echo "| $(icon "$SIGN") | All artifacts signed with the stored key and passphrase |"
             echo "| $(icon "$VERIFY") | Signatures (by key \`${KEY_ID:-?}\`) verify against release key \`$SIGNING_KEY_FINGERPRINT\` on keyserver.ubuntu.com |"
             echo "| $(icon "$PORTAL") | Central Portal token authenticates |"
+            if [ "$DOCSKEY" = success ]; then
+              echo "| ✅ | SSH_DEPLOY_KEY can push to pinecone-io/sdk-docs (for publish-docs) |"
+            else
+              echo "| ⚠️ | SSH_DEPLOY_KEY cannot push to pinecone-io/sdk-docs: the release can go ahead, but its docs will not publish (RELEASING.md, Docs deploy key) |"
+            fi
             echo ""
             if [ "$SECRETS$SIGN$VERIFY$PORTAL" = successsuccesssuccesssuccess ]; then
               echo "**Dry run passed.** Nothing was uploaded. To publish, run this workflow again with dryRun unchecked."
@@ -304,3 +319,16 @@ jobs:
             echo ""
             echo "Next: write the notes in [the draft]($url) and publish it. Tag \`$tag\` does not exist until the draft is published; publishing creates it at \`$SHA\`. Then run \`scripts/sync_from_public.sh\` in the internal repo to pull the tag back."
           } >> "$GITHUB_STEP_SUMMARY"
+
+  # After github-release, so Maven Central and the draft release are done first. from-release turns a
+  # docs failure into a warning in this run's summary: the release is already out.
+  publish-docs:
+    needs: [preflight, github-release]
+    permissions:
+      contents: read
+    uses: ./.github/workflows/build-and-publish-docs.yml
+    with:
+      ref: ${{ needs.preflight.outputs.sha }}
+      from-release: true
+    secrets:
+      SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}

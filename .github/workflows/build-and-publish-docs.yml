@@ -1,27 +1,131 @@
 name: 'Build and publish documentation to sdk-docs'
 
+# Builds the Javadoc of a released version into the java/ folder of pinecone-io/sdk-docs, which GitHub
+# Pages serves at https://sdk.pinecone.io/java/. release.yml calls this after a real release; run it by
+# hand with ref=vX.Y.Z to publish a released version again. See RELEASING.md.
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Release tag to build the docs from, such as v6.3.0 (default: the ref this run uses)'
+        required: false
+        type: string
   workflow_call:
-    secrets:
-      SSH_DEPLOY_KEY:
+    inputs:
+      ref:
+        description: 'Commit SHA that was released'
         required: true
+        type: string
+      from-release:
+        description: 'Set by release.yml: the vX.Y.Z tag may not exist yet, and failures are warnings'
+        required: false
+        default: false
+        type: boolean
+    secrets:
+      # Not required here: a missing required secret would stop release.yml from starting at all.
+      SSH_DEPLOY_KEY:
+        required: false
 
-# Docs are pushed to the sdk-docs repo via SSH_DEPLOY_KEY, not GITHUB_TOKEN,
-# so this workflow only needs to read its own repo.
+# Docs are pushed to sdk-docs with SSH_DEPLOY_KEY, not GITHUB_TOKEN, so this only reads its own repo.
 permissions:
   contents: read
 
 jobs:
-  build-and-deploy-documentation:
+  publish:
+    # Only the public repo has SSH_DEPLOY_KEY.
+    if: github.repository == 'pinecone-io/pinecone-java-client'
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # The push is a plain git push to sdk-docs main, so two overlapping runs would lose one to a
+    # non-fast-forward rejection.
+    concurrency:
+      group: sdk-docs-publish
+      cancel-in-progress: false
+    env:
+      FROM_RELEASE: ${{ inputs.from-release == true }}
+    # When release.yml calls this, the release is already on Maven Central, so every step carries on
+    # past a failure and the last step reports it as a warning instead of failing the release run.
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-      - name: Generate Javadoc documentation
-        uses: ./.github/actions/build-docs
-      - name: Push documentation artifacts to sdk-docs
-        uses: cpina/github-action-push-to-another-repository@55306faa4ed53b815ae49e564af8cfb359d32ae2  # v1.7.3 (current main)
+        id: checkout
+        continue-on-error: ${{ inputs.from-release == true }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+          persist-credentials: false
+
+      - name: Check the version is released and the deploy key works
+        id: check
+        if: steps.checkout.outcome == 'success'
+        continue-on-error: ${{ inputs.from-release == true }}
+        env:
+          SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
+          REF: ${{ inputs.ref || github.ref_name }}
+        run: |
+          version=$(sed -n 's/^pineconeClientVersion *= *//p' gradle.properties | tr -d '[:space:]')
+          sha=$(git rev-parse HEAD)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::gradle.properties at $sha has pineconeClientVersion '$version'; expected X.Y.Z."
+            exit 1
+          fi
+
+          pom_url="https://repo1.maven.org/maven2/io/pinecone/pinecone-client/$version/pinecone-client-$version.pom"
+          if ! curl -sfI -o /dev/null "$pom_url"; then
+            echo "::error::$version is not on Maven Central ($pom_url). Only released versions are published to sdk.pinecone.io."
+            exit 1
+          fi
+
+          # A manual run must build exactly the released commit. release.yml passes that commit, and its
+          # tag does not exist until the draft GitHub release is published.
+          if [ "$FROM_RELEASE" != true ]; then
+            if ! git fetch --quiet --depth=1 origin "refs/tags/v$version:refs/tags/v$version"; then
+              echo "::error::Tag v$version does not exist. Publish the v$version GitHub release first, then run with ref=v$version."
+              exit 1
+            fi
+            tagged=$(git rev-parse "refs/tags/v$version^{commit}")
+            if [ "$tagged" != "$sha" ]; then
+              echo "::error::ref '$REF' is $sha, but v$version is $tagged. Run with ref=v$version."
+              exit 1
+            fi
+          fi
+
+          .github/scripts/check-sdk-docs-key.sh
+
+      # JDK 8, as in pr.yml's docs-html build that PR previews show.
+      - name: Setup Java
+        id: java
+        if: steps.check.outcome == 'success'
+        continue-on-error: ${{ inputs.from-release == true }}
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad  # v6.1.0
+        with:
+          distribution: temurin
+          java-version: 8
+
+      - name: Build Javadoc
+        id: build
+        if: steps.java.outcome == 'success'
+        continue-on-error: ${{ inputs.from-release == true }}
+        env:
+          VERSION: ${{ steps.check.outputs.version }}
+        run: |
+          ./gradlew --no-daemon generateJavadoc
+          # sdk-docs java/ ends up holding exactly docs/, so an empty or wrong-version build must stop here.
+          title="<title>pinecone-java-client $VERSION API</title>"
+          if ! grep -qF "$title" docs/index.html || [ ! -f docs/io/pinecone/clients/Pinecone.html ]; then
+            echo "::error::docs/ does not look like the $VERSION Javadoc (expected '$title' in docs/index.html and io/pinecone/clients/Pinecone.html)."
+            exit 1
+          fi
+          echo "Built $(find docs -name '*.html' | wc -l) HTML files."
+
+      # The action deletes sdk-docs java/, copies docs/ into it and commits, so pages for classes that no
+      # longer exist are removed.
+      - name: Push the Javadoc to sdk-docs java/
+        id: push
+        if: steps.build.outcome == 'success'
+        continue-on-error: ${{ inputs.from-release == true }}
+        uses: cpina/github-action-push-to-another-repository@55306faa4ed53b815ae49e564af8cfb359d32ae2  # v1.7.3
         env:
           SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
         with:
@@ -31,4 +135,43 @@ jobs:
           user-email: clients@pinecone.io
           target-branch: main
           target-directory: java
-          commit-message: "Java: automated documentation build \n\n pinecone-java-client merge SHA: ${{ github.sha }}"
+          commit-message: "Java: automated documentation build for v${{ steps.check.outputs.version }} - ${{ github.repository }} SHA: ${{ steps.check.outputs.sha }}"
+
+      - name: Report
+        if: always()
+        env:
+          VERSION: ${{ steps.check.outputs.version }}
+          SHA: ${{ steps.check.outputs.sha }}
+          CHECKOUT: ${{ steps.checkout.outcome }}
+          CHECK: ${{ steps.check.outcome }}
+          JAVA: ${{ steps.java.outcome }}
+          BUILD: ${{ steps.build.outcome }}
+          PUSH: ${{ steps.push.outcome }}
+        run: |
+          icon() { case "$1" in success) echo "✅" ;; skipped|'') echo "⏭️" ;; *) echo "❌" ;; esac; }
+          v=${VERSION:-X.Y.Z}
+          if [ "$JAVA" = success ]; then build=$BUILD; else build=$JAVA; fi
+          {
+            echo "### Docs: v$v to https://sdk.pinecone.io/java/"
+            echo ""
+            echo "| | Step |"
+            echo "|---|---|"
+            echo "| $(icon "$CHECKOUT") | Check out \`${SHA:-the ref}\` |"
+            echo "| $(icon "$CHECK") | v$v is on Maven Central, the ref is its release commit, SSH_DEPLOY_KEY can push to sdk-docs |"
+            echo "| $(icon "$build") | Build the Javadoc on JDK 8 |"
+            echo "| $(icon "$PUSH") | Push it to java/ in pinecone-io/sdk-docs |"
+            echo ""
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$PUSH" = success ]; then
+            echo "Pushed. GitHub Pages deploys it in a few minutes: https://github.com/pinecone-io/sdk-docs/actions" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          msg="The v$v Javadoc was NOT published to https://sdk.pinecone.io/java/. Fix the failed step, then run: gh workflow run build-and-publish-docs.yml -R $GITHUB_REPOSITORY -f ref=v$v"
+          if [ "$FROM_RELEASE" = true ]; then
+            msg="$msg (after the v$v GitHub release is published). The release itself is unaffected."
+            echo "::warning::$msg"
+          else
+            echo "::error::$msg"
+          fi
+          echo "**$msg**" >> "$GITHUB_STEP_SUMMARY"

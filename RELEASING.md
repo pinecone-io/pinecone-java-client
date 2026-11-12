@@ -11,7 +11,8 @@ environment before this workflow is synced to public. Then the whole flow, once 
 1. Prep PR in this repo sets the version.
 2. Sync main to public.
 3. Dry run of the Release workflow on public.
-4. Real run of the Release workflow. It uploads to Maven Central and creates a draft GitHub release.
+4. Real run of the Release workflow. It uploads to Maven Central, creates a draft GitHub release, and
+   publishes the Javadoc to [sdk.pinecone.io/java](https://sdk.pinecone.io/java/).
 5. Write the notes in the draft GitHub release and publish it. The `vX.Y.Z` tag does not exist until
    you do; publishing creates it.
 6. Pull the tag back into this repo. This only works after step 5.
@@ -83,6 +84,23 @@ back to the primary key, delete the secret. GitHub won't save an empty secret, s
 Keep these as repository secrets (not environment secrets). The dry run does not use the `release`
 environment, so it cannot read secrets stored only there.
 
+**Docs deploy key.** The Javadoc is pushed to the `java/` folder of
+[pinecone-io/sdk-docs](https://github.com/pinecone-io/sdk-docs), which GitHub Pages serves at
+https://sdk.pinecone.io/java/. The push authenticates with the repository secret `SSH_DEPLOY_KEY` on
+public: the private half of an SSH key whose public half is a deploy key **with write access** on
+sdk-docs (sdk-docs > Settings > Deploy keys). The Python and TypeScript SDKs push with the same kind of
+key. The dry run checks the key can push (it pushes nothing). If that check warns, a repo admin fixes it:
+
+```sh
+ssh-keygen -t ed25519 -N '' -C 'pinecone-java-client docs' -f sdk_docs_java
+gh repo deploy-key add sdk_docs_java.pub -R pinecone-io/sdk-docs --allow-write --title 'pinecone-java-client docs'
+gh secret set SSH_DEPLOY_KEY -R pinecone-io/pinecone-java-client < sdk_docs_java
+rm sdk_docs_java sdk_docs_java.pub
+```
+
+Adding a deploy key needs admin on sdk-docs, and setting the secret needs admin on public. A new key
+leaves the other SDKs' keys alone.
+
 **The `release` environment (required).** The `publish` job runs in an environment named `release`,
 and a reviewer on it approves each upload. If it did not exist, GitHub would create it on the first
 real run with no protection, so preflight refuses a real run unless it exists with a required reviewer
@@ -140,7 +158,9 @@ It uploads nothing. The run summary lists each check:
   warning in a dry run), and the unit tests pass.
 - **Dry run:** the secrets are set, every artifact signs with the stored key and passphrase, the
   signatures were made by the release key and verify against its copy on keyserver.ubuntu.com, and the
-  Central Portal token authenticates.
+  Central Portal token authenticates. It also checks that `SSH_DEPLOY_KEY` can push to sdk-docs; that
+  row is only a warning (⚠️), because the docs do not block a release. See
+  [Docs deploy key](#one-time-setup-public-repo).
 
 Fix anything red before the real run.
 
@@ -160,6 +180,11 @@ gh workflow run release.yml -R $PUB -f ref=<SHA> -f dryRun=false
 3. `wait-for-central` polls repo1.maven.org for the POM, up to 30 minutes. 6.2.0 took about 2.
 4. `github-release` creates a **draft** release `v6.3.0`, titled "v6.3.0 Release", targeting the SHA.
    A draft has no tag: `v6.3.0` does not exist until you publish it in step 5.
+5. `publish-docs` runs [build-and-publish-docs.yml](.github/workflows/build-and-publish-docs.yml) on the
+   released SHA: it builds the Javadoc on JDK 8 and replaces `java/` in sdk-docs with it. GitHub Pages
+   deploys it a few minutes later. A docs failure does not fail this run or touch the release: the job
+   ends with a warning in the run summary that says what to run. Fix the cause, publish the GitHub
+   release (step 5 below), then [publish the docs by hand](#publishing-the-docs-by-hand).
 
 ### 5. Publish the GitHub release
 
@@ -184,6 +209,25 @@ Only after the draft is published in step 5:
 ./scripts/sync_from_public.sh main --push
 ```
 
+## Publishing the docs by hand
+
+To publish the Javadoc of a released version again, for example after a `publish-docs` warning, run the
+workflow on public with that version's tag:
+
+```sh
+gh workflow run build-and-publish-docs.yml -R $PUB -f ref=v6.3.0
+gh run watch -R $PUB "$(gh run list -R $PUB -w build-and-publish-docs.yml -L 1 --json databaseId --jq '.[0].id')"
+```
+
+Or Public repo > Actions > Build and publish documentation to sdk-docs > Run workflow, `ref` = `v6.3.0`.
+It refuses a version that is not on Maven Central, and a `ref` that is not the commit the `vX.Y.Z` tag
+points to, so only released code reaches the site. It only runs on public; on this repo it is skipped.
+Whatever it publishes replaces `java/`, so running it for an older version rolls the site back to that
+version.
+
+Check the result: https://sdk.pinecone.io/java/ should be titled "pinecone-java-client 6.3.0 API" once
+[sdk-docs' Pages deploy](https://github.com/pinecone-io/sdk-docs/actions) finishes.
+
 ## When something fails
 
 | Where | What it means | What to do |
@@ -202,6 +246,7 @@ Only after the draft is published in step 5:
 | `publish` upload step, deployment PUBLISHING or PUBLISHED | The release is on its way to Central | **Don't rerun:** Central would reject the same version uploaded again. When the POM loads, create the draft by hand (the `github-release` row) |
 | `wait-for-central` timeout | The upload worked but is not live | At central.sonatype.com > Publish > Deployments, if the deployment says VALIDATED, press Publish. When the POM loads, use "Re-run failed jobs". This does not upload again |
 | `github-release` | Central has the release; GitHub does not | "Re-run failed jobs", or by hand: `gh release create v6.3.0 -R $PUB --draft --target <SHA> --title "v6.3.0 Release"` |
+| `publish-docs` warning | The release is fine; sdk.pinecone.io/java still shows the previous version | Read the `publish` job's summary. For the deploy key, see [Docs deploy key](#one-time-setup-public-repo). Then [publish the docs by hand](#publishing-the-docs-by-hand) after step 5 |
 
 A bad release that already reached Central is fixed by releasing the next patch version. Never delete or
 move a `v*` tag, and never force-push either repo's main.
