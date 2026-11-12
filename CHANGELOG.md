@@ -2,6 +2,8 @@
 
 [comment]: <> (When bumping [pc:VERSION_LATEST_RELEASE] create a new entry below)
 ### Unreleased version
+
+### 6.3.0
 - Fix: index connections are no longer shared between `Pinecone` clients that differ in API key, index host,
   TLS setting, source tag or response-metadata listener. Previously a second client opening an index with the
   same name reused the first client's gRPC connection, so its data-plane calls went to the first client's
@@ -16,7 +18,17 @@
   - Clients share connections only when they use the same listener instance. Building many clients, each with
     a new lambda or method reference as the listener (for example `metrics::record` per client), opens one
     connection per client.
-- Bump dependencies to resolve security advisories: jackson-core and jackson-databind 2.21.7, Netty 4.1.137.Final, Guava 33.7.2-android (now declared as an `api` dependency, so it is published at compile scope)
+- Fix: `upsert(List<VectorWithUnsignedIndices>, String)` on `Index` and `AsyncIndex` no longer throws
+  `NullPointerException` for a `null` namespace; it writes to the default namespace, like the single-vector
+  overloads (#37).
+- Fix: with `PINECONE_DEBUG=true`, control-plane request logs show the `Api-Key` header as `██` instead of the
+  API key. Requests still send the key (#40).
+- Bump dependencies to resolve security advisories: Netty 4.1.100.Final to 4.1.137.Final,
+  netty-tcnative-boringssl-static 2.0.61.Final to 2.0.77.Final, jackson-core and jackson-databind 2.14.2 to
+  2.21.7, Guava 32.0.1-android to 33.7.2-android. `netty-codec-http2`, `netty-handler-proxy`,
+  `netty-transport-native-unix-common` and `guava` are now declared as `api` dependencies, so they are published
+  at compile scope.
+
 ### 6.2.0
 - Add readUnits, upsertedCount, and matchedRecords to ResponseMetadata
 - Add List operation to ResponseMetadataInterceptor 
