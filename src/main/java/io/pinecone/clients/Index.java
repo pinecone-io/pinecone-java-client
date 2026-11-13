@@ -2021,7 +2021,8 @@ public class Index implements IndexInterface<UpsertResponse,
 
     /**
      * Releases this client's use of the gRPC channel to the index, shutting the channel down and freeing its
-     * threads and network connections once no other client uses it.
+     * threads and network connections once no other client uses it. Calls already issued are allowed to finish: when
+     * the channel shuts down, this method waits up to 5 seconds for them and then cancels any still running.
      *
      * <p>Every {@link Index} and {@link AsyncIndex} that one {@link Pinecone} client (or clients with identical
      * settings) opens for the same index shares one channel, which shuts down only when the last of them is closed.

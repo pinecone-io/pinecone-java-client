@@ -24,6 +24,10 @@
   the request. Previously protobuf sent the character as `?`, so `"x\uD83D"` and `"x\uDE00"` were both stored as
   `"x?"` and overwrote each other. Upsert, query, fetch, fetch by metadata, update, update by metadata and delete
   are checked; well-formed surrogate pairs such as emoji are unaffected (#84).
+- Fix: `Index.close()` and `AsyncIndex.close()` no longer cancel calls still in flight when they shut down the
+  shared gRPC channel. Calls already issued, such as fire-and-forget async upserts, now get up to 5 seconds to
+  finish before any still running are cancelled. Previously they failed with `CANCELLED` or `UNAVAILABLE` and their
+  writes were lost (#68).
 
 ### 6.3.0
 - Fix: index connections are no longer shared between `Pinecone` clients that differ in API key, index host,

@@ -239,16 +239,20 @@ public class PineconeConnection implements AutoCloseable {
     }
 
     /**
-     * Shuts down the channel, including a custom one, cancels calls still in flight, and waits up to 5 seconds for it
-     * to terminate. Close a connection once nothing will use it again; any {@link io.pinecone.clients.Index} or
-     * {@link io.pinecone.clients.AsyncIndex} built on it stops working.
+     * Shuts down the channel, including a custom one: new calls are rejected, and calls already in flight get up to 5
+     * seconds to finish before any still running are cancelled. Close a connection once nothing will use it again; any
+     * {@link io.pinecone.clients.Index} or {@link io.pinecone.clients.AsyncIndex} built on it stops working.
      */
     @Override
     public void close() {
         try {
             logger.debug("closing channel");
-            channel.shutdownNow().awaitTermination(5, TimeUnit.SECONDS);
+            if (!channel.shutdown().awaitTermination(5, TimeUnit.SECONDS)) {
+                logger.debug("channel did not terminate within 5 seconds; cancelling calls still in flight");
+                channel.shutdownNow();
+            }
         } catch (InterruptedException e) {
+            channel.shutdownNow();
             logger.warn("Channel shutdown interrupted before termination confirmed");
         }
     }
