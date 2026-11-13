@@ -19,6 +19,11 @@
   did for exceptions. `fetchByMetadata` calls now report to the listener, with operation name `fetchbymetadata`.
   The listener Javadoc now describes when index connections are shared and lists the records calls among those that
   don't report, and the `ResponseMetadataInterceptor` example sends the `api-key` header (#92).
+- Fix: `Index` and `AsyncIndex` now throw `PineconeValidationException` for a vector id or namespace containing an
+  unpaired UTF-16 surrogate (for example `"x\uD83D"`, left by a `substring` that splits an emoji), before sending
+  the request. Previously protobuf sent the character as `?`, so `"x\uD83D"` and `"x\uDE00"` were both stored as
+  `"x?"` and overwrote each other. Upsert, query, fetch, fetch by metadata, update, update by metadata and delete
+  are checked; well-formed surrogate pairs such as emoji are unaffected (#84).
 
 ### 6.3.0
 - Fix: index connections are no longer shared between `Pinecone` clients that differ in API key, index host,

@@ -53,8 +53,9 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
      * @param namespace the namespace to write to, such as {@code "articles-en"}; null or {@code ""} means the default
      *                  namespace
      * @return the request, holding one vector
-     * @throws PineconeValidationException if the id is null or empty, only one of the sparse lists is set, the sparse
-     *         lists differ in length, or a sparse index is outside the unsigned 32-bit range
+     * @throws PineconeValidationException if the id is null or empty, the id or namespace contains an unpaired UTF-16
+     *         surrogate, only one of the sparse lists is set, the sparse lists differ in length, or a sparse index is
+     *         outside the unsigned 32-bit range
      */
     default UpsertRequest validateUpsertRequest(String id,
                                                 List<Float> values,
@@ -64,6 +65,7 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
                                                 String namespace) {
         UpsertRequest.Builder upsertRequest = UpsertRequest.newBuilder();
 
+        SurrogateCheck.requireWellFormed("upsert", "Namespace", namespace);
         Vector vector = buildUpsertVector(id, values, sparseIndices, sparseValues, metadata);
 
         upsertRequest.addVectors(vector);
@@ -92,11 +94,13 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
      * @param namespace the namespace to write to, such as {@code "articles-en"}; {@code ""} means the default
      *                  namespace. Must not be null.
      * @return the request, holding every vector in the list
-     * @throws PineconeValidationException if a vector has no id, has only one of the sparse lists, has sparse lists
-     *         of different lengths, or has a sparse index outside the unsigned 32-bit range
+     * @throws PineconeValidationException if a vector has no id, the namespace or an id contains an unpaired UTF-16
+     *         surrogate, a vector has only one of the sparse lists, has sparse lists of different lengths, or has a
+     *         sparse index outside the unsigned 32-bit range
      */
     default UpsertRequest validateUpsertRequest(List<VectorWithUnsignedIndices> vectorWithUnsignedIndicesList,
                                                 String namespace) {
+        SurrogateCheck.requireWellFormed("upsert", "Namespace", namespace);
         List<Vector> vectors = new ArrayList<>(vectorWithUnsignedIndicesList.size());
 
         for (VectorWithUnsignedIndices vectorWithUnsignedIndices : vectorWithUnsignedIndicesList) {
@@ -138,8 +142,9 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
      * @param sparseValues the values for {@code sparseIndices}, the same length as it, or null for no sparse values
      * @param metadata the metadata to store with the vector, or null for none
      * @return the vector, with sparse indices converted to the signed form the gRPC message uses
-     * @throws PineconeValidationException if the id is null or empty, only one of the sparse lists is set, the sparse
-     *         lists differ in length, or a sparse index is outside the unsigned 32-bit range
+     * @throws PineconeValidationException if the id is null or empty or contains an unpaired UTF-16 surrogate, only one
+     *         of the sparse lists is set, the sparse lists differ in length, or a sparse index is outside the unsigned
+     *         32-bit range
      */
     default Vector buildUpsertVector(String id,
                                      List<Float> values,
@@ -149,6 +154,7 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
          if (id == null || id.isEmpty()) {
             throw new PineconeValidationException("Invalid upsert request. Please ensure that id is provided.");
         }
+        SurrogateCheck.requireWellFormed("upsert", "Vector id", id);
 
         Vector.Builder vectorBuilder = Vector.newBuilder()
                 .setId(id)
@@ -202,8 +208,8 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
      * @param sparseValues the values for {@code sparseIndices}, the same length as it, or null for no sparse values
      * @param metadata the metadata to store with the vector, or null for none
      * @return the vector, ready to add to the list passed to {@code upsert}
-     * @throws PineconeValidationException if the id or values are null or empty, only one of the sparse lists is set,
-     *         or the sparse lists differ in length
+     * @throws PineconeValidationException if the id or values are null or empty, the id contains an unpaired UTF-16
+     *         surrogate, only one of the sparse lists is set, or the sparse lists differ in length
      */
     static VectorWithUnsignedIndices buildUpsertVectorWithUnsignedIndices(String id,
                                                                           List<Float> values,
@@ -214,6 +220,7 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
             throw new PineconeValidationException("Invalid upsert request. Please ensure that both id and values are " +
                     "provided.");
         }
+        SurrogateCheck.requireWellFormed("upsert", "Vector id", id);
 
         VectorWithUnsignedIndices vectorWithUnsignedIndices = new VectorWithUnsignedIndices(id, values);
 
@@ -267,8 +274,9 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
      * @param includeValues whether matches include their vector values
      * @param includeMetadata whether matches include their metadata
      * @return the request
-     * @throws PineconeValidationException if both {@code vector} and {@code id} are set, only one of the sparse lists
-     *         is set, the sparse lists differ in length, or a sparse index is outside the unsigned 32-bit range
+     * @throws PineconeValidationException if both {@code vector} and {@code id} are set, the id or namespace contains
+     *         an unpaired UTF-16 surrogate, only one of the sparse lists is set, the sparse lists differ in length, or
+     *         a sparse index is outside the unsigned 32-bit range
      */
     default QueryRequest validateQueryRequest(int topK,
                                               List<Float> vector,
@@ -285,6 +293,9 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
             throw new PineconeValidationException("Invalid query request. Cannot query with both vector id and vector" +
                     " values.");
         }
+
+        SurrogateCheck.requireWellFormed("query", "Vector id", id);
+        SurrogateCheck.requireWellFormed("query", "Namespace", namespace);
 
         if (id != null && !id.isEmpty()) {
             queryRequest.setId(id);
@@ -338,7 +349,8 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
      * @param namespace the namespace to fetch from, such as {@code "articles-en"}; null or {@code ""} means the
      *                  default namespace
      * @return the request
-     * @throws PineconeValidationException if {@code ids} is null or empty
+     * @throws PineconeValidationException if {@code ids} is null or empty, or an id or the namespace contains an
+     *         unpaired UTF-16 surrogate
      */
     default FetchRequest validateFetchRequest(List<String> ids, String namespace) {
         FetchRequest.Builder fetchRequest = FetchRequest.newBuilder();
@@ -346,6 +358,8 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
         if (ids == null || ids.isEmpty()) {
             throw new PineconeValidationException("Invalid fetch request. Vector ids must be present");
         }
+        SurrogateCheck.requireWellFormed("fetch", "Vector id", ids);
+        SurrogateCheck.requireWellFormed("fetch", "Namespace", namespace);
 
         fetchRequest.addAllIds(ids);
 
@@ -380,7 +394,8 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
      * @param paginationToken the token from the previous page's {@code getPagination().getNext()}, or null or empty
      *                        for the first page
      * @return the request
-     * @throws PineconeValidationException if {@code namespace} is null or empty
+     * @throws PineconeValidationException if {@code namespace} is null or empty or contains an unpaired UTF-16
+     *         surrogate
      */
     default FetchByMetadataRequest validateFetchByMetadataRequest(String namespace,
                                                                   Struct filter,
@@ -391,6 +406,7 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
         if (namespace == null || namespace.isEmpty()) {
             throw new PineconeValidationException("Invalid fetch by metadata request. Namespace must be present");
         }
+        SurrogateCheck.requireWellFormed("fetch by metadata", "Namespace", namespace);
         fetchByMetadataRequest.setNamespace(namespace);
 
         if (filter != null) {
@@ -429,8 +445,9 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
      *                      values; set together with {@code sparseValues}
      * @param sparseValues the values for {@code sparseIndices}, the same length as it, or null
      * @return the request
-     * @throws PineconeValidationException if the id is null, only one of the sparse lists is set, the sparse lists
-     *         differ in length, or a sparse index is outside the unsigned 32-bit range
+     * @throws PineconeValidationException if the id is null, the id or namespace contains an unpaired UTF-16 surrogate,
+     *         only one of the sparse lists is set, the sparse lists differ in length, or a sparse index is outside the
+     *         unsigned 32-bit range
      */
     default UpdateRequest validateUpdateRequest(String id,
                                                 List<Float> values,
@@ -443,6 +460,8 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
         if (id == null) {
             throw new PineconeValidationException("Invalid update request. Vector id must be present");
         }
+        SurrogateCheck.requireWellFormed("update", "Vector id", id);
+        SurrogateCheck.requireWellFormed("update", "Namespace", namespace);
         updateRequest.setId(id);
 
         if (values != null) {
@@ -502,7 +521,8 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
      *                  namespace
      * @param dryRun true to only count the matching vectors without changing them; null means false
      * @return the request
-     * @throws PineconeValidationException if {@code filter} is null
+     * @throws PineconeValidationException if {@code filter} is null or {@code namespace} contains an unpaired UTF-16
+     *         surrogate
      */
     default UpdateRequest validateUpdateByMetadataRequest(Struct filter,
                                                           Struct metadata,
@@ -513,6 +533,7 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
         if (filter == null) {
             throw new PineconeValidationException("Invalid update by metadata request. Filter must be present");
         }
+        SurrogateCheck.requireWellFormed("update by metadata", "Namespace", namespace);
         updateRequest.setFilter(filter);
 
         if (metadata != null) {
@@ -534,8 +555,9 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
      * Builds the gRPC delete request from ids, a delete-all flag or a metadata filter.
      *
      * <p>{@link io.pinecone.clients.Index} and {@link io.pinecone.clients.AsyncIndex} call this for each delete
-     * method, so application code does not need to. Despite its name, it does not check the arguments: it copies
-     * whichever are set into the request, so set exactly one of {@code ids}, {@code deleteAll} or {@code filter}.
+     * method, so application code does not need to. It checks only that the ids and namespace can be encoded; it
+     * copies whichever arguments are set into the request, so set exactly one of {@code ids}, {@code deleteAll} or
+     * {@code filter}.
      *
      * <pre>{@code
      * DeleteRequest request = index.validateDeleteRequest(Arrays.asList("doc-1", "doc-2"), false, "articles-en", null);
@@ -548,11 +570,14 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
      * @param filter a metadata filter such as {@code {"category": {"$eq": "news"}}} built as a {@code Struct}, or
      *               null when deleting by ids or flag
      * @return the request
+     * @throws PineconeValidationException if an id or the namespace contains an unpaired UTF-16 surrogate
      */
     default DeleteRequest validateDeleteRequest(List<String> ids,
                                                 boolean deleteAll,
                                                 String namespace,
                                                 Struct filter) {
+        SurrogateCheck.requireWellFormed("delete", "Vector id", ids);
+        SurrogateCheck.requireWellFormed("delete", "Namespace", namespace);
         DeleteRequest.Builder deleteRequest = DeleteRequest.newBuilder().setDeleteAll(deleteAll);
 
         if (ids != null && !ids.isEmpty()) {
