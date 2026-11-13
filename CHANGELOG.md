@@ -5,6 +5,15 @@
 - Docs: the README's "Scale replicas" and "Configure read capacity" examples now pass `null` for deletion
   protection, which keeps the current setting. They passed `"disabled"`, which turned off the protection the
   README's create example turns on (#78).
+- Fix: an API key with a trailing newline, as a key read from a file or Kubernetes secret often has, now works.
+  `PineconeConfig.validate()`, which `Pinecone.Builder.build()` calls, removes leading and trailing whitespace and
+  control characters from the key (as `String.trim()` does) and logs a warning that does not include the key.
+  Previously `build()` accepted such a key, and every later call threw an `IllegalArgumentException` whose message
+  contained the full API key. The trimmed key is used for both REST and gRPC calls, so a key with a trailing tab no
+  longer makes gRPC drop the `api-key` header and log the key (#66).
+- Changed: `build()` now throws `PineconeConfigurationException` for a key that still contains a character other
+  than printable ASCII after trimming, such as a newline inside the key, and for a key made only of whitespace or
+  control characters. These keys never worked. The error message does not include the key (#66).
 
 ### 6.3.0
 - Fix: index connections are no longer shared between `Pinecone` clients that differ in API key, index host,

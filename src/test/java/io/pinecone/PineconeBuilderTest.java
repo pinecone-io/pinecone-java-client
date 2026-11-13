@@ -53,6 +53,50 @@ public class PineconeBuilderTest {
     }
 
     @Test
+    public void PineconeWithInvalidApiKeyCharactersIsRejectedWithoutEchoingKey() {
+        String[] invalidKeys = {
+                "pcsk_FA\nKE_SECRET",
+                "pcsk_FA\r\nKE_SECRET",
+                "pcsk_FA\u0000KE_SECRET",
+                "pcsk_FA\u001fKE_SECRET",
+                "pcsk_FA\tKE_SECRET",
+                "pcsk_FAKE_SECRET\u007f",
+                "pcsk_FAKE_SECRET_\u00e9",
+                "\u00e9pcsk_FAKE_SECRET",
+                "pcsk_FAK\u00e9_SECRET",
+                "\r\n",
+                "   ",
+                "\t",
+                " \t\u0000\n ",
+        };
+        for (String key : invalidKeys) {
+            PineconeConfigurationException exception = assertThrows(PineconeConfigurationException.class,
+                    () -> new Pinecone.Builder(key).build(), "expected rejection");
+            for (Throwable t = exception; t != null; t = t.getCause()) {
+                String message = String.valueOf(t.getMessage());
+                assertFalse(message.contains("FA"), "message echoes the API key: " + message);
+                assertFalse(message.contains("SECRET"), "message echoes the API key: " + message);
+                assertFalse(message.contains("\u00e9"), "message echoes the API key: " + message);
+            }
+        }
+    }
+
+    @Test
+    public void PineconeWithInvalidApiKeyCharacterReportsCodePointAndIndex() {
+        PineconeConfigurationException exception = assertThrows(PineconeConfigurationException.class,
+                () -> new Pinecone.Builder(" pcsk_FA\nKE_SECRET\n").build());
+        assertTrue(exception.getMessage().contains("(U+000A) at index 7"), exception.getMessage());
+    }
+
+    @Test
+    public void PineconeWithApiKeySurroundedByWhitespaceOrControlCharactersStillBuilds() {
+        String[] keys = {"pcsk_FAKE\n", "pcsk_FAKE\r\n", "\tpcsk_FAKE ", " pcsk_FAKE", "pcsk_FAKE\u0000"};
+        for (String key : keys) {
+            assertNotNull(new Pinecone.Builder(key).build());
+        }
+    }
+
+    @Test
     public void PineconeWithOkHttpClientAndUserAgent() throws IOException {
         String filePath = "src/test/resources/serverlessIndexJsonString.json";
         String indexJsonStringServerless = new String(Files.readAllBytes(Paths.get(filePath)));

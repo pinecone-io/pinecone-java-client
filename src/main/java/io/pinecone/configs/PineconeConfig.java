@@ -3,6 +3,8 @@ package io.pinecone.configs;
 import io.grpc.ManagedChannel;
 import io.pinecone.exceptions.PineconeConfigurationException;
 import okhttp3.OkHttpClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static io.pinecone.commons.Constants.pineconeClientVersion;
 
@@ -29,6 +31,8 @@ import static io.pinecone.commons.Constants.pineconeClientVersion;
  */
 public class PineconeConfig {
 
+    private static final Logger logger = LoggerFactory.getLogger(PineconeConfig.class);
+
     // Required field
     private String apiKey;
 
@@ -44,7 +48,7 @@ public class PineconeConfig {
     /**
      * Creates a config with only an API key; TLS is on and every other setting is unset.
      *
-     * @param apiKey the Pinecone API key sent with every request; {@link #validate()} rejects null or empty
+     * @param apiKey the Pinecone API key sent with every request; {@link #validate()} checks and trims it
      */
     public PineconeConfig(String apiKey) {
         this(apiKey, null);
@@ -54,7 +58,7 @@ public class PineconeConfig {
      * Creates a config with an API key and a source tag. The tag is stored as given; use
      * {@link #setSourceTag(String)} if you want it normalized.
      *
-     * @param apiKey    the Pinecone API key sent with every request; {@link #validate()} rejects null or empty
+     * @param apiKey    the Pinecone API key sent with every request; {@link #validate()} checks and trims it
      * @param sourceTag a tag added to the User-Agent header that identifies the application or integration making
      *                  the calls, such as {@code "support_bot"}; null leaves it out
      */
@@ -65,8 +69,8 @@ public class PineconeConfig {
     /**
      * Creates a config with an API key, source tag, proxy and custom HTTP client. The source tag is stored as given.
      *
-     * @param apiKey             the Pinecone API key sent with every request; {@link #validate()} rejects null or
-     *                           empty
+     * @param apiKey             the Pinecone API key sent with every request; {@link #validate()} checks and
+     *                           trims it
      * @param sourceTag          a tag added to the User-Agent header, such as {@code "support_bot"}; null leaves it out
      * @param proxyConfig        the HTTP proxy to send requests through; null connects directly
      * @param customOkHttpClient the {@link OkHttpClient} to use for HTTP requests, for example one with longer
@@ -224,15 +228,37 @@ public class PineconeConfig {
     }
 
     /**
-     * Checks that the API key is set and, if a proxy is set, that it has a host and a positive port.
-     * {@link io.pinecone.clients.Pinecone.Builder#build()} calls this; {@link PineconeConnection} does not, so call it
-     * yourself on a config you construct.
+     * Checks that the API key is set and can be sent in a header and, if a proxy is set, that it has a host and a
+     * positive port. Leading and trailing whitespace and control characters (everything up to and including the
+     * space, 0x20) are removed from the key, as {@link String#trim()} does, and {@link #getApiKey()} returns the
+     * result; a key read from a file with a trailing newline therefore works. When that removes anything, a warning is
+     * logged. What remains may contain only printable ASCII characters (0x20-0x7E). Neither error messages nor the
+     * warning include the key. {@link io.pinecone.clients.Pinecone.Builder#build()} calls this;
+     * {@link PineconeConnection} does not, so call it yourself on a config you construct.
      *
-     * @throws PineconeConfigurationException if the API key is null or empty, or the proxy host or port is invalid
+     * @throws PineconeConfigurationException if the API key is null, empty, only whitespace or control characters,
+     *                                        or contains a character other than printable ASCII after trimming, or
+     *                                        the proxy host or port is invalid
      */
     public void validate() {
         if (apiKey == null || apiKey.isEmpty())
             throw new PineconeConfigurationException("The API key is required and must not be empty or null");
+        String trimmed = apiKey.trim();
+        if (trimmed.isEmpty())
+            throw new PineconeConfigurationException(
+                    "The API key must not be only whitespace or control characters");
+        for (int i = 0; i < trimmed.length(); i++) {
+            char c = trimmed.charAt(i);
+            if (c < 0x20 || c > 0x7e) {
+                throw new PineconeConfigurationException(String.format(
+                        "The API key contains an invalid character (U+%04X) at index %d of the trimmed key. It may "
+                                + "contain only printable ASCII characters.", (int) c, i));
+            }
+        }
+        if (trimmed.length() != apiKey.length()) {
+            logger.warn("Removed leading/trailing whitespace or control characters from the Pinecone API key.");
+            apiKey = trimmed;
+        }
 
         // proxyConfig is set to null by default indicating the user is not interested in configuring the proxy
         if(proxyConfig != null) {
