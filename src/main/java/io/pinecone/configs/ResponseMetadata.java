@@ -3,9 +3,9 @@ package io.pinecone.configs;
 /**
  * Timing, outcome and usage details for one data-plane call, passed to a {@link ResponseMetadataListener}.
  *
- * <p>The client creates one for each upsert, query, fetch, update, delete and list call made through an
- * {@link io.pinecone.clients.Index} or {@link io.pinecone.clients.AsyncIndex}, whether the call succeeds or fails,
- * when a listener is set with {@link io.pinecone.clients.Pinecone.Builder#withResponseMetadataListener
+ * <p>The client creates one for each upsert, query, fetch, fetch-by-metadata, update, delete and list call made
+ * through an {@link io.pinecone.clients.Index} or {@link io.pinecone.clients.AsyncIndex}, whether the call succeeds or
+ * fails, when a listener is set with {@link io.pinecone.clients.Pinecone.Builder#withResponseMetadataListener
  * Pinecone.Builder.withResponseMetadataListener}. You read
  * these values in the listener; you don't construct this class. All durations are whole milliseconds.
  *
@@ -54,7 +54,8 @@ public class ResponseMetadata {
     }
 
     /**
-     * The kind of call, in lower case: "upsert", "query", "fetch", "update", "delete" or "list".
+     * The kind of call, in lower case: "upsert", "query", "fetch", "fetchbymetadata", "update",
+     * "delete" or "list".
      *
      * @return the operation name; matches the OpenTelemetry {@code db.operation.name} attribute
      */
@@ -152,7 +153,7 @@ public class ResponseMetadata {
     }
 
     /**
-     * Read units the server charged for a query, fetch or list call.
+     * Read units the server charged for a query, fetch, fetch-by-metadata or list call.
      *
      * @return the read units, or null for other operations and when the response reported no usage
      */

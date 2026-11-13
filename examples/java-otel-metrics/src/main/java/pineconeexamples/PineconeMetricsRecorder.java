@@ -25,7 +25,7 @@ import io.pinecone.configs.ResponseMetadataListener;
  * <p>Attributes follow OpenTelemetry semantic conventions for database clients:
  * <ul>
  *   <li>db.system = "pinecone"</li>
- *   <li>db.operation.name = operation name (upsert, query, fetch, update, delete, list)</li>
+ *   <li>db.operation.name = operation name (upsert, query, fetch, fetchbymetadata, update, delete, list)</li>
  *   <li>db.namespace = Pinecone namespace</li>
  *   <li>pinecone.index_name = index name</li>
  *   <li>server.address = Pinecone host</li>

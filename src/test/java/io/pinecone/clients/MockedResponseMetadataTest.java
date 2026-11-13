@@ -1,5 +1,6 @@
 package io.pinecone.clients;
 
+import com.google.protobuf.Struct;
 import io.grpc.ForwardingServerCall;
 import io.grpc.Metadata;
 import io.grpc.ServerCall;
@@ -13,6 +14,8 @@ import io.pinecone.configs.ResponseMetadata;
 import io.pinecone.helpers.MockPinecone;
 import io.pinecone.proto.DescribeIndexStatsRequest;
 import io.pinecone.proto.DescribeIndexStatsResponse;
+import io.pinecone.proto.FetchByMetadataRequest;
+import io.pinecone.proto.FetchByMetadataResponse;
 import io.pinecone.proto.FetchRequest;
 import io.pinecone.proto.FetchResponse;
 import io.pinecone.proto.QueryRequest;
@@ -32,6 +35,9 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -74,6 +80,13 @@ public class MockedResponseMetadataTest {
         @Override
         public void fetch(FetchRequest request, StreamObserver<FetchResponse> response) {
             response.onNext(FetchResponse.newBuilder().setUsage(Usage.newBuilder().setReadUnits(1)).build());
+            response.onCompleted();
+        }
+
+        @Override
+        public void fetchByMetadata(FetchByMetadataRequest request, StreamObserver<FetchByMetadataResponse> response) {
+            response.onNext(FetchByMetadataResponse.newBuilder().setNamespace(request.getNamespace())
+                    .setUsage(Usage.newBuilder().setReadUnits(4)).build());
             response.onCompleted();
         }
 
@@ -261,6 +274,49 @@ public class MockedResponseMetadataTest {
         }
 
         assertEquals(1, reported().size());
+    }
+
+    @Test
+    public void fetchByMetadataIsReported() {
+        mock.stubDescribeIndex("metadata-fetch-by-metadata", 3);
+        mock.vectorService(new CountingVectorService(), serverDuration("11", false));
+
+        try (Index index = client().getIndexConnection("metadata-fetch-by-metadata")) {
+            index.fetchByMetadata("ns-fbm", Struct.getDefaultInstance());
+        }
+
+        List<ResponseMetadata> metadata = reported();
+        assertEquals(1, metadata.size());
+        ResponseMetadata m = metadata.get(0);
+        assertEquals("fetchbymetadata", m.getOperationName());
+        assertEquals("metadata-fetch-by-metadata", m.getIndexName());
+        assertEquals("ns-fbm", m.getNamespace());
+        assertEquals(Long.valueOf(11), m.getServerDurationMs());
+        assertEquals(Integer.valueOf(4), m.getReadUnits());
+        assertTrue(m.isSuccess());
+    }
+
+    @Test
+    public void listenerErrorDoesNotBlockSyncOrAsyncCall() throws Exception {
+        mock.stubDescribeIndex("metadata-error-listener", 3);
+        mock.vectorService(new CountingVectorService());
+        Pinecone client = mock.clientBuilder().withResponseMetadataListener(m -> {
+            reported.add(m);
+            throw new AssertionError("listener failure");
+        }).build();
+
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        try (Index index = client.getIndexConnection("metadata-error-listener");
+             AsyncIndex asyncIndex = client.getAsyncIndexConnection("metadata-error-listener")) {
+            Future<FetchResponse> sync = executor.submit(() -> index.fetch(Arrays.asList("v1"), "ns"));
+            assertEquals(1, sync.get(10, TimeUnit.SECONDS).getUsage().getReadUnits());
+            assertEquals(1, asyncIndex.fetch(Arrays.asList("v1"), "ns").get(10, TimeUnit.SECONDS)
+                    .getUsage().getReadUnits());
+        } finally {
+            executor.shutdownNow();
+        }
+
+        assertEquals(2, reported().size());
     }
 
     @Test

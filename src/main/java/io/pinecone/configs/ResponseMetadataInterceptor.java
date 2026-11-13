@@ -9,21 +9,24 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * gRPC interceptor that builds a {@link ResponseMetadata} for each upsert, query, fetch, update, delete and list
- * call and passes it to a {@link ResponseMetadataListener}.
+ * gRPC interceptor that builds a {@link ResponseMetadata} for each upsert, query, fetch, fetch-by-metadata, update,
+ * delete and list call and passes it to a {@link ResponseMetadataListener}.
  *
  * <p>The client installs it on index connections when you set a listener with
  * {@link io.pinecone.clients.Pinecone.Builder#withResponseMetadataListener
  * Pinecone.Builder.withResponseMetadataListener}, so you don't create one yourself. You
- * would construct it only to attach the same reporting to a gRPC stub you build on your own channel.
+ * would construct it only to attach the same reporting to a gRPC stub you build on your own channel. Such a stub
+ * must also send your API key in the {@code api-key} header.
  *
  * <pre>{@code
  * ResponseMetadataInterceptor interceptor = new ResponseMetadataInterceptor(
  *     metadata -> System.out.println(metadata),
  *     "product-catalog",
  *     "product-catalog-abc123.svc.aped-4627-b74a.pinecone.io");
- * VectorServiceGrpc.VectorServiceBlockingStub stub =
- *     VectorServiceGrpc.newBlockingStub(channel).withInterceptors(interceptor);
+ * Metadata apiKeyHeader = new Metadata();
+ * apiKeyHeader.put(Metadata.Key.of("api-key", Metadata.ASCII_STRING_MARSHALLER), System.getenv("PINECONE_API_KEY"));
+ * VectorServiceGrpc.VectorServiceBlockingStub stub = VectorServiceGrpc.newBlockingStub(channel)
+ *     .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(apiKeyHeader), interceptor);
  * }</pre>
  */
 public class ResponseMetadataInterceptor implements ClientInterceptor {
@@ -35,7 +38,7 @@ public class ResponseMetadataInterceptor implements ClientInterceptor {
 
     // Operations to track (matches VectorService RPC method names)
     private static final Set<String> TRACKED_OPERATIONS = new HashSet<>(Arrays.asList(
-            "Upsert", "Query", "Fetch", "Update", "Delete", "List"
+            "Upsert", "Query", "Fetch", "FetchByMetadata", "Update", "Delete", "List"
     ));
 
     private final ResponseMetadataListener listener;
@@ -155,9 +158,9 @@ public class ResponseMetadataInterceptor implements ClientInterceptor {
 
                         } catch (Exception e) {
                             logger.warn("Error capturing response metadata", e);
+                        } finally {
+                            super.onClose(status, trailers);
                         }
-
-                        super.onClose(status, trailers);
                     }
                 }, headers);
             }
@@ -284,8 +287,8 @@ public class ResponseMetadataInterceptor implements ClientInterceptor {
     private void invokeListener(ResponseMetadata metadata) {
         try {
             listener.onResponse(metadata);
-        } catch (Exception e) {
-            logger.error("Exception in ResponseMetadataListener.onResponse()", e);
+        } catch (Throwable t) {
+            logger.error("Exception in ResponseMetadataListener.onResponse()", t);
         }
     }
 }

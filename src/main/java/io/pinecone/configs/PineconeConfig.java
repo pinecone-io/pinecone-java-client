@@ -304,9 +304,9 @@ public class PineconeConfig {
     }
 
     /**
-     * Sets the listener that receives a {@link ResponseMetadata} after each upsert, query, fetch, update, delete or
-     * list call. Set it before constructing the {@link PineconeConnection}; a connection built earlier does not report
-     * to it.
+     * Sets the listener that receives a {@link ResponseMetadata} after each upsert, query, fetch, fetch-by-metadata,
+     * update, delete or list call. Set it before constructing the {@link PineconeConnection}; a connection built
+     * earlier does not report to it.
      *
      * @param responseMetadataListener the listener, or null for none
      */

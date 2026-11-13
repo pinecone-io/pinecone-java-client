@@ -14,6 +14,11 @@
 - Changed: `build()` now throws `PineconeConfigurationException` for a key that still contains a character other
   than printable ASCII after trimming, such as a newline inside the key, and for a key made only of whitespace or
   control characters. These keys never worked. The error message does not include the key (#66).
+- Fix: a `ResponseMetadataListener` that throws an `Error` (such as a JUnit `AssertionError`) no longer makes the
+  `Index` call block forever or the `AsyncIndex` future never complete; the client logs and ignores it, as it already
+  did for exceptions. `fetchByMetadata` calls now report to the listener, with operation name `fetchbymetadata`.
+  The listener Javadoc now describes when index connections are shared and lists the records calls among those that
+  don't report, and the `ResponseMetadataInterceptor` example sends the `api-key` header (#92).
 
 ### 6.3.0
 - Fix: index connections are no longer shared between `Pinecone` clients that differ in API key, index host,

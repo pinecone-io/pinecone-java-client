@@ -134,7 +134,7 @@ public class DisableTLSExample {
 
 #### Capturing response metadata for observability
 
-The SDK can report response metadata for upsert, query, fetch, update, delete and list calls made through an index connection. Other calls, such as `describeIndexStats` and `fetchByMetadata`, do not report it. This enables you to track latency metrics and integrate with observability tools like OpenTelemetry, Prometheus, or Datadog.
+The SDK can report response metadata for upsert, query, fetch, fetch-by-metadata, update, delete and list calls made through an index connection. Other calls, such as `describeIndexStats` and `upsertRecords`, do not report it. This enables you to track latency metrics and integrate with observability tools like OpenTelemetry, Prometheus, or Datadog.
 
 ```java
 import io.pinecone.clients.Pinecone;
@@ -166,13 +166,13 @@ index.queryByVectorId(3, "article-1", "articles-en");
 // Prints, for example: Operation: query | Client: 45ms | Server: 32ms | Network: 13ms
 ```
 
-The client calls the listener after each of these calls completes, on every index connection obtained from that `Pinecone` instance. An exception thrown by the listener is logged and does not fail the call.
+The client calls the listener after each of these calls completes, on every index connection obtained from that `Pinecone` instance. Anything the listener throws, including an `Error`, is logged and does not fail the call.
 
 The `ResponseMetadata` object provides:
 
 | Method | Description |
 |--------|-------------|
-| `getOperationName()` | Operation type: upsert, query, fetch, update, delete, list |
+| `getOperationName()` | Operation type: upsert, query, fetch, fetchbymetadata, update, delete, list |
 | `getClientDurationMs()` | Total round-trip time measured by the client |
 | `getServerDurationMs()` | Server processing time from the `x-pinecone-response-duration-ms` header, or null if the server did not send it |
 | `getNetworkOverheadMs()` | Client duration minus server duration, or null if the server duration is unknown |
@@ -181,7 +181,7 @@ The `ResponseMetadata` object provides:
 | `isSuccess()` | Whether the operation succeeded |
 | `getGrpcStatusCode()` | gRPC status code |
 | `getErrorType()` | Error category when failed |
-| `getReadUnits()` | Read units consumed (available on query, fetch, list) |
+| `getReadUnits()` | Read units consumed (available on query, fetch, fetchbymetadata, list) |
 | `getUpsertedCount()` | Number of vectors upserted (available on upsert) |
 | `getMatchedRecords()` | Number of matched records (available on update) |
 
