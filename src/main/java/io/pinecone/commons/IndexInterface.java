@@ -1253,7 +1253,8 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
      * @param prefixRequired whether to check {@code prefix}
      * @param paginationTokenRequired whether to check {@code paginationToken}
      * @param limitRequired whether to check {@code limit}
-     * @throws PineconeValidationException if a required argument is missing or invalid
+     * @throws PineconeValidationException if a required argument is missing or invalid, or if {@code namespace} or
+     *                                     {@code prefix} contains an unpaired UTF-16 surrogate
      */
     default void validateListEndpointParameters(String namespace, String prefix, String paginationToken,
                                                 Integer limit, boolean namespaceRequired, boolean prefixRequired,
@@ -1270,6 +1271,8 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
         if (limitRequired && (limit == null || limit <= 0)) {
             throw new PineconeValidationException("Limit must be a positive integer");
         }
+        SurrogateCheck.requireWellFormed("list", "Namespace", namespace);
+        SurrogateCheck.requireWellFormed("list", "Prefix", prefix);
     }
 
     /**
@@ -1296,8 +1299,8 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
      *                  Must not be null. A namespace that does not exist returns an empty page.
      * @return the page of ids: {@code getVectorsList()} holds an item per vector, whose {@code getId()} is the id, and
      *         {@code getPagination().getNext()} is the token for the next page when {@code hasPagination()} is true
-     * @throws PineconeValidationException if {@code namespace} is null; thrown by the call itself, not through the
-     *                                     future
+     * @throws PineconeValidationException if {@code namespace} is null or contains an unpaired UTF-16 surrogate; thrown
+     *                                     by the call itself, not through the future
      */
     Z list(String namespace);
 
@@ -1316,9 +1319,9 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
      *                        response. Must not be null or empty.
      * @return the page of ids: {@code getVectorsList()} holds an item per vector, whose {@code getId()} is the id, and
      *         {@code getPagination().getNext()} is the token for the next page when {@code hasPagination()} is true
-     * @throws PineconeValidationException if {@code namespace} is null, {@code paginationToken} is null or empty, or
-     *                                     {@code limit} is not positive; thrown by the call itself, not through the
-     *                                     future
+     * @throws PineconeValidationException if {@code namespace} is null or contains an unpaired UTF-16 surrogate,
+     *                                     {@code paginationToken} is null or empty, or {@code limit} is not positive;
+     *                                     thrown by the call itself, not through the future
      */
     Z list(String namespace, int limit, String paginationToken);
 
@@ -1335,8 +1338,9 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
      *              limit above its maximum
      * @return the page of ids: {@code getVectorsList()} holds an item per vector, whose {@code getId()} is the id, and
      *         {@code getPagination().getNext()} is the token for the next page when {@code hasPagination()} is true
-     * @throws PineconeValidationException if {@code namespace} is null or {@code limit} is not positive; thrown by the
-     *                                     call itself, not through the future
+     * @throws PineconeValidationException if {@code namespace} is null or contains an unpaired UTF-16 surrogate, or
+     *                                     {@code limit} is not positive; thrown by the call itself, not through the
+     *                                     future
      */
     Z list(String namespace, int limit);
 
@@ -1354,8 +1358,9 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
      *               returned. Must not be null or empty.
      * @return the page of ids: {@code getVectorsList()} holds an item per vector, whose {@code getId()} is the id, and
      *         {@code getPagination().getNext()} is the token for the next page when {@code hasPagination()} is true
-     * @throws PineconeValidationException if {@code namespace} is null or {@code prefix} is null or empty; thrown by
-     *                                     the call itself, not through the future
+     * @throws PineconeValidationException if {@code namespace} is null, {@code prefix} is null or empty, or either
+     *                                     contains an unpaired UTF-16 surrogate; thrown by the call itself, not through
+     *                                     the future
      */
     Z list(String namespace, String prefix);
 
@@ -1374,9 +1379,9 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
      *              limit above its maximum
      * @return the page of ids: {@code getVectorsList()} holds an item per vector, whose {@code getId()} is the id, and
      *         {@code getPagination().getNext()} is the token for the next page when {@code hasPagination()} is true
-     * @throws PineconeValidationException if {@code namespace} is null, {@code prefix} is null or empty, or
-     *                                     {@code limit} is not positive; thrown by the call itself, not through the
-     *                                     future
+     * @throws PineconeValidationException if {@code namespace} is null, {@code prefix} is null or empty, either
+     *                                     contains an unpaired UTF-16 surrogate, or {@code limit} is not positive;
+     *                                     thrown by the call itself, not through the future
      */
     Z list(String namespace, String prefix, int limit);
 
@@ -1396,9 +1401,9 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
      *                        it, so pass the same prefix or the server rejects the request.
      * @return the page of ids: {@code getVectorsList()} holds an item per vector, whose {@code getId()} is the id, and
      *         {@code getPagination().getNext()} is the token for the next page when {@code hasPagination()} is true
-     * @throws PineconeValidationException if {@code namespace} is null, {@code prefix} is null or empty, or
-     *                                     {@code paginationToken} is null or empty; thrown by the call itself, not
-     *                                     through the future
+     * @throws PineconeValidationException if {@code namespace} is null, {@code prefix} is null or empty, either
+     *                                     contains an unpaired UTF-16 surrogate, or {@code paginationToken} is null or
+     *                                     empty; thrown by the call itself, not through the future
      */
     Z list(String namespace, String prefix, String paginationToken);
 
@@ -1420,9 +1425,10 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
      *              limit above its maximum
      * @return the page of ids: {@code getVectorsList()} holds an item per vector, whose {@code getId()} is the id, and
      *         {@code getPagination().getNext()} is the token for the next page when {@code hasPagination()} is true
-     * @throws PineconeValidationException if {@code namespace} is null, {@code prefix} is null or empty,
-     *                                     {@code paginationToken} is null or empty, or {@code limit} is not positive;
-     *                                     thrown by the call itself, not through the future
+     * @throws PineconeValidationException if {@code namespace} is null, {@code prefix} is null or empty, either
+     *                                     contains an unpaired UTF-16 surrogate, {@code paginationToken} is null or
+     *                                     empty, or {@code limit} is not positive; thrown by the call itself, not
+     *                                     through the future
      */
     Z list(String namespace, String prefix, String paginationToken, int limit);
 
@@ -1475,6 +1481,8 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
      *                        first page
      * @param limit           the maximum number of namespaces to return in this page, for example {@code 50}
      * @return one page of matching namespaces and the number of matches across all pages
+     * @throws PineconeValidationException if {@code prefix} contains an unpaired UTF-16 surrogate; {@code AsyncIndex}
+     *                                     throws it from the call, not through the future
      */
     A listNamespaces(String prefix, String paginationToken, int limit);
 
@@ -1489,6 +1497,8 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
      * @param name the name of the namespace to create, for example {@code "articles-en"}; the server rejects an empty
      *             name and {@code "__default__"}
      * @return the new namespace's description
+     * @throws PineconeValidationException if {@code name} contains an unpaired UTF-16 surrogate; {@code AsyncIndex}
+     *                                     throws it from the call, not through the future
      */
     B createNamespace(String name);
 
@@ -1504,6 +1514,8 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
      * @param schema the metadata fields to index for filtering; null creates the namespace without a schema, so every
      *               metadata field is indexed
      * @return the new namespace's description
+     * @throws PineconeValidationException if {@code name} contains an unpaired UTF-16 surrogate; {@code AsyncIndex}
+     *                                     throws it from the call, not through the future
      */
     B createNamespace(String name, io.pinecone.proto.MetadataSchema schema);
 
@@ -1515,6 +1527,8 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
      *
      * @param namespace the namespace to describe, for example {@code "articles-en"}; must not be null
      * @return the namespace's name, record count, and metadata schema if it has one
+     * @throws PineconeValidationException if {@code namespace} contains an unpaired UTF-16 surrogate;
+     *                                     {@code AsyncIndex} throws it from the call, not through the future
      */
     B describeNamespace(String namespace);
 
@@ -1527,6 +1541,8 @@ public interface IndexInterface<T, U, V, W, X, Y, Z, A, B> extends AutoCloseable
      *
      * @param namespace the namespace to delete, for example {@code "articles-en"}; must not be null
      * @return an empty delete response
+     * @throws PineconeValidationException if {@code namespace} contains an unpaired UTF-16 surrogate;
+     *                                     {@code AsyncIndex} throws it from the call, not through the future
      */
     X deleteNamespace(String namespace);
 }

@@ -24,6 +24,11 @@
   the request. Previously protobuf sent the character as `?`, so `"x\uD83D"` and `"x\uDE00"` were both stored as
   `"x?"` and overwrote each other. Upsert, query, fetch, fetch by metadata, update, update by metadata and delete
   are checked; well-formed surrogate pairs such as emoji are unaffected (#84).
+- Fix: the same check now covers the calls #84 missed. `upsertRecords` (the namespace and each record's `_id`),
+  `createNamespace`, `describeNamespace`, `deleteNamespace`, `listNamespaces` (the prefix) and every
+  `list(namespace, ...)` overload (the namespace and prefix) on `Index` and `AsyncIndex` now throw
+  `PineconeValidationException` for a value containing an unpaired UTF-16 surrogate instead of sending it as `?`.
+  `AsyncIndex` throws from the call itself, not through the returned future (#118).
 - Fix: `Index.close()` and `AsyncIndex.close()` no longer cancel calls still in flight when they shut down the
   shared gRPC channel. Calls already issued, such as fire-and-forget async upserts, now get up to 5 seconds to
   finish before any still running are cancelled. Previously they failed with `CANCELLED` or `UNAVAILABLE` and their

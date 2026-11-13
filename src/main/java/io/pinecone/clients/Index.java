@@ -1628,6 +1628,7 @@ public class Index implements IndexInterface<UpsertResponse,
      */
     @Override
     public ListNamespacesResponse listNamespaces(String prefix, String paginationToken, int limit) {
+        SurrogateCheck.requireWellFormed("list namespaces", "Prefix", prefix);
         ListNamespacesRequest.Builder listNamespacesRequest = ListNamespacesRequest
                 .newBuilder()
                 .setLimit(limit);
@@ -1658,6 +1659,7 @@ public class Index implements IndexInterface<UpsertResponse,
      */
     @Override
     public NamespaceDescription createNamespace(String name) {
+        SurrogateCheck.requireWellFormed("create namespace", "Namespace", name);
         CreateNamespaceRequest createNamespaceRequest = CreateNamespaceRequest
                 .newBuilder()
                 .setName(name)
@@ -1688,6 +1690,7 @@ public class Index implements IndexInterface<UpsertResponse,
      */
     @Override
     public NamespaceDescription createNamespace(String name, MetadataSchema schema) {
+        SurrogateCheck.requireWellFormed("create namespace", "Namespace", name);
         CreateNamespaceRequest.Builder builder = CreateNamespaceRequest
                 .newBuilder()
                 .setName(name);
@@ -1713,6 +1716,7 @@ public class Index implements IndexInterface<UpsertResponse,
      *         the namespace has one
      */
     public NamespaceDescription describeNamespace(String namespace) {
+        SurrogateCheck.requireWellFormed("describe namespace", "Namespace", namespace);
         DescribeNamespaceRequest describeNamespaceRequest = DescribeNamespaceRequest
                 .newBuilder()
                 .setNamespace(namespace)
@@ -1735,6 +1739,7 @@ public class Index implements IndexInterface<UpsertResponse,
      * @return an empty {@link DeleteResponse}
      */
     public DeleteResponse deleteNamespace(String namespace) {
+        SurrogateCheck.requireWellFormed("delete namespace", "Namespace", namespace);
         DeleteNamespaceRequest deleteNamespaceRequest = DeleteNamespaceRequest
                 .newBuilder()
                 .setNamespace(namespace)
@@ -1768,13 +1773,17 @@ public class Index implements IndexInterface<UpsertResponse,
      *                      the index's text field; must not be null or empty
      * @throws ApiException if the server rejects the request, for example because the index has no integrated embedding
      *         model or a record lacks its text field, or if the request cannot be sent
+     * @throws PineconeValidationException if {@code namespace} or a record's {@code "_id"} contains an unpaired
+     *         UTF-16 surrogate, such as one left by a {@code substring} that splits an emoji; nothing is sent
      */
     public void upsertRecords(String namespace, List<Map<String, String>> upsertRecords) throws ApiException {
+        SurrogateCheck.requireWellFormed("upsert records", "Namespace", namespace);
         List<UpsertRecord> records = new ArrayList<>();
         for(Map<String, String> record: upsertRecords) {
             UpsertRecord upsertRecord = new UpsertRecord();
             for (Map.Entry<String, String> entry : record.entrySet()) {
                 if(entry.getKey().equals("_id")) {
+                    SurrogateCheck.requireWellFormed("upsert records", "Record id", entry.getValue());
                     upsertRecord.id(entry.getValue());
                 }
                 else {

@@ -1677,6 +1677,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      */
     @Override
     public ListenableFuture<ListNamespacesResponse> listNamespaces(String prefix, String paginationToken, int limit) {
+        SurrogateCheck.requireWellFormed("list namespaces", "Prefix", prefix);
         ListNamespacesRequest.Builder listNamespacesRequest = ListNamespacesRequest
                 .newBuilder()
                 .setLimit(limit);
@@ -1707,6 +1708,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      */
     @Override
     public ListenableFuture<NamespaceDescription> createNamespace(String name) {
+        SurrogateCheck.requireWellFormed("create namespace", "Namespace", name);
         CreateNamespaceRequest createNamespaceRequest = CreateNamespaceRequest
                 .newBuilder()
                 .setName(name)
@@ -1738,6 +1740,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      */
     @Override
     public ListenableFuture<NamespaceDescription> createNamespace(String name, MetadataSchema schema) {
+        SurrogateCheck.requireWellFormed("create namespace", "Namespace", name);
         CreateNamespaceRequest.Builder builder = CreateNamespaceRequest
                 .newBuilder()
                 .setName(name);
@@ -1763,6 +1766,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      *         and {@code getSchema()} if the namespace has one
      */
     public ListenableFuture<NamespaceDescription> describeNamespace(String namespace) {
+        SurrogateCheck.requireWellFormed("describe namespace", "Namespace", namespace);
         DescribeNamespaceRequest describeNamespaceRequest = DescribeNamespaceRequest
                 .newBuilder()
                 .setNamespace(namespace)
@@ -1785,6 +1789,7 @@ public class AsyncIndex implements IndexInterface<ListenableFuture<UpsertRespons
      * @return a future that completes with an empty {@link DeleteResponse}
      */
     public ListenableFuture<DeleteResponse> deleteNamespace(String namespace) {
+        SurrogateCheck.requireWellFormed("delete namespace", "Namespace", namespace);
         DeleteNamespaceRequest deleteNamespaceRequest = DeleteNamespaceRequest
                 .newBuilder()
                 .setNamespace(namespace)
