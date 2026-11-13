@@ -269,7 +269,7 @@ public class PineconeConfig {
     /**
      * The User-Agent value the client sends: the language, the client version and, if set, the source tag.
      *
-     * @return a value such as {@code "lang=java; pineconeClientVersion=v6.3.0; source_tag=support_bot"}
+     * @return a value such as {@code "lang=java; pineconeClientVersion=v6.3.1; source_tag=support_bot"}
      */
     public String getUserAgent() {
         return buildUserAgent();

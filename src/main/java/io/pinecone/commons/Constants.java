@@ -14,5 +14,5 @@ public class Constants {
      * The version of this client with a leading {@code v}. The client sends it to Pinecone in the User-Agent header
      * of every request.
      */
-    public static final String pineconeClientVersion = "v6.3.0";
+    public static final String pineconeClientVersion = "v6.3.1";
 }
