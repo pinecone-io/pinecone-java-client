@@ -254,6 +254,19 @@ public class MockedReadCapacityAndSchemaTest {
     }
 
     @Test
+    public void configureReadCapacityWithNullDeletionProtectionOmitsIt() {
+        mock.stub("PATCH", "/indexes/configure", 202,
+                indexResponse("configure", dedicatedResponse(3, 2), null, null));
+
+        mock.client().configureServerlessIndex("configure", null, null, null, "Dedicated", "t1", 3, 2);
+
+        JsonObject body = onlyRequestBody("PATCH", "/indexes/configure");
+        assertFalse(body.has("deletion_protection"));
+        assertDedicatedRequest(body.getAsJsonObject("spec").getAsJsonObject("serverless")
+                .getAsJsonObject("read_capacity"), 3, 2);
+    }
+
+    @Test
     public void configureReadCapacityToOnDemand() {
         mock.stub("PATCH", "/indexes/configure", 202, indexResponse("configure", ON_DEMAND_RESPONSE, null, null));
 

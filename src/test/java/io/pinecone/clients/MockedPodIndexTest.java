@@ -195,6 +195,17 @@ public class MockedPodIndexTest {
     }
 
     @Test
+    public void configurePodsIndexReplicasWithNullDeletionProtectionOmitsIt() {
+        mock.stub("PATCH", "/indexes/pod-idx", 202, POD_INDEX_RESPONSE);
+
+        mock.client().configurePodsIndex("pod-idx", 4, null);
+
+        JsonObject body = body(mock.restRequests().get(0), "PATCH", "/indexes/pod-idx");
+        assertFalse(body.has("deletion_protection"));
+        assertEquals(4, pod(body).get("replicas").getAsInt());
+    }
+
+    @Test
     public void eachConfigurePodsIndexOverloadSendsOnlyItsOwnFields() {
         mock.stub("PATCH", "/indexes/pod-idx", 202, POD_INDEX_RESPONSE);
         Pinecone client = mock.client();

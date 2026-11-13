@@ -466,7 +466,7 @@ pinecone.deleteIndex("product-catalog");
 
 ## Scale replicas
 
-The following example changes the number of replicas for a pod-based index. Every `configurePodsIndex` and `configureServerlessIndex` call also sets deletion protection, so pass the value the index should keep.
+The following example changes the number of replicas for a pod-based index. Passing `null` for deletion protection in any `configurePodsIndex` or `configureServerlessIndex` call keeps the current setting.
 
 ```java
 import io.pinecone.clients.Pinecone;
@@ -476,9 +476,9 @@ Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).buil
 
 String indexName = "product-catalog";
 int newNumberOfReplicas = 4;
-String deletionProtection = "disabled";
 
-pinecone.configurePodsIndex(indexName, newNumberOfReplicas, deletionProtection);
+// null keeps the current deletion protection setting
+pinecone.configurePodsIndex(indexName, newNumberOfReplicas, null);
 ```
 
 ## Enable deletion protection for pod index
@@ -525,7 +525,7 @@ Pinecone pinecone = new Pinecone.Builder(System.getenv("PINECONE_API_KEY")).buil
 
 // Parameters: indexName, deletionProtection, tags, embed, readCapacityMode, nodeType, shards, replicas
 IndexModel indexModel = pinecone.configureServerlessIndex(
-    "product-catalog", "disabled", null, null, "Dedicated", "t1", 3, 2);
+    "product-catalog", null, null, null, "Dedicated", "t1", 3, 2);
 ```
 
 ## Describe index statistics

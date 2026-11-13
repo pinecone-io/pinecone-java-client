@@ -2,6 +2,9 @@
 
 [comment]: <> (When bumping [pc:VERSION_LATEST_RELEASE] create a new entry below)
 ### Unreleased version
+- Docs: the README's "Scale replicas" and "Configure read capacity" examples now pass `null` for deletion
+  protection, which keeps the current setting. They passed `"disabled"`, which turned off the protection the
+  README's create example turns on (#78).
 
 ### 6.3.0
 - Fix: index connections are no longer shared between `Pinecone` clients that differ in API key, index host,
